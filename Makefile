@@ -1,12 +1,12 @@
 #### IFORT ####
 ifc=ifort
-iflags=-fast -O3 -qopenmp -implicitnone -r8
-#iflags=-pg -traceback -O0 -warn all -implicitnone -r8 -check bounds -g 
+#iflags=-fast -O3 -qopenmp -implicitnone -r8
+iflags=-pg -traceback -O0 -warn all -implicitnone -r8 -check bounds -g -fpe0
 
 #### GFORTRAN ####
 gfc=gfortran-7
-gflags=-O2 -ffree-form -fimplicit-none 
-#gflags=-fbacktrace -O0 -ffree-form -Wall -Wextra -Wimplicit-interface -Wunused-parameter -Wline-truncation -Wcharacter-truncation -Wsurprising -Waliasing -fimplicit-none -fcheck=all -g #-ffpe-trap=invalid,zero
+#gflags=-O2 -ffree-form -fimplicit-none 
+gflags=-fbacktrace -O0 -ffree-form -Wall -Wextra -Wimplicit-interface -Wunused-parameter -Wline-truncation -Wcharacter-truncation -Wsurprising -Waliasing -fimplicit-none -fcheck=all -g -ffpe-trap=invalid,zero
 objpath=./obj
 resultspath=./Results
 
@@ -65,6 +65,6 @@ grun:
 
 gtrial:
 	reset
-	make lib
+	make glib
 	$(gfc) -I$(objpath) $(gflags) trial.f90 $(objpath)/*.o -o trial.out
 	@./trial.out
