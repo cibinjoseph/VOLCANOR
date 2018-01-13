@@ -2,3 +2,4 @@ Results/*
 obj/*
 *.out
 *.swp
+visitlog.py
