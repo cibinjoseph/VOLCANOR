@@ -465,7 +465,7 @@ contains
         +          (wg(1,j)%vr%gam-gam_prev(1,j))/dt
     enddo
 
-    do i=1,rows
+    do i=2,rows
       tau_i=wg(i,1)%pc(:,2)-wg(i,1)%pc(:,1)
       tau_j=wg(i,1)%pc(:,4)-wg(i,1)%pc(:,1)
       ! Adding self induced velocity at collocation point
