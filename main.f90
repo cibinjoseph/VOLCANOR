@@ -185,7 +185,7 @@ program main
     wing%vr%gam=reshape(gamvec,(/nc,ns/))    ! ns,nc due to transpose
 
     ! Induced vel on wake vortices
-    !vind_wake(:,row_now:nt,:)=vind_wake(:,row_now:nt,:)+vind_onwake(wing,wake(row_now:nt,:))
+    vind_wake(:,row_now:nt,:)=vind_onwake(wing,wake(row_now:nt,:))
     vind_wake(:,row_now:nt,:)=vind_wake(:,row_now:nt,:)+vind_onwake(wake(row_now:nt,:),wake(row_now:nt,:))
 
     ! Update wake vortex locations
