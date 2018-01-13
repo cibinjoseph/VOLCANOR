@@ -9,7 +9,7 @@ program main
   open(unit=12,file='inputfile')
   read(12,*)
   read(12,*)
-  read(12,*) chord,span,dt,vbody(1),vbody(2),vbody(3)
+  read(12,*) chord,span,dt,vinf(1),vinf(2),vinf(3)
   read(12,*)
   read(12,*)
   read(12,*)
@@ -22,10 +22,6 @@ program main
   read(12,*)
   read(12,*)
   read(12,*) om_body(1),om_body(2),om_body(3)
-  read(12,*) 
-  read(12,*) 
-  read(12,*) 
-  read(12,*) vwind(1),vwind(2),vwind(3)
   close(12)
 
   ! Conversions
@@ -34,7 +30,7 @@ program main
   call degtorad(thetas)
   om_theta=2._dp*pi*om_theta
   om_h    =2._dp*pi*om_h
-  vinf=-1._dp*vbody
+  vbody=-1._dp*vinf
   pqr=-1._dp*om_body
 
   ! Geometry Definition
@@ -88,7 +84,7 @@ program main
   indx=1
   do ispan=1,ns
     do ichord=1,nc
-      RHS(indx) = dot_product(vinf+vel_plunge+vwind,wing(ichord,ispan)%ncap)
+      RHS(indx) = dot_product(vinf+vel_plunge,wing(ichord,ispan)%ncap)
 
       ! Pitch vel
       vel_pitch=thetadot*wing(ichord,ispan)%r_hinge
@@ -165,7 +161,7 @@ program main
     call tipwrite(wing,wake(row_now:nt,:),'Results/tip'//timestamp//'.tec')
 
     ! Induced vel at coll. point (excluding pitch and wing induced velocities)
-    call vind_CP(wing,vinf+vel_plunge+vwind,pqr,wake(row_now:nt,:))
+    call vind_CP(wing,vinf+vel_plunge,pqr,wake(row_now:nt,:))
     RHS=0._dp
     indx=1
     do ispan=1,ns
@@ -189,9 +185,6 @@ program main
     wing%vr%gam=reshape(gamvec,(/nc,ns/))    ! ns,nc due to transpose
 
     ! Induced vel on wake vortices
-    do i=1,3
-      vind_wake(i,:,:)=vwind(i)
-    enddo
     !vind_wake(:,row_now:nt,:)=vind_wake(:,row_now:nt,:)+vind_onwake(wing,wake(row_now:nt,:))
     vind_wake(:,row_now:nt,:)=vind_wake(:,row_now:nt,:)+vind_onwake(wake(row_now:nt,:),wake(row_now:nt,:))
 
