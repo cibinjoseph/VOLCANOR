@@ -58,7 +58,7 @@ Print to pdf using usual Ctrl+P from browser.
 - assignP(), calcCP(), calcN(), rot()
 
 ### Parameters
-Om = 600 rad/s => 62.832 rad/s => 3600 deg/s
-5 deg => 5/3600 s
-1 rev = 360 deg => 1/10 s
+Om = 600 rad/s => 62.832 rad/s => 3600 deg/s  
+5 deg => 5/3600 s  
+1 rev = 360 deg => 1/10 s  
 
