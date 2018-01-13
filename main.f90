@@ -9,7 +9,7 @@ program main
   open(unit=12,file='inputfile')
   read(12,*)
   read(12,*)
-  read(12,*) chord,span,dt,vinf(1),vinf(2),vinf(3)
+  read(12,*) chord,span,dt,vwind(1),vwind(2),vwind(3)
   read(12,*)
   read(12,*)
   read(12,*)
@@ -30,7 +30,7 @@ program main
   call degtorad(thetas)
   om_theta=2._dp*pi*om_theta
   om_h    =2._dp*pi*om_h
-  vbody=-1._dp*vinf
+  vbody=-1._dp*vwind
   pqr=-1._dp*om_body
 
   ! Geometry Definition
@@ -50,7 +50,7 @@ program main
   call rot_wing(wing,(/0._dp,theta_pitch,0._dp/),1)
 
   !  TE vortex position
-  v_shed=0.20*vinf
+  v_shed=0.20*vwind
   do ispan=1,ns
     call wing(nc,ispan)%vr%shiftdP(2,v_shed*dt)
     call wing(nc,ispan)%vr%shiftdP(3,v_shed*dt)
@@ -84,7 +84,7 @@ program main
   indx=1
   do ispan=1,ns
     do ichord=1,nc
-      RHS(indx) = dot_product(vinf+vel_plunge,wing(ichord,ispan)%ncap)
+      RHS(indx) = dot_product(vwind+vel_plunge,wing(ichord,ispan)%ncap)
 
       ! Pitch vel
       vel_pitch=thetadot*wing(ichord,ispan)%r_hinge
@@ -161,7 +161,7 @@ program main
     call tipwrite(wing,wake(row_now:nt,:),'Results/tip'//timestamp//'.tec')
 
     ! Induced vel at coll. point (excluding pitch and wing induced velocities)
-    call vind_CP(wing,vinf+vel_plunge,pqr,wake(row_now:nt,:))
+    call vind_CP(wing,vwind+vel_plunge,pqr,wake(row_now:nt,:))
     RHS=0._dp
     indx=1
     do ispan=1,ns
