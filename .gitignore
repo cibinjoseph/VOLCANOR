@@ -1,2 +1,4 @@
 Results/*
 obj/*
+*.out
+*.swp
