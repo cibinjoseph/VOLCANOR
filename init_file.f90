@@ -13,7 +13,7 @@ real(dp) :: chord, span
 real(dp) :: dt, om_theta, om_h
 real(dp) :: theta_pitch, dtheta_pitch
 real(dp) :: theta0, thetac, thetas, h0, hdot, thetadot
-real(dp), dimension(3) :: vinf, om_body, pqr, vbody, vwind, om_body_slow
+real(dp), dimension(3) :: vwind, om_body, pqr, vbody, om_body_slow
 
 ! Other Variables
 real(dp), dimension(3) :: v_shed, vec_dummy, vel_plunge
