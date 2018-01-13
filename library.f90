@@ -437,6 +437,7 @@ contains
     ! Inherent assumption that panels have subdivisions along chord and not inclined to it
     ! while calculating tangent vector
     ! LE and left sides used for calculating tangent vectors
+    density=1.2_dp
 
     rows=size(wg,1)
     cols=size(wg,2)
