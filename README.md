@@ -3,7 +3,7 @@ Author : Cibin Joseph
 Last Updated : December 2016 
 
 ## TO DO
-- Correct inverse function
+- check vwind inplementation
 - Verify lift for single wing case
 - Parallelize all double do loops
 - Implement recording to array before writing
