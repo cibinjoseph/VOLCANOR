@@ -4,9 +4,9 @@ module library
   implicit none
 
   ! Input parameters
-  integer, parameter  :: nt = 5
-  integer, parameter  :: ns = 8
-  integer, parameter  :: nc = 3
+  integer, parameter  :: nt = 1
+  integer, parameter  :: ns = 3
+  integer, parameter  :: nc = 2
 
   ! Overloaded functions
   interface vind_panelgeo
