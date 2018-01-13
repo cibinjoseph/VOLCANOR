@@ -148,9 +148,9 @@ contains
           suml=suml+L(j,k)*U(k,i)
         enddo
         U(i,j)= A_dummy(i,j)-sumu
-        !if (U(i,i) .eq. 0._dp) stop 'Error: Division by zero!! In inversion subroutine '
-        ! Possible bug
-        L(j,i)=(A_dummy(j,i)-suml)/U(i,i)
+        if (abs(U(i,i)) .gt. eps) then
+          L(j,i)=(A_dummy(j,i)-suml)/U(i,i)
+        endif
       enddo
     enddo
 
