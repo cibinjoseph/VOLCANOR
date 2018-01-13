@@ -60,7 +60,7 @@ contains
 
   subroutine wingpanel_class_calcN(this)
   class(wingpanel_class) :: this
-    this%ncap=norm2(cross3(this%pc(:,3)-this%pc(:,1),this%pc(:,4)-this%pc(:,2)))
+    this%ncap=cross3(this%pc(:,3)-this%pc(:,1),this%pc(:,4)-this%pc(:,2))
     this%ncap=this%ncap/norm2(this%ncap)
   end subroutine wingpanel_class_calcN
 
