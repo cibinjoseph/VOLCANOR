@@ -1,4 +1,4 @@
-# Documentation CHECK CHECK
+# Documentation
 Author : Cibin Joseph  
 Last Updated : December 2016 
 
