@@ -3,6 +3,7 @@ Author : Cibin Joseph
 Last Updated : December 2016 
 
 ## TO DO
+- Check whether file read write consumes large time 
 - Verify lift for single wing case
 - Parallelize all double do loops
 - Implement recording to array before writing
