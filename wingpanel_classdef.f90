@@ -92,7 +92,7 @@ contains
 
   subroutine calc_area(this)
   class(wingpanel_class) :: this
-    this%panel_area=norm2(cross3(this%pc(:,3)-this%pc(:,1),this%pc(:,4)-this%pc(:,2)))
+    this%panel_area=0.5_dp*norm2(cross3(this%pc(:,3)-this%pc(:,1),this%pc(:,4)-this%pc(:,2)))
   end subroutine calc_area
 
 end module wingpanel_classdef
