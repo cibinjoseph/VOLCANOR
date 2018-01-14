@@ -108,6 +108,8 @@ program main
   dpts=om_body*dt     ! dphi dtheta dpsi
   pts=0._dp        ! phi theta psi
 
+  open(unit=12,file='Results/lift.tec',position='append')
+
   ! ------- MAIN LOOP START -------
   do iter=1,nt
     print*,iter,nt
@@ -202,7 +204,16 @@ program main
     ! Lift computation
     call calclift(wing,gamvec_prev,dt)
 
+    lift=0._dp
+    do j=1,ns
+      do i=1,nc
+        lift=lift+wing(i,j)%dLift
+      enddo
+    enddo
+    write(12,*) iter,lift(3),0.5_dp*1.2_dp*6._dp*(2._dp*pi*theta_pitch)
+
   enddo
+  close(12)
 
 
 end program main
