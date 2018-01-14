@@ -210,7 +210,7 @@ program main
         lift=lift+wing(i,j)%dLift
       enddo
     enddo
-    write(12,*) iter,lift(3),0.5_dp*1.2_dp*6._dp*(2._dp*pi*theta_pitch)
+    write(12,*) iter,lift(3)/
 
   enddo
   close(12)
