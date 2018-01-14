@@ -451,7 +451,7 @@ contains
         wg(i,j)%velCP=wg(i,j)%velCP+vind_panelgeo_wing(wg,wg(i,j)%cp)
         wg(i,j)%delP=dot_product(wg(i,j)%velCP,tau_i)*(wg(i,j)%vr%gam-wg(i-1,j)%vr%gam)/dot_product(tau_i,tau_i) &
           +          dot_product(wg(i,j)%velCP,tau_j)*(wg(i,j)%vr%gam-wg(i,j-1)%vr%gam)/dot_product(tau_j,tau_j) &
-          +          (wg(i,j)%vr%gam-gam_prev(i,j))/dt
+          +          (wg(i,j)%vr%gam-gam_prev(i,j))*0.5_dp/dt
       enddo
     enddo
 
@@ -462,7 +462,7 @@ contains
       wg(1,j)%velCP=wg(1,j)%velCP+vind_panelgeo_wing(wg,wg(1,j)%cp)
       wg(1,j)%delP=dot_product(wg(1,j)%velCP,tau_i)*(wg(1,j)%vr%gam)/dot_product(tau_i,tau_i) &
         +          dot_product(wg(1,j)%velCP,tau_j)*(wg(1,j)%vr%gam)/dot_product(tau_j,tau_j) &
-        +          (wg(1,j)%vr%gam-gam_prev(1,j))/dt
+        +          (wg(1,j)%vr%gam-gam_prev(1,j))*0.5_dp/dt
     enddo
 
     do i=2,rows
@@ -472,9 +472,9 @@ contains
       wg(i,1)%velCP=wg(i,1)%velCP+vind_panelgeo_wing(wg,wg(i,1)%cp)
       wg(i,1)%delP=dot_product(wg(i,1)%velCP,tau_i)*(wg(i,1)%vr%gam)/dot_product(tau_i,tau_i) &
         +          dot_product(wg(i,1)%velCP,tau_j)*(wg(i,1)%vr%gam)/dot_product(tau_j,tau_j) &
-        +          (wg(i,1)%vr%gam-gam_prev(i,1))/dt
+        +          (wg(i,1)%vr%gam-gam_prev(i,1))*0.5_dp/dt
     enddo
-    wg%delP=density*wg%delP
+    wg%delP=2._dp*density*wg%delP
 
     do j=1,cols
       do i=1,rows
