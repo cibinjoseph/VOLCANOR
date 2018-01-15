@@ -207,18 +207,10 @@ program main
 
     ! Lift computation
     call calclift(wing,gamvec_prev,dt)
-
-    lift=0._dp
-    do j=1,ns
-      do i=1,nc
-        lift=lift+wing(i,j)%dLift
-      enddo
-    enddo
-    write(12,*) iter,lift(3)/(0.5_dp*1.2_dp*span*chord)!*2._dp*pi*theta_pitch)
+    call lift2file(t,wing,'Results/lift.tec')
     write(*,*) iter,nt,lift(3)/(0.5_dp*1.2_dp*span*chord)!*2._dp*pi*theta_pitch)
 
   enddo
 
-  close(12)
 
 end program main

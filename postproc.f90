@@ -139,8 +139,23 @@ contains
     close(10)
   end subroutine tip2file
 
-  subroutine lift2file()
+  subroutine lift2file(t,wing_array,filename)
+    type(wingpanel_class), intent(in), dimension(:,:) :: wing_array
+    character(*), intent(in) :: filename
+    real(dp), intent(in) :: t
+    real(dp), dimension(3) :: lift
+    integer :: i,j
+    lift=0._dp
 
+    do j=1,size(wing_array,2)
+      do i=1,size(wing_array,1)
+        lift=lift+wing_array(i,j)%dLift
+      enddo
+    enddo
+    open(unit=10,file=filename,position='append')
+    write(10,*) t,lift(3)
+    close(10)
   end subroutine lift2file
+
 end module postproc
 

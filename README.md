@@ -4,7 +4,6 @@ Last Updated : December 2016
 
 ## TO DO
 - Check whether file read write consumes large time 
-- Verify lift for single wing case
 - Parallelize all double do loops
 - Implement recording to array before writing
 - Check 25% of panel span inset of vortices create difference
