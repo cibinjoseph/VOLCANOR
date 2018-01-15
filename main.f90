@@ -199,9 +199,9 @@ program main
     ! Strain wake
     ! call strain_wake(wake(row_now,:,:))
 
-    if (row_now>1) then
-      call assignshed(wake(row_now-1,:),wing(nc,:),'TE')  ! Store shed vortex as TE for next wake panel
-    endif
+    ! Store shed vortex as TE for next wake panel
+    if (row_now>1) call assignshed(wake(row_now-1,:),wing(nc,:),'TE')  
+
 
     ! Lift computation
     call calclift(wing,gamvec_prev,dt)

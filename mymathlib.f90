@@ -148,9 +148,7 @@ contains
           suml=suml+L(j,k)*U(k,i)
         enddo
         U(i,j)= A_dummy(i,j)-sumu
-        if (abs(U(i,i)) .gt. eps) then
-          L(j,i)=(A_dummy(j,i)-suml)/U(i,i)
-        endif
+        if (abs(U(i,i)) .gt. eps) L(j,i)=(A_dummy(j,i)-suml)/U(i,i)
       enddo
     enddo
 
