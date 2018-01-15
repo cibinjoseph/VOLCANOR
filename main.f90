@@ -116,7 +116,7 @@ program main
 
   ! ------- MAIN LOOP START -------
   do iter=1,nt
-    print*,iter,nt
+    !print*,iter,nt
     write(timestamp,'(I0.5)') iter
     row_now=nt-(iter-1)
 
@@ -215,6 +215,7 @@ program main
       enddo
     enddo
     write(12,*) iter,lift(3)/(0.5_dp*1.2_dp*span*chord*2._dp*pi*theta_pitch)
+    write(*,*) iter,nt,lift(3)/(0.5_dp*1.2_dp*span*chord*2._dp*pi*theta_pitch)
 
   enddo
 
