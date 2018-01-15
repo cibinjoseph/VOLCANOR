@@ -4,7 +4,7 @@ module library
   implicit none
 
   ! Input parameters
-  integer, parameter  :: nt = 160
+  integer, parameter  :: nt = 720
   integer, parameter  :: ns = 13
   integer, parameter  :: nc = 4
 
