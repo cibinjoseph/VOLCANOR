@@ -153,7 +153,7 @@ contains
       enddo
     enddo
     open(unit=10,file=filename,position='append')
-    write(10,*) extra_params(1),lift(3),lift(3)/(0.5_dp*1.2_dp*12._dp)
+    write(10,*) extra_params(1),lift(3),lift(3)/(0.5_dp*1.2_dp*extra_params(4)**2._dp*extra_params(2)*extra_params(3))
     close(10)
   end subroutine lift2file
 
