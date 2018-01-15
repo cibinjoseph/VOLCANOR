@@ -139,10 +139,10 @@ contains
     close(10)
   end subroutine tip2file
 
-  subroutine lift2file(t,wing_array,filename)
+  subroutine lift2file(wing_array,filename,extra_params)
     type(wingpanel_class), intent(in), dimension(:,:) :: wing_array
     character(*), intent(in) :: filename
-    real(dp), intent(in) :: t
+    real(dp), intent(in), dimension(:) :: extra_params ![1]time [2]chord [3]span [4]speed
     real(dp), dimension(3) :: lift
     integer :: i,j
     lift=0._dp
@@ -153,7 +153,7 @@ contains
       enddo
     enddo
     open(unit=10,file=filename,position='append')
-    write(10,*) t,lift(3),lift(3)/(0.5_dp*1.2_dp*12._dp)
+    write(10,*) extra_params(1),lift(3),lift(3)/(0.5_dp*1.2_dp*12._dp)
     close(10)
   end subroutine lift2file
 
