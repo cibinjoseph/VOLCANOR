@@ -153,9 +153,22 @@ contains
       enddo
     enddo
     open(unit=10,file=filename,position='append')
-    write(10,*) extra_params(1),lift(3),lift(3)/(0.5_dp*1.2_dp*extra_params(4)**2._dp*extra_params(2)*extra_params(3))
+    write(10,*) extra_params(1),lift(3)!,lift(3)/(0.5_dp*1.2_dp*extra_params(4)**2._dp*extra_params(2)*extra_params(3))
     close(10)
   end subroutine lift2file
+
+  subroutine addheaders()
+    integer :: stat
+    ! For lift.curve
+    call execute_command_line("echo '# Lift' > dummyheader",exitstat=stat)
+    if (stat .ne. 0) error stop 'ERROR: Unable to perform header write operation (Step 1)'
+    call execute_command_line("cat dummyheader Results/lift.curve > dummyfile ",exitstat=stat)
+    if (stat .ne. 0) error stop 'ERROR: Unable to perform header write operation (Step 2)'
+    call execute_command_line("mv dummyfile Results/lift.curve",exitstat=stat)
+    if (stat .ne. 0) error stop 'ERROR: Unable to perform header write operation (Step 3)'
+    call execute_command_line('rm dummyheader',exitstat=stat)
+    if (stat .ne. 0) error stop 'ERROR: Unable to perform header write operation (Step 4)'
+  end subroutine addheaders
 
 end module postproc
 

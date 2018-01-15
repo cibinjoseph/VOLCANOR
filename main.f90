@@ -112,8 +112,6 @@ program main
   dpts=om_body*dt     ! dphi dtheta dpsi
   pts=0._dp        ! phi theta psi
 
-  open(unit=12,file='Results/lift.tec',position='append')
-
   ! ------- MAIN LOOP START -------
   do iter=1,nt
     print*,iter,nt
@@ -207,9 +205,12 @@ program main
 
     ! Lift computation
     call calclift(wing,gamvec_prev,dt)
-    call lift2file(wing,'Results/lift.tec',(/t,chord,span,vwind(1)/))
+    call lift2file(wing,'Results/lift.curve',(/t,chord,span,vwind(1)/))
 
   enddo
+
+  ! Add headers to files
+  call addheaders()
 
 
 end program main

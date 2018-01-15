@@ -48,6 +48,7 @@ clean:
 
 fileclean:
 	-rm $(resultspath)/*.tec
+	-rm $(resultspath)/*.curve
 
 glib:
 	reset
