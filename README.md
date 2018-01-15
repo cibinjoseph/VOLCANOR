@@ -1,6 +1,6 @@
 # Documentation
 Author : Cibin Joseph  
-Last Updated : December 2016 
+Last Updated : January 2018
 
 ## TO DO
 - Verify fixed wing results using sudden start results
