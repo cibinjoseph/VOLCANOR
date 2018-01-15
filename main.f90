@@ -34,9 +34,13 @@ program main
   pqr=-1._dp*om_body
 
   ! Geometry Definition
-  !xvec=linspace(0._dp,chord,nc+1)
   xvec=linspace(0._dp,chord,nc+1)
-  yvec=linspace(0.05_dp*span,span+0.05_dp*span,ns+1)
+  select case (span_spacing_switch)
+  case (1)
+    yvec=linspace(0.05_dp*span,span+0.05_dp*span,ns+1)
+  case (2)
+    yvec=cosspace(0.05_dp*span,span+0.05_dp*span,ns+1)
+  end select
 
   ! Initialize wake geometry and core radius
   call init_wake(wake,0.075*span)
@@ -210,7 +214,7 @@ program main
         lift=lift+wing(i,j)%dLift
       enddo
     enddo
-    write(12,*) iter,lift(3)/(0.5_dp*1.2_dp*span*chord)!*2._dp*pi*theta_pitch)
+    write(12,*) iter,lift(3)/(0.5_dp*1.2_dp*span*chord*2._dp*pi*theta_pitch)
 
   enddo
   close(12)
