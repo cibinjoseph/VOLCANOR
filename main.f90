@@ -163,8 +163,8 @@ program main
     call assignshed(wake(row_now,:),wing(nc,:),'LE')  ! Store shed vortex as LE
 
     ! Write out wing n' wake
-    call meshwrite2(wing,wake(row_now:nt,:),'Results/wNw'//timestamp//'.tec')
-    call tipwrite(wing,wake(row_now:nt,:),'Results/tip'//timestamp//'.tec')
+    call mesh2file(wing,wake(row_now:nt,:),'Results/wNw'//timestamp//'.tec')
+    call tip2file(wing,wake(row_now:nt,:),'Results/tip'//timestamp//'.tec')
 
     ! Induced vel at coll. point (excluding pitch and wing induced velocities)
     call vind_CP(wing,vwind+vel_plunge,pqr,wake(row_now:nt,:))
@@ -214,8 +214,8 @@ program main
         lift=lift+wing(i,j)%dLift
       enddo
     enddo
-    write(12,*) iter,lift(3)/(0.5_dp*1.2_dp*span*chord*2._dp*pi*theta_pitch)
-    write(*,*) iter,nt,lift(3)/(0.5_dp*1.2_dp*span*chord*2._dp*pi*theta_pitch)
+    write(12,*) iter,lift(3)/(0.5_dp*1.2_dp*span*chord)!*2._dp*pi*theta_pitch)
+    write(*,*) iter,nt,lift(3)/(0.5_dp*1.2_dp*span*chord)!*2._dp*pi*theta_pitch)
 
   enddo
 
