@@ -4,7 +4,7 @@ module postproc
 
 contains
 
-  subroutine meshwrite2(wing_array,wake_array,filename)
+  subroutine mesh2file(wing_array,wake_array,filename)
     type(wingpanel_class), intent(in), dimension(:,:) :: wing_array
     type(wakepanel_class), intent(in), dimension(:,:) :: wake_array
     character(len=*), intent(in) :: filename
@@ -71,9 +71,9 @@ contains
     write(10,*) ((wake_array(i,j)%tag,i=1,nx),j=1,ny)
 
     close(10)
-  end subroutine meshwrite2
+  end subroutine mesh2file
 
-  subroutine tipwrite(wing_array,wake_array,filename)
+  subroutine tip2file(wing_array,wake_array,filename)
     type(wingpanel_class), intent(in), dimension(:,:) :: wing_array
     type(wakepanel_class), intent(in), dimension(:,:) :: wake_array
     character(len=*), intent(in) :: filename
@@ -137,7 +137,10 @@ contains
     write(10,*) (wake_tip(2,i),i=1,nx+1)
     write(10,*) (wake_tip(3,i),i=1,nx+1)
     close(10)
-  end subroutine tipwrite
+  end subroutine tip2file
 
+  subroutine lift2file()
+
+  end subroutine lift2file
 end module postproc
 
