@@ -11,6 +11,10 @@ objpath=./obj
 resultspath=./Results
 
 
+init:
+	mkdir -p Results
+	mkdir -p obj
+
 all:
 	make run
 
@@ -37,7 +41,7 @@ trial:
 	make lib
 	$(ifc) -I$(objpath) $(iflags) trial.f90 $(objpath)/*.o -o trial.out
 	@./trial.out
-	
+
 
 clean:
 	-rm $(objpath)/*.o $(objpath)/*.mod *.out
