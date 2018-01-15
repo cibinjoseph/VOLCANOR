@@ -461,7 +461,7 @@ contains
       ! Adding self induced velocity at collocation point
       wg(1,j)%velCP=wg(1,j)%velCP+vind_panelgeo_wing(wg,wg(1,j)%cp)
       wg(1,j)%delP=dot_product(wg(1,j)%velCP,tau_i)*(wg(1,j)%vr%gam)/dot_product(tau_i,tau_i) &
-        +          dot_product(wg(1,j)%velCP,tau_j)*(wg(1,j)%vr%gam)/dot_product(tau_j,tau_j) &
+        +          dot_product(wg(1,j)%velCP,tau_j)*(wg(1,j)%vr%gam-wg(1,j-1)%vr%gam)/dot_product(tau_j,tau_j) &
         +          (wg(1,j)%vr%gam-gam_prev(1,j))/dt
     enddo
 
@@ -470,7 +470,7 @@ contains
       tau_j=wg(i,1)%pc(:,4)-wg(i,1)%pc(:,1)
       ! Adding self induced velocity at collocation point
       wg(i,1)%velCP=wg(i,1)%velCP+vind_panelgeo_wing(wg,wg(i,1)%cp)
-      wg(i,1)%delP=dot_product(wg(i,1)%velCP,tau_i)*(wg(i,1)%vr%gam)/dot_product(tau_i,tau_i) &
+      wg(i,1)%delP=dot_product(wg(i,1)%velCP,tau_i)*(wg(i,1)%vr%gam-wg(i-1,1)%vr%gam)/dot_product(tau_i,tau_i) &
         +          dot_product(wg(i,1)%velCP,tau_j)*(wg(i,1)%vr%gam)/dot_product(tau_j,tau_j) &
         +          (wg(i,1)%vr%gam-gam_prev(i,1))/dt
     enddo
