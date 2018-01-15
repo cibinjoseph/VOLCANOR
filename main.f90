@@ -207,7 +207,7 @@ program main
 
     ! Lift computation
     call calclift(wing,gamvec_prev,dt)
-    call lift2file(t,wing,'Results/lift.tec')
+    call lift2file(wing,'Results/lift.tec',(/t,chord,span,vwind(1)/))
 
   enddo
 
