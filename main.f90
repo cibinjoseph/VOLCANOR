@@ -217,7 +217,7 @@ program main
     write(12,*) iter,lift(3)/(0.5_dp*1.2_dp*span*chord*2._dp*pi*theta_pitch)
 
   enddo
-  close(12)
 
+  close(12)
 
 end program main
