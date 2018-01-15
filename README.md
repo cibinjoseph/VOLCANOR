@@ -3,6 +3,7 @@ Author : Cibin Joseph
 Last Updated : December 2016 
 
 ## TO DO
+- Verify fixed wing results using sudden start results
 - Check whether file read write consumes large time 
 - Parallelize all double do loops
 - Implement recording to array before writing
