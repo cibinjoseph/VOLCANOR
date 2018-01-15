@@ -1,5 +1,5 @@
 Results/*
-obj/*.obj
+obj/*.o
 obj/*.mod
 *.out
 *.swp
