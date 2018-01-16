@@ -3,23 +3,25 @@ module wingpanel_classdef
   implicit none
   type wingpanel_class
     type(vr_class) :: vr
-    real(dp), dimension(3,4) :: pc   ! panel coords
-    real(dp), dimension(3) :: cp     ! coll point coords
-    real(dp), dimension(3) :: ncap   ! unit normal vector
-    real(dp), dimension(3) :: velCP  ! local velocity at CP
-    real(dp), dimension(3) :: velCPm ! rel. inertial velocity at CP (due to motion)
-    real(dp), dimension(3) :: dForce ! Pressure difference at panel
-    real(dp) :: delP                 ! Pressure difference at panel
-    real(dp) :: panel_area           ! Panel area for computing lift
-    real(dp) :: r_hinge              ! distance to point about which pitching occurs (LE of wing)
-    real(dp) :: alpha                ! local angle of attack
-    integer :: tag                   ! for identifying panel to be wing or wake
+    real(dp), dimension(3,4) :: pc      ! panel coords
+    real(dp), dimension(3) :: cp        ! coll point coords
+    real(dp), dimension(3) :: ncap      ! unit normal vector
+    real(dp), dimension(3) :: velCP     ! local velocity at CP
+    real(dp), dimension(3) :: velCPm    ! rel. inertial velocity at CP (due to motion)
+    real(dp), dimension(3) :: vel_pitch ! pitch velocity
+    real(dp), dimension(3) :: dForce    ! Pressure difference at panel
+    real(dp) :: delP                    ! Pressure difference at panel
+    real(dp) :: panel_area              ! Panel area for computing lift
+    real(dp) :: r_hinge                 ! distance to point about which pitching occurs (LE of wing)
+    real(dp) :: alpha                   ! local angle of attack
+    integer :: tag                      ! for identifying panel to be wing or wake
   contains
     procedure :: assignP => wingpanel_class_assignP
     procedure :: calcCP => wingpanel_class_calcCP
     procedure :: calcN => wingpanel_class_calcN
     procedure :: rot => wingpanel_class_rot
     procedure :: shiftdP => wingpanel_class_shiftdP
+    procedure :: calc_alpha
     procedure :: calc_area
   end type wingpanel_class
 
@@ -96,4 +98,11 @@ contains
     this%panel_area=0.5_dp*norm2(cross3(this%pc(:,3)-this%pc(:,1),this%pc(:,4)-this%pc(:,2)))
   end subroutine calc_area
 
+  subroutine calc_alpha(this)
+  class(wingpanel_class) :: this
+    real(dp), dimension(3) :: tau_c
+    tau_c=this%pc(:,4)-this%pc(:,1)
+    tau_c=tau_c/norm2(tau_c)
+    this%alpha=atan((dot_product(this%velCPm,this%ncap)+this%vel_pitch)/dot_product(this%velCPm,tau_c))
+  end subroutine calc_alpha
 end module wingpanel_classdef
