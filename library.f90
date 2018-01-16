@@ -458,7 +458,7 @@ contains
     real(dp), intent(in) :: dt
     real(dp) :: density
     real(dp), dimension(size(wg,1),size(wg,2)) :: gam_prev
-    real(dp), dimension(3) :: tau_i, tau_j
+    real(dp), dimension(3) :: tau_c, tau_s
     integer :: i,j,rows,cols
     ! Inherent assumption that panels have subdivisions along chord and not inclined to it
     ! while calculating tangent vector
@@ -471,51 +471,51 @@ contains
     gam_prev=reshape(gamvec_prev,(/rows,cols/))
     do j=2,cols
       do i=2,rows
-        tau_i=wg(i,j)%pc(:,2)-wg(i,j)%pc(:,1)
-        tau_j=wg(i,j)%pc(:,4)-wg(i,j)%pc(:,1)
+        tau_c=wg(i,j)%pc(:,2)-wg(i,j)%pc(:,1)
+        tau_s=wg(i,j)%pc(:,4)-wg(i,j)%pc(:,1)
         ! Adding self induced velocity at collocation point
         !wg(i,j)%velCP=wg(i,j)%velCP+vind_panelgeo_wing(wg,wg(i,j)%cp)
-        wg(i,j)%delP=dot_product(wg(i,j)%velCP,tau_i)*(wg(i,j)%vr%gam-wg(i-1,j)%vr%gam)/dot_product(tau_i,tau_i) &
-          +          dot_product(wg(i,j)%velCP,tau_j)*(wg(i,j)%vr%gam-wg(i,j-1)%vr%gam)/dot_product(tau_j,tau_j) &
+        wg(i,j)%delP=dot_product(wg(i,j)%velCP,tau_c)*(wg(i,j)%vr%gam-wg(i-1,j)%vr%gam)/dot_product(tau_c,tau_c) &
+          +          dot_product(wg(i,j)%velCP,tau_s)*(wg(i,j)%vr%gam-wg(i,j-1)%vr%gam)/dot_product(tau_s,tau_s) &
           +          (wg(i,j)%vr%gam-gam_prev(i,j))/dt
       enddo
     enddo
 
     ! j=1
-    tau_i=wg(1,1)%pc(:,2)-wg(1,1)%pc(:,1)
-    tau_j=wg(1,1)%pc(:,4)-wg(1,1)%pc(:,1)
+    tau_c=wg(1,1)%pc(:,2)-wg(1,1)%pc(:,1)
+    tau_s=wg(1,1)%pc(:,4)-wg(1,1)%pc(:,1)
     ! Adding self induced velocity at collocation point
     !wg(1,1)%velCP=wg(1,1)%velCP+vind_panelgeo_wing(wg,wg(1,1)%cp)
-    wg(1,1)%delP=dot_product(wg(1,j)%velCP,tau_i)*(wg(1,1)%vr%gam)/dot_product(tau_i,tau_i) &
-      +          dot_product(wg(1,j)%velCP,tau_j)*(wg(1,1)%vr%gam)/dot_product(tau_j,tau_j) &
+    wg(1,1)%delP=dot_product(wg(1,j)%velCP,tau_c)*(wg(1,1)%vr%gam)/dot_product(tau_c,tau_c) &
+      +          dot_product(wg(1,j)%velCP,tau_s)*(wg(1,1)%vr%gam)/dot_product(tau_s,tau_s) &
       +          (wg(1,1)%vr%gam-gam_prev(1,1))/dt
 
     do j=2,cols
-      tau_i=wg(1,j)%pc(:,2)-wg(1,j)%pc(:,1)
-      tau_j=wg(1,j)%pc(:,4)-wg(1,j)%pc(:,1)
+      tau_c=wg(1,j)%pc(:,2)-wg(1,j)%pc(:,1)
+      tau_s=wg(1,j)%pc(:,4)-wg(1,j)%pc(:,1)
       ! Adding self induced velocity at collocation point
       !wg(1,j)%velCP=wg(1,j)%velCP+vind_panelgeo_wing(wg,wg(1,j)%cp)
-      wg(1,j)%delP=dot_product(wg(1,j)%velCP,tau_i)*(wg(1,j)%vr%gam)/dot_product(tau_i,tau_i) &
-        +          dot_product(wg(1,j)%velCP,tau_j)*(wg(1,j)%vr%gam-wg(1,j-1)%vr%gam)/dot_product(tau_j,tau_j) &
+      wg(1,j)%delP=dot_product(wg(1,j)%velCP,tau_c)*(wg(1,j)%vr%gam)/dot_product(tau_c,tau_c) &
+        +          dot_product(wg(1,j)%velCP,tau_s)*(wg(1,j)%vr%gam-wg(1,j-1)%vr%gam)/dot_product(tau_s,tau_s) &
         +          (wg(1,j)%vr%gam-gam_prev(1,j))/dt
     enddo
 
     ! i=1
-    tau_i=wg(1,1)%pc(:,2)-wg(1,1)%pc(:,1)
-    tau_j=wg(1,1)%pc(:,4)-wg(1,1)%pc(:,1)
+    tau_c=wg(1,1)%pc(:,2)-wg(1,1)%pc(:,1)
+    tau_s=wg(1,1)%pc(:,4)-wg(1,1)%pc(:,1)
     ! Adding self induced velocity at collocation point
     !wg(1,1)%velCP=wg(1,1)%velCP+vind_panelgeo_wing(wg,wg(1,1)%cp)
-    wg(1,1)%delP=dot_product(wg(1,1)%velCP,tau_i)*(wg(1,1)%vr%gam)/dot_product(tau_i,tau_i) &
-      +          dot_product(wg(1,1)%velCP,tau_j)*(wg(1,1)%vr%gam)/dot_product(tau_j,tau_j) &
+    wg(1,1)%delP=dot_product(wg(1,1)%velCP,tau_c)*(wg(1,1)%vr%gam)/dot_product(tau_c,tau_c) &
+      +          dot_product(wg(1,1)%velCP,tau_s)*(wg(1,1)%vr%gam)/dot_product(tau_s,tau_s) &
       +          (wg(1,1)%vr%gam-gam_prev(1,1))/dt
 
     do i=2,rows
-      tau_i=wg(i,1)%pc(:,2)-wg(i,1)%pc(:,1)
-      tau_j=wg(i,1)%pc(:,4)-wg(i,1)%pc(:,1)
+      tau_c=wg(i,1)%pc(:,2)-wg(i,1)%pc(:,1)
+      tau_s=wg(i,1)%pc(:,4)-wg(i,1)%pc(:,1)
       ! Adding self induced velocity at collocation point
       !wg(i,1)%velCP=wg(i,1)%velCP+vind_panelgeo_wing(wg,wg(i,1)%cp)
-      wg(i,1)%delP=dot_product(wg(i,1)%velCP,tau_i)*(wg(i,1)%vr%gam-wg(i-1,1)%vr%gam)/dot_product(tau_i,tau_i) &
-        +          dot_product(wg(i,1)%velCP,tau_j)*(wg(i,1)%vr%gam)/dot_product(tau_j,tau_j) &
+      wg(i,1)%delP=dot_product(wg(i,1)%velCP,tau_c)*(wg(i,1)%vr%gam-wg(i-1,1)%vr%gam)/dot_product(tau_c,tau_c) &
+        +          dot_product(wg(i,1)%velCP,tau_s)*(wg(i,1)%vr%gam)/dot_product(tau_s,tau_s) &
         +          (wg(i,1)%vr%gam-gam_prev(i,1))/dt
     enddo
     wg%delP=density*wg%delP
