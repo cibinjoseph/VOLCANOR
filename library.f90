@@ -339,8 +339,8 @@ contains
     enddo
   end subroutine vind_CP
 
-  ! Calculates induced vel at P by spanwise vortices of wing_array
-  function vind_spanvortex(wing_array,P) result(velind)
+  ! Calculates induced vel at P by chordwise vortices of wing_array
+  function vind_chordvortex(wing_array,P) result(velind)
     type(wingpanel_class), intent(in), dimension(:,:) :: wing_array
     real(dp), intent(in), dimension(3) :: P
     real(dp), dimension(3) :: velind
@@ -348,11 +348,11 @@ contains
     velind=0._dp
     do j=1,size(wing_array,2)
       do i=1,size(wing_array,1)
-        velind=velind+wing_array(i,j)%vr%vf(2)%vind(P)
-        velind=velind+wing_array(i,j)%vr%vf(4)%vind(P)
+        velind=velind+wing_array(i,j)%vr%vf(1)%vind(P)
+        velind=velind+wing_array(i,j)%vr%vf(3)%vind(P)
       enddo
     enddo
-  end function vind_spanvortex
+  end function vind_chordvortex
 
   ! Induced velocity by a wing array on point P
   function vind_panelgeo_wing(wing_array,P) result(velind)
