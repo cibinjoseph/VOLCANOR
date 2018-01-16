@@ -145,7 +145,7 @@ contains
     real(dp), intent(in), dimension(:) :: extra_params ![1]time [2]chord [3]span [4]speed
     real(dp) :: lift
     integer :: i,j
-    Force=0._dp
+    lift=0._dp
 
     do j=1,size(wing_array,2)
       do i=1,size(wing_array,1)

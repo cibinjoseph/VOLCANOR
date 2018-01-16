@@ -19,7 +19,6 @@ real(dp), dimension(3) :: vwind, om_body, pqr, vbody, om_body_slow
 real(dp), dimension(3) :: v_shed, vec_dummy, vel_plunge
 real(dp) :: vel_pitch
 real(dp) :: t
-real(dp), dimension(3) :: lift
 real(dp), dimension(3) :: pts, dpts   ! phi, theta, psi
 real(dp), dimension(3,nt,ns+1) :: vind_wake
 character(len=5) :: timestamp
