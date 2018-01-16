@@ -91,8 +91,8 @@ program main
       RHS(indx) = dot_product(vwind+vel_plunge,wing(ichord,ispan)%ncap)
 
       ! Pitch vel
-      vel_pitch=thetadot*wing(ichord,ispan)%r_hinge
-      RHS(indx)= RHS(indx)+vel_pitch
+      wing(ichord,ispan)%vel_pitch=thetadot*wing(ichord,ispan)%r_hinge
+      RHS(indx)= RHS(indx)+wing(ichord,ispan)%vel_pitch
 
       ! pqr vel
       RHS(indx)= RHS(indx)+dot_product(cross3(pqr,wing(ichord,ispan)%cp),wing(ichord,ispan)%ncap)
@@ -174,8 +174,8 @@ program main
         RHS(indx)=dot_product(wing(ichord,ispan)%velCP,wing(ichord,ispan)%ncap) 
 
         ! Pitch vel
-        vel_pitch=thetadot*wing(ichord,ispan)%r_hinge
-        RHS(indx)=RHS(indx)+vel_pitch
+        wing(ichord,ispan)%vel_pitch=thetadot*wing(ichord,ispan)%r_hinge
+        RHS(indx)=RHS(indx)+wing(ichord,ispan)%vel_pitch
 
         indx=indx+1
       enddo
