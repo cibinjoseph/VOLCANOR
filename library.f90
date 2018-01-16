@@ -442,6 +442,16 @@ contains
   !               Force Computation Functions              !
   !--------------------------------------------------------!
 
+  subroutine calc_alpha(wing_array)
+    type(wingpanel_class), intent(in), dimension(:,:) :: wing_array
+    integer :: i,j
+    do j=1,size(wing_array,2)
+      do i=1,size(wing_array,1)
+        call wing_array(i,j)%calc_alpha()
+      enddo
+    enddo
+  end subroutine calc_alpha
+
   subroutine calclift(wg,gamvec_prev,dt)
     type(wingpanel_class), intent(inout), dimension(:,:) :: wg !short form for wing_array
     real(dp), intent(in), dimension(:) :: gamvec_prev
