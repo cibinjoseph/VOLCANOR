@@ -321,7 +321,7 @@ contains
   !                Induced Velocity Functions              !
   !--------------------------------------------------------!
 
-  ! Calculates local velocity at CP on wing
+  ! Calculates local velocity at CP velCP and velCPm on wing
   ! Includes uvw, pqr, wake induced velocity
   ! Excludes pitch velocity, wing self-induced velocity
   subroutine vind_CP(wing_array,uvw,pqr,wake_array)
@@ -332,9 +332,9 @@ contains
 
     do j=1,size(wing_array,2)
       do i=1,size(wing_array,1)
-        wing_array(i,j)%velCP=uvw
-        wing_array(i,j)%velCP=wing_array(i,j)%velCP+vind_panelgeo(wake_array,wing_array(i,j)%cp)
-        wing_array(i,j)%velCP=wing_array(i,j)%velCP+cross3(pqr,wing_array(i,j)%cp)
+        wing_array(i,j)%velCPm=uvw
+        wing_array(i,j)%velCPm=wing_array(i,j)%velCPm+cross3(pqr,wing_array(i,j)%cp)
+        wing_array(i,j)%velCP=wing_array(i,j)%velCPm+vind_panelgeo(wake_array,wing_array(i,j)%cp)
       enddo
     enddo
   end subroutine vind_CP

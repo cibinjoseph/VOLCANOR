@@ -7,6 +7,7 @@ module wingpanel_classdef
     real(dp), dimension(3) :: cp     ! coll point coords
     real(dp), dimension(3) :: ncap   ! unit normal vector
     real(dp), dimension(3) :: velCP  ! local velocity at CP
+    real(dp), dimension(3) :: velCPm ! rel. inertial velocity at CP (due to motion)
     real(dp), dimension(3) :: dForce ! Pressure difference at panel
     real(dp) :: delP                 ! Pressure difference at panel
     real(dp) :: panel_area           ! Panel area for computing lift
