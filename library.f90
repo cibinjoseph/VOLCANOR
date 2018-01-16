@@ -426,7 +426,7 @@ contains
   !                Lift Computation Functions              !
   !--------------------------------------------------------!
 
-  subroutine calcForce(wg,gamvec_prev,dt)
+  subroutine calclift(wg,gamvec_prev,dt)
     type(wingpanel_class), intent(inout), dimension(:,:) :: wg !short form for wing_array
     real(dp), intent(in), dimension(:) :: gamvec_prev
     real(dp), intent(in) :: dt
@@ -499,6 +499,6 @@ contains
         wg(i,j)%dForce=-(wg(i,j)%delP*wg(i,j)%panel_area)*wg(i,j)%ncap
       enddo
     enddo
-  end subroutine calcForce
+  end subroutine calclift
 
 end module library

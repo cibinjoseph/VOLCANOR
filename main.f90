@@ -204,7 +204,8 @@ program main
 
 
     ! Lift computation
-    call calcForce(wing,gamvec_prev,dt)
+    call calclift(wing,gamvec_prev,dt)
+    !call calcdrag(wing,gamvec_prev,dt)
     call lift2file(wing,'Results/lift.curve',(/t,chord,span,vwind(1)/))
     call drag2file(wing,'Results/drag.curve',(/t,chord,span,vwind(1)/))
 
