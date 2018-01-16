@@ -204,7 +204,7 @@ program main
 
 
     ! Forces computation
-    call calc_alpha(wing)
+    call calc_wingalpha(wing)
     call calclift(wing,gamvec_prev,dt)
     !call calcdrag(wing,gamvec_prev,dt)
 
