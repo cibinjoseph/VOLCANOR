@@ -12,6 +12,7 @@ module wingpanel_classdef
     real(dp) :: delP                 ! Pressure difference at panel
     real(dp) :: panel_area           ! Panel area for computing lift
     real(dp) :: r_hinge              ! distance to point about which pitching occurs (LE of wing)
+    real(dp) :: alpha                ! local angle of attack
     integer :: tag                   ! for identifying panel to be wing or wake
   contains
     procedure :: assignP => wingpanel_class_assignP
