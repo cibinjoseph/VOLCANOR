@@ -79,6 +79,17 @@ contains
   end subroutine radtodeg
 
   ! -------------------------------------------------
+  !                outer_product
+  ! -------------------------------------------------
+  function outer_product(vecA,vecB)
+    real(dp), intent(in), dimension(3) :: vecA, vecB
+    real(dp), dimension(3,3) :: outer_product
+    outer_product(:,1)=(/vecA(1)*vecB(1),vecA(2)*vecB(1),vecA(3)*vecB(1)/)
+    outer_product(:,2)=(/vecA(1)*vecB(2),vecA(2)*vecB(2),vecA(3)*vecB(2)/)
+    outer_product(:,3)=(/vecA(1)*vecB(2),vecA(2)*vecB(3),vecA(3)*vecB(3)/)
+  end function outer_product
+
+  ! -------------------------------------------------
   !                inv
   ! -------------------------------------------------
   ! Matrix Inversion
