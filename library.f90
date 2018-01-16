@@ -1,4 +1,5 @@
 module library
+
   use wingpanel_classdef
   use wakepanel_classdef
   implicit none
@@ -522,7 +523,7 @@ contains
 
     do j=1,cols
       do i=1,rows
-        wg(i,j)%dLift=-(wg(i,j)%delP*wg(i,j)%panel_area)*wg(i,j)%alpha
+        wg(i,j)%dLift=-(wg(i,j)%delP*wg(i,j)%panel_area)*cos(wg(i,j)%alpha)
       enddo
     enddo
   end subroutine calclift

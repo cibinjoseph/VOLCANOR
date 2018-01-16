@@ -102,8 +102,11 @@ contains
   subroutine calc_alpha(this)
   class(wingpanel_class) :: this
     real(dp), dimension(3) :: tau_c
-    tau_c=this%pc(:,4)-this%pc(:,1)
+    tau_c=this%pc(:,2)-this%pc(:,1)
     tau_c=tau_c/norm2(tau_c)
-    this%alpha=atan((dot_product(this%velCPm,this%ncap)+this%vel_pitch)/dot_product(this%velCPm,tau_c))
+    this%alpha=0.5_dp*pi
+    if (dot_product(this%velCPm,tau_c)>eps) then
+      this%alpha=atan((dot_product(this%velCPm,this%ncap)+this%vel_pitch)/dot_product(this%velCPm,tau_c))
+    endif
   end subroutine calc_alpha
 end module wingpanel_classdef
