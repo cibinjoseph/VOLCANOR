@@ -24,6 +24,7 @@ module wingpanel_classdef
     procedure :: shiftdP => wingpanel_class_shiftdP
     procedure :: calc_alpha
     procedure :: calc_area
+    procedure :: orthproj
   end type wingpanel_class
 
 contains
@@ -109,4 +110,16 @@ contains
       this%alpha=atan((dot_product(this%velCPm,this%ncap)+this%vel_pitch)/dot_product(this%velCPm,tau_c))
     endif
   end subroutine calc_alpha
+
+  ! Calculates the orthogonal projection operator
+  function orthproj(this)
+  class(wingpanel_class) :: this
+    real(dp), dimension(3,3) :: orthproj
+    real(dp), dimension(3,3) :: idenmat
+    idenmat(:,1)=(/1._dp,0._dp,0._dp/)
+    idenmat(:,2)=(/0._dp,1._dp,0._dp/)
+    idenmat(:,3)=(/0._dp,0._dp,1._dp/)
+    orthproj=idenmat-outer_product(this%velCPm/norm2(this%velCPm),this%velCPm/norm2(this%velCPm))
+  end function orthproj
+
 end module wingpanel_classdef
