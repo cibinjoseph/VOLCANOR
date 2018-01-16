@@ -3,16 +3,15 @@ module wingpanel_classdef
   implicit none
   type wingpanel_class
     type(vr_class) :: vr
-    real(dp), dimension(3,4) :: pc  ! panel coords
-    real(dp), dimension(3) :: cp    ! coll point coords
-    real(dp), dimension(3) :: ncap  ! unit normal vector
-    real(dp), dimension(3) :: velCP ! local velocity at CP
+    real(dp), dimension(3,4) :: pc   ! panel coords
+    real(dp), dimension(3) :: cp     ! coll point coords
+    real(dp), dimension(3) :: ncap   ! unit normal vector
+    real(dp), dimension(3) :: velCP  ! local velocity at CP
     real(dp), dimension(3) :: dForce ! Pressure difference at panel
-    real(dp) :: delP                ! Pressure difference at panel
-    real(dp) :: panel_area          ! Panel area for computing lift
-    real(dp) :: r_hinge             ! distance to point about which pitching occurs (LE of wing)
+    real(dp) :: delP                 ! Pressure difference at panel
+    real(dp) :: panel_area           ! Panel area for computing lift
+    real(dp) :: r_hinge              ! distance to point about which pitching occurs (LE of wing)
     integer :: tag                   ! for identifying panel to be wing or wake
-    !real(dp), dimension(3) :: indvel  ! induced velocity (normal component)
   contains
     procedure :: assignP => wingpanel_class_assignP
     procedure :: calcCP => wingpanel_class_calcCP
