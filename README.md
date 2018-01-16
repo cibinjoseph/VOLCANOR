@@ -3,10 +3,9 @@ Author : Cibin Joseph
 Last Updated : January 2018
 
 ## TO DO
-- Add variable for rel. inertial velocity reqd for AoA computation
+- complete induced drag computation
 - Make density global variable
 - Validate induced drag for instantaneously started wing
-- Include subroutine for spanwise induced vel turned off
 - Validate pitching or plunging case
 - Verify rotating wing results with BEMT
 - Check whether file read write consumes large time 
