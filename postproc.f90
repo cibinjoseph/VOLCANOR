@@ -143,17 +143,17 @@ contains
     type(wingpanel_class), intent(in), dimension(:,:) :: wing_array
     character(*), intent(in) :: filename
     real(dp), intent(in), dimension(:) :: extra_params ![1]time [2]chord [3]span [4]speed
-    real(dp), dimension(3) :: lift
+    real(dp), dimension(3) :: Force
     integer :: i,j
-    lift=0._dp
+    Force=0._dp
 
     do j=1,size(wing_array,2)
       do i=1,size(wing_array,1)
-        lift=lift+wing_array(i,j)%dLift
+        Force=Force+wing_array(i,j)%dForce
       enddo
     enddo
     open(unit=10,file=filename,position='append')
-    write(10,*) extra_params(1),lift(3)!,lift(3)/(0.5_dp*1.2_dp*extra_params(4)**2._dp*extra_params(2)*extra_params(3))
+    write(10,*) extra_params(1),Force(3)!,Force(3)/(0.5_dp*1.2_dp*extra_params(4)**2._dp*extra_params(2)*extra_params(3))
     close(10)
   end subroutine lift2file
 

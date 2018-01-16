@@ -478,7 +478,7 @@ contains
 
     do j=1,cols
       do i=1,rows
-        wg(i,j)%dLift=-(wg(i,j)%delP*wg(i,j)%panel_area)*wg(i,j)%ncap
+        wg(i,j)%dForce=-(wg(i,j)%delP*wg(i,j)%panel_area)*wg(i,j)%ncap
       enddo
     enddo
   end subroutine calclift
