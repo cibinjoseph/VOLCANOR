@@ -322,7 +322,8 @@ contains
   !--------------------------------------------------------!
 
   ! Calculates local velocity at CP on wing
-  ! Excluding Pitch velocity and wing induced velocity
+  ! Includes uvw, pqr, wake induced velocity
+  ! Excludes pitch velocity, wing self-induced velocity
   subroutine vind_CP(wing_array,uvw,pqr,wake_array)
     type(wingpanel_class), intent(inout), dimension(:,:) :: wing_array
     type(wakepanel_class), intent(inout), dimension(:,:) :: wake_array
@@ -423,7 +424,7 @@ contains
   end function vind_onwake_bywake
 
   !--------------------------------------------------------!
-  !                Lift Computation Functions              !
+  !               Force Computation Functions              !
   !--------------------------------------------------------!
 
   subroutine calclift(wg,gamvec_prev,dt)
