@@ -149,7 +149,7 @@ contains
 
     do j=1,size(wing_array,2)
       do i=1,size(wing_array,1)
-        lift=lift+wing_array(i,j)%dForce(3)
+        lift=lift+wing_array(i,j)%dLift
       enddo
     enddo
     open(unit=10,file=filename,position='append')
@@ -167,7 +167,7 @@ contains
 
     do j=1,size(wing_array,2)
       do i=1,size(wing_array,1)
-        drag=drag+wing_array(i,j)%dForce(1)
+        drag=drag+wing_array(i,j)%dDrag
       enddo
     enddo
     open(unit=10,file=filename,position='append')

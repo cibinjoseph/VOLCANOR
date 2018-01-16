@@ -8,11 +8,12 @@ module wingpanel_classdef
     real(dp), dimension(3) :: ncap    ! unit normal vector
     real(dp), dimension(3) :: velCP   ! local velocity at CP
     real(dp), dimension(3) :: velCPm  ! rel. inertial velocity at CP (due to motion)
+    real(dp), dimension(3) :: dForce  ! panel Force vector in inertial frame
     real(dp) :: vel_pitch             ! pitch velocity
-    real(dp), dimension(3) :: dForce  ! Pressure difference at panel
+    real(dp) :: dLift, dDrag          ! magnitudes of panel lift and drag
     real(dp) :: delP                  ! Pressure difference at panel
     real(dp) :: panel_area            ! Panel area for computing lift
-    real(dp) :: r_hinge               ! distance to point about which pitching occurs (LE of wing)
+    real(dp) :: r_hinge               ! dist to point about which pitching occurs (LE of wing)
     real(dp) :: alpha                 ! local angle of attack
     integer :: tag                    ! for identifying panel to be wing or wake
   contains
