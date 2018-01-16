@@ -339,6 +339,21 @@ contains
     enddo
   end subroutine vind_CP
 
+  ! Calculates induced vel at P by spanwise vortices of wing_array
+  function vind_spanvortex(wing_array,P) result(velind)
+    type(wingpanel_class), intent(in), dimension(:,:) :: wing_array
+    real(dp), intent(in), dimension(3) :: P
+    real(dp), dimension(3) :: velind
+    integer :: i,j
+    velind=0._dp
+    do j=1,size(wing_array,2)
+      do i=1,size(wing_array,1)
+        velind=velind+wing_array(i,j)%vr%vf(2)%vind(P)
+        velind=velind+wing_array(i,j)%vr%vf(4)%vind(P)
+      enddo
+    enddo
+  end function vind_spanvortex
+
   ! Induced velocity by a wing array on point P
   function vind_panelgeo_wing(wing_array,P) result(velind)
     type(wingpanel_class), intent(in), dimension(:,:) :: wing_array
@@ -457,13 +472,13 @@ contains
     enddo
 
     ! j=1
-      tau_i=wg(1,1)%pc(:,2)-wg(1,1)%pc(:,1)
-      tau_j=wg(1,1)%pc(:,4)-wg(1,1)%pc(:,1)
-      ! Adding self induced velocity at collocation point
-      !wg(1,1)%velCP=wg(1,1)%velCP+vind_panelgeo_wing(wg,wg(1,1)%cp)
-      wg(1,1)%delP=dot_product(wg(1,j)%velCP,tau_i)*(wg(1,1)%vr%gam)/dot_product(tau_i,tau_i) &
-        +          dot_product(wg(1,j)%velCP,tau_j)*(wg(1,1)%vr%gam)/dot_product(tau_j,tau_j) &
-        +          (wg(1,1)%vr%gam-gam_prev(1,1))/dt
+    tau_i=wg(1,1)%pc(:,2)-wg(1,1)%pc(:,1)
+    tau_j=wg(1,1)%pc(:,4)-wg(1,1)%pc(:,1)
+    ! Adding self induced velocity at collocation point
+    !wg(1,1)%velCP=wg(1,1)%velCP+vind_panelgeo_wing(wg,wg(1,1)%cp)
+    wg(1,1)%delP=dot_product(wg(1,j)%velCP,tau_i)*(wg(1,1)%vr%gam)/dot_product(tau_i,tau_i) &
+      +          dot_product(wg(1,j)%velCP,tau_j)*(wg(1,1)%vr%gam)/dot_product(tau_j,tau_j) &
+      +          (wg(1,1)%vr%gam-gam_prev(1,1))/dt
 
     do j=2,cols
       tau_i=wg(1,j)%pc(:,2)-wg(1,j)%pc(:,1)
@@ -476,13 +491,13 @@ contains
     enddo
 
     ! i=1
-      tau_i=wg(1,1)%pc(:,2)-wg(1,1)%pc(:,1)
-      tau_j=wg(1,1)%pc(:,4)-wg(1,1)%pc(:,1)
-      ! Adding self induced velocity at collocation point
-      !wg(1,1)%velCP=wg(1,1)%velCP+vind_panelgeo_wing(wg,wg(1,1)%cp)
-      wg(1,1)%delP=dot_product(wg(1,1)%velCP,tau_i)*(wg(1,1)%vr%gam)/dot_product(tau_i,tau_i) &
-        +          dot_product(wg(1,1)%velCP,tau_j)*(wg(1,1)%vr%gam)/dot_product(tau_j,tau_j) &
-        +          (wg(1,1)%vr%gam-gam_prev(1,1))/dt
+    tau_i=wg(1,1)%pc(:,2)-wg(1,1)%pc(:,1)
+    tau_j=wg(1,1)%pc(:,4)-wg(1,1)%pc(:,1)
+    ! Adding self induced velocity at collocation point
+    !wg(1,1)%velCP=wg(1,1)%velCP+vind_panelgeo_wing(wg,wg(1,1)%cp)
+    wg(1,1)%delP=dot_product(wg(1,1)%velCP,tau_i)*(wg(1,1)%vr%gam)/dot_product(tau_i,tau_i) &
+      +          dot_product(wg(1,1)%velCP,tau_j)*(wg(1,1)%vr%gam)/dot_product(tau_j,tau_j) &
+      +          (wg(1,1)%vr%gam-gam_prev(1,1))/dt
 
     do i=2,rows
       tau_i=wg(i,1)%pc(:,2)-wg(i,1)%pc(:,1)
