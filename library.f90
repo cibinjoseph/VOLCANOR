@@ -464,7 +464,7 @@ contains
         tau_i=wg(i,j)%pc(:,2)-wg(i,j)%pc(:,1)
         tau_j=wg(i,j)%pc(:,4)-wg(i,j)%pc(:,1)
         ! Adding self induced velocity at collocation point
-        wg(i,j)%velCP=wg(i,j)%velCP+vind_panelgeo_wing(wg,wg(i,j)%cp)
+        !wg(i,j)%velCP=wg(i,j)%velCP+vind_panelgeo_wing(wg,wg(i,j)%cp)
         wg(i,j)%delP=dot_product(wg(i,j)%velCP,tau_i)*(wg(i,j)%vr%gam-wg(i-1,j)%vr%gam)/dot_product(tau_i,tau_i) &
           +          dot_product(wg(i,j)%velCP,tau_j)*(wg(i,j)%vr%gam-wg(i,j-1)%vr%gam)/dot_product(tau_j,tau_j) &
           +          (wg(i,j)%vr%gam-gam_prev(i,j))/dt
