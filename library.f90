@@ -336,8 +336,7 @@ contains
 
     do j=1,size(wing_array,2)
       do i=1,size(wing_array,1)
-        wing_array(i,j)%velCPm=uvw
-        wing_array(i,j)%velCPm=wing_array(i,j)%velCPm+cross3(pqr,wing_array(i,j)%cp)
+        wing_array(i,j)%velCPm=uvw+cross3(pqr,wing_array(i,j)%cp)
         wing_array(i,j)%velCP=wing_array(i,j)%velCPm+vind_panelgeo(wake_array,wing_array(i,j)%cp)
       enddo
     enddo
@@ -352,8 +351,8 @@ contains
     velind=0._dp
     do j=1,size(wing_array,2)
       do i=1,size(wing_array,1)
-        velind=velind+wing_array(i,j)%vr%vf(1)%vind(P)
-        velind=velind+wing_array(i,j)%vr%vf(3)%vind(P)
+        velind=velind+wing_array(i,j)%vr%vf(1)%vind(P)*wing_array(i,j)%vr%gam
+        velind=velind+wing_array(i,j)%vr%vf(3)%vind(P)*wing_array(i,j)%vr%gam
       enddo
     enddo
   end function vind_chordvortex
@@ -538,8 +537,8 @@ contains
       do i=2,rows
         vel_drag=dot_product(wg(i,j)%velCP-wg(i,j)%velCPm+vind_chordvortex(wg,wg(i,j)%CP),&
           matmul(wg(i,j)%orthproj(),wg(i,j)%ncap))
-        wg(i,j)%dDrag=(wg(i,j)%vr%gam-gam_prev(i,j))*wg(i,j)%panel_area*sin(wg(i,j)%alpha)/dt&
-          -vel_drag*(wg(i,j)%vr%gam-wg(i-1,j)%vr%gam)*norm2(wg(i,j)%pc(:,4)-wg(i,j)%pc(:,1))
+        !wg(i,j)%dDrag=(wg(i,j)%vr%gam-gam_prev(i,j))*wg(i,j)%panel_area*sin(wg(i,j)%alpha)/dt&
+        wg(i,j)%dDrag=-vel_drag*(wg(i,j)%vr%gam-wg(i-1,j)%vr%gam)*norm2(wg(i,j)%pc(:,4)-wg(i,j)%pc(:,1))
       enddo
     enddo
 
@@ -547,8 +546,8 @@ contains
     do j=2,cols
       vel_drag=dot_product(wg(1,j)%velCP-wg(1,j)%velCPm+vind_chordvortex(wg,wg(1,j)%CP),&
         matmul(wg(1,j)%orthproj(),wg(1,j)%ncap))
-      wg(1,j)%dDrag=(wg(1,j)%vr%gam-gam_prev(1,j))*wg(1,j)%panel_area*sin(wg(1,j)%alpha)/dt&
-        -vel_drag*(wg(1,j)%vr%gam)*norm2(wg(1,j)%pc(:,4)-wg(1,j)%pc(:,1))
+      !wg(1,j)%dDrag=(wg(1,j)%vr%gam-gam_prev(1,j))*wg(1,j)%panel_area*sin(wg(1,j)%alpha)/dt&
+      wg(1,j)%dDrag=-vel_drag*(wg(1,j)%vr%gam)*norm2(wg(1,j)%pc(:,4)-wg(1,j)%pc(:,1))
     enddo
 
     wg%dDrag=density*wg%dDrag
