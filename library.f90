@@ -523,11 +523,16 @@ contains
     real(dp), intent(in), dimension(:) :: gamvec_prev
     real(dp), intent(in) :: dt
     real(dp) :: vel_drag
+    real(dp) :: drag1, drag2
     real(dp), dimension(size(wg,1),size(wg,2)) :: gam_prev
     integer :: i,j,rows,cols
     ! Inherent assumption that panels have subdivisions along chord and not inclined to it
     ! while calculating tangent vector
     ! LE and left sides used for calculating tangent vectors
+
+    ! ******* !! DRAG1 IS DRASTICALLY OVERPREDICTED !!  **********
+    ! ******* !! DRAG1 IS DRASTICALLY OVERPREDICTED !!  **********
+    ! ******* !! DRAG1 IS DRASTICALLY OVERPREDICTED !!  **********
 
     rows=size(wg,1)
     cols=size(wg,2)
@@ -535,19 +540,21 @@ contains
     gam_prev=reshape(gamvec_prev,(/rows,cols/))
     do j=1,cols
       do i=2,rows
-        vel_drag=dot_product(wg(i,j)%velCP-wg(i,j)%velCPm+vind_chordvortex(wg,wg(i,j)%CP),&
+        vel_drag=dot_product((wg(i,j)%velCP-wg(i,j)%velCPm)+vind_chordvortex(wg,wg(i,j)%CP),&
           matmul(wg(i,j)%orthproj(),wg(i,j)%ncap))
-        !wg(i,j)%dDrag=(wg(i,j)%vr%gam-gam_prev(i,j))*wg(i,j)%panel_area*sin(wg(i,j)%alpha)/dt&
-        wg(i,j)%dDrag=-vel_drag*(wg(i,j)%vr%gam-wg(i-1,j)%vr%gam)*norm2(wg(i,j)%pc(:,4)-wg(i,j)%pc(:,1))
+        drag2=(wg(i,j)%vr%gam-gam_prev(i,j))*wg(i,j)%panel_area*sin(wg(i,j)%alpha)/dt
+        drag1=-vel_drag*(wg(i,j)%vr%gam-wg(i-1,j)%vr%gam)*norm2(wg(i,j)%pc(:,4)-wg(i,j)%pc(:,1))
+        wg(i,j)%dDrag=drag1-drag2
       enddo
     enddo
 
     ! i=1
     do j=2,cols
-      vel_drag=dot_product(wg(1,j)%velCP-wg(1,j)%velCPm+vind_chordvortex(wg,wg(1,j)%CP),&
+      vel_drag=dot_product((wg(1,j)%velCP-wg(1,j)%velCPm)+vind_chordvortex(wg,wg(1,j)%CP),&
         matmul(wg(1,j)%orthproj(),wg(1,j)%ncap))
-      !wg(1,j)%dDrag=(wg(1,j)%vr%gam-gam_prev(1,j))*wg(1,j)%panel_area*sin(wg(1,j)%alpha)/dt&
-      wg(1,j)%dDrag=-vel_drag*(wg(1,j)%vr%gam)*norm2(wg(1,j)%pc(:,4)-wg(1,j)%pc(:,1))
+      drag2=(wg(1,j)%vr%gam-gam_prev(1,j))*wg(1,j)%panel_area*sin(wg(1,j)%alpha)/dt
+      drag1=-vel_drag*(wg(1,j)%vr%gam)*norm2(wg(1,j)%pc(:,4)-wg(1,j)%pc(:,1))
+      wg(1,j)%dDrag=drag1-drag2
     enddo
 
     wg%dDrag=density*wg%dDrag
