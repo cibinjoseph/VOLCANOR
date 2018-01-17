@@ -344,7 +344,7 @@ contains
   end subroutine vind_CP
 
   ! Calculates induced vel at P by chordwise vortices of wing_array
-  function vind_spanvortex(wing_array,P) result(velind)
+  function vind_chordvortex(wing_array,P) result(velind)
     type(wingpanel_class), intent(in), dimension(:,:) :: wing_array
     real(dp), intent(in), dimension(3) :: P
     real(dp), dimension(3) :: velind
@@ -352,11 +352,11 @@ contains
     velind=0._dp
     do j=1,size(wing_array,2)
       do i=1,size(wing_array,1)
-        velind=velind+wing_array(i,j)%vr%vf(2)%vind(P)
-        velind=velind+wing_array(i,j)%vr%vf(4)%vind(P)
+        velind=velind+wing_array(i,j)%vr%vf(1)%vind(P)
+        velind=velind+wing_array(i,j)%vr%vf(3)%vind(P)
       enddo
     enddo
-  end function vind_spanvortex
+  end function vind_chordvortex
 
   ! Induced velocity by a wing array on point P
   function vind_panelgeo_wing(wing_array,P) result(velind)
@@ -536,7 +536,7 @@ contains
     gam_prev=reshape(gamvec_prev,(/rows,cols/))
     do j=1,cols
       do i=2,rows
-        vel_drag=dot_product(wg(i,j)%velCP-wg(i,j)%velCPm-vind_spanvortex(wg,wg(i,j)%CP),&
+        vel_drag=dot_product(wg(i,j)%velCP-wg(i,j)%velCPm+vind_chordvortex(wg,wg(i,j)%CP),&
           matmul(wg(i,j)%orthproj(),wg(i,j)%ncap))
         wg(i,j)%dDrag=(wg(i,j)%vr%gam-gam_prev(i,j))*wg(i,j)%panel_area*sin(wg(i,j)%alpha)/dt&
           -vel_drag*(wg(i,j)%vr%gam-wg(i-1,j)%vr%gam)*norm2(wg(i,j)%pc(:,4)-wg(i,j)%pc(:,1))
@@ -545,10 +545,10 @@ contains
 
     ! i=1
     do j=2,cols
-        vel_drag=dot_product(wg(1,j)%velCP-wg(1,j)%velCPm-vind_spanvortex(wg,wg(1,j)%CP),&
-          matmul(wg(1,j)%orthproj(),wg(1,j)%ncap))
-        wg(1,j)%dDrag=(wg(1,j)%vr%gam-gam_prev(1,j))*wg(1,j)%panel_area*sin(wg(1,j)%alpha)/dt&
-          -vel_drag*(wg(1,j)%vr%gam)*norm2(wg(1,j)%pc(:,4)-wg(1,j)%pc(:,1))
+      vel_drag=dot_product(wg(1,j)%velCP-wg(1,j)%velCPm+vind_chordvortex(wg,wg(1,j)%CP),&
+        matmul(wg(1,j)%orthproj(),wg(1,j)%ncap))
+      wg(1,j)%dDrag=(wg(1,j)%vr%gam-gam_prev(1,j))*wg(1,j)%panel_area*sin(wg(1,j)%alpha)/dt&
+        -vel_drag*(wg(1,j)%vr%gam)*norm2(wg(1,j)%pc(:,4)-wg(1,j)%pc(:,1))
     enddo
 
     wg%dDrag=density*wg%dDrag
