@@ -4,9 +4,8 @@ Last Updated : January 2018
 
 ## TO DO
 - complete induced drag computation
-- Make density global variable
 - Validate induced drag for instantaneously started wing
-- Validate pitching or plunging case
+- Validate pitching or plunging case (lift and drag)
 - Verify rotating wing results with BEMT
 - Check whether file read write consumes large time 
 - Parallelize all double do loops
