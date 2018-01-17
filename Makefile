@@ -1,7 +1,7 @@
 #### IFORT ####
 ifc=ifort
 #iflags=-fast -O3 -qopenmp -implicitnone -r8
-iflags=-pg -traceback -O0 -warn all -implicitnone -r8 -check bounds -g -fpe0
+iflags=-traceback -O0 -warn all -implicitnone -r8 -check bounds -g -fpe0 #-pg
 
 #### GFORTRAN ####
 gfc=gfortran-7

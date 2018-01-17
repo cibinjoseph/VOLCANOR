@@ -466,7 +466,6 @@ contains
     ! Inherent assumption that panels have subdivisions along chord and not inclined to it
     ! while calculating tangent vector
     ! LE and left sides used for calculating tangent vectors
-    density=1.2_dp
 
     rows=size(wg,1)
     cols=size(wg,2)
@@ -524,6 +523,7 @@ contains
     type(wingpanel_class), intent(inout), dimension(:,:) :: wg !short form for wing_array
     real(dp), intent(in), dimension(:) :: gamvec_prev
     real(dp), intent(in) :: dt
+    real(dp) :: vel_drag
     real(dp), dimension(size(wg,1),size(wg,2)) :: gam_prev
     integer :: i,j,rows,cols
     ! Inherent assumption that panels have subdivisions along chord and not inclined to it
@@ -534,37 +534,23 @@ contains
     cols=size(wg,2)
 
     gam_prev=reshape(gamvec_prev,(/rows,cols/))
-    do j=2,cols
+    do j=1,cols
       do i=2,rows
-        wg(i,j)%delP=dot_product(wg(i,j)%velCP,tau_c)*(wg(i,j)%vr%gam-wg(i-1,j)%vr%gam)/dot_product(tau_c,tau_c) &
-          +          dot_product(wg(i,j)%velCP,tau_s)*(wg(i,j)%vr%gam-wg(i,j-1)%vr%gam)/dot_product(tau_s,tau_s) &
-          +          (wg(i,j)%vr%gam-gam_prev(i,j))/dt
+        vel_drag=dot_product(wg(i,j)%velCP-wg(i,j)%velCPm-vind_spanvortex(wg,wg(i,j)%CP),&
+          matmul(wg(i,j)%orthproj(),wg(i,j)%ncap))
+        wg(i,j)%dDrag=(wg(i,j)%vr%gam-gam_prev(i,j))*wg(i,j)%panel_area*sin(wg(i,j)%alpha)/dt&
+          -vel_drag*(wg(i,j)%vr%gam-wg(i-1,j)%vr%gam)*norm2(wg(i,j)%pc(:,4)-wg(i,j)%pc(:,1))
       enddo
     enddo
 
-    ! j=1
-    wg(1,1)%delP=dot_product(wg(1,j)%velCP,tau_c)*(wg(1,1)%vr%gam)/dot_product(tau_c,tau_c) &
-      +          dot_product(wg(1,j)%velCP,tau_s)*(wg(1,1)%vr%gam)/dot_product(tau_s,tau_s) &
-      +          (wg(1,1)%vr%gam-gam_prev(1,1))/dt
-
-    do j=2,cols
-      tau_c=wg(1,j)%pc(:,2)-wg(1,j)%pc(:,1)
-      tau_s=wg(1,j)%pc(:,4)-wg(1,j)%pc(:,1)
-      wg(1,j)%delP=dot_product(wg(1,j)%velCP,tau_c)*(wg(1,j)%vr%gam)/dot_product(tau_c,tau_c) &
-        +          dot_product(wg(1,j)%velCP,tau_s)*(wg(1,j)%vr%gam-wg(1,j-1)%vr%gam)/dot_product(tau_s,tau_s) &
-        +          (wg(1,j)%vr%gam-gam_prev(1,j))/dt
-    enddo
-
     ! i=1
-    wg(1,1)%delP=dot_product(wg(1,1)%velCP,tau_c)*(wg(1,1)%vr%gam)/dot_product(tau_c,tau_c) &
-      +          dot_product(wg(1,1)%velCP,tau_s)*(wg(1,1)%vr%gam)/dot_product(tau_s,tau_s) &
-      +          (wg(1,1)%vr%gam-gam_prev(1,1))/dt
-
-    do i=2,rows
-      wg(i,1)%delP=dot_product(wg(i,1)%velCP,tau_c)*(wg(i,1)%vr%gam-wg(i-1,1)%vr%gam)/dot_product(tau_c,tau_c) &
-        +          dot_product(wg(i,1)%velCP,tau_s)*(wg(i,1)%vr%gam)/dot_product(tau_s,tau_s) &
-        +          (wg(i,1)%vr%gam-gam_prev(i,1))/dt
+    do j=2,cols
+        vel_drag=dot_product(wg(1,j)%velCP-wg(1,j)%velCPm-vind_spanvortex(wg,wg(1,j)%CP),&
+          matmul(wg(1,j)%orthproj(),wg(1,j)%ncap))
+        wg(1,j)%dDrag=(wg(1,j)%vr%gam-gam_prev(1,j))*wg(1,j)%panel_area*sin(wg(1,j)%alpha)/dt&
+          -vel_drag*(wg(1,j)%vr%gam)*norm2(wg(1,j)%pc(:,4)-wg(1,j)%pc(:,1))
     enddo
+
     wg%dDrag=density*wg%dDrag
 
   end subroutine calcdrag
