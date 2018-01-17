@@ -9,6 +9,9 @@ module library
   integer, parameter  :: ns = 13
   integer, parameter  :: nc = 4
 
+  ! Global env parameters
+  real(dp), parameter :: density = 1.2_dp
+
   ! Overloaded functions
   interface vind_panelgeo
     module procedure vind_panelgeo_wing, vind_panelgeo_wake
@@ -341,7 +344,7 @@ contains
   end subroutine vind_CP
 
   ! Calculates induced vel at P by chordwise vortices of wing_array
-  function vind_chordvortex(wing_array,P) result(velind)
+  function vind_spanvortex(wing_array,P) result(velind)
     type(wingpanel_class), intent(in), dimension(:,:) :: wing_array
     real(dp), intent(in), dimension(3) :: P
     real(dp), dimension(3) :: velind
@@ -349,11 +352,11 @@ contains
     velind=0._dp
     do j=1,size(wing_array,2)
       do i=1,size(wing_array,1)
-        velind=velind+wing_array(i,j)%vr%vf(1)%vind(P)
-        velind=velind+wing_array(i,j)%vr%vf(3)%vind(P)
+        velind=velind+wing_array(i,j)%vr%vf(2)%vind(P)
+        velind=velind+wing_array(i,j)%vr%vf(4)%vind(P)
       enddo
     enddo
-  end function vind_chordvortex
+  end function vind_spanvortex
 
   ! Induced velocity by a wing array on point P
   function vind_panelgeo_wing(wing_array,P) result(velind)
@@ -457,7 +460,6 @@ contains
     type(wingpanel_class), intent(inout), dimension(:,:) :: wg !short form for wing_array
     real(dp), intent(in), dimension(:) :: gamvec_prev
     real(dp), intent(in) :: dt
-    real(dp) :: density
     real(dp), dimension(size(wg,1),size(wg,2)) :: gam_prev
     real(dp), dimension(3) :: tau_c, tau_s
     integer :: i,j,rows,cols
@@ -522,13 +524,11 @@ contains
     type(wingpanel_class), intent(inout), dimension(:,:) :: wg !short form for wing_array
     real(dp), intent(in), dimension(:) :: gamvec_prev
     real(dp), intent(in) :: dt
-    real(dp) :: density
     real(dp), dimension(size(wg,1),size(wg,2)) :: gam_prev
     integer :: i,j,rows,cols
     ! Inherent assumption that panels have subdivisions along chord and not inclined to it
     ! while calculating tangent vector
     ! LE and left sides used for calculating tangent vectors
-    density=1.2_dp
 
     rows=size(wg,1)
     cols=size(wg,2)
