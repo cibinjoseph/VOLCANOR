@@ -3,8 +3,7 @@ Author : Cibin Joseph
 Last Updated : January 2018
 
 ## TO DO
-- complete induced drag computation
-- Validate induced drag for instantaneously started wing
+- Induced drag computation drastically overpredicted
 - Validate pitching or plunging case (lift and drag)
 - Verify rotating wing results with BEMT
 - Check whether file read write consumes large time 
