@@ -8,7 +8,7 @@ module wingpanel_classdef
     real(dp), dimension(3) :: ncap    ! unit normal vector
     real(dp), dimension(3) :: velCP   ! local velocity at CP
     real(dp), dimension(3) :: velCPm  ! rel. inertial velocity at CP (due to motion)
-    real(dp), dimension(3) :: dForce  ! panel Force vector in inertial frame
+    !real(dp), dimension(3) :: dForce  ! panel Force vector in inertial frame
     real(dp) :: vel_pitch             ! pitch velocity
     real(dp) :: dLift, dDrag          ! magnitudes of panel lift and drag
     real(dp) :: delP                  ! Pressure difference at panel
