@@ -139,64 +139,32 @@ contains
     close(10)
   end subroutine tip2file
 
-  subroutine lift2file(wing_array,filename,extra_params)
-    type(wingpanel_class), intent(in), dimension(:,:) :: wing_array
+  subroutine lift2file(liftvec,filename,extra_params)
+    real(dp), intent(in), dimension(:) :: liftvec
     character(*), intent(in) :: filename
-    real(dp), intent(in), dimension(:) :: extra_params ![1]time [2]chord [3]span [4]speed
-    real(dp) :: lift
-    integer :: i,j
-    lift=0._dp
+    real(dp), intent(in), dimension(:) :: extra_params ![1]dt [2]chord [3]span [4]speed
+    integer :: i
 
-    do j=1,size(wing_array,2)
-      do i=1,size(wing_array,1)
-        lift=lift+wing_array(i,j)%dLift
-      enddo
+    open(unit=10,file=filename)
+    write(10,*) '# Lift'
+    do i=1,size(liftvec,1)
+      write(10,*) extra_params(1)*i,liftvec(i)/(0.5_dp*1.2_dp*extra_params(4)**2._dp*extra_params(2)*extra_params(3))
     enddo
-    open(unit=10,file=filename,position='append')
-    write(10,*) extra_params(1),lift/(0.5_dp*1.2_dp*extra_params(4)**2._dp*extra_params(2)*extra_params(3))
     close(10)
   end subroutine lift2file
 
-  subroutine drag2file(wing_array,filename,extra_params)
-    type(wingpanel_class), intent(in), dimension(:,:) :: wing_array
+  subroutine drag2file(dragvec,filename,extra_params)
+    real(dp), intent(in), dimension(:) :: dragvec
     character(*), intent(in) :: filename
-    real(dp), intent(in), dimension(:) :: extra_params ![1]time [2]chord [3]span [4]speed
-    real(dp) :: drag
-    integer :: i,j
-    drag=0._dp
+    real(dp), intent(in), dimension(:) :: extra_params ![1]dt [2]chord [3]span [4]speed
+    integer :: i
 
-    do j=1,size(wing_array,2)
-      do i=1,size(wing_array,1)
-        drag=drag+wing_array(i,j)%dDrag
-      enddo
+    open(unit=10,file=filename)
+    write(10,*) '# Drag'
+    do i=1,size(dragvec,1)
+      write(10,*) extra_params(1)*i,dragvec(i)/(0.5_dp*1.2_dp*extra_params(4)**2._dp*extra_params(2)*extra_params(3))
     enddo
-    open(unit=10,file=filename,position='append')
-    write(10,*) extra_params(1),drag/(0.5_dp*1.2_dp*extra_params(4)**2._dp*extra_params(2)*extra_params(3))
     close(10)
   end subroutine drag2file
-
-  subroutine addheaders()
-    integer :: stat
-    ! For lift.curve
-    call execute_command_line("echo '# Lift' > dummyheader",exitstat=stat)
-    if (stat .ne. 0) error stop 'ERROR: Unable to perform header write operation (Step 1)'
-    call execute_command_line("cat dummyheader Results/lift.curve > dummyfile ",exitstat=stat)
-    if (stat .ne. 0) error stop 'ERROR: Unable to perform header write operation (Step 2)'
-    call execute_command_line("mv dummyfile Results/lift.curve",exitstat=stat)
-    if (stat .ne. 0) error stop 'ERROR: Unable to perform header write operation (Step 3)'
-    call execute_command_line('rm dummyheader',exitstat=stat)
-    if (stat .ne. 0) error stop 'ERROR: Unable to perform header write operation (Step 4)'
-
-    ! For drag.curve
-    call execute_command_line("echo '# Drag' > dummyheader",exitstat=stat)
-    if (stat .ne. 0) error stop 'ERROR: Unable to perform header write operation (Step 5)'
-    call execute_command_line("cat dummyheader Results/drag.curve > dummyfile ",exitstat=stat)
-    if (stat .ne. 0) error stop 'ERROR: Unable to perform header write operation (Step 6)'
-    call execute_command_line("mv dummyfile Results/drag.curve",exitstat=stat)
-    if (stat .ne. 0) error stop 'ERROR: Unable to perform header write operation (Step 7)'
-    call execute_command_line('rm dummyheader',exitstat=stat)
-    if (stat .ne. 0) error stop 'ERROR: Unable to perform header write operation (Step 8)'
-  end subroutine addheaders
-
 end module postproc
 

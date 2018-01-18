@@ -191,7 +191,7 @@ program main
     ! Forces computation
     call calc_wingalpha(wing)
     lift(iter)=calclift(wing,gamvec_prev,dt)
-    drag(iter)=calcdrag(wing,gamvec_prev,wake,dt)
+    drag(iter)=calcdrag(wing,gamvec_prev,dt)
 
     ! Induced vel on wake vortices
     vind_wake(:,row_now:nt,:)=vind_onwake(wing,wake(row_now:nt,:))
@@ -211,8 +211,8 @@ program main
   enddo
 
   ! Postprocesing
-  call lift2file(wing,'Results/lift.curve',(/t,chord,span,vwind(1)/))
-  call drag2file(wing,'Results/drag.curve',(/t,chord,span,vwind(1)/))
+  call lift2file(lift,'Results/lift.curve',(/dt,chord,span,vwind(1)/))
+  call drag2file(drag,'Results/drag.curve',(/dt,chord,span,vwind(1)/))
 
 
 
