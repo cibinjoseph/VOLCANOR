@@ -480,12 +480,12 @@ contains
       enddo
     enddo
 
-    ! j=1
-    tau_c=wg(1,1)%pc(:,2)-wg(1,1)%pc(:,1)
-    tau_s=wg(1,1)%pc(:,4)-wg(1,1)%pc(:,1)
-    wg(1,1)%delP=dot_product(wg(1,j)%velCP,tau_c)*(wg(1,1)%vr%gam)/dot_product(tau_c,tau_c) &
-      +          dot_product(wg(1,j)%velCP,tau_s)*(wg(1,1)%vr%gam)/dot_product(tau_s,tau_s) &
-      +          (wg(1,1)%vr%gam-gam_prev(1,1))/dt
+   ! ! j=1
+   ! tau_c=wg(1,1)%pc(:,2)-wg(1,1)%pc(:,1)
+   ! tau_s=wg(1,1)%pc(:,4)-wg(1,1)%pc(:,1)
+   ! wg(1,1)%delP=dot_product(wg(1,j)%velCP,tau_c)*(wg(1,1)%vr%gam)/dot_product(tau_c,tau_c) &
+   !   +          dot_product(wg(1,j)%velCP,tau_s)*(wg(1,1)%vr%gam)/dot_product(tau_s,tau_s) &
+   !   +          (wg(1,1)%vr%gam-gam_prev(1,1))/dt
 
     do j=2,cols
       tau_c=wg(1,j)%pc(:,2)-wg(1,j)%pc(:,1)
@@ -518,7 +518,7 @@ contains
     enddo
   end subroutine calclift
 
-  subroutine calcdrag(wg,gamvec_prev,dt)
+  subroutine calcdrag1(wg,gamvec_prev,dt)
     type(wingpanel_class), intent(inout), dimension(:,:) :: wg !short form for wing_array
     real(dp), intent(in), dimension(:) :: gamvec_prev
     real(dp), intent(in) :: dt
@@ -540,6 +540,47 @@ contains
     gam_prev=reshape(gamvec_prev,(/rows,cols/))
     do j=1,cols
       do i=2,rows
+        vel_drag=dot_product((wg(i,j)%velCP-wg(i,j)%velCPm)+vind_chordvortex(wg,wg(i,j)%CP),&
+          matmul(wg(i,j)%orthproj(),wg(i,j)%ncap))
+        drag2=(wg(i,j)%vr%gam-gam_prev(i,j))*wg(i,j)%panel_area*sin(wg(i,j)%alpha)/dt
+        drag1=-vel_drag*(wg(i,j)%vr%gam-wg(i-1,j)%vr%gam)*norm2(wg(i,j)%pc(:,4)-wg(i,j)%pc(:,1))
+        wg(i,j)%dDrag=drag1-drag2
+      enddo
+    enddo
+
+    ! i=1
+    do j=2,cols
+      vel_drag=dot_product((wg(1,j)%velCP-wg(1,j)%velCPm)+vind_chordvortex(wg,wg(1,j)%CP),&
+        matmul(wg(1,j)%orthproj(),wg(1,j)%ncap))
+      drag2=(wg(1,j)%vr%gam-gam_prev(1,j))*wg(1,j)%panel_area*sin(wg(1,j)%alpha)/dt
+      drag1=-vel_drag*(wg(1,j)%vr%gam)*norm2(wg(1,j)%pc(:,4)-wg(1,j)%pc(:,1))
+      wg(1,j)%dDrag=drag1-drag2
+    enddo
+
+    wg%dDrag=density*wg%dDrag
+
+  end subroutine calcdrag1
+
+  subroutine calcdrag(wg,gamvec_prev,wake_array,dt)
+    type(wingpanel_class), intent(inout), dimension(:,:) :: wg !short form for wing_array
+    real(dp), intent(in), dimension(:) :: gamvec_prev
+    type(wakepanel_class), intent(in), dimension(:,:) :: wake_array
+    real(dp), intent(in) :: dt
+    real(dp) :: vel_drag
+    real(dp) :: drag1, drag2
+    real(dp), dimension(size(wg,1),size(wg,2)) :: gam_prev
+    integer :: i,j,rows,cols
+    ! Inherent assumption that panels have subdivisions along chord and not inclined to it
+    ! while calculating tangent vector
+    ! LE and left sides used for calculating tangent vectors
+
+    rows=size(wg,1)
+    cols=size(wg,2)
+
+    gam_prev=reshape(gamvec_prev,(/rows,cols/))
+    do j=1,cols
+      do i=2,rows
+        print*,wg(i,j)%velCP-wg(i,j)%velCPm-vind_panelgeo(wake_array,wg(i,j)%CP)
         vel_drag=dot_product((wg(i,j)%velCP-wg(i,j)%velCPm)+vind_chordvortex(wg,wg(i,j)%CP),&
           matmul(wg(i,j)%orthproj(),wg(i,j)%ncap))
         drag2=(wg(i,j)%vr%gam-gam_prev(i,j))*wg(i,j)%panel_area*sin(wg(i,j)%alpha)/dt
