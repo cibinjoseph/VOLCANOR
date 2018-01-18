@@ -181,7 +181,7 @@ contains
     real(dp), dimension(3), intent(in) :: pts
     real(dp), dimension(3) :: dshift
 
-    if (theta_pitch>eps) then
+    if (abs(theta_pitch)>eps) then
       ! Translate to origin
       dshift=(/wing_array(1,1)%pc(:,1)/)
       call mov_wing(wing_array,-dshift)
