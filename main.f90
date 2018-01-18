@@ -207,7 +207,6 @@ program main
     ! Store shed vortex as TE for next wake panel
     if (row_now>1) call assignshed(wake(row_now-1,:),wing(nc,:),'TE')  
 
-
   enddo
 
   ! Postprocesing
