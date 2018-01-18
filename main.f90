@@ -188,6 +188,14 @@ program main
     ! Map gamvec to wing gam
     wing%vr%gam=reshape(gamvec,(/nc,ns/))    ! ns,nc due to transpose
 
+    ! Forces computation
+    call calc_wingalpha(wing)
+    call calclift(wing,gamvec_prev,dt)
+    call calcdrag(wing,gamvec_prev,wake,dt)
+
+    call lift2file(wing,'Results/lift.curve',(/t,chord,span,vwind(1)/))
+    call drag2file(wing,'Results/drag.curve',(/t,chord,span,vwind(1)/))
+
     ! Induced vel on wake vortices
     vind_wake(:,row_now:nt,:)=vind_onwake(wing,wake(row_now:nt,:))
     vind_wake(:,row_now:nt,:)=vind_wake(:,row_now:nt,:)+vind_onwake(wake(row_now:nt,:),wake(row_now:nt,:))
@@ -202,14 +210,6 @@ program main
     ! Store shed vortex as TE for next wake panel
     if (row_now>1) call assignshed(wake(row_now-1,:),wing(nc,:),'TE')  
 
-
-    ! Forces computation
-    call calc_wingalpha(wing)
-    call calclift(wing,gamvec_prev,dt)
-    call calcdrag(wing,gamvec_prev,wake,dt)
-
-    call lift2file(wing,'Results/lift.curve',(/t,chord,span,vwind(1)/))
-    call drag2file(wing,'Results/drag.curve',(/t,chord,span,vwind(1)/))
 
   enddo
 
