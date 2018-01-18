@@ -580,8 +580,8 @@ contains
     gam_prev=reshape(gamvec_prev,(/rows,cols/))
     do j=1,cols
       do i=2,rows
-        print*,wg(i,j)%velCP-wg(i,j)%velCPm-vind_panelgeo(wake_array,wg(i,j)%CP)
-        vel_drag=dot_product((wg(i,j)%velCP-wg(i,j)%velCPm)+vind_chordvortex(wg,wg(i,j)%CP),&
+        !print*,wg(i,j)%velCP-wg(i,j)%velCPm-vind_panelgeo(wake_array,wg(i,j)%CP)
+        vel_drag=dot_product((vind_panelgeo(wake_array,wg(i,j)%CP))+vind_chordvortex(wg,wg(i,j)%CP),&
           matmul(wg(i,j)%orthproj(),wg(i,j)%ncap))
         drag2=(wg(i,j)%vr%gam-gam_prev(i,j))*wg(i,j)%panel_area*sin(wg(i,j)%alpha)/dt
         drag1=-vel_drag*(wg(i,j)%vr%gam-wg(i-1,j)%vr%gam)*norm2(wg(i,j)%pc(:,4)-wg(i,j)%pc(:,1))
