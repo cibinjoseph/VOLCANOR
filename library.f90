@@ -480,13 +480,6 @@ contains
       enddo
     enddo
 
-    ! ! j=1
-    ! tau_c=wg(1,1)%pc(:,2)-wg(1,1)%pc(:,1)
-    ! tau_s=wg(1,1)%pc(:,4)-wg(1,1)%pc(:,1)
-    ! wg(1,1)%delP=dot_product(wg(1,j)%velCP,tau_c)*(wg(1,1)%vr%gam)/dot_product(tau_c,tau_c) &
-    !   +          dot_product(wg(1,j)%velCP,tau_s)*(wg(1,1)%vr%gam)/dot_product(tau_s,tau_s) &
-    !   +          (wg(1,1)%vr%gam-gam_prev(1,1))/dt
-
     do j=2,cols
       tau_c=wg(1,j)%pc(:,2)-wg(1,j)%pc(:,1)
       tau_s=wg(1,j)%pc(:,4)-wg(1,j)%pc(:,1)
@@ -495,7 +488,6 @@ contains
         +          (wg(1,j)%vr%gam-gam_prev(1,j))/dt
     enddo
 
-    ! i=1
     tau_c=wg(1,1)%pc(:,2)-wg(1,1)%pc(:,1)
     tau_s=wg(1,1)%pc(:,4)-wg(1,1)%pc(:,1)
     wg(1,1)%delP=dot_product(wg(1,1)%velCP,tau_c)*(wg(1,1)%vr%gam)/dot_product(tau_c,tau_c) &
