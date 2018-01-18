@@ -455,10 +455,11 @@ contains
     enddo
   end subroutine calc_wingalpha
 
-  subroutine calclift(wg,gamvec_prev,dt)
+  function calclift(wg,gamvec_prev,dt)
     type(wingpanel_class), intent(inout), dimension(:,:) :: wg !short form for wing_array
     real(dp), intent(in), dimension(:) :: gamvec_prev
     real(dp), intent(in) :: dt
+    real(dp) :: calclift
     real(dp), dimension(size(wg,1),size(wg,2)) :: gam_prev
     real(dp), dimension(3) :: tau_c, tau_s
     integer :: i,j,rows,cols
@@ -508,12 +509,19 @@ contains
         wg(i,j)%dLift=-(wg(i,j)%delP*wg(i,j)%panel_area)*cos(wg(i,j)%alpha)
       enddo
     enddo
-  end subroutine calclift
 
-  subroutine calcdrag(wg,gamvec_prev,dt)
+    calclift=0._dp
+    do j=1,cols
+      do i=1,rows
+        calclift=calclift+wg(i,j)%dlift
+      enddo
+    enddo
+  end function calclift
+
+  function calcdrag(wg,gamvec_prev,dt)
     type(wingpanel_class), intent(inout), dimension(:,:) :: wg !short form for wing_array
     real(dp), intent(in), dimension(:) :: gamvec_prev
-    type(wakepanel_class), intent(in), dimension(:,:) :: wake_array
+    real(dp) :: calcdrag
     real(dp), intent(in) :: dt
     real(dp) :: vel_drag
     real(dp) :: drag1, drag2
@@ -552,5 +560,12 @@ contains
 
     wg%dDrag=density*wg%dDrag
 
-  end subroutine calcdrag
+    calcdrag=0._dp
+    do j=1,cols
+      do i=1,rows
+        calcdrag=calcdrag+wg(i,j)%dDrag
+      enddo
+    enddo
+  end function calcdrag
+
 end module library
