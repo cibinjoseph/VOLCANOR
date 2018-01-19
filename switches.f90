@@ -13,4 +13,4 @@ integer, parameter :: slowstart_switch=0
 integer, parameter :: slowstart_nt=20
 
 ! Wake strain
-integer, parameter :: wakestrain_switch=1
+integer, parameter :: wakestrain_switch=0
