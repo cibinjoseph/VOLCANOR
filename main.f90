@@ -191,7 +191,7 @@ program main
     ! Forces computation
     call calc_wingalpha(wing)
     lift(iter)=calclift(wing,gamvec_prev,dt)
-    drag(iter)=calcdrag(wing,gamvec_prev,dt)
+    drag(iter)=calcdrag(wing,gamvec_prev,wake(row_now:nt,:),dt)
 
     ! Induced vel on wake vortices
     vind_wake(:,row_now:nt,:)=vind_onwake(wing,wake(row_now:nt,:))
