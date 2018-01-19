@@ -12,7 +12,6 @@ module vf_classdef
   contains
     procedure :: vind => vfclass_vind   
     procedure :: calclength => vfclass_calclength
-    procedure :: updlength => vfclass_updlength
   end type vf_class
 
   ! Contains switches for multiple features
@@ -71,14 +70,5 @@ contains
     this%lc=norm2(delta)
     if (isoriginal .eqv. .TRUE.) this%l0=norm2(delta)
   end subroutine vfclass_calclength
-
-  subroutine vfclass_updlength(this) 
-  class(vf_class) :: this
-    real(dp), dimension(3) :: delta
-
-    delta = this%fc(:,1)-this%fc(:,2)
-    this%lc=norm2(delta)
-
-  end subroutine vfclass_updlength
 
 end module vf_classdef
