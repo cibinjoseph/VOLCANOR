@@ -45,6 +45,7 @@ Print to pdf using usual Ctrl+P from browser.
 1. Multiple vortex models 
 2. Vortex dissipation
 3. Slow-start to avoid large starting vortex
+4. Wake strain
 
 ### Objects
 #### vf_class  
