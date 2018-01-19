@@ -9,13 +9,14 @@ module vr_classdef
     procedure :: assignP => vrclass_assignP
     procedure :: shiftdP  => vrclass_shiftdP
     procedure :: rot  => vrclass_rot
+    procedure :: calclength => vrclass_calclength
   end type vr_class
 
 contains
 
   function vrclass_vind(this,P) result(vind)
     ! Calculates induced velocity by unit gam vortex ring
-    class(vr_class) :: this
+  class(vr_class) :: this
     real(dp), dimension(3) :: P, vind
     integer :: i
 
@@ -41,7 +42,7 @@ contains
   ! V X along chord
 
   subroutine vrclass_assignP(this,n,P)   ! for assigning coordinates to nth corner
-    class(vr_class) :: this
+  class(vr_class) :: this
     integer, intent(in) :: n
     real(dp), dimension(3) :: P
 
@@ -65,7 +66,7 @@ contains
   end subroutine vrclass_assignP
 
   subroutine vrclass_shiftdP(this,n,dshift)   ! for shifting coordinates of nth corner by dshift distance (usually for Udt convection)
-    class(vr_class) :: this
+  class(vr_class) :: this
     integer, intent(in) :: n
     real(dp), intent(in), dimension(3) :: dshift
 
@@ -90,7 +91,7 @@ contains
 
   subroutine vrclass_rot(this,Tmat)
     ! Rotate vortex ring using Tmat
-    class(vr_class) :: this
+  class(vr_class) :: this
     real(dp), intent(in), dimension(3,3) :: Tmat
     integer :: i
 
@@ -101,4 +102,12 @@ contains
 
   end subroutine vrclass_rot
 
+  subroutine vrclass_calclength(this,isoriginal)
+  class(vr_class) :: this
+    logical, intent(in) :: isoriginal
+    integer :: i
+    do i=1,4
+      call this%vf(i)%calclength(isoriginal)
+    enddo
+  end subroutine vrclass_calclength
 end module vr_classdef

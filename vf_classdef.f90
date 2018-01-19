@@ -11,8 +11,8 @@ module vf_classdef
     real(dp) :: age=0._dp   ! vortex age (in s)
   contains
     procedure :: vind => vfclass_vind   
-    procedure :: calclength
-    procedure :: updlength
+    procedure :: calclength => vfclass_calclength
+    procedure :: updlength => vfclass_updlength
   end type vf_class
 
   ! Contains switches for multiple features
@@ -24,7 +24,7 @@ contains
 
   function vfclass_vind(this,P) result(vind)
     ! Calculates induced velocity by unit gam vortex filament
-    class(vf_class) :: this
+  class(vf_class) :: this
     real(dp), dimension(3) :: vind, P
     real(dp) :: r1_r2_abs2, r1_abs, r2_abs, h, Kv
     real(dp), dimension(3) :: r1, r2, r0, r1_r2
@@ -62,22 +62,23 @@ contains
   end function vfclass_vind
 
 
-  subroutine calclength(this) 
-    class(vf_class) :: this
+  subroutine vfclass_calclength(this,isoriginal) 
+  class(vf_class) :: this
+    logical, intent(in) :: isoriginal
     real(dp), dimension(3) :: delta
 
     delta = this%fc(:,1)-this%fc(:,2)
-    this%l0=norm2(delta)
+    this%lc=norm2(delta)
+    if (isoriginal .eqv. .TRUE.) this%l0=norm2(delta)
+  end subroutine vfclass_calclength
 
-  end subroutine calclength
-
-  subroutine updlength(this) 
-    class(vf_class) :: this
+  subroutine vfclass_updlength(this) 
+  class(vf_class) :: this
     real(dp), dimension(3) :: delta
 
     delta = this%fc(:,1)-this%fc(:,2)
     this%lc=norm2(delta)
 
-  end subroutine updlength
+  end subroutine vfclass_updlength
 
 end module vf_classdef

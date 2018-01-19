@@ -231,6 +231,7 @@ contains
       do i=1,size(wing_row)
         call wake_row(i)%vr%assignP(1,wing_row(i)%vr%vf(2)%fc(:,1))
         call wake_row(i)%vr%assignP(4,wing_row(i)%vr%vf(3)%fc(:,1))
+        call wake_row(i)%vr%calclength(.TRUE.)    ! TRUE => record original length
       enddo
       wake_row%tag=1
     case ('TE')    ! assign to TE
