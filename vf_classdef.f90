@@ -12,6 +12,7 @@ module vf_classdef
   contains
     procedure :: vind => vfclass_vind   
     procedure :: calclength => vfclass_calclength
+    procedure :: strain => vfclass_strain
   end type vf_class
 
   ! Contains switches for multiple features
@@ -60,7 +61,6 @@ contains
 
   end function vfclass_vind
 
-
   subroutine vfclass_calclength(this,isoriginal) 
   class(vf_class) :: this
     logical, intent(in) :: isoriginal
@@ -70,5 +70,10 @@ contains
     this%lc=norm2(delta)
     if (isoriginal .eqv. .TRUE.) this%l0=norm2(delta)
   end subroutine vfclass_calclength
+
+  subroutine vfclass_strain(this)
+  class(vf_class) :: this
+    this%r_vc=this%r_vc0*sqrt(this%l0/this%lc)
+  end subroutine vfclass_strain
 
 end module vf_classdef

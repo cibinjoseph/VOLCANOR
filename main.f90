@@ -191,7 +191,7 @@ program main
     ! Forces computation
     call calc_wingalpha(wing)
     lift(iter)=calclift(wing,gamvec_prev,dt)
-    drag(iter)=calcdrag(wing,gamvec_prev,wake(row_now:nt,:),dt)
+    drag(iter)=calcdrag(wing,gamvec_prev,dt)
 
     ! Induced vel on wake vortices
     vind_wake(:,row_now:nt,:)=vind_onwake(wing,wake(row_now:nt,:))
@@ -202,7 +202,7 @@ program main
     call wake_continuity(wake(row_now:nt,:))   
 
     ! Strain wake
-    ! call strain_wake(wake(row_now,:,:))
+    if (wakestrain_switch .eq. 1) call strain_wake(wake(row_now:nt,:))
 
     ! Store shed vortex as TE for next wake panel
     if (row_now>1) call assignshed(wake(row_now-1,:),wing(nc,:),'TE')  

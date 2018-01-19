@@ -10,6 +10,7 @@ module vr_classdef
     procedure :: shiftdP  => vrclass_shiftdP
     procedure :: rot  => vrclass_rot
     procedure :: calclength => vrclass_calclength
+    procedure :: strain => vrclass_strain
   end type vr_class
 
 contains
@@ -110,4 +111,13 @@ contains
       call this%vf(i)%calclength(isoriginal)
     enddo
   end subroutine vrclass_calclength
+
+  subroutine vrclass_strain(this)
+  class(vr_class) :: this
+    integer :: i
+    do i=1,4
+      call this%vf(i)%strain()
+    enddo
+  end subroutine vrclass_strain
+
 end module vr_classdef

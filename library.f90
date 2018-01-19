@@ -321,6 +321,19 @@ contains
     enddo
   end subroutine dissipate_tip
 
+  subroutine strain_wake(wake_array)
+    type(wakepanel_class), intent(inout), dimension(:,:) :: wake_array
+    integer :: i,j
+    !$omp parallel do collapse(2)
+    do j=1,size(wake_array,2)
+      do i=1,size(wake_array,1)
+        call wake_array(i,j)%vr%calclength(.FALSE.)    ! Update current length
+        call wake_array(i,j)%vr%strain() 
+      enddo
+    enddo
+    !$omp end parallel do
+
+  end subroutine strain_wake
 
   !--------------------------------------------------------!
   !                Induced Velocity Functions              !
@@ -367,13 +380,11 @@ contains
     integer :: i,j
 
     velind_mat=0._dp
-    !$omp parallel do collapse(2)
     do j=1,size(wing_array,2)
       do i=1,size(wing_array,1)
         velind_mat(:,i,j)=wing_array(i,j)%vr%vind(P)*wing_array(i,j)%vr%gam
       enddo
     enddo
-    !$omp end parallel do
     velind(1)=sum(velind_mat(1,:,:))
     velind(2)=sum(velind_mat(2,:,:))
     velind(3)=sum(velind_mat(3,:,:))
@@ -519,9 +530,8 @@ contains
     enddo
   end function calclift
 
-  function calcdrag(wg,gamvec_prev,wake_array,dt)
+  function calcdrag(wg,gamvec_prev,dt)
     type(wingpanel_class), intent(inout), dimension(:,:) :: wg !short form for wing_array
-    type(wakepanel_class), intent(inout), dimension(:,:) :: wake_array
     real(dp), intent(in), dimension(:) :: gamvec_prev
     real(dp) :: calcdrag
     real(dp), intent(in) :: dt
@@ -543,14 +553,13 @@ contains
     gam_prev=reshape(gamvec_prev,(/rows,cols/))
     do j=1,cols
       do i=2,rows
-        print*,vind_panelgeo(wake_array,wg(i,j)%cp)-(wg(i,j)%velCP-wg(i,j)%velCPm)
         !vel_drag=dot_product((vind_panelgeo(wake_array,wg(i,j)%cp))+vind_chordvortex(wg,wg(i,j)%cp),&
         !  (/0._dp,0._dp,1._dp/))
         vel_drag=dot_product((wg(i,j)%velCP-wg(i,j)%velCPm)+vind_chordvortex(wg,wg(i,j)%CP),&
           matmul(wg(i,j)%orthproj(),wg(i,j)%ncap))
         drag2=(wg(i,j)%vr%gam-gam_prev(i,j))*wg(i,j)%panel_area*sin(wg(i,j)%alpha)/dt
         drag1=-vel_drag*(wg(i,j)%vr%gam-wg(i-1,j)%vr%gam)*norm2(wg(i,j)%pc(:,4)-wg(i,j)%pc(:,1))
-        wg(i,j)%dDrag=drag1!-drag2
+        wg(i,j)%dDrag=drag1-drag2
       enddo
     enddo
 
@@ -562,7 +571,7 @@ contains
         matmul(wg(1,j)%orthproj(),wg(1,j)%ncap))
       drag2=(wg(1,j)%vr%gam-gam_prev(1,j))*wg(1,j)%panel_area*sin(wg(1,j)%alpha)/dt
       drag1=-vel_drag*(wg(1,j)%vr%gam)*norm2(wg(1,j)%pc(:,4)-wg(1,j)%pc(:,1))
-      wg(1,j)%dDrag=drag1!-drag2
+      wg(1,j)%dDrag=drag1-drag2
     enddo
 
     wg%dDrag=density*wg%dDrag
