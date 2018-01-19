@@ -3,6 +3,7 @@ Author : Cibin Joseph
 Last Updated : January 2018
 
 ## TO DO
+- Implement vortex straining
 - Induced drag computation drastically overpredicted
 - Validate pitching or plunging case (lift and drag)
 - Verify rotating wing results with BEMT
@@ -12,7 +13,6 @@ Last Updated : January 2018
 - Check 25% of panel span inset of vortices create difference
 - Check slow start of [3] extended tanh function
 - Implement free wake relaxation
-- Implement vortex straining
 - Add rotor as xvec and yvec rotated about centre
 
 ## Rendering Readme.md
