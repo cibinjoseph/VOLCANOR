@@ -254,11 +254,13 @@ contains
     rows=size(wake_array,1)
     cols=size(wake_array,2)
 
+    !$omp parallel do collapse(2)
     do j=1,cols
       do i=1,rows
         call wake_array(i,j)%vr%shiftdP(2,dP_array(:,i,j))
       enddo
     enddo
+    !$omp end parallel do
 
     do i=1,rows
       call wake_array(i,cols)%vr%shiftdP(3,dP_array(:,i,cols+1))
@@ -272,6 +274,7 @@ contains
     rows=size(wake_array,1)
     cols=size(wake_array,2)
 
+    !$omp parallel do collapse(2)
     do j=1,cols-1
       do i=2,rows
         call wake_array(i,j)%vr%assignP(1,wake_array(i-1,j)%vr%vf(2)%fc(:,1))
@@ -279,6 +282,7 @@ contains
         call wake_array(i,j)%vr%assignP(4,wake_array(i-1,j+1)%vr%vf(2)%fc(:,1))
       enddo
     enddo
+    !$omp end parallel do
 
     do j=1,cols-1
       call wake_array(1,j)%vr%assignP(3,wake_array(1,j+1)%vr%vf(2)%fc(:,1))
@@ -294,9 +298,11 @@ contains
     type(wakepanel_class), intent(inout), dimension(:,:) :: wake_array
     real(dp),intent(in) :: dt
     integer :: i
+    !$omp parallel do
     do i=1,4
       wake_array%vr%vf(i)%age=wake_array%vr%vf(i)%age+dt
     enddo
+    !$omp end parallel do
   end subroutine age_wake
 
   subroutine dissipate_tip(wake_array)
