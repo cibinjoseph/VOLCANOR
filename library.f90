@@ -190,7 +190,7 @@ contains
       call rot_wing(wing_array,pts,1)
 
       ! Rotate pitch angle
-      call rot_wing(wing_array,(/0._dp,theta_pitch,0._dp/),1)
+      call rot_wing(wing_array,(/0._dp,-theta_pitch,0._dp/),1)
 
       ! Unrotate global angles
       call rot_wing(wing_array,-1._dp*pts,1)
