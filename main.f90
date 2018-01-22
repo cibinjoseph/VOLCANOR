@@ -28,8 +28,8 @@ program main
   call degtorad(theta0)
   call degtorad(thetac)
   call degtorad(thetas)
-  om_theta=2._dp*pi*om_theta
-  om_h    =2._dp*pi*om_h
+  !om_theta=2._dp*pi*om_theta
+  !om_h    =2._dp*pi*om_h
   vbody=-1._dp*vwind
   pqr=-1._dp*om_body
 
