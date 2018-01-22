@@ -262,9 +262,11 @@ contains
     enddo
     !$omp end parallel do
 
+    !$omp parallel do
     do i=1,rows
       call wake_array(i,cols)%vr%shiftdP(3,dP_array(:,i,cols+1))
     enddo
+    !$omp end parallel do
   end subroutine convectwake
 
   subroutine wake_continuity(wake_array)
@@ -284,14 +286,18 @@ contains
     enddo
     !$omp end parallel do
 
+    !$omp parallel do
     do j=1,cols-1
       call wake_array(1,j)%vr%assignP(3,wake_array(1,j+1)%vr%vf(2)%fc(:,1))
     enddo
+    !$omp end parallel do
 
+    !$omp parallel do
     do i=2,rows
       call wake_array(i,cols)%vr%assignP(1,wake_array(i-1,cols)%vr%vf(2)%fc(:,1))
       call wake_array(i,cols)%vr%assignP(4,wake_array(i-1,cols)%vr%vf(3)%fc(:,1))
     enddo
+    !$omp end parallel do
   end subroutine wake_continuity
 
   subroutine age_wake(wake_array,dt)
@@ -427,15 +433,19 @@ contains
     rows=size(wake_array,1)
     cols=size(wake_array,2)
 
+    !$omp parallel do
     do j=1,cols
       do i=1,rows
         vind_array(:,i,j)=vind_panelgeo(wing_array,wake_array(i,j)%vr%vf(2)%fc(:,1))
       enddo
     enddo
+    !$omp end parallel do
 
+    !$omp parallel do
     do i=1,rows
       vind_array(:,i,cols+1)=vind_panelgeo(wing_array,wake_array(i,cols)%vr%vf(3)%fc(:,1))
     enddo
+    !$omp end parallel do
   end function vind_onwake_bywing
 
   ! Induced velocity by bywake_array on wake_array corner points
@@ -448,15 +458,19 @@ contains
     rows=size(wake_array,1)
     cols=size(wake_array,2)
 
+    !$omp parallel do
     do j=1,cols
       do i=1,rows
         vind_array(:,i,j)=vind_panelgeo(bywake_array,wake_array(i,j)%vr%vf(2)%fc(:,1))
       enddo
     enddo
+    !$omp end parallel do
 
+    !$omp parallel do
     do i=1,rows
       vind_array(:,i,cols+1)=vind_panelgeo(bywake_array,wake_array(i,cols)%vr%vf(3)%fc(:,1))
     enddo
+    !$omp end parallel do
   end function vind_onwake_bywake
 
   !--------------------------------------------------------!
