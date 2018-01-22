@@ -3,7 +3,7 @@ Author : Cibin Joseph
 Last Updated : January 2018
 
 ## TO DO
-- Validate pitching or plunging case (lift and drag)
+- Validate plunging case (lift and drag)
 - Induced drag computation drastically overpredicted
 - Verify rotating wing results with BEMT
 - Check whether file read write consumes large time 
