@@ -161,7 +161,7 @@ program main
     call assignshed(wake(row_now,:),wing(nc,:),'LE')  ! Store shed vortex as LE
 
     ! Write out wing n' wake
-    call mesh2file(wing,wake(row_now:nt,:),'Results/wNw'//timestamp//'.tec')
+    if (wakeplot_switch .eq. 2) call mesh2file(wing,wake(row_now:nt,:),'Results/wNw'//timestamp//'.tec')
     call tip2file(wing,wake(row_now:nt,:),'Results/tip'//timestamp//'.tec')
 
     ! Induced vel at coll. point (excluding pitch and wing induced velocities)
@@ -212,6 +212,8 @@ program main
   ! Postprocesing
   call lift2file(lift,'Results/lift.curve',(/dt,chord,span,vwind(1)/))
   call drag2file(drag,'Results/drag.curve',(/dt,chord,span,vwind(1)/))
+
+    if (wakeplot_switch .eq. 1) call mesh2file(wing,wake(row_now:nt,:),'Results/wNw'//timestamp//'.tec')
 
 
 
