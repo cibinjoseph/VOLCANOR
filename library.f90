@@ -267,8 +267,11 @@ contains
       call wake_array(i,cols)%vr%shiftdP(3,dP_array(:,i,cols+1))
     enddo
     !$omp end parallel do
+    call wake_continuity(wake_array)
   end subroutine convectwake
 
+  ! Maintain continuity between vortex ring elements after convection
+  ! of vortex ring corners
   subroutine wake_continuity(wake_array)
     type(wakepanel_class), intent(inout), dimension(:,:) :: wake_array
     integer :: i,j,rows,cols

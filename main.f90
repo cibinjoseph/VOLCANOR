@@ -204,15 +204,12 @@ program main
       ! Convection using Predictor-Corrector approach
       Pwake(row_now:nt,:)=wake(row_now:nt,:)
       call convectwake(Pwake(row_now:nt,:),vind_wake(:,row_now:nt,:)*dt)
-      call wake_continuity(Pwake(row_now:nt,:))   
 
       Pvind_wake(:,row_now:nt,:)=vind_onwake(wing,Pwake(row_now:nt,:))
       Pvind_wake(:,row_now:nt,:)=Pvind_wake(:,row_now:nt,:)+vind_onwake(Pwake(row_now:nt,:),Pwake(row_now:nt,:))
 
       call convectwake(wake(row_now:nt,:),(vind_wake(:,row_now:nt,:)+Pvind_wake(:,row_now:nt,:))*dt*0.5_dp)
     endif
-
-    call wake_continuity(wake(row_now:nt,:))   
 
     ! Strain wake
     if (wakestrain_switch .eq. 1) call strain_wake(wake(row_now:nt,:))
