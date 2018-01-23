@@ -40,19 +40,6 @@ Last Updated : January 2018
 3. Slow-start to avoid large starting vortex
 4. Wake strain
 
-### Objects
-#### vf_class  
-- fc(3,2), lo, lc, r_vc
-- vind(), calclength(), updlength()
-
-#### vr_class
-- vf(4), gam
-- vind(), assignP, shiftdP, rot()
-
-#### panel_class
-- vr, pc(3,4), cp(3), ncap(3)
-- assignP(), calcCP(), calcN(), rot()
-
 ### Parameters
 Om = 600 rad/s => 62.832 rad/s => 3600 deg/s  
 5 deg => 5/3600 s  
