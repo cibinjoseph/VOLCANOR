@@ -14,13 +14,6 @@ Last Updated : January 2018
 - Implement free wake relaxation
 - Add rotor as xvec and yvec rotated about centre
 
-## Rendering Readme.md
-To render this document on a browser use command 
-```sh
-$ grip README.md
-```
-Print to pdf using usual Ctrl+P from browser.
-
 ## Code Details and Nomenclature
 ### Algorithm
 *Note: All subroutines and functions calculate induced velocity by a unit vortex. Actual gamma has to be mutiplied.*
