@@ -16,4 +16,7 @@ integer, parameter :: slowstart_nt=20
 integer, parameter :: wakestrain_switch=0
 
 ! Plot wake: [0]Off [1]Last timestep only [2]All timestep wakes
-integer, parameter :: wakeplot_switch=1
+integer, parameter :: wakeplot_switch=2
+
+! Wake convection using Predictor-Corrector approach
+integer, parameter :: PCwake_switch=0

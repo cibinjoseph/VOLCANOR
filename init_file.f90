@@ -3,6 +3,7 @@ real(dp), dimension(nc+1)   :: xvec
 real(dp), dimension(ns+1)     :: yvec
 type(wingpanel_class), dimension(nc,ns) :: wing
 type(wakepanel_class), dimension(nt,ns) :: wake
+type(wakepanel_class), dimension(nt,ns) :: Pwake
 real(dp), dimension(nc*ns,nc*ns) :: Amat, Amat_inv
 real(dp), dimension(nc*ns) :: RHS, gamvec, gamvec_prev
 
@@ -21,6 +22,7 @@ real(dp) :: t
 real(dp), dimension(nt) :: lift, drag
 real(dp), dimension(3) :: pts, dpts   ! phi, theta, psi
 real(dp), dimension(3,nt,ns+1) :: vind_wake
+real(dp), dimension(3,nt,ns+1) :: Pvind_wake
 character(len=5) :: timestamp
 
 ! Iterators

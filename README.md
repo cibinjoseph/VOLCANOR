@@ -16,6 +16,7 @@ A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method
 - Vortex dissipation due to turbulence and viscosity
 - Slow-start to avoid large starting vortex
 - Wake strain to prevent violation of Helmholtz's Law
+- Predictor-Corrector based wake convection for improved stability and accuracy
 - Visualization of load history, wake structure etc in VisIt
 
 ## Known Issues

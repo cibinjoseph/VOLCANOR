@@ -198,7 +198,20 @@ program main
     vind_wake(:,row_now:nt,:)=vind_wake(:,row_now:nt,:)+vind_onwake(wake(row_now:nt,:),wake(row_now:nt,:))
 
     ! Update wake vortex locations
-    call convectwake(wake(row_now:nt,:),vind_wake(:,row_now:nt,:)*dt)
+    if (PCwake_switch .eq. 0) then
+      call convectwake(wake(row_now:nt,:),vind_wake(:,row_now:nt,:)*dt)
+    else
+      ! Convection using Predictor-Corrector approach
+      Pwake(row_now:nt,:)=wake(row_now:nt,:)
+      call convectwake(Pwake(row_now:nt,:),vind_wake(:,row_now:nt,:)*dt)
+      call wake_continuity(Pwake(row_now:nt,:))   
+
+      Pvind_wake(:,row_now:nt,:)=vind_onwake(wing,Pwake(row_now:nt,:))
+      Pvind_wake(:,row_now:nt,:)=Pvind_wake(:,row_now:nt,:)+vind_onwake(Pwake(row_now:nt,:),Pwake(row_now:nt,:))
+
+      call convectwake(wake(row_now:nt,:),(vind_wake(:,row_now:nt,:)+Pvind_wake(:,row_now:nt,:))*dt*0.5_dp)
+    endif
+
     call wake_continuity(wake(row_now:nt,:))   
 
     ! Strain wake
@@ -213,7 +226,7 @@ program main
   call lift2file(lift,'Results/lift.curve',(/dt,chord,span,vwind(1)/))
   call drag2file(drag,'Results/drag.curve',(/dt,chord,span,vwind(1)/))
 
-    if (wakeplot_switch .eq. 1) call mesh2file(wing,wake(row_now:nt,:),'Results/wNw'//timestamp//'.tec')
+  if (wakeplot_switch .eq. 1) call mesh2file(wing,wake(row_now:nt,:),'Results/wNw'//timestamp//'.tec')
 
 
 
