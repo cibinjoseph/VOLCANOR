@@ -22,6 +22,7 @@ A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method
 1. Overprediction of induced drag
 
 ## TO DO
+- Add predictor-corrector approach
 - Induced drag computation drastically overpredicted
 - Verify rotating wing results with BEMT
 - Check whether file read write consumes large time 
