@@ -4,6 +4,7 @@ obj/*.mod
 *.out
 *.swp
 visitlog.py
+Results/visitlog.py
 Validation/*
 Unsteady
 Unsteady/*
