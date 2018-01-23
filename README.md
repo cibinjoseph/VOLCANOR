@@ -16,7 +16,7 @@ Last Updated : January 2018
 
 ## Code Details and Nomenclature
 ### Algorithm
-*Note: All subroutines and functions calculate induced velocity by a unit vortex. Actual gamma has to be mutiplied.*
+Note: All subroutines and functions calculate induced velocity by a *unit* vortex. Actual gamma has to be mutiplied to find correct magnitude of induced velocity.
 1. Wing coordinates in body frame
 2. Rotate to inertial frame
 3. TE vortex position
