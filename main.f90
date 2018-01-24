@@ -37,9 +37,9 @@ program main
   xvec=linspace(0._dp,chord,nc+1)
   select case (span_spacing_switch)
   case (1)
-    yvec=linspace(0.05_dp*span,span+0.05_dp*span,ns+1)
+    yvec=linspace(0.1_dp*span,span+0.1_dp*span,ns+1)
   case (2)
-    yvec=cosspace(0.05_dp*span,span+0.05_dp*span,ns+1)
+    yvec=cosspace(0.1_dp*span,span,ns+1)
   end select
 
   ! Initialize wake geometry and core radius

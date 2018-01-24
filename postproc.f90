@@ -148,7 +148,7 @@ contains
     open(unit=10,file=filename)
     write(10,*) '# Lift'
     do i=1,size(liftvec,1)
-      write(10,*) extra_params(1)*i,liftvec(i)/(0.5_dp*1.2_dp*extra_params(4)**2._dp*extra_params(2)*extra_params(3))
+      write(10,*) extra_params(1)*i,liftvec(i)!/(0.5_dp*1.2_dp*extra_params(4)**2._dp*extra_params(2)*extra_params(3))
     enddo
     close(10)
   end subroutine lift2file
@@ -162,7 +162,7 @@ contains
     open(unit=10,file=filename)
     write(10,*) '# Drag'
     do i=1,size(dragvec,1)
-      write(10,*) extra_params(1)*i,dragvec(i)/(0.5_dp*1.2_dp*extra_params(4)**2._dp*extra_params(2)*extra_params(3))
+      write(10,*) extra_params(1)*i,dragvec(i)!/(0.5_dp*1.2_dp*extra_params(4)**2._dp*extra_params(2)*extra_params(3))
     enddo
     close(10)
   end subroutine drag2file
