@@ -21,6 +21,7 @@ A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method
 
 ## Known Issues
 1. Overprediction of induced drag
+2. Pitch rotation of blade about LE, should be customizable
 
 ## TO DO
 - Add predictor-corrector approach
