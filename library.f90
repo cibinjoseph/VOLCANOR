@@ -146,9 +146,10 @@ contains
     Tgb(3,3)=cs_phi(1)*cs_theta(1)
   end function Tgb
 
-  subroutine rot_wing(wing_array,pts,order)  
+  subroutine rot_wing(wing_array,pts,origin,order)  
     type(wingpanel_class), intent(inout), dimension(:,:) :: wing_array
-    real(dp), dimension(3), intent(in) :: pts  ! pts => phi,theta,psi
+    real(dp), dimension(3), intent(in) :: pts    ! pts => phi,theta,psi
+    real(dp), dimension(3), intent(in) :: origin ! rotation about
     integer :: i, j
     integer :: order    ! [1]gb & +ve theta , [2]bg & -ve theta       
     real(dp), dimension(3,3) :: TMat
@@ -168,7 +169,9 @@ contains
 
     do j=1,ns
       do i=1,nc
+        call wing_array(i,j)%shiftdP(-origin)
         call wing_array(i,j)%rot(TMat)
+        call wing_array(i,j)%shiftdP(origin)
       enddo
     enddo
 
@@ -179,7 +182,9 @@ contains
     type(wingpanel_class), intent(inout), dimension(:,:) :: wing_array
     real(dp), intent(in) :: theta_pitch
     real(dp), dimension(3), intent(in) :: pts
-    real(dp), dimension(3) :: dshift
+    real(dp), dimension(3) :: dshift, origin
+
+    origin=0._dp
 
     if (abs(theta_pitch)>eps) then
       ! Translate to origin
@@ -187,13 +192,13 @@ contains
       call mov_wing(wing_array,-dshift)
 
       ! Rotate global angles
-      call rot_wing(wing_array,pts,1)
+      call rot_wing(wing_array,pts,origin,1)
 
       ! Rotate pitch angle
-      call rot_wing(wing_array,(/0._dp,-theta_pitch,0._dp/),1)
+      call rot_wing(wing_array,(/0._dp,-theta_pitch,0._dp/),origin,1)
 
       ! Unrotate global angles
-      call rot_wing(wing_array,-1._dp*pts,1)
+      call rot_wing(wing_array,-1._dp*pts,origin,1)
 
       ! Untranslate from origin
       call mov_wing(wing_array,dshift)

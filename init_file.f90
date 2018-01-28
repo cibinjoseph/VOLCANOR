@@ -6,6 +6,7 @@ type(wakepanel_class), dimension(nt,ns) :: wake
 type(wakepanel_class), dimension(nt,ns) :: Pwake
 real(dp), dimension(nc*ns,nc*ns) :: Amat, Amat_inv
 real(dp), dimension(nc*ns) :: RHS, gamvec, gamvec_prev
+real(dp), dimension(3) :: hub_coords
 
 ! Wing variables
 real(dp) :: chord, span

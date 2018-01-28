@@ -48,10 +48,11 @@ program main
 
   ! Initialize wing geometry, vr, cp, ncap coordinates and core radius
   call init_wing(wing,xvec,yvec,0.001_dp*span)
+  hub_coords=0._dp
 
   ! Rotate wing pc, vr, cp and ncap by initial pitch angle 
   theta_pitch=theta0
-  call rot_wing(wing,(/0._dp,theta_pitch,0._dp/),1)
+  call rot_wing(wing,(/0._dp,theta_pitch,0._dp/),hub_coords,1)
 
   !  TE vortex position
   v_shed=0.20*vwind
@@ -155,7 +156,8 @@ program main
 
     ! Wing motion 
     call mov_wing(wing,(vbody+vel_plunge)*dt) ! Translate wing
-    call rot_wing(wing,dpts,1)                ! Wing Global rotation
+    hub_coords=hub_coords+(vbody+vel_plunge)*dt
+    call rot_wing(wing,dpts,hub_coords,1)                ! Wing Global rotation
     call pitch_wing(wing,dtheta_pitch,pts)    ! Wing Pitch rotation
 
     call assignshed(wake(row_now,:),wing(nc,:),'LE')  ! Store shed vortex as LE
