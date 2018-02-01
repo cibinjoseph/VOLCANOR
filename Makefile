@@ -1,11 +1,11 @@
 #### IFORT ####
 ifc=ifort
-iflags=-fast -O3 -implicitnone -r8 -qopenmp
+iflags=-fast -O3 -implicitnone -r8 -qopenmp -heap-arrays 4096
 #iflags=-traceback -O0 -warn all -implicitnone -r8 -check bounds -g -fpe0 #-pg
 
 #### GFORTRAN ####
 gfc=gfortran-7 
-gflags=-O2 -ffree-form -fimplicit-none -fopenmp
+gflags=-O2 -ffree-form -fimplicit-none -fopenmp -fmax-stack-var-size=4096
 #gflags=-fbacktrace -O0 -ffree-form -Wall -Wextra -Wimplicit-interface -Wunused-parameter -Wline-truncation -Wcharacter-truncation -Wsurprising -Waliasing -fimplicit-none -fcheck=all -g -ffpe-trap=invalid,zero
 objpath=./obj
 resultspath=./Results
