@@ -5,7 +5,7 @@ iflags=-fast -O3 -implicitnone -r8 -qopenmp -heap-arrays 4096
 
 #### GFORTRAN ####
 gfc=gfortran-7 
-gflags=-O2 -ffree-form -fimplicit-none -fopenmp -fmax-stack-var-size=4096
+gflags=-O2 -ffree-form -fimplicit-none -fopenmp #-fmax-stack-var-size=4096
 #gflags=-fbacktrace -O0 -ffree-form -Wall -Wextra -Wimplicit-interface -Wunused-parameter -Wline-truncation -Wcharacter-truncation -Wsurprising -Waliasing -fimplicit-none -fcheck=all -g -ffpe-trap=invalid,zero
 objpath=./obj
 resultspath=./Results
