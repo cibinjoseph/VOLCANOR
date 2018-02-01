@@ -1,6 +1,6 @@
 #### IFORT ####
 ifc=ifort
-iflags=-fast -O3 -implicitnone -r8 -qopenmp -heap-arrays 4096
+iflags=-fast -O3 -implicitnone -r8 -qopenmp -parallel -heap-arrays 4096 -ansi-alias -qopt-jump-tables='large'
 #iflags=-traceback -O0 -warn all -implicitnone -r8 -check bounds -g -fpe0 #-pg
 
 #### GFORTRAN ####
