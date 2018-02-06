@@ -11,12 +11,12 @@ objpath=./obj
 resultspath=./Results
 
 
+all:
+	make run
+
 init:
 	mkdir -p Results
 	mkdir -p obj
-
-all:
-	make run
 
 lib:
 	reset
