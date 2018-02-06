@@ -1,11 +1,6 @@
 # Documentation
 [![](https://img.shields.io/badge/status-under%20development-green.svg)]()  
-
-| | |
-|---|---|
-|Author        | Cibin Joseph         |  
-|Last Updated  | Jan 2018             |  
-|Pre-requisites| Fortran 90+, VisIt   |  
+[![](https://img.shields.io/badge/Last%20Updated-Feb%202018-green.svg)]()  
 
 A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method in Fortran 90+ for aerodynamic analysis of a single wing under generic 3D motion.
 
@@ -60,3 +55,10 @@ Om = 600 rad/s => 62.832 rad/s => 3600 deg/s
 5 deg => 5/3600 s  
 1 rev = 360 deg => 1/10 s  
 
+## Authors
+All code here was created by [Cibin Joseph](https://github.com/cibinjoseph) (cibinjoseph92@gmail.com).
+
+## License
+GNU General Public License v3.0
+
+See [LICENSE](LICENSE) for full text.
