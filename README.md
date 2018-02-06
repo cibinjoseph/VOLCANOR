@@ -1,6 +1,5 @@
 # Documentation
-[![](https://img.shields.io/badge/status-under%20development-green.svg)]()  
-[![](https://img.shields.io/badge/Last%20Updated-Feb%202018-green.svg)]()  
+[![](https://img.shields.io/badge/status-under%20development-green.svg)]()  [![](https://img.shields.io/badge/Last%20Updated-Feb%202018-green.svg)]()  
 
 A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method in Fortran 90+ for aerodynamic analysis of a single wing under generic 3D motion.
 
