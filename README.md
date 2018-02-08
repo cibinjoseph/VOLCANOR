@@ -18,6 +18,7 @@ A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method
 2. Pitch rotation of blade about LE, should be customizable
 
 ## TO DO
+- Correct r_vc and large slow start time
 - Induced drag computation drastically overpredicted
 - Verify rotating wing results with BEMT
 - Check whether file read write consumes large time 
