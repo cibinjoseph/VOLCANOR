@@ -28,12 +28,30 @@ lib:
 	@$(ifc) $(iflags) -c library.f90            -module $(objpath) -o $(objpath)/library.o
 	@$(ifc) $(iflags) -c postproc.f90           -module $(objpath) -o $(objpath)/postproc.o
 
+lib_dbg:
+	reset
+	@$(ifc) $(iflagsdbg) -c mymathlib.f90          -module $(objpath) -o $(objpath)/mymathlib.o
+	@$(ifc) $(iflagsdbg) -c vf_classdef.f90        -module $(objpath) -o $(objpath)/vf_classdef.o
+	@$(ifc) $(iflagsdbg) -c vr_classdef.f90        -module $(objpath) -o $(objpath)/vr_classdef.o
+	@$(ifc) $(iflagsdbg) -c wingpanel_classdef.f90 -module $(objpath) -o $(objpath)/wingpanel_classdef.o
+	@$(ifc) $(iflagsdbg) -c wakepanel_classdef.f90 -module $(objpath) -o $(objpath)/wakepanel_classdef.o
+	@$(ifc) $(iflagsdbg) -c library.f90            -module $(objpath) -o $(objpath)/library.o
+	@$(ifc) $(iflagsdbg) -c postproc.f90           -module $(objpath) -o $(objpath)/postproc.o
+
 run:
 	reset
 	make fileclean
 	make lib
-	@$(ifc) -I$(objpath) $(iflags) main.f90 $(objpath)/*.o -o main.out
-	@time -f "	Run time: %E" ./main.out
+	@$(ifc) -i$(objpath) $(iflags) main.f90 $(objpath)/*.o -o main.out
+	@time -f "	run time: %e" ./main.out
+	#time ./main.out
+
+run_dbg:
+	reset
+	make fileclean
+	make lib_dbg
+	@$(ifc) -i$(objpath) $(iflagsdbg) main.f90 $(objpath)/*.o -o main.out
+	@time -f "	run time: %e" ./main.out
 	#time ./main.out
 
 trial:
@@ -42,13 +60,16 @@ trial:
 	$(ifc) -I$(objpath) $(iflags) trial.f90 $(objpath)/*.o -o trial.out
 	@./trial.out
 
-
-clean:
-	-rm $(objpath)/*.o $(objpath)/*.mod *.out
-
-fileclean:
-	-rm $(resultspath)/*.tec
-	-rm $(resultspath)/*.curve
+# Gfortran part
+glib_dbg:
+	reset
+	@$(gfc) $(gflagsdbg) -c mymathlib.f90          -J$(objpath) -o $(objpath)/mymathlib.o
+	@$(gfc) $(gflagsdbg) -c vf_classdef.f90        -J$(objpath) -o $(objpath)/vf_classdef.o
+	@$(gfc) $(gflagsdbg) -c vr_classdef.f90        -J$(objpath) -o $(objpath)/vr_classdef.o
+	@$(gfc) $(gflagsdbg) -c wingpanel_classdef.f90 -J$(objpath) -o $(objpath)/wingpanel_classdef.o
+	@$(gfc) $(gflagsdbg) -c wakepanel_classdef.f90 -J$(objpath) -o $(objpath)/wakepanel_classdef.o
+	@$(gfc) $(gflagsdbg) -c library.f90            -J$(objpath) -o $(objpath)/library.o
+	@$(gfc) $(gflagsdbg) -c postproc.f90           -J$(objpath) -o $(objpath)/postproc.o
 
 glib:
 	reset
@@ -68,8 +89,23 @@ grun:
 	@time -f "	Run time: %E" ./main.out
 	#./main.out
 
+grun_dbg:
+	reset
+	make fileclean
+	make glib_dbg
+	@$(gfc) -I$(objpath) $(gflagsdbg) main.f90 $(objpath)/*.o -o main.out
+	@time -f "	Run time: %E" ./main.out
+	#./main.out
 gtrial:
 	reset
 	make glib
 	$(gfc) -I$(objpath) $(gflags) trial.f90 $(objpath)/*.o -o trial.out
 	@./trial.out
+
+clean:
+	-rm $(objpath)/*.o $(objpath)/*.mod *.out
+
+fileclean:
+	-rm $(resultspath)/*.tec
+	-rm $(resultspath)/*.curve
+
