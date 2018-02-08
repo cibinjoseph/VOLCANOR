@@ -18,11 +18,9 @@ A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method
 2. Pitch rotation of blade about LE, should be customizable
 
 ## TO DO
-- Add predictor-corrector approach
 - Induced drag computation drastically overpredicted
 - Verify rotating wing results with BEMT
 - Check whether file read write consumes large time 
-- Parallelize all double do loops
 - Implement recording to array before writing
 - Check 25% of panel span inset of vortices create difference
 - Check slow start of [3] extended tanh function
