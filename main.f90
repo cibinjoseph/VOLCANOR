@@ -43,7 +43,7 @@ program main
   end select
 
   ! Initialize wake geometry and core radius
-  call init_wake(wake,0.075*span)
+  call init_wake(wake,0.005_dp*span)
   gamvec_prev=0._dp
 
   ! Initialize wing geometry, vr, cp, ncap coordinates and core radius
