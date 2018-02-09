@@ -104,6 +104,7 @@ gtrial:
 
 clean:
 	-rm $(objpath)/*.o $(objpath)/*.mod *.out
+	-rn visitlog.py 
 
 fileclean:
 	-rm $(resultspath)/*.tec
