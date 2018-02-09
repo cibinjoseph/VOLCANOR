@@ -7,6 +7,7 @@ iflagsdbg=-traceback -O0 -warn all -implicitnone -r8 -check bounds -g -fpe0 #-pg
 gfc=gfortran-7 
 gflags=-O2 -ffree-form -fimplicit-none -fopenmp #-fmax-stack-var-size=4096
 gflagsdbg=-fbacktrace -O0 -ffree-form -Wall -Wextra -Wimplicit-interface -Wunused-parameter -Wline-truncation -Wcharacter-truncation -Wsurprising -Waliasing -fimplicit-none -fcheck=all -g -ffpe-trap=invalid,zero
+
 objpath=./obj
 resultspath=./Results
 
@@ -42,7 +43,7 @@ run:
 	reset
 	make fileclean
 	make lib
-	@$(ifc) -i$(objpath) $(iflags) main.f90 $(objpath)/*.o -o main.out
+	@$(ifc) -I$(objpath) $(iflags) main.f90 $(objpath)/*.o -o main.out
 	@time -f "	run time: %e" ./main.out
 	#time ./main.out
 
@@ -50,7 +51,7 @@ run_dbg:
 	reset
 	make fileclean
 	make lib_dbg
-	@$(ifc) -i$(objpath) $(iflagsdbg) main.f90 $(objpath)/*.o -o main.out
+	@$(ifc) -I$(objpath) $(iflagsdbg) main.f90 $(objpath)/*.o -o main.out
 	@time -f "	run time: %e" ./main.out
 	#time ./main.out
 
