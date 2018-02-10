@@ -56,6 +56,7 @@ program main
 
   !  TE vortex position
   v_shed=0.20*vwind
+  if (abs(norm2(vwind)) < eps) v_shed=0.02_dp*chord/(dt*nc)
   do ispan=1,ns
     call wing(nc,ispan)%vr%shiftdP(2,v_shed*dt)
     call wing(nc,ispan)%vr%shiftdP(3,v_shed*dt)
