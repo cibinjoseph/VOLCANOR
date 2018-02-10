@@ -5,8 +5,8 @@ import argparse
 from subprocess import call
 
 parser = argparse.ArgumentParser(
-    description=("Visualize plots using visit"),
-    epilog="Author: Cibin Joseph")
+        description=("Visualize plots using visit"),
+        epilog="Author: Cibin Joseph")
 parser.add_argument("-w", "--wake", help="Plot wake structure", action="store_true")
 parser.add_argument("-t", "--tip", help="Plot wake tip", action="store_true")
 parser.add_argument("-l", "--lift", help="Plot lift", action="store_true")
