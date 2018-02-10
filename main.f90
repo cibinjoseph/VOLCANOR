@@ -43,11 +43,11 @@ program main
   end select
 
   ! Initialize wake geometry and core radius
-  call init_wake(wake,0.035_dp*span)
+  call init_wake(wake,0.03_dp*span)
   gamvec_prev=0._dp
 
   ! Initialize wing geometry, vr, cp, ncap coordinates and core radius
-  call init_wing(wing,xvec,yvec,0._dp)
+  call init_wing(wing,xvec,yvec,0.01_dp)
   hub_coords=0._dp
 
   ! Rotate wing pc, vr, cp and ncap by initial pitch angle 
@@ -56,6 +56,7 @@ program main
 
   !  TE vortex position
   v_shed=0.20*vwind
+  if (abs(norm2(vwind)) < eps) v_shed=0.02_dp*chord/(dt*nc)
   do ispan=1,ns
     call wing(nc,ispan)%vr%shiftdP(2,v_shed*dt)
     call wing(nc,ispan)%vr%shiftdP(3,v_shed*dt)
