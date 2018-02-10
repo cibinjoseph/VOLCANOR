@@ -28,4 +28,7 @@ else:
     print("Error: Wrong input arguments")
     raise ValueError
 
-call(["visit","-s","{}/{}".format(src_plot_dir,filename)])
+try:
+    call(["visit","-s","{}/{}".format(src_plot_dir,filename)])
+except KeyboardInterrupt:
+    print(' ...Program Exit')
