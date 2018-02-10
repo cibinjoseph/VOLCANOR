@@ -1,6 +1,6 @@
 ! This file contains the switches that control certain features in the code
 ! Vortex model: [1]Ideal Vortex [2]Rankine Vortex
-integer, parameter :: model_switch=1
+integer, parameter :: model_switch=2
 
 ! Span discretization : [1]linear [2]cosine
 integer, parameter :: span_spacing_switch=2
