@@ -52,7 +52,8 @@ contains
       Kv=1._dp
     case (2)    ! Rankine Vortex
       h=norm2(r1_r2)/norm2(r0)
-      Kv=(h*h)/sqrt((this%r_vc**4._dp)+(h**4._dp))    
+      Kv=1._dp
+      if (this%r_vc > eps) Kv=(h*h)/sqrt((this%r_vc**4._dp)+(h**4._dp))    
     case default
       error stop 'ERROR: Wrong option as vortex model_switch'
     end select
