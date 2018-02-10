@@ -18,11 +18,10 @@ A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method
 2. Pitch rotation of blade about LE, should be customizable
 
 ## TO DO
-- Check Rankine model for discrepancy
-- Correct r_vc and large slow start time
+- Check non-physical jump in position in slow start
+- Correct r_vc and slow start time
 - Induced drag computation drastically overpredicted
 - Verify rotating wing results with BEMT
-- Check whether file read write consumes large time 
 - Implement recording to array before writing
 - Check 25% of panel span inset of vortices create difference
 - Check slow start of [3] extended tanh function
