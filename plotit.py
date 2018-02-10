@@ -5,8 +5,8 @@ import argparse
 from subprocess import call
 
 parser = argparse.ArgumentParser(
-    description=("Visualize plots using visit"),
-    epilog="Author: Cibin Joseph")
+        description=("Visualize plots using visit"),
+        epilog="Author: Cibin Joseph")
 parser.add_argument("-w", "--wake", help="Plot wake structure", action="store_true")
 parser.add_argument("-t", "--tip", help="Plot wake tip", action="store_true")
 parser.add_argument("-l", "--lift", help="Plot lift", action="store_true")
@@ -28,4 +28,7 @@ else:
     print("Error: Wrong input arguments")
     raise ValueError
 
-call(["visit","-s","{}/{}".format(src_plot_dir,filename)])
+try:
+    call(["visit","-s","{}/{}".format(src_plot_dir,filename)])
+except KeyboardInterrupt:
+    print(' ...Program Exit')
