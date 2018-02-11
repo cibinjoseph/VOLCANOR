@@ -18,6 +18,8 @@ A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method
 2. Pitch rotation of blade about LE, should be customizable
 
 ## TO DO
+- Separate core radius for blade root and tips 
+- Provision to add non-physical climb velocity
 - Check non-physical jump in position in slow start
 - Correct r_vc and slow start time
 - Induced drag computation drastically overpredicted
