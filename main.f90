@@ -43,11 +43,11 @@ program main
   end select
 
   ! Initialize wake geometry and core radius
-  call init_wake(wake,0.03_dp*span)
+  call init_wake(wake,0.14_dp*chord)
   gamvec_prev=0._dp
 
   ! Initialize wing geometry, vr, cp, ncap coordinates and core radius
-  call init_wing(wing,xvec,yvec,0.01_dp)
+  call init_wing(wing,xvec,yvec,0.14_dp*chord)
   hub_coords=0._dp
 
   ! Rotate wing pc, vr, cp and ncap by initial pitch angle 
@@ -198,7 +198,11 @@ program main
 
     ! Induced vel on wake vortices
     vind_wake(:,row_now:nt,:)=vind_onwake(wing,wake(row_now:nt,:))
-    vind_wake(:,row_now:nt,:)=vind_wake(:,row_now:nt,:)+vind_onwake(wake(row_now:nt,:),wake(row_now:nt,:))
+    if (iter > 50 ) then 
+      vind_wake(:,row_now:nt,:)=vind_wake(:,row_now:nt,:)+vind_onwake(wake(row_now:nt,:),wake(row_now:nt,:))
+    else
+      vind_wake(3,row_now:nt,:)=vind_wake(3,row_now:nt,:)-20._dp
+    endif
 
     ! Update wake vortex locations
     if (PCwake_switch .eq. 0) then
