@@ -9,8 +9,8 @@ integer, parameter :: span_spacing_switch=2
 integer, parameter :: tip_diss_switch=0
 
 ! Slow start to avoid large starting vortex: [0]Off [1]linear [2]tanh [3]extended tanh
-integer, parameter :: slowstart_switch=0
-integer, parameter :: slowstart_nt=100
+integer, parameter :: slowstart_switch=2
+integer, parameter :: slowstart_nt=20
 
 ! Wake strain: [0]Off [1]On
 integer, parameter :: wakestrain_switch=0
