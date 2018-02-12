@@ -17,7 +17,7 @@ program main
   read(12,*)
   read(12,*)
   read(12,*)
-  read(12,*) h0,om_h
+  read(12,*) h0,om_h,init_wake_vel
   read(12,*)
   read(12,*)
   read(12,*)
@@ -205,7 +205,7 @@ program main
     if (iter > wake_ignore_nt .or. wake_ignore_nt .eq. 0) then 
       vind_wake(:,row_now:nt,:)=vind_wake(:,row_now:nt,:)+vind_onwake(wake(row_now:nt,:),wake(row_now:nt,:))
     else
-      vind_wake(3,row_now:nt,:)=vind_wake(3,row_now:nt,:)-20._dp
+      vind_wake(3,row_now:nt,:)=vind_wake(3,row_now:nt,:)+init_wake_vel
     endif
 
     ! Update wake vortex locations
@@ -220,7 +220,7 @@ program main
     if (iter > wake_ignore_nt .or. wake_ignore_nt .eq. 0) then 
       Pvind_wake(:,row_now:nt,:)=Pvind_wake(:,row_now:nt,:)+vind_onwake(Pwake(row_now:nt,:),Pwake(row_now:nt,:))
     else
-      Pvind_wake(3,row_now:nt,:)=Pvind_wake(3,row_now:nt,:)-20._dp
+      Pvind_wake(3,row_now:nt,:)=Pvind_wake(3,row_now:nt,:)+init_wake_vel
     endif
 
       call convectwake(wake(row_now:nt,:),(vind_wake(:,row_now:nt,:)+Pvind_wake(:,row_now:nt,:))*dt*0.5_dp)
