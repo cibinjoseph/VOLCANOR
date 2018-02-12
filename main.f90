@@ -202,7 +202,7 @@ program main
 
     ! Induced vel on wake vortices
     vind_wake(:,row_now:nt,:)=vind_onwake(wing,wake(row_now:nt,:))
-    if (iter > 50 ) then 
+    if (iter > wake_ignore_nt .or. wake_ignore_nt .eq. 0) then 
       vind_wake(:,row_now:nt,:)=vind_wake(:,row_now:nt,:)+vind_onwake(wake(row_now:nt,:),wake(row_now:nt,:))
     else
       vind_wake(3,row_now:nt,:)=vind_wake(3,row_now:nt,:)-20._dp
@@ -217,7 +217,11 @@ program main
       call convectwake(Pwake(row_now:nt,:),vind_wake(:,row_now:nt,:)*dt)
 
       Pvind_wake(:,row_now:nt,:)=vind_onwake(wing,Pwake(row_now:nt,:))
+    if (iter > wake_ignore_nt .or. wake_ignore_nt .eq. 0) then 
       Pvind_wake(:,row_now:nt,:)=Pvind_wake(:,row_now:nt,:)+vind_onwake(Pwake(row_now:nt,:),Pwake(row_now:nt,:))
+    else
+      Pvind_wake(3,row_now:nt,:)=Pvind_wake(3,row_now:nt,:)-20._dp
+    endif
 
       call convectwake(wake(row_now:nt,:),(vind_wake(:,row_now:nt,:)+Pvind_wake(:,row_now:nt,:))*dt*0.5_dp)
     endif

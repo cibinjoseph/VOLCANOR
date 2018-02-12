@@ -19,4 +19,7 @@ integer, parameter :: wakestrain_switch=0
 integer, parameter :: wakeplot_switch=2
 
 ! Wake convection using Predictor-Corrector approach [0]Off [1]On
-integer, parameter :: PCwake_switch=0
+integer, parameter :: PCwake_switch=1
+
+! Ignore Wake wake interaction [0]Off [1..]timesteps
+integer, parameter :: wake_ignore_nt=50
