@@ -22,6 +22,10 @@ program main
   read(12,*)
   read(12,*)
   read(12,*) om_body(1),om_body(2),om_body(3)
+  read(12,*)
+  read(12,*)
+  read(12,*)
+  read(12,*) wing_mid_core,wake_mid_core,wing_tip_core,wake_tip_core
   close(12)
 
   ! Conversions
@@ -43,11 +47,11 @@ program main
   end select
 
   ! Initialize wake geometry and core radius
-  call init_wake(wake,0.14_dp*chord)
+  call init_wake(wake,0.14_dp*chord,0.14_dp*chord)
   gamvec_prev=0._dp
 
   ! Initialize wing geometry, vr, cp, ncap coordinates and core radius
-  call init_wing(wing,xvec,yvec,0.14_dp*chord)
+  call init_wing(wing,xvec,yvec,0.14_dp*chord,0.14_dp*chord)
   hub_coords=0._dp
 
   ! Rotate wing pc, vr, cp and ncap by initial pitch angle 
