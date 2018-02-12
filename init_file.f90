@@ -25,6 +25,7 @@ real(dp), dimension(3) :: pts, dpts   ! phi, theta, psi
 real(dp), dimension(3,nt,ns+1) :: vind_wake
 real(dp), dimension(3,nt,ns+1) :: Pvind_wake
 character(len=5) :: timestamp
+real(dp) :: wing_mid_core,wake_mid_core,wing_tip_core,wake_tip_core
 
 ! Iterators
 integer :: ispan, ichord, row, col, i, j, indx, iter, row_now
