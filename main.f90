@@ -44,6 +44,8 @@ program main
     yvec=linspace(0.1_dp*span,span+0.1_dp*span,ns+1)
   case (2)
     yvec=cosspace(0.1_dp*span,span,ns+1)
+  case (3)
+    yvec=halfsinspace(0.1_dp*span,span,ns+1)
   end select
 
   ! Initialize wake geometry and core radius

@@ -2,7 +2,7 @@
 ! Vortex model: [1]Ideal Vortex [2]Rankine Vortex
 integer, parameter :: model_switch=2
 
-! Span discretization : [1]linear [2]cosine
+! Span discretization : [1]linear [2]cosine[3]halfsine
 integer, parameter :: span_spacing_switch=2
 
 ! Wake tip dissipation: [0]Off [1]On

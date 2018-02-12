@@ -50,6 +50,20 @@ contains
   end function cosspace
 
   ! -------------------------------------------------
+  !                halfsinspace
+  ! -------------------------------------------------
+  function halfsinspace(xstart,xend,nx) result(xout)
+    real(dp), intent(in) :: xstart, xend
+    integer , intent(in) :: nx
+    real(dp), dimension(nx) :: xout
+    real(dp), dimension(nx) :: theta_spacing
+
+    theta_spacing=linspace(0._dp,pi*0.5_dp,nx)
+    xout=xstart+(xend-xstart)*sin(theta_spacing)
+
+  end function halfsinspace
+
+  ! -------------------------------------------------
   !                cross3
   ! -------------------------------------------------
   function cross3(avec,bvec)
