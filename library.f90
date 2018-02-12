@@ -7,7 +7,7 @@ module library
   ! Input parameters
   integer, parameter  :: nt = 250
   integer, parameter  :: ns = 13
-  integer, parameter  :: nc = 4
+  integer, parameter  :: nc = 8
 
   ! Global env parameters
   real(dp), parameter :: density = 1.2_dp
