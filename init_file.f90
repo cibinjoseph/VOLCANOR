@@ -22,8 +22,8 @@ real(dp), dimension(3) :: v_shed, vec_dummy, vel_plunge
 real(dp) :: t, init_wake_vel
 real(dp), dimension(nt) :: lift, drag
 real(dp), dimension(3) :: pts, dpts   ! phi, theta, psi
-real(dp), dimension(3,nt,ns+1) :: vind_wake
-real(dp), dimension(3,nt,ns+1) :: Pvind_wake
+real(dp), dimension(3,nt,ns+1) :: vind_wake, vind_wake1, vind_wake2, vind_wake3
+real(dp), dimension(3,nt,ns+1) :: Pvind_wake, vind_wake_step
 character(len=5) :: timestamp
 real(dp) :: wing_mid_core,wake_mid_core,wing_tip_core,wake_tip_core
 
