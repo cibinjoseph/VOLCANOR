@@ -18,7 +18,7 @@ A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method
 2. Pitch rotation of blade about LE, should be customizable
 
 ## TO DO
-- Check non-physical jump in position in slow start
+- Check non-physical jump in position in slow start (**IMP**)
 - Correct slow start time
 - Induced drag computation drastically overpredicted
 - Implement recording to array before writing
