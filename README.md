@@ -18,15 +18,11 @@ A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method
 2. Pitch rotation of blade about LE, should be customizable
 
 ## TO DO
-- Separate core radius for blade root and tips 
-- Provision to add non-physical climb velocity
 - Check non-physical jump in position in slow start
-- Correct r_vc and slow start time
+- Correct slow start time
 - Induced drag computation drastically overpredicted
-- Verify rotating wing results with BEMT
 - Implement recording to array before writing
 - Check 25% of panel span inset of vortices create difference
-- Check slow start of [3] extended tanh function
 - Implement free wake relaxation
 - Add rotor as xvec and yvec rotated about centre
 
