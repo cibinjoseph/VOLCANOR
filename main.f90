@@ -89,29 +89,34 @@ program main
   Amat_inv=inv(Amat)
 
   ! Initial Solution
-  t=0._dp
+  if (slowstart_switch .eq. 0) then
+    t=0._dp
 
-  thetadot=thetas*om_theta*cos(om_theta*t)
-  hdot=om_h*h0*cos(om_h*t)
-  vel_plunge=(/0._dp,0._dp,hdot/)  
+    thetadot=thetas*om_theta*cos(om_theta*t)
+    hdot=om_h*h0*cos(om_h*t)
+    vel_plunge=(/0._dp,0._dp,hdot/)  
 
-  indx=1
-  do ispan=1,ns
-    do ichord=1,nc
-      RHS(indx) = dot_product(vwind-vel_plunge,wing(ichord,ispan)%ncap)
+    indx=1
+    do ispan=1,ns
+      do ichord=1,nc
+        RHS(indx) = dot_product(vwind-vel_plunge,wing(ichord,ispan)%ncap)
 
-      ! Pitch vel
-      wing(ichord,ispan)%vel_pitch=thetadot*wing(ichord,ispan)%r_hinge
-      RHS(indx)= RHS(indx)+wing(ichord,ispan)%vel_pitch
+        ! Pitch vel
+        wing(ichord,ispan)%vel_pitch=thetadot*wing(ichord,ispan)%r_hinge
+        RHS(indx)= RHS(indx)+wing(ichord,ispan)%vel_pitch
 
-      ! pqr vel
-      RHS(indx)= RHS(indx)+dot_product(cross3(pqr,wing(ichord,ispan)%cp),wing(ichord,ispan)%ncap)
-      indx=indx+1
+        ! pqr vel
+        RHS(indx)= RHS(indx)+dot_product(cross3(pqr,wing(ichord,ispan)%cp),wing(ichord,ispan)%ncap)
+        indx=indx+1
+      enddo
     enddo
-  enddo
-  RHS=-1._dp*RHS
+    RHS=-1._dp*RHS
 
-  gamvec=matmul(Amat_inv,RHS)
+    gamvec=matmul(Amat_inv,RHS)
+  else
+    gamvec=0._dp
+  endif
+
   gamvec_prev=gamvec
 
   ! Map gamvec to wing gam
@@ -246,17 +251,17 @@ program main
       else
         Pwake(row_now:nt,:)=wake(row_now:nt,:)
         vind_wake_step =55._dp/24._dp*vind_wake  &
-                       -59._dp/24._dp*vind_wake3 & 
-                       +37._dp/24._dp*vind_wake2 & 
-                       -09._dp/24._dp*vind_wake1  
+          -59._dp/24._dp*vind_wake3 & 
+          +37._dp/24._dp*vind_wake2 & 
+          -09._dp/24._dp*vind_wake1  
         call convectwake(Pwake(row_now:nt,:),vind_wake_step(:,row_now:nt,:)*dt)
         Pvind_wake(:,row_now:nt,:)=vind_onwake(wing,Pwake(row_now:nt,:))
         Pvind_wake(:,row_now:nt,:)=Pvind_wake(:,row_now:nt,:)+vind_onwake(Pwake(row_now:nt,:),Pwake(row_now:nt,:))
 
         vind_wake_step =09._dp/24._dp*Pvind_wake  & 
-                       +19._dp/24._dp* vind_wake  & 
-                       -05._dp/24._dp* vind_wake3 &  
-                       +01._dp/24._dp* vind_wake2  
+          +19._dp/24._dp* vind_wake  & 
+          -05._dp/24._dp* vind_wake3 &  
+          +01._dp/24._dp* vind_wake2  
         call convectwake(wake(row_now:nt,:),vind_wake_step(:,row_now:nt,:)*dt)
 
         vind_wake1=vind_wake2
