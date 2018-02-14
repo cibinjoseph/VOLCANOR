@@ -17,11 +17,15 @@ program main
   read(12,*)
   read(12,*)
   read(12,*)
-  read(12,*) h0,om_h
+  read(12,*) h0,om_h,init_wake_vel
   read(12,*)
   read(12,*)
   read(12,*)
   read(12,*) om_body(1),om_body(2),om_body(3)
+  read(12,*)
+  read(12,*)
+  read(12,*)
+  read(12,*) wing_mid_core,wake_mid_core,wing_tip_core,wake_tip_core
   close(12)
 
   ! Conversions
@@ -34,20 +38,23 @@ program main
   pqr=-1._dp*om_body
 
   ! Geometry Definition
-  xvec=linspace(0._dp,chord,nc+1)
+  !xvec=linspace(0._dp,chord,nc+1)
+  xvec=linspace(-chord,0._dp,nc+1)
   select case (span_spacing_switch)
   case (1)
     yvec=linspace(0.1_dp*span,span+0.1_dp*span,ns+1)
   case (2)
     yvec=cosspace(0.1_dp*span,span,ns+1)
+  case (3)
+    yvec=halfsinspace(0.1_dp*span,span,ns+1)
   end select
 
   ! Initialize wake geometry and core radius
-  call init_wake(wake,0.075*span)
+  call init_wake(wake,0.14_dp*chord,0.14_dp*chord)
   gamvec_prev=0._dp
 
   ! Initialize wing geometry, vr, cp, ncap coordinates and core radius
-  call init_wing(wing,xvec,yvec,0.001_dp*span)
+  call init_wing(wing,xvec,yvec,0.14_dp*chord,0.14_dp*chord)
   hub_coords=0._dp
 
   ! Rotate wing pc, vr, cp and ncap by initial pitch angle 
@@ -198,21 +205,65 @@ program main
 
     ! Induced vel on wake vortices
     vind_wake(:,row_now:nt,:)=vind_onwake(wing,wake(row_now:nt,:))
-    vind_wake(:,row_now:nt,:)=vind_wake(:,row_now:nt,:)+vind_onwake(wake(row_now:nt,:),wake(row_now:nt,:))
+    if (iter > wake_ignore_nt .or. wake_ignore_nt .eq. 0) then 
+      vind_wake(:,row_now:nt,:)=vind_wake(:,row_now:nt,:)+vind_onwake(wake(row_now:nt,:),wake(row_now:nt,:))
+    else
+      vind_wake(3,row_now:nt,:)=vind_wake(3,row_now:nt,:)+init_wake_vel
+    endif
 
     ! Update wake vortex locations
-    if (PCwake_switch .eq. 0) then
+    select case (PCwake_switch)
+
+    case (0)
       call convectwake(wake(row_now:nt,:),vind_wake(:,row_now:nt,:)*dt)
-    else
-      ! Convection using Predictor-Corrector approach
+
+    case (1)
+      ! Convection using Predictor-Corrector approach (2nd order)
       Pwake(row_now:nt,:)=wake(row_now:nt,:)
       call convectwake(Pwake(row_now:nt,:),vind_wake(:,row_now:nt,:)*dt)
 
       Pvind_wake(:,row_now:nt,:)=vind_onwake(wing,Pwake(row_now:nt,:))
-      Pvind_wake(:,row_now:nt,:)=Pvind_wake(:,row_now:nt,:)+vind_onwake(Pwake(row_now:nt,:),Pwake(row_now:nt,:))
+      if (iter > wake_ignore_nt .or. wake_ignore_nt .eq. 0) then 
+        Pvind_wake(:,row_now:nt,:)=Pvind_wake(:,row_now:nt,:)+vind_onwake(Pwake(row_now:nt,:),Pwake(row_now:nt,:))
+      else
+        Pvind_wake(3,row_now:nt,:)=Pvind_wake(3,row_now:nt,:)+init_wake_vel
+      endif
 
       call convectwake(wake(row_now:nt,:),(vind_wake(:,row_now:nt,:)+Pvind_wake(:,row_now:nt,:))*dt*0.5_dp)
-    endif
+
+    case(2)
+      ! Convection using Adam-Bashforth (4th order)
+      if (iter == 1) then
+        call convectwake(wake(row_now:nt,:),vind_wake(:,row_now:nt,:)*dt)
+        vind_wake1=vind_wake
+      elseif (iter == 2) then
+        call convectwake(wake(row_now:nt,:),vind_wake(:,row_now:nt,:)*dt)
+        vind_wake2=vind_wake
+      elseif (iter == 3) then
+        call convectwake(wake(row_now:nt,:),vind_wake(:,row_now:nt,:)*dt)
+        vind_wake3=vind_wake
+      else
+        Pwake(row_now:nt,:)=wake(row_now:nt,:)
+        vind_wake_step =55._dp/24._dp*vind_wake  &
+                       -59._dp/24._dp*vind_wake3 & 
+                       +37._dp/24._dp*vind_wake2 & 
+                       -09._dp/24._dp*vind_wake1  
+        call convectwake(Pwake(row_now:nt,:),vind_wake_step(:,row_now:nt,:)*dt)
+        Pvind_wake(:,row_now:nt,:)=vind_onwake(wing,Pwake(row_now:nt,:))
+        Pvind_wake(:,row_now:nt,:)=Pvind_wake(:,row_now:nt,:)+vind_onwake(Pwake(row_now:nt,:),Pwake(row_now:nt,:))
+
+        vind_wake_step =09._dp/24._dp*Pvind_wake  & 
+                       +19._dp/24._dp* vind_wake  & 
+                       -05._dp/24._dp* vind_wake3 &  
+                       +01._dp/24._dp* vind_wake2  
+        call convectwake(wake(row_now:nt,:),vind_wake_step(:,row_now:nt,:)*dt)
+
+        vind_wake1=vind_wake2
+        vind_wake2=vind_wake3
+        vind_wake3=vind_wake
+      endif
+
+    end select
 
     ! Strain wake
     if (wakestrain_switch .eq. 1) call strain_wake(wake(row_now:nt,:))
@@ -223,8 +274,8 @@ program main
   enddo
 
   ! Postprocesing
-  call lift2file(lift,'Results/lift.curve',(/dt,chord,span,vwind(1)/))
-  call drag2file(drag,'Results/drag.curve',(/dt,chord,span,vwind(1)/))
+  call lift2file(lift,'Results/lift.curve',(/dt,om_body(3),span,vwind(1)/))
+  call drag2file(drag,'Results/drag.curve',(/dt,om_body(3),span,vwind(1)/))
 
   if (wakeplot_switch .eq. 1) call mesh2file(wing,wake(row_now:nt,:),'Results/wNw'//timestamp//'.tec')
 

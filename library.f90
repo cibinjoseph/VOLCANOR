@@ -5,9 +5,9 @@ module library
   implicit none
 
   ! Input parameters
-  integer, parameter  :: nt = 10
-  integer, parameter  :: ns = 13
-  integer, parameter  :: nc = 4
+  integer, parameter  :: nt = 500
+  integer, parameter  :: ns = 20
+  integer, parameter  :: nc = 8
 
   ! Global env parameters
   real(dp), parameter :: density = 1.2_dp
@@ -27,11 +27,11 @@ contains
   !--------------------------------------------------------!
 
   ! Assigns coordinates to all corners of pc and vr
-  subroutine init_wing(wing_array,xvec,yvec,core_radius)
+  subroutine init_wing(wing_array,xvec,yvec,mid_core_radius,tip_core_radius)
     type(wingpanel_class), intent(out), dimension(:,:) :: wing_array
     real(dp), intent(in), dimension(:) :: xvec 
     real(dp), intent(in), dimension(:) :: yvec
-    real(dp), intent(in) :: core_radius
+    real(dp), intent(in) :: mid_core_radius, tip_core_radius
     real(dp) :: xshiftLE, xshiftTE
     integer :: i,j,rows,cols
 
@@ -90,28 +90,48 @@ contains
     ! Initialize tag
     wing_array%tag=2.
 
-    ! Initialize core radius
+    ! Initialize mid vortex core radius
     do i=1,4
-      wing_array%vr%vf(i)%r_vc0=core_radius
-      wing_array%vr%vf(i)%r_vc =core_radius
+      wing_array%vr%vf(i)%r_vc0=mid_core_radius
+      wing_array%vr%vf(i)%r_vc =mid_core_radius
       wing_array%vr%vf(i)%age=0._dp
+    enddo
+
+    ! Initialize tip vortex core radius
+    do i=1,rows
+      wing_array(i,1)%vr%vf(1)%r_vc0    = tip_core_radius
+      wing_array(i,1)%vr%vf(1)%r_vc     = tip_core_radius
+      wing_array(i,cols)%vr%vf(3)%r_vc0 = tip_core_radius
+      wing_array(i,cols)%vr%vf(3)%r_vc  = tip_core_radius
     enddo
 
   end subroutine init_wing
 
   ! Assigns vortex code radii to all filaments
-  subroutine init_wake(wake_array,core_radius)
+  subroutine init_wake(wake_array,mid_core_radius,tip_core_radius)
     type(wakepanel_class), intent(out), dimension(:,:) :: wake_array
-    real(dp), intent(in) :: core_radius
-    integer :: i
+    real(dp), intent(in) :: mid_core_radius, tip_core_radius
+    integer :: i,cols
 
+    cols=size(wake_array,2)
+
+    ! Assign core_radius to tip vortices
     do i=1,4
-      wake_array%vr%vf(i)%r_vc0=core_radius
-      wake_array%vr%vf(i)%r_vc =core_radius
+      wake_array%vr%vf(i)%r_vc0=mid_core_radius
+      wake_array%vr%vf(i)%r_vc =mid_core_radius
       wake_array%vr%vf(i)%age=0._dp
     enddo
+
     wake_array%tag=-1
     wake_array%vr%gam=0._dp
+
+    ! Assign core_radius to tip vortices
+    do i=1,size(wake_array,1)
+      wake_array(i,1)%vr%vf(1)%r_vc0    = tip_core_radius 
+      wake_array(i,1)%vr%vf(1)%r_vc     = tip_core_radius 
+      wake_array(i,cols)%vr%vf(3)%r_vc0 = tip_core_radius 
+      wake_array(i,cols)%vr%vf(3)%r_vc  = tip_core_radius 
+    enddo
 
   end subroutine init_wake
 
