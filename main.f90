@@ -36,6 +36,7 @@ program main
   !om_h    =2._dp*pi*om_h
   vbody=-1._dp*vwind
   pqr=-1._dp*om_body
+  init_wake_vel = -1._dp*init_wake_vel
 
   ! Geometry Definition
   !xvec=linspace(0._dp,chord,nc+1)
