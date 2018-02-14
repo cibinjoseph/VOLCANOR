@@ -5,8 +5,8 @@ module library
   implicit none
 
   ! Input parameters
-  integer, parameter  :: nt = 400
-  integer, parameter  :: ns = 13
+  integer, parameter  :: nt = 500
+  integer, parameter  :: ns = 20
   integer, parameter  :: nc = 8
 
   ! Global env parameters
