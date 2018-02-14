@@ -40,7 +40,7 @@ contains
     write(10,*) ((wing_mesh(1,i,j),i=1,nx+1),j=1,ny+1)
     write(10,*) ((wing_mesh(2,i,j),i=1,nx+1),j=1,ny+1)
     write(10,*) ((wing_mesh(3,i,j),i=1,nx+1),j=1,ny+1)
-    write(10,*) ((wing_array(i,j)%vr%gam,i=1,nx),j=1,ny)
+    write(10,*) ((-1._dp*wing_array(i,j)%vr%gam,i=1,nx),j=1,ny)
     write(10,*) ((wing_array(i,j)%tag,i=1,nx),j=1,ny)
 
     nx=size(wake_array,1)
@@ -67,7 +67,7 @@ contains
     write(10,*) ((wake_mesh(1,i,j),i=1,nx+1),j=1,ny+1)
     write(10,*) ((wake_mesh(2,i,j),i=1,nx+1),j=1,ny+1)
     write(10,*) ((wake_mesh(3,i,j),i=1,nx+1),j=1,ny+1)
-    write(10,*) ((wake_array(i,j)%vr%gam,i=1,nx),j=1,ny)
+    write(10,*) ((-1._dp*wake_array(i,j)%vr%gam,i=1,nx),j=1,ny)
     write(10,*) ((wake_array(i,j)%tag,i=1,nx),j=1,ny)
 
     close(10)
