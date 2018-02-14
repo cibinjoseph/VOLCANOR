@@ -253,8 +253,13 @@ program main
           +37._dp/24._dp*vind_wake2 & 
           -09._dp/24._dp*vind_wake1  
         call convectwake(Pwake(row_now:nt,:),vind_wake_step(:,row_now:nt,:)*dt)
+
         Pvind_wake(:,row_now:nt,:)=vind_onwake(wing,Pwake(row_now:nt,:))
-        Pvind_wake(:,row_now:nt,:)=Pvind_wake(:,row_now:nt,:)+vind_onwake(Pwake(row_now:nt,:),Pwake(row_now:nt,:))
+        if (iter > wake_ignore_nt .or. wake_ignore_nt .eq. 0) then 
+          Pvind_wake(:,row_now:nt,:)=Pvind_wake(:,row_now:nt,:)+vind_onwake(Pwake(row_now:nt,:),Pwake(row_now:nt,:))
+        else
+          Pvind_wake(3,row_now:nt,:)=Pvind_wake(3,row_now:nt,:)+init_wake_vel
+        endif
 
         vind_wake_step =09._dp/24._dp*Pvind_wake  & 
           +19._dp/24._dp* vind_wake  & 
