@@ -220,11 +220,10 @@ program main
     ! Update wake vortex locations
     select case (PCwake_switch)
 
-    case (0)
+    case (0)    ! Explicit backward diff (1st order)
       call convectwake(wake(row_now:nt,:),vind_wake(:,row_now:nt,:)*dt)
 
-    case (1)
-      ! Convection using Predictor-Corrector approach (2nd order)
+    case (1)    ! Convection using Predictor-Corrector approach (2nd order)
       Pwake(row_now:nt,:)=wake(row_now:nt,:)
       call convectwake(Pwake(row_now:nt,:),vind_wake(:,row_now:nt,:)*dt)
 
@@ -237,8 +236,7 @@ program main
 
       call convectwake(wake(row_now:nt,:),(vind_wake(:,row_now:nt,:)+Pvind_wake(:,row_now:nt,:))*dt*0.5_dp)
 
-    case(2)
-      ! Convection using Adam-Bashforth (4th order)
+    case(2)    ! Convection using Adam-Bashforth (4th order)
       if (iter == 1) then
         call convectwake(wake(row_now:nt,:),vind_wake(:,row_now:nt,:)*dt)
         vind_wake1=vind_wake
