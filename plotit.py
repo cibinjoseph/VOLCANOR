@@ -1,9 +1,11 @@
 #!/usr/bin/python
+# code to quickly plot wake, tip, lift and drag curves using VisIt
 
 import visit
 import argparse
+import os
 from subprocess import call
-from os import remove
+from time import sleep
 
 parser = argparse.ArgumentParser(
         description=('Visualize plots using visit'),
@@ -19,25 +21,45 @@ src_plot_dir = 'src_plot'
 
 if args.wake == True:
     filename = 'plot_wake.py'
+
 elif args.tip == True:
     filename = 'plot_tip.py'
+
 elif args.lift == True:
     filename = 'plot_lift.py'
+    try:
+        if os.path.exists('Results/lift.curve') == False:
+            print('Waiting for file creation...') 
+        while os.path.exists('Results/lift.curve') == False:
+            sleep(1)
+    except KeyboardInterrupt:
+        print(' ...Program Exit')
+
 elif args.drag == True:
     filename = 'plot_drag.py'
+    try:
+        if os.path.exists('Results/drag.curve') == False:
+            print('Waiting for file creation...') 
+        while os.path.exists('Results/drag.curve') == False:
+            print('Waiting for file creation...') 
+            sleep(1)
+    except KeyboardInterrupt:
+        print(' ...Program Exit')
+
 else:
     print('Error: Wrong input arguments')
     raise ValueError
 
+
 try:
     call(['visit','-s','{}/{}'.format(src_plot_dir,filename)])
     try:
-        remove('visitlog.py')
+        os.remove('visitlog.py')
     except OSError:
         pass
 except KeyboardInterrupt:
     try:
-        remove('visitlog.py')
+        os.remove('visitlog.py')
     except OSError:
         pass
     print(' ...Program Exit')
