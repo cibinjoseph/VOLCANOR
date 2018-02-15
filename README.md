@@ -19,6 +19,7 @@ A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method
 
 ## TO DO
 - Correct large starting vortex and root upwash
+- Provision to apply Prandtl-glauert, Karman-Tsien compressibility correction etc.
 - Induced drag computation drastically overpredicted
 - Implement recording to array before writing
 - Check 25% of panel span inset of vortices create difference
