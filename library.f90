@@ -461,7 +461,7 @@ contains
     rows=size(wake_array,1)
     cols=size(wake_array,2)
 
-    !$omp parallel do
+    !$omp parallel do collapse(2)
     do j=1,cols
       do i=1,rows
         vind_array(:,i,j)=vind_panelgeo(wing_array,wake_array(i,j)%vr%vf(2)%fc(:,1))
@@ -486,7 +486,7 @@ contains
     rows=size(wake_array,1)
     cols=size(wake_array,2)
 
-    !$omp parallel do
+    !$omp parallel do collapse(2)
     do j=1,cols
       do i=1,rows
         vind_array(:,i,j)=vind_panelgeo(bywake_array,wake_array(i,j)%vr%vf(2)%fc(:,1))
