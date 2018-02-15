@@ -9,7 +9,7 @@ real(dp), dimension(nc*ns) :: RHS, gamvec, gamvec_prev
 real(dp), dimension(3) :: hub_coords
 
 ! Wing variables
-real(dp) :: chord, span
+real(dp) :: chord, span, root_cut
 
 ! Kinematics
 real(dp) :: dt, om_theta, om_h
