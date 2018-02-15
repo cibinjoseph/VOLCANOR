@@ -31,6 +31,10 @@ else:
 
 try:
     call(['visit','-s','{}/{}'.format(src_plot_dir,filename)])
+    try:
+        remove('visitlog.py')
+    except OSError:
+        pass
 except KeyboardInterrupt:
     try:
         remove('visitlog.py')
