@@ -18,8 +18,8 @@ A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method
 2. Pitch rotation of blade about LE, should be customizable
 
 ## TO DO
-- Correct non-physical jump in wake caused by initial steady-state calculation(**IMP**)
-- Correct slow start time
+- Correct large starting vortex and root upwash
+- Provision to apply Prandtl-glauert, Karman-Tsien compressibility correction etc.
 - Induced drag computation drastically overpredicted
 - Implement recording to array before writing
 - Check 25% of panel span inset of vortices create difference
@@ -45,11 +45,6 @@ Note: All subroutines and functions calculate induced velocity by a *unit* vorte
 11. Compute induced velocity on wake vortices
 12. Update vortex locations
 13. LOOP END - GO TO 6.
-
-### Parameters for test case
-Om = 600 rad/s => 62.832 rad/s => 3600 deg/s  
-5 deg => 5/3600 s  
-1 rev = 360 deg => 1/10 s  
 
 ## Authors
 All code here was created by [Cibin Joseph](https://github.com/cibinjoseph) (cibinjoseph92@gmail.com).
