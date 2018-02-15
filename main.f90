@@ -9,7 +9,11 @@ program main
   open(unit=12,file='inputfile')
   read(12,*)
   read(12,*)
-  read(12,*) chord,span,dt,vwind(1),vwind(2),vwind(3)
+  read(12,*) chord,span,root_cut,dt
+  read(12,*)
+  read(12,*)
+  read(12,*)
+  read(12,*) vwind(1),vwind(2),vwind(3)
   read(12,*)
   read(12,*)
   read(12,*)
@@ -43,11 +47,11 @@ program main
   xvec=linspace(-chord,0._dp,nc+1)
   select case (span_spacing_switch)
   case (1)
-    yvec=linspace(0.1_dp*span,span+0.1_dp*span,ns+1)
+    yvec=linspace(root_cut*span,span,ns+1)
   case (2)
-    yvec=cosspace(0.1_dp*span,span,ns+1)
+    yvec=cosspace(root_cut*span,span,ns+1)
   case (3)
-    yvec=halfsinspace(0.1_dp*span,span,ns+1)
+    yvec=halfsinspace(root_cut*span,span,ns+1)
   end select
 
   ! Initialize wake geometry and core radius
