@@ -18,8 +18,7 @@ A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method
 2. Pitch rotation of blade about LE, should be customizable
 
 ## TO DO
-- Correct non-physical jump in wake caused by initial steady-state calculation(**IMP**)
-- Correct slow start time
+- Correct large starting vortex and root upwash
 - Induced drag computation drastically overpredicted
 - Implement recording to array before writing
 - Check 25% of panel span inset of vortices create difference
