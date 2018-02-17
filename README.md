@@ -18,13 +18,18 @@ A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method
 2. Pitch rotation of blade about LE, should be customizable
 
 ## TO DO
+### Stability Improvements
+- Add Adam-Bashforth 2nd order method
 - Correct large starting vortex and root upwash
-- Provision to apply Prandtl-glauert, Karman-Tsien compressibility correction etc.
+
+### Feature and Solution Improvements
+- Prandtl-glauert, Karman-Tsien compressibility corrections etc.
 - Induced drag computation drastically overpredicted
-- Implement recording to array before writing
 - Check 25% of panel span inset of vortices create difference
+
+### Performance Improvements
+- Implement recording to array before writing
 - Implement free wake relaxation
-- Add rotor as xvec and yvec rotated about centre
 
 ## Code Details 
 ### Algorithm
