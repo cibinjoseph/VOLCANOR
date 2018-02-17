@@ -19,7 +19,6 @@ A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method
 
 ## TO DO
 ### Stability Improvements
-- Add Adam-Bashforth 2nd order method
 - Correct large starting vortex and root upwash
 
 ### Feature and Solution Improvements
