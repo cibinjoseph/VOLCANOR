@@ -20,6 +20,8 @@ A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method
 ## TO DO
 ### Stability Improvements
 - Correct large starting vortex and root upwash
+- Interpolation of vortex core radii along span for wake
+- Large vortex radius for starting vortex
 
 ### Feature and Solution Improvements
 - Prandtl-glauert, Karman-Tsien compressibility corrections etc.
