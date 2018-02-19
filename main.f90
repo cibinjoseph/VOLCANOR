@@ -60,11 +60,11 @@ program main
   end select
 
   ! Initialize wake geometry and core radius
-  call init_wake(wake,0.14_dp*chord,0.14_dp*chord)
+  call init_wake(wake,wake_mid_core,wake_tip_core)
   gamvec_prev=0._dp
 
   ! Initialize wing geometry, vr, cp, ncap coordinates and core radius
-  call init_wing(wing,xvec,yvec,0.14_dp*chord,0.14_dp*chord)
+  call init_wing(wing,xvec,yvec,wing_mid_core,wing_tip_core)
   hub_coords=0._dp
 
   ! Rotate wing pc, vr, cp and ncap by initial pitch angle 
