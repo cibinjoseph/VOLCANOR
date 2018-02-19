@@ -48,8 +48,7 @@ program main
 
   ! Geometry Definition
   !xvec=linspace(0._dp,chord,nc+1)
-  !xvec=linspace(-chord,0._dp,nc+1)
-  xvec=linspace(0._dp,chord,nc+1)
+  xvec=linspace(-chord,0._dp,nc+1)
   select case (span_spacing_switch)
   case (1)
     yvec=linspace(root_cut*span,span,ns+1)
