@@ -41,10 +41,15 @@ program main
   vbody=-1._dp*vwind
   pqr=-1._dp*om_body
   init_wake_vel = -1._dp*init_wake_vel
+  wing_mid_core=wing_mid_core*chord
+  wing_tip_core=wing_tip_core*chord
+  wake_mid_core=wake_mid_core*chord
+  wake_tip_core=wake_tip_core*chord
 
   ! Geometry Definition
   !xvec=linspace(0._dp,chord,nc+1)
-  xvec=linspace(-chord,0._dp,nc+1)
+  !xvec=linspace(-chord,0._dp,nc+1)
+  xvec=linspace(0._dp,chord,nc+1)
   select case (span_spacing_switch)
   case (1)
     yvec=linspace(root_cut*span,span,ns+1)
