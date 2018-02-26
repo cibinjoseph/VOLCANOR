@@ -108,12 +108,13 @@ contains
   end subroutine init_wing
 
   ! Assigns vortex code radii to all filaments
-  subroutine init_wake(wake_array,mid_core_radius,tip_core_radius)
+  subroutine init_wake(wake_array,mid_core_radius,tip_core_radius,starting_vortex_core)
     type(wakepanel_class), intent(out), dimension(:,:) :: wake_array
-    real(dp), intent(in) :: mid_core_radius, tip_core_radius
-    integer :: i,cols
+    real(dp), intent(in) :: mid_core_radius, tip_core_radius, starting_vortex_core
+    integer :: i,j,cols,rows
 
     cols=size(wake_array,2)
+    rows=size(wake_array,1)
 
     ! Assign core_radius to tip vortices
     do i=1,4
@@ -126,11 +127,21 @@ contains
     wake_array%vr%gam=0._dp
 
     ! Assign core_radius to tip vortices
-    do i=1,size(wake_array,1)
+    do i=1,rows
       wake_array(i,1)%vr%vf(1)%r_vc0    = tip_core_radius 
       wake_array(i,1)%vr%vf(1)%r_vc     = tip_core_radius 
       wake_array(i,cols)%vr%vf(3)%r_vc0 = tip_core_radius 
       wake_array(i,cols)%vr%vf(3)%r_vc  = tip_core_radius 
+    enddo
+
+    ! Assign core_radius to starting vortices
+    do i=1,cols
+      do j=1,4
+        wake_array(rows,i)%vr%vf(j)%r_vc0 = starting_vortex_core
+        wake_array(rows,i)%vr%vf(j)%r_vc  = starting_vortex_core
+        wake_array(rows-1,i)%vr%vf(j)%r_vc0 = starting_vortex_core
+        wake_array(rows-1,i)%vr%vf(j)%r_vc  = starting_vortex_core
+      enddo
     enddo
 
   end subroutine init_wake

@@ -21,7 +21,7 @@ program main
   read(12,*)
   read(12,*)
   read(12,*)
-  read(12,*) h0,om_h,init_wake_vel
+  read(12,*) h0,om_h,init_wake_vel,starting_vortex_core
   read(12,*)
   read(12,*)
   read(12,*)
@@ -59,7 +59,7 @@ program main
   end select
 
   ! Initialize wake geometry and core radius
-  call init_wake(wake,wake_mid_core,wake_tip_core)
+  call init_wake(wake,wake_mid_core,wake_tip_core,starting_vortex_core)
   gamvec_prev=0._dp
 
   ! Initialize wing geometry, vr, cp, ncap coordinates and core radius
