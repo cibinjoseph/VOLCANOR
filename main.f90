@@ -21,7 +21,7 @@ program main
   read(12,*)
   read(12,*)
   read(12,*)
-  read(12,*) h0,om_h,init_wake_vel
+  read(12,*) h0,om_h,init_wake_vel,starting_vortex_core
   read(12,*)
   read(12,*)
   read(12,*)
@@ -41,6 +41,11 @@ program main
   vbody=-1._dp*vwind
   pqr=-1._dp*om_body
   init_wake_vel = -1._dp*init_wake_vel
+  wing_mid_core=wing_mid_core*chord
+  wing_tip_core=wing_tip_core*chord
+  wake_mid_core=wake_mid_core*chord
+  wake_tip_core=wake_tip_core*chord
+  starting_vortex_core=starting_vortex_core*chord
 
   ! Geometry Definition
   !xvec=linspace(0._dp,chord,nc+1)
@@ -55,11 +60,11 @@ program main
   end select
 
   ! Initialize wake geometry and core radius
-  call init_wake(wake,0.14_dp*chord,0.14_dp*chord)
+  call init_wake(wake,wake_mid_core,wake_tip_core,starting_vortex_core)
   gamvec_prev=0._dp
 
   ! Initialize wing geometry, vr, cp, ncap coordinates and core radius
-  call init_wing(wing,xvec,yvec,0.14_dp*chord,0.14_dp*chord)
+  call init_wing(wing,xvec,yvec,wing_mid_core,wing_tip_core)
   hub_coords=0._dp
 
   ! Rotate wing pc, vr, cp and ncap by initial pitch angle 
@@ -67,8 +72,8 @@ program main
   call rot_wing(wing,(/0._dp,theta_pitch,0._dp/),hub_coords,1)
 
   !  TE vortex position
-  v_shed=0.20*vwind
-  if (abs(norm2(vwind)) < eps) v_shed=0.02_dp*chord/(dt*nc)
+  v_shed=0.2_dp*vwind
+  if (abs(norm2(vwind)) < eps) v_shed(1)=0.02_dp*chord/(dt*nc)
   do ispan=1,ns
     call wing(nc,ispan)%vr%shiftdP(2,v_shed*dt)
     call wing(nc,ispan)%vr%shiftdP(3,v_shed*dt)
@@ -222,12 +227,13 @@ program main
     endif
 
     ! Update wake vortex locations
-    select case (PCwake_switch)
+    select case (FDscheme_switch)
 
-    case (0)    ! Explicit backward diff (1st order)
+    case (0)    ! Explicit forward diff (1st order)
       call convectwake(wake(row_now:nt,:),vind_wake(:,row_now:nt,:)*dt)
 
-    case (1)    ! Convection using Predictor-Corrector approach (2nd order)
+
+    case (1)    ! Predictor-Corrector (2nd order)
       Pwake(row_now:nt,:)=wake(row_now:nt,:)
       call convectwake(Pwake(row_now:nt,:),vind_wake(:,row_now:nt,:)*dt)
 
@@ -240,7 +246,19 @@ program main
 
       call convectwake(wake(row_now:nt,:),(vind_wake(:,row_now:nt,:)+Pvind_wake(:,row_now:nt,:))*dt*0.5_dp)
 
-    case(2)    ! Convection using Adam-Bashforth (4th order)
+
+    case (2)    ! Adam-Bashforth (2nd order)
+      if (iter == 1) then
+        call convectwake(wake(row_now:nt,:),vind_wake(:,row_now:nt,:)*dt)
+        vind_wake1=vind_wake
+      else
+        vind_wake_step=0.5_dp*(3._dp*vind_wake-vind_wake1)
+        call convectwake(wake(row_now:nt,:),vind_wake_step(:,row_now:nt,:)*dt)
+        vind_wake1=vind_wake
+      endif
+
+
+    case (3)    ! Predictor-Cprrector Adam-Bashforth (4th order)
       if (iter == 1) then
         call convectwake(wake(row_now:nt,:),vind_wake(:,row_now:nt,:)*dt)
         vind_wake1=vind_wake
