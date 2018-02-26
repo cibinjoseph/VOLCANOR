@@ -45,6 +45,7 @@ program main
   wing_tip_core=wing_tip_core*chord
   wake_mid_core=wake_mid_core*chord
   wake_tip_core=wake_tip_core*chord
+  starting_vortex_core=starting_vortex_core*chord
 
   ! Geometry Definition
   !xvec=linspace(0._dp,chord,nc+1)

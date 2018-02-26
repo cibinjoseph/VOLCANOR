@@ -134,15 +134,17 @@ contains
       wake_array(i,cols)%vr%vf(3)%r_vc  = tip_core_radius 
     enddo
 
-    ! Assign core_radius to starting vortices
-    do i=1,cols
-      do j=1,4
-        wake_array(rows,i)%vr%vf(j)%r_vc0 = starting_vortex_core
-        wake_array(rows,i)%vr%vf(j)%r_vc  = starting_vortex_core
-        wake_array(rows-1,i)%vr%vf(j)%r_vc0 = starting_vortex_core
-        wake_array(rows-1,i)%vr%vf(j)%r_vc  = starting_vortex_core
+    if (starting_vortex_core > eps) then
+      ! Assign core_radius to starting vortices
+      do i=1,cols
+        do j=2,4,2
+          wake_array(rows,i)%vr%vf(j)%r_vc0 = starting_vortex_core
+          wake_array(rows,i)%vr%vf(j)%r_vc  = starting_vortex_core
+          wake_array(rows-1,i)%vr%vf(j)%r_vc0 = starting_vortex_core
+          wake_array(rows-1,i)%vr%vf(j)%r_vc  = starting_vortex_core
+        enddo
       enddo
-    enddo
+    endif
 
   end subroutine init_wake
 
