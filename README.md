@@ -17,7 +17,7 @@ A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method
 1. Overprediction of induced drag
 2. Pitch rotation of blade about LE, should be customizable
 
-## TO DO
+## Improvements
 ### Stability Improvements
 - Correct large starting vortex and root upwash
 - Interpolation of vortex core radii along span for wake
