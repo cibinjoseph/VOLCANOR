@@ -97,6 +97,7 @@ grun_dbg:
 	@$(gfc) -I$(objpath) $(gflagsdbg) main.f90 $(objpath)/*.o -o main.out
 	@time -f "	Run time: %E" ./main.out
 	#./main.out
+
 gtrial:
 	reset
 	make glib
@@ -105,7 +106,7 @@ gtrial:
 
 clean:
 	-rm $(objpath)/*.o $(objpath)/*.mod *.out
-	-rn visitlog.py 
+	-rm visitlog.py 
 
 fileclean:
 	-rm $(resultspath)/*.tec
