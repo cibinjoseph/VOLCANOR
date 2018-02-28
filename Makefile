@@ -42,6 +42,7 @@ lib_dbg:
 run:
 	reset
 	make fileclean
+	make init
 	make lib
 	@$(ifc) -I$(objpath) $(iflags) main.f90 $(objpath)/*.o -o main.out
 	@time -f "	run time: %e" ./main.out
@@ -50,6 +51,7 @@ run:
 run_dbg:
 	reset
 	make fileclean
+	make init
 	make lib_dbg
 	@$(ifc) -I$(objpath) $(iflagsdbg) main.f90 $(objpath)/*.o -o main.out
 	@time -f "	run time: %e" ./main.out
@@ -85,6 +87,7 @@ glib:
 grun:
 	reset
 	make fileclean
+	make init
 	make glib
 	@$(gfc) -I$(objpath) $(gflags) main.f90 $(objpath)/*.o -o main.out
 	@time -f "	Run time: %E" ./main.out
@@ -93,6 +96,7 @@ grun:
 grun_dbg:
 	reset
 	make fileclean
+	make init
 	make glib_dbg
 	@$(gfc) -I$(objpath) $(gflagsdbg) main.f90 $(objpath)/*.o -o main.out
 	@time -f "	Run time: %E" ./main.out
@@ -100,6 +104,7 @@ grun_dbg:
 
 gtrial:
 	reset
+	make init
 	make glib
 	$(gfc) -I$(objpath) $(gflags) trial.f90 $(objpath)/*.o -o trial.out
 	@./trial.out
