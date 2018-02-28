@@ -310,6 +310,4 @@ program main
 
   if (wakeplot_switch .eq. 1) call mesh2file(wing,wake(row_now:nt,:),'Results/wNw'//timestamp//'.tec')
 
-
-
 end program main
