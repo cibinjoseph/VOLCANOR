@@ -30,6 +30,7 @@ A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method
 - Check 25% of panel span inset of vortices create difference
 
 ### Performance Improvements
+- Make wake array a shared variable in OpenMP part
 - Implement recording to array before writing
 - Implement free wake relaxation
 
