@@ -49,7 +49,9 @@ contains
 
     h=norm2(r1_r2)/norm2(r0)
     Kv=(h*h)/sqrt((this%r_vc**4._dp)+(h**4._dp))    
-    if (this%r_vc < eps) Kv=1._dp
+    !Using min function instead of if condition
+    ! if (this%r_vc < eps) Kv=1._dp
+    Kv=min(Kv,1._dp)
 
     vind=Kv*vind
 
