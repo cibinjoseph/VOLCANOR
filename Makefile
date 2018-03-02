@@ -2,6 +2,7 @@
 ifc=ifort
 iflags=-fast -O3 -implicitnone -r8 -qopenmp -parallel -heap-arrays 200  -ansi-alias -qopt-jump-tables='large'
 iflagsdbg=-traceback -O0 -warn all -implicitnone -r8 -check bounds -g -fpe0 #-pg
+iflagsprof=-traceback -O3 -implicitnone -r8 -g -debug inline-debug-info -parallel-source-info=2 -qopenmp #-pg
 
 #### GFORTRAN ####
 gfc=gfortran-7 
@@ -39,6 +40,16 @@ lib_dbg:
 	@$(ifc) $(iflagsdbg) -c library.f90            -module $(objpath) -o $(objpath)/library.o
 	@$(ifc) $(iflagsdbg) -c postproc.f90           -module $(objpath) -o $(objpath)/postproc.o
 
+lib_prof:
+	reset
+	@$(ifc) $(iflagsprof) -c mymathlib.f90          -module $(objpath) -o $(objpath)/mymathlib.o
+	@$(ifc) $(iflagsprof) -c vf_classdef.f90        -module $(objpath) -o $(objpath)/vf_classdef.o
+	@$(ifc) $(iflagsprof) -c vr_classdef.f90        -module $(objpath) -o $(objpath)/vr_classdef.o
+	@$(ifc) $(iflagsprof) -c wingpanel_classdef.f90 -module $(objpath) -o $(objpath)/wingpanel_classdef.o
+	@$(ifc) $(iflagsprof) -c wakepanel_classdef.f90 -module $(objpath) -o $(objpath)/wakepanel_classdef.o
+	@$(ifc) $(iflagsprof) -c library.f90            -module $(objpath) -o $(objpath)/library.o
+	@$(ifc) $(iflagsprof) -c postproc.f90           -module $(objpath) -o $(objpath)/postproc.o
+
 run:
 	reset
 	make fileclean
@@ -46,7 +57,6 @@ run:
 	make lib
 	@$(ifc) -I$(objpath) $(iflags) main.f90 $(objpath)/*.o -o main.out
 	@time -f "	run time: %e" ./main.out
-	#time ./main.out
 
 run_dbg:
 	reset
@@ -55,7 +65,13 @@ run_dbg:
 	make lib_dbg
 	@$(ifc) -I$(objpath) $(iflagsdbg) main.f90 $(objpath)/*.o -o main.out
 	@time -f "	run time: %e" ./main.out
-	#time ./main.out
+
+run_prof:
+	reset
+	make fileclean
+	make init
+	make lib_prof
+	@$(ifc) -I$(objpath) $(iflagsprof) main.f90 $(objpath)/*.o -o main.out
 
 trial:
 	reset
