@@ -19,6 +19,7 @@ module vf_classdef
   include "switches.f90"
 
   real(dp), parameter :: tol=1.E-6
+  real(dp), parameter :: inv4pi=0.25_dp/pi
 
 contains
 
@@ -42,11 +43,13 @@ contains
 
     vind=0.
 
+    ! Ideal vortex model (Common part)
     if (r1_r2_abs2>tol) then
       !vind = r1_r2/(4._dp*pi*r1_r2_abs2)*(dot_product(r0,r1)/r1_abs-dot_product(r0,r2)/r2_abs)
-      vind=r1_r2/(4._dp*pi*r1_r2_abs2)*dot_product(r0,r1/r1_abs-r2/r2_abs)
+      vind=r1_r2*inv4pi/r1_r2_abs2*dot_product(r0,r1/r1_abs-r2/r2_abs)
     endif
 
+    ! Rankine vortex model
     h=norm2(r1_r2)/norm2(r0)
     Kv=(h*h)/sqrt((this%r_vc**4._dp)+(h**4._dp))    
     !Using min function instead of if condition
