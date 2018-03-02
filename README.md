@@ -6,7 +6,7 @@ A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method
 ## Features
 - Parallelized implementation using OpenMP
 - Provisions for analysis of sinusoid pitching and plunging motions
-- Choice of multiple vortex models 
+- Rankine vortex model (includes ideal vortex model)
 - Vortex dissipation due to turbulence and viscosity
 - Slow-start to avoid large starting vortex
 - Wake strain to prevent violation of Helmholtz's Law

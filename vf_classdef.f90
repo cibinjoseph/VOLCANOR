@@ -47,16 +47,9 @@ contains
       vind=r1_r2/(4._dp*pi*r1_r2_abs2)*dot_product(r0,r1/r1_abs-r2/r2_abs)
     endif
 
-    select case (model_switch)
-    case (1)    ! Ideal Vortex
-      Kv=1._dp
-    case (2)    ! Rankine Vortex
-      h=norm2(r1_r2)/norm2(r0)
-      Kv=1._dp
-      if (this%r_vc > eps) Kv=(h*h)/sqrt((this%r_vc**4._dp)+(h**4._dp))    
-    case default
-      error stop 'ERROR: Wrong option as vortex model_switch'
-    end select
+    h=norm2(r1_r2)/norm2(r0)
+    Kv=(h*h)/sqrt((this%r_vc**4._dp)+(h**4._dp))    
+    if (this%r_vc < eps) Kv=1._dp
 
     vind=Kv*vind
 
