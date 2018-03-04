@@ -5,7 +5,7 @@ module library
   implicit none
 
   ! Input parameters
-  integer, parameter :: nt = 100
+  integer, parameter :: nt = 150
   integer, parameter :: ns = 13
   integer, parameter :: nc = 5
 
@@ -475,9 +475,11 @@ contains
     enddo
     !$omp end parallel do
 
+    !$omp parallel do
     do i=1,3
       velind(i)=sum(velind_mat(i,:,:))
     enddo
+    !$omp end parallel do
   end function vind_panelgeo_wake
 
   ! Induced velocity by wing_array on wake_array corner points
