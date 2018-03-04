@@ -445,14 +445,17 @@ contains
     integer :: i,j
 
     velind_mat=0._dp
+    !$omp parallel do collapse(2)
     do j=1,size(wing_array,2)
       do i=1,size(wing_array,1)
         velind_mat(:,i,j)=wing_array(i,j)%vr%vind(P)*wing_array(i,j)%vr%gam
       enddo
     enddo
-    velind(1)=sum(velind_mat(1,:,:))
-    velind(2)=sum(velind_mat(2,:,:))
-    velind(3)=sum(velind_mat(3,:,:))
+    !$omp end parallel do
+
+    do i=1,3
+      velind(i)=sum(velind_mat(i,:,:))
+    enddo
   end function vind_panelgeo_wing
 
   ! Induced velocity by a wake array on point P
@@ -471,9 +474,10 @@ contains
       enddo
     enddo
     !$omp end parallel do
-    velind(1)=sum(velind_mat(1,:,:))
-    velind(2)=sum(velind_mat(2,:,:))
-    velind(3)=sum(velind_mat(3,:,:))
+
+    do i=1,3
+      velind(i)=sum(velind_mat(i,:,:))
+    enddo
   end function vind_panelgeo_wake
 
   ! Induced velocity by wing_array on wake_array corner points
