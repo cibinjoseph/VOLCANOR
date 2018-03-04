@@ -445,7 +445,7 @@ contains
     integer :: i,j
 
     velind_mat=0._dp
-    !$omp parallel do collapse(2)
+    !$omp parallel do collapse(2) shared(wing_array)
     do j=1,size(wing_array,2)
       do i=1,size(wing_array,1)
         velind_mat(:,i,j)=wing_array(i,j)%vr%vind(P)*wing_array(i,j)%vr%gam
@@ -467,7 +467,7 @@ contains
     integer :: i,j
 
     velind_mat=0._dp
-    !$omp parallel do collapse(2)
+    !$omp parallel do collapse(2) shared(wake_array,velind_mat)
     do j=1,size(wake_array,2)
       do i=1,size(wake_array,1)
         velind_mat(:,i,j)=wake_array(i,j)%vr%vind(P)*wake_array(i,j)%vr%gam
@@ -492,7 +492,7 @@ contains
     rows=size(wake_array,1)
     cols=size(wake_array,2)
 
-    !$omp parallel do collapse(2)
+    !$omp parallel do collapse(2) shared(wake_array,wing_array,vind_array)
     do j=1,cols
       do i=1,rows
         vind_array(:,i,j)=vind_panelgeo(wing_array,wake_array(i,j)%vr%vf(2)%fc(:,1))
@@ -500,7 +500,7 @@ contains
     enddo
     !$omp end parallel do
 
-    !$omp parallel do
+    !$omp parallel do shared(wake_array,wing_array,vind_array)
     do i=1,rows
       vind_array(:,i,cols+1)=vind_panelgeo(wing_array,wake_array(i,cols)%vr%vf(3)%fc(:,1))
     enddo
@@ -517,7 +517,7 @@ contains
     rows=size(wake_array,1)
     cols=size(wake_array,2)
 
-    !$omp parallel do collapse(2)
+    !$omp parallel do collapse(2) shared(wake_array,vind_array)
     do j=1,cols
       do i=1,rows
         vind_array(:,i,j)=vind_panelgeo(bywake_array,wake_array(i,j)%vr%vf(2)%fc(:,1))
@@ -525,7 +525,7 @@ contains
     enddo
     !$omp end parallel do
 
-    !$omp parallel do
+    !$omp parallel do shared(wake_array,vind_array)
     do i=1,rows
       vind_array(:,i,cols+1)=vind_panelgeo(bywake_array,wake_array(i,cols)%vr%vf(3)%fc(:,1))
     enddo
