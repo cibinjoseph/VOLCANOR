@@ -48,11 +48,13 @@ contains
     write(nx_char,'(I5)') nx+1
     write(ny_char,'(I5)') ny+1
 
+    !Check if necessary - $omp parallel do collapse(2)
     do j=1,ny
       do i=1,nx
         wake_mesh(:,i,j)=wake_array(i,j)%vr%vf(1)%fc(:,1)
       enddo
     enddo
+    !Check if necessary -$omp end parallel do
     do i=1,nx
       wake_mesh(:,i,ny+1)=wake_array(i,ny)%vr%vf(4)%fc(:,1)
     enddo
