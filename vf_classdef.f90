@@ -36,6 +36,7 @@ contains
     r2=P-this%fc(:,2)
     r0=r1-r2
 
+    ! Cross product (inlined to avoid function call)
     r1_r2(1) = r1(2)*r2(3)-r1(3)*r2(2)
     r1_r2(2) = r1(3)*r2(1)-r1(1)*r2(3)
     r1_r2(3) = r1(1)*r2(2)-r1(2)*r2(1)
