@@ -7,7 +7,7 @@ program trial
   A(2,:)=(/3._dp,4._dp,6._dp/)
   A(3,:)=(/5._dp,1._dp,3._dp/)
 
-  call print_mat(inv(A))
+  print*,sum(A,2)
 
 
 end program trial
