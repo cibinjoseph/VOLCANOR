@@ -5,7 +5,7 @@ module library
   implicit none
 
   ! Input parameters
-  integer, parameter :: nt = 150
+  integer, parameter :: nt = 500
   integer, parameter :: ns = 13
   integer, parameter :: nc = 5
 
@@ -116,7 +116,7 @@ contains
     cols=size(wake_array,2)
     rows=size(wake_array,1)
 
-    ! Assign core_radius to tip vortices
+    ! Assign core_radius to mid vortices
     do i=1,4
       wake_array%vr%vf(i)%r_vc0=mid_core_radius
       wake_array%vr%vf(i)%r_vc =mid_core_radius
@@ -134,14 +134,19 @@ contains
       wake_array(i,1)%vr%vf(3)%r_vc0      = tip_core_radius 
       wake_array(i,1)%vr%vf(3)%r_vc       = tip_core_radius 
 
+      wake_array(i,2)%vr%vf(1)%r_vc0      = tip_core_radius 
+      wake_array(i,2)%vr%vf(1)%r_vc       = tip_core_radius 
+      wake_array(i,2)%vr%vf(3)%r_vc0      = tip_core_radius 
+      wake_array(i,2)%vr%vf(3)%r_vc       = tip_core_radius 
+
       ! Tip vortex 
       wake_array(i,cols)%vr%vf(1)%r_vc0   = tip_core_radius 
       wake_array(i,cols)%vr%vf(1)%r_vc    = tip_core_radius 
       wake_array(i,cols)%vr%vf(3)%r_vc0   = tip_core_radius 
       wake_array(i,cols)%vr%vf(3)%r_vc    = tip_core_radius 
 
-      wake_array(i,2)%vr%vf(1)%r_vc0      = tip_core_radius 
-      wake_array(i,2)%vr%vf(1)%r_vc       = tip_core_radius 
+      wake_array(i,cols-1)%vr%vf(3)%r_vc0 = tip_core_radius 
+      wake_array(i,cols-1)%vr%vf(3)%r_vc  = tip_core_radius 
       wake_array(i,cols-1)%vr%vf(3)%r_vc0 = tip_core_radius 
       wake_array(i,cols-1)%vr%vf(3)%r_vc  = tip_core_radius 
     enddo
