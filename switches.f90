@@ -1,7 +1,7 @@
 ! This file contains the switches that control certain features in the code
 
 ! Span discretization : [1]linear [2]cosine [3]halfsine
-integer, parameter :: span_spacing_switch=2
+integer, parameter :: span_spacing_switch=3
 
 ! Wake tip dissipation: [0]Off [1]On
 integer, parameter :: tip_diss_switch=0
@@ -21,3 +21,6 @@ integer, parameter :: FDscheme_switch=1
 
 ! Ignore Wake wake interaction [0]Off [1..]timesteps
 integer, parameter :: wake_ignore_nt=0
+
+! Initial Wake velocity [0]Off [1..]timesteps
+integer, parameter :: init_wake_vel_nt=450

@@ -222,9 +222,8 @@ program main
     vind_wake(:,row_now:nt,:)=vind_onwake(wing,wake(row_now:nt,:))
     if (iter > wake_ignore_nt .or. wake_ignore_nt .eq. 0) then 
       vind_wake(:,row_now:nt,:)=vind_wake(:,row_now:nt,:)+vind_onwake(wake(row_now:nt,:),wake(row_now:nt,:))
-    else
-      vind_wake(3,row_now:nt,:)=vind_wake(3,row_now:nt,:)+init_wake_vel
     endif
+    if (iter < init_wake_vel_nt .or. init_wake_vel .ne. 0)  vind_wake(3,row_now:nt,:)=vind_wake(3,row_now:nt,:)+init_wake_vel
 
     ! Update wake vortex locations
     select case (FDscheme_switch)
@@ -240,9 +239,8 @@ program main
       Pvind_wake(:,row_now:nt,:)=vind_onwake(wing,Pwake(row_now:nt,:))
       if (iter > wake_ignore_nt .or. wake_ignore_nt .eq. 0) then 
         Pvind_wake(:,row_now:nt,:)=Pvind_wake(:,row_now:nt,:)+vind_onwake(Pwake(row_now:nt,:),Pwake(row_now:nt,:))
-      else
-        Pvind_wake(3,row_now:nt,:)=Pvind_wake(3,row_now:nt,:)+init_wake_vel
-      endif
+      endif 
+      if (iter < init_wake_vel_nt .or. init_wake_vel_nt .ne. 0) Pvind_wake(3,row_now:nt,:)=Pvind_wake(3,row_now:nt,:)+init_wake_vel
 
       call convectwake(wake(row_now:nt,:),(vind_wake(:,row_now:nt,:)+Pvind_wake(:,row_now:nt,:))*dt*0.5_dp)
 
@@ -279,35 +277,35 @@ program main
         Pvind_wake(:,row_now:nt,:)=vind_onwake(wing,Pwake(row_now:nt,:))
         if (iter > wake_ignore_nt .or. wake_ignore_nt .eq. 0) then 
           Pvind_wake(:,row_now:nt,:)=Pvind_wake(:,row_now:nt,:)+vind_onwake(Pwake(row_now:nt,:),Pwake(row_now:nt,:))
-        else
-          Pvind_wake(3,row_now:nt,:)=Pvind_wake(3,row_now:nt,:)+init_wake_vel
-        endif
+        endif 
 
-        vind_wake_step =09._dp/24._dp*Pvind_wake  & 
-          +19._dp/24._dp* vind_wake  & 
-          -05._dp/24._dp* vind_wake3 &  
-          +01._dp/24._dp* vind_wake2  
-        call convectwake(wake(row_now:nt,:),vind_wake_step(:,row_now:nt,:)*dt)
+        if (iter < init_wake_vel_nt .or. init_wake_vel_nt .ne. 0)  Pvind_wake(3,row_now:nt,:)=Pvind_wake(3,row_now:nt,:)+init_wake_vel
 
-        vind_wake1=vind_wake2
-        vind_wake2=vind_wake3
-        vind_wake3=vind_wake
-      endif
+      vind_wake_step =09._dp/24._dp*Pvind_wake  & 
+        +19._dp/24._dp* vind_wake  & 
+        -05._dp/24._dp* vind_wake3 &  
+        +01._dp/24._dp* vind_wake2  
+      call convectwake(wake(row_now:nt,:),vind_wake_step(:,row_now:nt,:)*dt)
 
-    end select
+      vind_wake1=vind_wake2
+      vind_wake2=vind_wake3
+      vind_wake3=vind_wake
+    endif
 
-    ! Strain wake
-    if (wakestrain_switch .eq. 1) call strain_wake(wake(row_now:nt,:))
+  end select
 
-    ! Store shed vortex as TE for next wake panel
-    if (row_now>1) call assignshed(wake(row_now-1,:),wing(nc,:),'TE')  
+  ! Strain wake
+  if (wakestrain_switch .eq. 1) call strain_wake(wake(row_now:nt,:))
 
-  enddo
+  ! Store shed vortex as TE for next wake panel
+  if (row_now>1) call assignshed(wake(row_now-1,:),wing(nc,:),'TE')  
 
-  ! Postprocesing
-  call lift2file(lift,'Results/lift.curve',(/dt,om_body(3),span,vwind(1)/))
-  call drag2file(drag,'Results/drag.curve',(/dt,om_body(3),span,vwind(1)/))
+enddo
 
-  if (wakeplot_switch .eq. 1) call mesh2file(wing,wake(row_now:nt,:),'Results/wNw'//timestamp//'.tec')
+! Postprocesing
+call lift2file(lift,'Results/lift.curve',(/dt,om_body(3),span,vwind(1)/))
+call drag2file(drag,'Results/drag.curve',(/dt,om_body(3),span,vwind(1)/))
+
+if (wakeplot_switch .eq. 1) call mesh2file(wing,wake(row_now:nt,:),'Results/wNw'//timestamp//'.tec')
 
 end program main
