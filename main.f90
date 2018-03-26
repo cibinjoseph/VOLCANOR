@@ -258,7 +258,7 @@ program main
       endif
 
 
-    case (3)    ! Predictor-Cprrector Adam-Bashforth (4th order)
+    case (3)    ! Predictor-Corrector Adam-Bashforth (4th order)
       if (iter == 1) then
         call convectwake(wake(row_now:nt,:),vind_wake(:,row_now:nt,:)*dt)
         vind_wake1=vind_wake
