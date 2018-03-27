@@ -19,6 +19,7 @@ A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method
 
 ## Improvements
 ### Stability Improvements
+- Implement CB2D
 - Correct large starting vortex and root upwash
 - Interpolation of vortex core radii along span for wake
 
