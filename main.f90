@@ -279,7 +279,8 @@ program main
           Pvind_wake(:,row_now:nt,:)=Pvind_wake(:,row_now:nt,:)+vind_onwake(Pwake(row_now:nt,:),Pwake(row_now:nt,:))
         endif 
 
-        if (iter < init_wake_vel_nt .or. init_wake_vel_nt .ne. 0)  Pvind_wake(3,row_now:nt,:)=Pvind_wake(3,row_now:nt,:)+init_wake_vel
+        if (iter < init_wake_vel_nt .or. init_wake_vel_nt .ne. 0)  &
+          Pvind_wake(3,row_now:nt,:)=Pvind_wake(3,row_now:nt,:)+init_wake_vel
 
       vind_wake_step =09._dp/24._dp*Pvind_wake  & 
         +19._dp/24._dp* vind_wake  & 
