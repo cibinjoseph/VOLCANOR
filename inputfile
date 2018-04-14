@@ -20,4 +20,4 @@ om_body(1)    om_body(2)      om_body(3) [all in rad/s]
 
 wing_mid_core   wake_mid_core   wing_tip_core   wake_tip_core [x/chord]
 ----------------------------------------------------------------
-0.14              0.14            0.14           0.24
+0.14              0.14            0.14           0.14
