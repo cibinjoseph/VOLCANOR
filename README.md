@@ -6,7 +6,7 @@ A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method
 ## Features
 - Parallelized implementation using OpenMP
 - Provisions for analysis of sinusoid pitching and plunging motions
-- Choice of multiple vortex models 
+- Rankine vortex model (includes ideal vortex model)
 - Vortex dissipation due to turbulence and viscosity
 - Slow-start to avoid large starting vortex
 - Wake strain to prevent violation of Helmholtz's Law
@@ -19,15 +19,20 @@ A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method
 
 ## Improvements
 ### Stability Improvements
+- Implement CB2D
 - Correct large starting vortex and root upwash
 - Interpolation of vortex core radii along span for wake
 
 ### Feature and Solution Improvements
+- Provision to restart
+- Write out in binary format
 - Prandtl-glauert, Karman-Tsien compressibility corrections etc.
 - Induced drag computation drastically overpredicted
 - Check 25% of panel span inset of vortices create difference
 
 ### Performance Improvements
+- Deallocate unused variables depending on FD schemes
+- Make wake array a shared variable in OpenMP part
 - Implement recording to array before writing
 - Implement free wake relaxation
 

@@ -19,13 +19,15 @@ contains
     ! Calculates induced velocity by unit gam vortex ring
   class(vr_class) :: this
     real(dp), dimension(3) :: P, vind
+    real(dp), dimension(4,3) :: vind_mat
     integer :: i
 
     vind=0._dp
 
     do i=1,4
-      vind=vind+this%vf(i)%vind(P) 
+      vind_mat(i,:)=this%vf(i)%vind(P) 
     enddo
+    vind=sum(vind_mat,1)
 
   end function vrclass_vind
 

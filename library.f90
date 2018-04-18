@@ -5,9 +5,9 @@ module library
   implicit none
 
   ! Input parameters
-  integer, parameter  :: nt = 350
-  integer, parameter  :: ns = 13
-  integer, parameter  :: nc = 5
+  integer, parameter :: nt = 500
+  integer, parameter :: ns = 13
+  integer, parameter :: nc = 1
 
   ! Global env parameters
   real(dp), parameter :: density = 1.2_dp
@@ -116,7 +116,7 @@ contains
     cols=size(wake_array,2)
     rows=size(wake_array,1)
 
-    ! Assign core_radius to tip vortices
+    ! Assign core_radius to mid vortices
     do i=1,4
       wake_array%vr%vf(i)%r_vc0=mid_core_radius
       wake_array%vr%vf(i)%r_vc =mid_core_radius
@@ -128,10 +128,27 @@ contains
 
     ! Assign core_radius to tip vortices
     do i=1,rows
-      wake_array(i,1)%vr%vf(1)%r_vc0    = tip_core_radius 
-      wake_array(i,1)%vr%vf(1)%r_vc     = tip_core_radius 
-      wake_array(i,cols)%vr%vf(3)%r_vc0 = tip_core_radius 
-      wake_array(i,cols)%vr%vf(3)%r_vc  = tip_core_radius 
+      ! Root vortex 
+      wake_array(i,1)%vr%vf(1)%r_vc0      = tip_core_radius 
+      wake_array(i,1)%vr%vf(1)%r_vc       = tip_core_radius 
+      wake_array(i,1)%vr%vf(3)%r_vc0      = tip_core_radius 
+      wake_array(i,1)%vr%vf(3)%r_vc       = tip_core_radius 
+
+      wake_array(i,2)%vr%vf(1)%r_vc0      = tip_core_radius 
+      wake_array(i,2)%vr%vf(1)%r_vc       = tip_core_radius 
+      wake_array(i,2)%vr%vf(3)%r_vc0      = tip_core_radius 
+      wake_array(i,2)%vr%vf(3)%r_vc       = tip_core_radius 
+
+      ! Tip vortex 
+      wake_array(i,cols)%vr%vf(1)%r_vc0   = tip_core_radius 
+      wake_array(i,cols)%vr%vf(1)%r_vc    = tip_core_radius 
+      wake_array(i,cols)%vr%vf(3)%r_vc0   = tip_core_radius 
+      wake_array(i,cols)%vr%vf(3)%r_vc    = tip_core_radius 
+
+      wake_array(i,cols-1)%vr%vf(3)%r_vc0 = tip_core_radius 
+      wake_array(i,cols-1)%vr%vf(3)%r_vc  = tip_core_radius 
+      wake_array(i,cols-1)%vr%vf(3)%r_vc0 = tip_core_radius 
+      wake_array(i,cols-1)%vr%vf(3)%r_vc  = tip_core_radius 
     enddo
 
     if (starting_vortex_core > eps) then
@@ -433,14 +450,17 @@ contains
     integer :: i,j
 
     velind_mat=0._dp
+    !$omp parallel do collapse(2) shared(wing_array)
     do j=1,size(wing_array,2)
       do i=1,size(wing_array,1)
         velind_mat(:,i,j)=wing_array(i,j)%vr%vind(P)*wing_array(i,j)%vr%gam
       enddo
     enddo
-    velind(1)=sum(velind_mat(1,:,:))
-    velind(2)=sum(velind_mat(2,:,:))
-    velind(3)=sum(velind_mat(3,:,:))
+    !$omp end parallel do
+
+    do i=1,3
+      velind(i)=sum(velind_mat(i,:,:))
+    enddo
   end function vind_panelgeo_wing
 
   ! Induced velocity by a wake array on point P
@@ -452,16 +472,19 @@ contains
     integer :: i,j
 
     velind_mat=0._dp
-    !$omp parallel do collapse(2)
+    !$omp parallel do collapse(2) shared(wake_array,velind_mat)
     do j=1,size(wake_array,2)
       do i=1,size(wake_array,1)
         velind_mat(:,i,j)=wake_array(i,j)%vr%vind(P)*wake_array(i,j)%vr%gam
       enddo
     enddo
     !$omp end parallel do
-    velind(1)=sum(velind_mat(1,:,:))
-    velind(2)=sum(velind_mat(2,:,:))
-    velind(3)=sum(velind_mat(3,:,:))
+
+    !$omp parallel do
+    do i=1,3
+      velind(i)=sum(velind_mat(i,:,:))
+    enddo
+    !$omp end parallel do
   end function vind_panelgeo_wake
 
   ! Induced velocity by wing_array on wake_array corner points
@@ -474,7 +497,7 @@ contains
     rows=size(wake_array,1)
     cols=size(wake_array,2)
 
-    !$omp parallel do collapse(2)
+    !$omp parallel do collapse(2) shared(wake_array,wing_array,vind_array)
     do j=1,cols
       do i=1,rows
         vind_array(:,i,j)=vind_panelgeo(wing_array,wake_array(i,j)%vr%vf(2)%fc(:,1))
@@ -482,7 +505,7 @@ contains
     enddo
     !$omp end parallel do
 
-    !$omp parallel do
+    !$omp parallel do shared(wake_array,wing_array,vind_array)
     do i=1,rows
       vind_array(:,i,cols+1)=vind_panelgeo(wing_array,wake_array(i,cols)%vr%vf(3)%fc(:,1))
     enddo
@@ -499,7 +522,7 @@ contains
     rows=size(wake_array,1)
     cols=size(wake_array,2)
 
-    !$omp parallel do collapse(2)
+    !$omp parallel do collapse(2) shared(wake_array,vind_array)
     do j=1,cols
       do i=1,rows
         vind_array(:,i,j)=vind_panelgeo(bywake_array,wake_array(i,j)%vr%vf(2)%fc(:,1))
@@ -507,7 +530,7 @@ contains
     enddo
     !$omp end parallel do
 
-    !$omp parallel do
+    !$omp parallel do shared(wake_array,vind_array)
     do i=1,rows
       vind_array(:,i,cols+1)=vind_panelgeo(bywake_array,wake_array(i,cols)%vr%vf(3)%fc(:,1))
     enddo
@@ -528,8 +551,23 @@ contains
     enddo
   end subroutine calc_wingalpha
 
+  function calcgam(wg)
+    type(wingpanel_class), intent(inout), dimension(:,:) :: wg  !short form for wing_array
+    real(dp), dimension(size(wg,2)) :: calcgam
+    integer :: j,rows,cols
+
+    rows=size(wg,1)
+    cols=size(wg,2)
+
+    ! Check if this is correct way of calculating sectional circulation
+    do j=2,cols
+      calcgam(j)=wg(rows,j)%vr%gam
+    enddo
+
+  end function calcgam
+
   function calclift(wg,gamvec_prev,dt)
-    type(wingpanel_class), intent(inout), dimension(:,:) :: wg !short form for wing_array
+    type(wingpanel_class), intent(inout), dimension(:,:) :: wg  !short form for wing_array
     real(dp), intent(in), dimension(:) :: gamvec_prev
     real(dp), intent(in) :: dt
     real(dp) :: calclift
