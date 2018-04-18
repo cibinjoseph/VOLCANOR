@@ -6,7 +6,7 @@ module library
 
   ! Input parameters
   integer, parameter :: nt = 500
-  integer, parameter :: ns = 13
+  integer, parameter :: ns = 25
   integer, parameter :: nc = 1
 
   ! Global env parameters
@@ -551,8 +551,23 @@ contains
     enddo
   end subroutine calc_wingalpha
 
+  function calcgam(wg)
+    type(wingpanel_class), intent(inout), dimension(:,:) :: wg  !short form for wing_array
+    real(dp), dimension(size(wg,2)) :: calcgam
+    integer :: j,rows,cols
+
+    rows=size(wg,1)
+    cols=size(wg,2)
+
+    ! Check if this is correct way of calculating sectional circulation
+    do j=2,cols
+      calcgam(j)=wg(rows,j)%vr%gam
+    enddo
+
+  end function calcgam
+
   function calclift(wg,gamvec_prev,dt)
-    type(wingpanel_class), intent(inout), dimension(:,:) :: wg !short form for wing_array
+    type(wingpanel_class), intent(inout), dimension(:,:) :: wg  !short form for wing_array
     real(dp), intent(in), dimension(:) :: gamvec_prev
     real(dp), intent(in) :: dt
     real(dp) :: calclift

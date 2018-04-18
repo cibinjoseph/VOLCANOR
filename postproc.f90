@@ -219,6 +219,28 @@ contains
     close(10)
   end subroutine tip2file
 
+  subroutine gam2file(yvec,gam_sectional,filename)
+    real(dp), intent(in), dimension(:) :: yvec
+    real(dp), intent(in), dimension(:) :: gam_sectional
+    character(len=*), intent(in) :: filename
+    real(dp), dimension(size(yvec)-1) :: yvec_file
+    integer :: i,ny
+
+    ny=size(gam_sectional)
+
+    open(unit=10,file=filename,position='append')
+    do i=1,ny
+      yvec_file(i)=(yvec(i)+yvec(i+1))*0.5_dp
+    enddo
+
+    write(10,*) '# Gamma'
+    do i=1,ny
+      write(10,*) yvec_file(i), -1._dp*gam_sectional(i)
+    enddo
+    close(10)
+
+  end subroutine gam2file
+
   subroutine lift2file(liftvec,filename,extra_params)
     real(dp), intent(in), dimension(:) :: liftvec
     character(*), intent(in) :: filename

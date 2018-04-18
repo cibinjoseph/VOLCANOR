@@ -188,6 +188,8 @@ program main
     ! Write out wing n' wake
     if (wakeplot_switch .eq. 2) call mesh2file(wing,wake(row_now:nt,:),'Results/wNw'//timestamp//'.tec')
     call tip2file(wing,wake(row_now:nt,:),'Results/tip'//timestamp//'.tec')
+    gam_sectional=calcgam(wing)
+    call gam2file(yvec,gam_sectional,'Results/gam'//timestamp//'.curve')
 
     ! Induced vel at coll. point (excluding pitch and wing induced velocities)
     call vind_CP(wing,vwind-vel_plunge,pqr,wake(row_now:nt,:))
