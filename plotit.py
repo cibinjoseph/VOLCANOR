@@ -12,6 +12,7 @@ parser = argparse.ArgumentParser(
         epilog='Author: Cibin Joseph')
 parser.add_argument('-w', '--wake', help='Plot wake structure', action='store_true')
 parser.add_argument('-t', '--tip', help='Plot wake tip', action='store_true')
+parser.add_argument('-p', '--panel', help='Plot wing alone', action='store_true')
 parser.add_argument('-l', '--lift', help='Plot lift', action='store_true')
 parser.add_argument('-d', '--drag', help='Plot drag', action='store_true')
 
@@ -24,6 +25,9 @@ if args.wake == True:
 
 elif args.tip == True:
     filename = 'plot_tip.py'
+
+elif args.panel == True:
+    filename = 'plot_panel.py'
 
 elif args.lift == True:
     filename = 'plot_lift.py'
