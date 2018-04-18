@@ -6,7 +6,7 @@ module library
 
   ! Input parameters
   integer, parameter :: nt = 500
-  integer, parameter :: ns = 25
+  integer, parameter :: ns = 13
   integer, parameter :: nc = 1
 
   ! Global env parameters
