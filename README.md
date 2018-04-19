@@ -11,15 +11,17 @@ A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method
 - Slow-start to avoid large starting vortex
 - Wake strain to prevent violation of Helmholtz's Law
 - Predictor-Corrector based wake convection for improved stability and accuracy
-- Visualization of load history, wake structure etc in VisIt
+- Visualization of load history, circulation, wake structure etc in VisIt
 
 ## Known Issues
 1. Overprediction of induced drag
 2. Pitch rotation of blade about LE, should be customizable
+3. Unequal spacing of panels causes instability when CP falls inside viscous core region
 
 ## Improvements
 ### Stability Improvements
 - Implement CB2D
+- Verify if CP is inside viscous core during wing geometry initialization
 - Correct large starting vortex and root upwash
 - Interpolation of vortex core radii along span for wake
 

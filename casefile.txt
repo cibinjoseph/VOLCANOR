@@ -1,3 +1,9 @@
+==> library.f90 <==
+   nt = 1000
+   ns = 13
+   nc = 1
+
+==> inputfile <==
 chord       span      root_cut[r/R]     dt (0.00278) 
 ---------------------------------------------------------------
 1.0          8.0         0.1            0.002
@@ -21,3 +27,22 @@ om_body(1)    om_body(2)      om_body(3) [all in rad/s]
 wing_mid_core   wake_mid_core   wing_tip_core   wake_tip_core [x/chord]
 ----------------------------------------------------------------
 0.14              0.14            0.14           0.14
+
+==> switches.f90  <==
+
+ span_spacing_switch=1
+
+ tip_diss_switch=0
+
+ slowstart_switch=0
+ slowstart_nt=145
+
+ wakestrain_switch=0
+
+ wakeplot_switch=2
+
+ FDscheme_switch=2
+
+ wake_ignore_nt=0
+
+ init_wake_vel_nt=500
