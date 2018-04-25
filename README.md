@@ -21,7 +21,6 @@ A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method
 ## Improvements
 ### Stability Improvements
 - Implement CB2D
-- Verify if CP is inside viscous core during wing geometry initialization
 - Correct large starting vortex and root upwash
 - Interpolation of vortex core radii along span for wake
 
@@ -31,6 +30,7 @@ A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method
 - Prandtl-glauert, Karman-Tsien compressibility corrections etc.
 - Induced drag computation drastically overpredicted
 - Check 25% of panel span inset of vortices create difference
+- Convert switches.f90 to readable input file
 
 ### Performance Improvements
 - Deallocate unused variables depending on FD schemes
