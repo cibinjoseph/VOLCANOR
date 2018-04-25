@@ -5,7 +5,7 @@ module library
   implicit none
 
   ! Input parameters
-  integer, parameter :: nt = 1000
+  integer, parameter :: nt = 500
   integer, parameter :: ns = 13
   integer, parameter :: nc = 1
 
@@ -105,6 +105,28 @@ contains
       wing_array(i,cols)%vr%vf(3)%r_vc  = tip_core_radius
     enddo
 
+    ! Verify CP is outside vortex core for boundary panels
+    if (isCPinsidecore(wing_array(1,1))) then
+      print*,'Warning: CP inside vortex core at panel LU'
+      print*,'Any key to continue. Ctrl-C to exit'
+      read(*,*)
+    endif
+    if (isCPinsidecore(wing_array(rows,1))) then
+      print*,'Warning: CP inside vortex core at panel LB'
+      print*,'Any key to continue. Ctrl-C to exit'
+      read(*,*)
+    endif
+    if (isCPinsidecore(wing_array(1,cols))) then
+      print*,'Warning: CP inside vortex core at panel RU'
+      print*,'Any key to continue. Ctrl-C to exit'
+      read(*,*)
+    endif
+    if (isCPinsidecore(wing_array(rows,cols))) then
+      print*,'Warning: CP inside vortex core at panel RB'
+      print*,'Any key to continue. Ctrl-C to exit'
+      read(*,*)
+    endif
+
   end subroutine init_wing
 
   ! Assigns vortex code radii to all filaments
@@ -165,6 +187,26 @@ contains
 
   end subroutine init_wake
 
+  ! Checks whether CP lies inside viscous core region of vortex ring
+  function isCPinsidecore(wing_panel)
+    type(wingpanel_class), intent(in) :: wing_panel
+    logical :: isCPinsidecore
+    real(dp) :: deltaxby4, deltayby2
+
+    deltaxby4=0.25_dp*abs(wing_panel%vr%vf(1)%fc(1,1)-wing_panel%vr%vf(2)%fc(1,1))
+    deltayby2=0.5_dp *abs(wing_panel%vr%vf(1)%fc(2,1)-wing_panel%vr%vf(4)%fc(2,1))
+
+    isCPinsidecore = .false.
+    if (deltayby2 .lt. wing_panel%vr%vf(1)%r_vc) then
+      isCPinsidecore = .true.    ! Left edge
+    elseif (deltayby2 .lt. wing_panel%vr%vf(3)%r_vc) then 
+      isCPinsidecore = .true.  ! Right edge
+    elseif (deltaxby4 .lt. wing_panel%vr%vf(2)%r_vc) then
+      isCPinsidecore = .true.  ! Upper edge
+    elseif (3._dp*deltaxby4 .lt. wing_panel%vr%vf(4)%r_vc) then
+      isCPinsidecore = .true.  ! Bottom edge
+    endif
+  end function isCPinsidecore
   !--------------------------------------------------------!
   !                 Wing Motion Functions                  !
   !--------------------------------------------------------!
