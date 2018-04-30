@@ -1,7 +1,7 @@
 # Documentation
 [![](https://img.shields.io/badge/status-under%20development-green.svg)]()  [![](https://img.shields.io/badge/Last%20Updated-Mar%202018-green.svg)]()  
 
-A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method in Fortran 90+ for aerodynamic analysis of a single wing under generic 3D motion.
+A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method in Fortran 90+ for aerodynamic analysis of rotors and wings under generic 3D motion.
 
 ## Features
 - Parallelized implementation using OpenMP
@@ -20,8 +20,6 @@ A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method
 
 ## Improvements
 ### Stability Improvements
-- Implement CB2D
-- Correct large starting vortex and root upwash
 - Interpolation of vortex core radii along span for wake
 
 ### Feature and Solution Improvements
@@ -33,8 +31,7 @@ A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method
 - Convert switches.f90 to readable input file
 
 ### Performance Improvements
-- Deallocate unused variables depending on FD schemes
-- Make wake array a shared variable in OpenMP part
+- Verify wake array is used as a shared variable in OpenMP part
 - Implement recording to array before writing
 - Implement free wake relaxation
 
