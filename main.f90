@@ -284,31 +284,49 @@ program main
         if (iter < init_wake_vel_nt .or. init_wake_vel_nt .ne. 0)  &
           Pvind_wake(3,row_now:nt,:)=Pvind_wake(3,row_now:nt,:)+init_wake_vel
 
-      vind_wake_step =09._dp/24._dp*Pvind_wake  & 
-        +19._dp/24._dp* vind_wake  & 
-        -05._dp/24._dp* vind_wake3 &  
-        +01._dp/24._dp* vind_wake2  
-      call convectwake(wake(row_now:nt,:),vind_wake_step(:,row_now:nt,:)*dt)
+        vind_wake_step =09._dp/24._dp*Pvind_wake  & 
+          +19._dp/24._dp* vind_wake  & 
+          -05._dp/24._dp* vind_wake3 &  
+          +01._dp/24._dp* vind_wake2  
+        call convectwake(wake(row_now:nt,:),vind_wake_step(:,row_now:nt,:)*dt)
 
-      vind_wake1=vind_wake2
-      vind_wake2=vind_wake3
-      vind_wake3=vind_wake
-    endif
+        vind_wake1=vind_wake2
+        vind_wake2=vind_wake3
+        vind_wake3=vind_wake
+      endif
 
+    end select
+
+    ! Strain wake
+    if (wakestrain_switch .eq. 1) call strain_wake(wake(row_now:nt,:))
+
+    ! Store shed vortex as TE for next wake panel
+    if (row_now>1) call assignshed(wake(row_now-1,:),wing(nc,:),'TE')  
+
+  enddo
+
+  ! Postprocesing
+  call lift2file(lift,'Results/lift.curve',(/dt,om_body(3),span,vwind(1)/))
+  call drag2file(drag,'Results/drag.curve',(/dt,om_body(3),span,vwind(1)/))
+
+  if (wakeplot_switch .eq. 1) call mesh2file(wing,wake(row_now:nt,:),'Results/wNw'//timestamp//'.tec')
+
+  ! Deallocate variables
+  select case (FDscheme_switch)
+  case (1)
+    deallocate(Pwake)
+    deallocate(vind_wake1)
+    deallocate(Pvind_wake)
+  case (2)
+    deallocate(vind_wake1)
+    deallocate(vind_wake_step)
+  case (3)
+    deallocate(Pwake)
+    deallocate(vind_wake1)
+    deallocate(vind_wake2)
+    deallocate(vind_wake3)
+    deallocate(Pvind_wake)
+    deallocate(vind_wake_step)
   end select
-
-  ! Strain wake
-  if (wakestrain_switch .eq. 1) call strain_wake(wake(row_now:nt,:))
-
-  ! Store shed vortex as TE for next wake panel
-  if (row_now>1) call assignshed(wake(row_now-1,:),wing(nc,:),'TE')  
-
-enddo
-
-! Postprocesing
-call lift2file(lift,'Results/lift.curve',(/dt,om_body(3),span,vwind(1)/))
-call drag2file(drag,'Results/drag.curve',(/dt,om_body(3),span,vwind(1)/))
-
-if (wakeplot_switch .eq. 1) call mesh2file(wing,wake(row_now:nt,:),'Results/wNw'//timestamp//'.tec')
 
 end program main
