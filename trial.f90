@@ -1,27 +1,26 @@
 program trial
   use mymathlib
   implicit none 
-  real(dp), dimension(3,2,2) :: A
-  real(dp), dimension(2,2) :: a1,a2,a3
+  integer, parameter :: nx=200
+  real(dp), dimension(3,nx) :: A
+  real(dp) :: t
+  real(dp) :: pivotLE
+  integer :: i
 
-  a1(1,:)=(/1._dp,1._dp/)
-  a1(2,:)=(/1._dp,1._dp/)
-  
-  a2(1,:)=(/2._dp,2._dp/)
-  a2(2,:)=(/2._dp,2._dp/)
-  
-  a3(1,:)=(/3._dp,3._dp/)
-  a3(2,:)=(/3._dp,3._dp/)
+  t=0._dp
+  do i=1,nx
+    t=t+0.1_dp
+    A(1,i)=0.2_dp*cos(t)
+    A(2,i)=0.2_dp*sin(t)
+    A(3,i)=0.03_dp*t
+  enddo
 
-  A(1,:,:)=a1*0._dp
-  A(2,:,:)=a2*0._dp
-  A(3,:,:)=a3
-
-  print*,sum(A,1)
-  print*
-  print*,sum(A,2)
-  print*
-  print*,sum(A,3)
-
-
+  open(unit=10,file='ahelix.tec')
+  write(10,*) 'Title = Helix'
+  write(10,*) 'Variables = "X" "Y" "Z"'
+  write(10,*) 'Zone I=200 J=1 K=1'
+  do i=1,nx
+    write(10,*)A(1,i),A(2,i),A(3,i)
+  enddo
+  close(10)
 end program trial
