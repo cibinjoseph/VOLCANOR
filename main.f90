@@ -13,7 +13,7 @@ program main
   read(12,*)
   read(12,*)
   read(12,*)
-  read(12,*) vwind(1),vwind(2),vwind(3)
+  read(12,*) vwind(1),vwind(2),vwind(3),pivotLE
   read(12,*)
   read(12,*)
   read(12,*)
