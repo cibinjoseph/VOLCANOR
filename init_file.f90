@@ -28,6 +28,7 @@ real(dp), allocatable, dimension(:,:,:) :: vind_wake1, vind_wake2, vind_wake3
 real(dp), allocatable, dimension(:,:,:) :: Pvind_wake, vind_wake_step
 character(len=5) :: timestamp
 real(dp) :: wing_mid_core,wake_mid_core,wing_tip_core,wake_tip_core
+real(dp) :: pivotLE
 
 ! Iterators
 integer :: ispan, ichord, row, col, i, j, indx, iter, row_now
