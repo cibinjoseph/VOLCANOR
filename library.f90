@@ -259,8 +259,8 @@ contains
       error stop 'Error: wrong option for order'
     end select
 
-    do j=1,ns
-      do i=1,nc
+    do j=1,size(wing_array,2)
+      do i=1,size(wing_array,1)
         call wing_array(i,j)%shiftdP(-origin)
         call wing_array(i,j)%rot(TMat)
         call wing_array(i,j)%shiftdP(origin)
@@ -295,8 +295,27 @@ contains
       ! Untranslate from origin
       call mov_wing(wing_array,dshift)
     endif
-
   end subroutine pitch_wing
+
+  subroutine pitch_about_axis(wing_array,theta_pitch,pivotLE)  !pitch about pivotLE from LE
+    type(wingpanel_class), intent(inout), dimension(:,:) :: wing_array
+    real(dp), intent(in) :: theta_pitch, pivotLE
+    real(dp), dimension(3,3) :: Tmat
+    integer :: i,j
+    real(dp), dimension(3) :: uvec  ! Axis vector
+
+    ! Construct axes of rotation
+
+    ! Calculate TMat
+
+    if (abs(theta_pitch)>eps) then
+      do j=1,size(wing_array,2)
+        do i=1,size(wing_array,1)
+          call wing_array(i,j)%rot(TMat)
+        enddo
+      enddo
+    endif
+  end subroutine pitch_about_axis
 
   subroutine mov_wing(wing_array,dshift)
     type(wingpanel_class), intent(inout), dimension(:,:) :: wing_array
