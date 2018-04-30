@@ -7,6 +7,7 @@ program trial
   real(dp) :: pivotLE
   integer :: i
 
+  ! Construct helix
   t=0._dp
   do i=1,nx
     t=t+0.1_dp
@@ -15,7 +16,8 @@ program trial
     A(3,i)=0.03_dp*t
   enddo
 
-  open(unit=10,file='ahelix.tec')
+  ! Write out helix
+  open(unit=10,file='ahelix1.tec')
   write(10,*) 'Title = Helix'
   write(10,*) 'Variables = "X" "Y" "Z"'
   write(10,*) 'Zone I=200 J=1 K=1'
@@ -23,4 +25,12 @@ program trial
     write(10,*)A(1,i),A(2,i),A(3,i)
   enddo
   close(10)
+
+
+  ! Specify axis of rotation
+
+  ! Rotate
+
+  ! Write out rotated helix
+
 end program trial
