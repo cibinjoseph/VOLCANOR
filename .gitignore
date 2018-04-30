@@ -9,3 +9,6 @@ Validation/*
 Unsteady
 Unsteady/*
 dummy*
+*.tec
+*.curve
+*.dat
