@@ -297,25 +297,42 @@ contains
     endif
   end subroutine pitch_wing
 
-  subroutine pitch_about_axis(wing_array,theta_pitch,pivotLE)  !pitch about pivotLE from LE
+  subroutine rot_about_axis(wing_array,theta,pivotLE)  !pitch about pivotLE from LE
     type(wingpanel_class), intent(inout), dimension(:,:) :: wing_array
-    real(dp), intent(in) :: theta_pitch, pivotLE
+    real(dp), intent(in) :: theta, pivotLE
     real(dp), dimension(3,3) :: Tmat
     integer :: i,j
-    real(dp), dimension(3) :: uvec  ! Axis vector
+    real(dp), dimension(3) :: u  ! Axis vector
+    real(dp) :: ct,st,omct
 
-    ! Construct axes of rotation
+    if (abs(theta)>eps) then
+      ! Translate to origin
+      dshift=(/wing_array(1,1)%pc(:,1)/)
+      call mov_wing(wing_array,-dshift)
 
-    ! Calculate TMat
+      ! Construct axes of rotation
+      u=
 
-    if (abs(theta_pitch)>eps) then
+      ! Calculate TMat
+      ct=cos(theta)
+      st=sin(theta)
+      omct=1-ct
+
+      Tmat(:,1)=(/      ct+u(1)*u(1)*omct,  u(3)*st+u(2)*u(1)*omct, -u(2)*st+u(3)*u(1)*omct/)
+      Tmat(:,2)=(/-u(3)*st+u(1)*u(2)*omct,       ct+u(2)*u(2)*omct,  u(1)*st+u(3)*u(2)*omct/)
+      Tmat(:,3)=(/ u(2)*st+u(1)*u(3)*omct, -u(1)*st+u(2)*u(3)*omct,       ct+u(3)*u(3)*omct/)
+
+      ! Rotate about axis
       do j=1,size(wing_array,2)
         do i=1,size(wing_array,1)
           call wing_array(i,j)%rot(TMat)
         enddo
       enddo
+
+      ! Untranslate from origin
+      call mov_wing(wing_array,dshift)
     endif
-  end subroutine pitch_about_axis
+  end subroutine rot_about_axis
 
   subroutine mov_wing(wing_array,dshift)
     type(wingpanel_class), intent(inout), dimension(:,:) :: wing_array
