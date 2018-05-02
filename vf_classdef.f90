@@ -15,9 +15,6 @@ module vf_classdef
     procedure :: strain => vfclass_strain
   end type vf_class
 
-  ! Contains switches for multiple features
-  include "switches.f90"
-
   real(dp), parameter :: tol=1.E-6
   real(dp), parameter :: inv_tol2=1.E06
   real(dp), parameter :: inv4pi=0.25_dp/pi

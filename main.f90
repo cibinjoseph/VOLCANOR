@@ -2,6 +2,9 @@ program main
   use library
   use postproc
 
+  ! Switches file
+  include "switches.f90"
+
   ! Variables
   include "init_file.f90"
 
