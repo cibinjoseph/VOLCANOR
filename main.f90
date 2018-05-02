@@ -69,7 +69,7 @@ program main
 
   ! Rotate wing pc, vr, cp and ncap by initial pitch angle 
   theta_pitch=theta0
-  call rot_wing(wing,(/0._dp,theta_pitch,0._dp/),hub_coords,1)
+  call rot_about_axis(wing,theta_pitch,pivotLE)
 
   !  TE vortex position
   v_shed=0.2_dp*vwind
@@ -178,12 +178,12 @@ program main
     vel_plunge=(/0._dp,0._dp,hdot/)
 
     ! Wing motion 
-    call mov_wing(wing,(vbody+vel_plunge)*dt) ! Translate wing
+    call mov_wing(wing,(vbody+vel_plunge)*dt)    ! Translate wing
     hub_coords=hub_coords+(vbody+vel_plunge)*dt
-    call rot_wing(wing,dpts,hub_coords,1)                ! Wing Global rotation
-    call pitch_wing(wing,dtheta_pitch,pts)    ! Wing Pitch rotation
+    call rot_wing(wing,dpts,hub_coords,1)    ! Wing Global rotation
+    call rot_about_axis(wing,dtheta_pitch,pivotLE)    ! Wing Pitch rotation
 
-    call assignshed(wake(row_now,:),wing(nc,:),'LE')  ! Store shed vortex as LE
+    call assignshed(wake(row_now,:),wing(nc,:),'LE')    ! Store shed vortex as LE
 
     ! Write out wing n' wake
     if (wakeplot_switch .eq. 2) call mesh2file(wing,wake(row_now:nt,:),'Results/wNw'//timestamp//'.tec')
