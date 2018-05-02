@@ -15,8 +15,7 @@ A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method
 
 ## Known Issues
 1. Overprediction of induced drag
-2. Pitch rotation of blade about LE, should be customizable
-3. Unequal spacing of panels causes instability when CP falls inside viscous core region
+2. Unequal spacing of panels causes instability when CP falls inside viscous core region
 
 ## Improvements
 ### Stability Improvements
