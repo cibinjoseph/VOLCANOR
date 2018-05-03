@@ -23,30 +23,21 @@ init:
 lib:
 	reset
 	@$(ifc) $(iflags) -c mymathlib.f90          -module $(objpath) -o $(objpath)/mymathlib.o
-	@$(ifc) $(iflags) -c vf_classdef.f90        -module $(objpath) -o $(objpath)/vf_classdef.o
-	@$(ifc) $(iflags) -c vr_classdef.f90        -module $(objpath) -o $(objpath)/vr_classdef.o
-	@$(ifc) $(iflags) -c wingpanel_classdef.f90 -module $(objpath) -o $(objpath)/wingpanel_classdef.o
-	@$(ifc) $(iflags) -c wakepanel_classdef.f90 -module $(objpath) -o $(objpath)/wakepanel_classdef.o
+	@$(ifc) $(iflags) -c classdef.f90           -module $(objpath) -o $(objpath)/classdef.o
 	@$(ifc) $(iflags) -c library.f90            -module $(objpath) -o $(objpath)/library.o
 	@$(ifc) $(iflags) -c postproc.f90           -module $(objpath) -o $(objpath)/postproc.o
 
 lib_dbg:
 	reset
 	@$(ifc) $(iflagsdbg) -c mymathlib.f90          -module $(objpath) -o $(objpath)/mymathlib.o
-	@$(ifc) $(iflagsdbg) -c vf_classdef.f90        -module $(objpath) -o $(objpath)/vf_classdef.o
-	@$(ifc) $(iflagsdbg) -c vr_classdef.f90        -module $(objpath) -o $(objpath)/vr_classdef.o
-	@$(ifc) $(iflagsdbg) -c wingpanel_classdef.f90 -module $(objpath) -o $(objpath)/wingpanel_classdef.o
-	@$(ifc) $(iflagsdbg) -c wakepanel_classdef.f90 -module $(objpath) -o $(objpath)/wakepanel_classdef.o
+	@$(ifc) $(iflagsdbg) -c classdef.f90           -module $(objpath) -o $(objpath)/classdef.o
 	@$(ifc) $(iflagsdbg) -c library.f90            -module $(objpath) -o $(objpath)/library.o
 	@$(ifc) $(iflagsdbg) -c postproc.f90           -module $(objpath) -o $(objpath)/postproc.o
 
 lib_prof:
 	reset
 	@$(ifc) $(iflagsprof) -c mymathlib.f90          -module $(objpath) -o $(objpath)/mymathlib.o
-	@$(ifc) $(iflagsprof) -c vf_classdef.f90        -module $(objpath) -o $(objpath)/vf_classdef.o
-	@$(ifc) $(iflagsprof) -c vr_classdef.f90        -module $(objpath) -o $(objpath)/vr_classdef.o
-	@$(ifc) $(iflagsprof) -c wingpanel_classdef.f90 -module $(objpath) -o $(objpath)/wingpanel_classdef.o
-	@$(ifc) $(iflagsprof) -c wakepanel_classdef.f90 -module $(objpath) -o $(objpath)/wakepanel_classdef.o
+	@$(ifc) $(iflagsprof) -c classdef.f90           -module $(objpath) -o $(objpath)/classdef.o
 	@$(ifc) $(iflagsprof) -c library.f90            -module $(objpath) -o $(objpath)/library.o
 	@$(ifc) $(iflagsprof) -c postproc.f90           -module $(objpath) -o $(objpath)/postproc.o
 
@@ -83,20 +74,14 @@ trial:
 glib_dbg:
 	reset
 	@$(gfc) $(gflagsdbg) -c mymathlib.f90          -J$(objpath) -o $(objpath)/mymathlib.o
-	@$(gfc) $(gflagsdbg) -c vf_classdef.f90        -J$(objpath) -o $(objpath)/vf_classdef.o
-	@$(gfc) $(gflagsdbg) -c vr_classdef.f90        -J$(objpath) -o $(objpath)/vr_classdef.o
-	@$(gfc) $(gflagsdbg) -c wingpanel_classdef.f90 -J$(objpath) -o $(objpath)/wingpanel_classdef.o
-	@$(gfc) $(gflagsdbg) -c wakepanel_classdef.f90 -J$(objpath) -o $(objpath)/wakepanel_classdef.o
+	@$(gfc) $(gflagsdbg) -c classdef.f90           -J$(objpath) -o $(objpath)/classdef.o
 	@$(gfc) $(gflagsdbg) -c library.f90            -J$(objpath) -o $(objpath)/library.o
 	@$(gfc) $(gflagsdbg) -c postproc.f90           -J$(objpath) -o $(objpath)/postproc.o
 
 glib:
 	reset
 	@$(gfc) $(gflags) -c mymathlib.f90          -J$(objpath) -o $(objpath)/mymathlib.o
-	@$(gfc) $(gflags) -c vf_classdef.f90        -J$(objpath) -o $(objpath)/vf_classdef.o
-	@$(gfc) $(gflags) -c vr_classdef.f90        -J$(objpath) -o $(objpath)/vr_classdef.o
-	@$(gfc) $(gflags) -c wingpanel_classdef.f90 -J$(objpath) -o $(objpath)/wingpanel_classdef.o
-	@$(gfc) $(gflags) -c wakepanel_classdef.f90 -J$(objpath) -o $(objpath)/wakepanel_classdef.o
+	@$(gfc) $(gflags) -c classdef.f90           -J$(objpath) -o $(objpath)/classdef.o
 	@$(gfc) $(gflags) -c library.f90            -J$(objpath) -o $(objpath)/library.o
 	@$(gfc) $(gflags) -c postproc.f90           -J$(objpath) -o $(objpath)/postproc.o
 
