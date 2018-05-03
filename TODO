@@ -1,11 +1,8 @@
-Name - VOLCANOR - VOrtex Lattice Code for ANalysis Of Rotors
-Object hierarchy - rotor > blade > (wing+wake) > vr > vf > fil
-Classes in a single file
 Better looking input file inspired from AVL
 Call all input files as .in and output files as .out/.dat/.curve
 Read rotor input data using rotor_class subroutine with input files named as rotorxx.in
 Logical input arrangement inside rotorxx.in files
-BLADE DIMENSIONS - Nb, chord_switch, length, root_cut, hub_coords, CG_coords
+BLADE DIMENSIONS - Nb, chord_switch, radius, root_cut, hub_coords, CG_coords
 chord - [i/s] @(ns+1) points
 MOTION - Omega as vector, uvw_body, pqr_body,
 CONTROL - Pitch inputs, twist_switch

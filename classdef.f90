@@ -1,3 +1,8 @@
+!--------------------------------!
+!                                !
+!       MODULE   DEFINITION      !
+!                                !
+!--------------------------------!
 module vf_classdef
   use mymathlib
   implicit none
@@ -57,43 +62,6 @@ contains
 
   end function vfclass_vind
 
-  !  function vfclass_vind(this,P) result(vind)
-  !    ! Calculates induced velocity by unit gam vortex filament
-  !  class(vf_class) :: this
-  !    real(dp), dimension(3) :: vind, P
-  !    real(dp) :: r1_r2_abs2, r1_abs, r2_abs, h, Kv
-  !    real(dp), dimension(3) :: r1, r2, r0, r1_r2
-  !
-  !
-  !    r1=P-this%fc(:,1)
-  !    r2=P-this%fc(:,2)
-  !    r0=r1-r2
-  !
-  !    r1_r2=cross3(r1,r2)
-  !    r1_r2_abs2=dot_product(r1_r2,r1_r2)
-  !
-  !    r1_abs=norm2(r1)
-  !    r2_abs=norm2(r2)
-  !
-  !    vind=0.
-  !
-  !    ! Ideal vortex model (Common part)
-  !    if (r1_r2_abs2>tol) then
-  !      !vind = r1_r2/(4._dp*pi*r1_r2_abs2)*(dot_product(r0,r1)/r1_abs-dot_product(r0,r2)/r2_abs)
-  !      vind=r1_r2*inv4pi/r1_r2_abs2*dot_product(r0,r1/r1_abs-r2/r2_abs)
-  !    endif
-  !
-  !    ! Rankine vortex model
-  !    h=norm2(r1_r2)/norm2(r0)
-  !    Kv=(h*h)/sqrt((this%r_vc**4._dp)+(h**4._dp))    
-  !    !Using min function instead of if condition
-  !    ! if (this%r_vc < eps) Kv=1._dp
-  !    Kv=min(Kv,1._dp)
-  !
-  !    vind=Kv*vind
-  !
-  !  end function vfclass_vind
-
   subroutine vfclass_calclength(this,isoriginal) 
   class(vf_class) :: this
     logical, intent(in) :: isoriginal
@@ -111,6 +79,12 @@ contains
 
 end module vf_classdef
 
+
+!--------------------------------!
+!                                !
+!       MODULE   DEFINITION      !
+!                                !
+!--------------------------------!
 module vr_classdef
   use vf_classdef
   implicit none
@@ -237,6 +211,12 @@ contains
 
 end module vr_classdef
 
+
+!--------------------------------!
+!                                !
+!       MODULE   DEFINITION      !
+!                                !
+!--------------------------------!
 module wingpanel_classdef
   use vr_classdef
   implicit none
@@ -366,6 +346,11 @@ contains
 end module wingpanel_classdef
 
 
+!--------------------------------!
+!                                !
+!       MODULE   DEFINITION      !
+!                                !
+!--------------------------------!
 module wakepanel_classdef
   use vr_classdef
   implicit none
@@ -392,3 +377,38 @@ contains
 end module wakepanel_classdef
 
 
+!--------------------------------!
+!                                !
+!       MODULE   DEFINITION      !
+!                                !
+!--------------------------------!
+module blade_classdef
+  use wingpanel_classdef
+  use wakepanel_classdef
+  implicit none
+  type blade_class
+    type(wingpanel_class), allocatable, dimension(:,:) :: wing
+    type(wakepanel_class), allocatable, dimension(:,:) :: wake
+
+  end type blade_class
+
+end module blade_classdef
+
+
+!--------------------------------!
+!                                !
+!       MODULE   DEFINITION      !
+!                                !
+!--------------------------------!
+module rotor_classdef
+  use blade_classdef
+  implicit none
+  type rotor_class
+    type(blade_class), allocatable, dimension(:) :: blade
+    !real(dp), dimension(3) :: hub_coords
+    !real(dp), dimension(3) :: Omega
+    !real(dp), dimension(3) :: CG_coords
+
+  end type rotor_class
+
+end module rotor_classdef
