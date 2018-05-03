@@ -57,6 +57,9 @@ Note: All subroutines and functions calculate induced velocity by a *unit* vorte
 12. Update vortex locations
 13. LOOP END - GO TO 6.
 
+## Contribution and Usage
+This code is under active development and a lot of features--including a proper user-friendly interface--have yet to be added. Users are encouraged to go through the code if interested, and let the author know of issues and bugs, if found. However, be warned that most of the features are untested and unvalidated and the author offers no guarantee on the results obtained at this point in time.
+
 ## Authors
 All code here was created by [Cibin Joseph](https://github.com/cibinjoseph) (cibinjoseph92@gmail.com).
 
