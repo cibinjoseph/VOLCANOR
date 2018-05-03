@@ -1,6 +1,8 @@
-# Documentation
 [![](https://img.shields.io/badge/status-under%20development-green.svg)]()  [![](https://img.shields.io/badge/Last%20Updated-May%202018-green.svg)]()  
 
+![VOLCANOR](src_README/VOLCANOR.png)
+
+# Documentation
 A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method in Fortran 90+ for aerodynamic analysis of rotors and wings under generic 3D motion.
 
 ## Features
