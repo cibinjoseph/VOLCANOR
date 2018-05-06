@@ -9,3 +9,14 @@ CONTROL - Pitch inputs, twist_switch
 twist - [i/s] @(ns+1) points
 VORTEX CORE RADII - [i/s] @(ns+1) points
 core radii
+
+Order of execution
+===================
+main executes
+read 'init_file.f90' with allocatable variables and all other variables
+read 'config.in' file containing nr, nt, feature_switches
+read each 'rotor??.in' file containing specific rotor data
+allocate variables accordingly
+continue execution of main.f90 file
+
+
