@@ -16,13 +16,9 @@ X-CG_coords      Y-CG_coords      Z-CG_coords     [all in m]
     0.0              0.0              0.0
 ===============================================================
 
-Radius[m]        root_cut[r/R]    chord_switch[i/s]      
+Radius[m]        root_cut[r/R]       chord[m]      
 ---------------------------------------------------------------
-    1.0              0.1               i
-
-chord[m]
----------------------------------------------------------------
-    1.0
+    1.0              0.1               1.0
 ===============================================================
 
  Omega[rad/s]   X-shaft_axis     Y-shaft_axis     Z-shaft_axis 
@@ -44,11 +40,11 @@ pivot point from LE[x/chord]    flap_hinge from centre[r/R]
         0.25                            0.0
 ===============================================================
 
-chordwise core radius[x/c]   spanwise vortex core switch[i/s]
+spanwise core radius[x/c]   chordwise vortex core switch[i/s]
 ----------------------------------------------------------------
         0.14                            i
 
-spanwise core radius[x/c]
+chordwise core radius[x/c]
 ----------------------------------------------------------------
         0.14
 ===============================================================

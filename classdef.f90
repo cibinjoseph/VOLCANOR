@@ -1,8 +1,6 @@
-!--------------------------------!
-!                                !
-!       MODULE   DEFINITION      !
-!                                !
-!--------------------------------!
+!------+-------------------+------|
+! ++++ | MODULE DEFINITION | ++++ |
+!------+-------------------+------|
 module vf_classdef
   use mymathlib
   implicit none
@@ -80,11 +78,9 @@ contains
 end module vf_classdef
 
 
-!--------------------------------!
-!                                !
-!       MODULE   DEFINITION      !
-!                                !
-!--------------------------------!
+!------+-------------------+------|
+! ++++ | MODULE DEFINITION | ++++ |
+!------+-------------------+------|
 module vr_classdef
   use vf_classdef
   implicit none
@@ -212,11 +208,9 @@ contains
 end module vr_classdef
 
 
-!--------------------------------!
-!                                !
-!       MODULE   DEFINITION      !
-!                                !
-!--------------------------------!
+!------+-------------------+------|
+! ++++ | MODULE DEFINITION | ++++ |
+!------+-------------------+------|
 module wingpanel_classdef
   use vr_classdef
   implicit none
@@ -346,11 +340,9 @@ contains
 end module wingpanel_classdef
 
 
-!--------------------------------!
-!                                !
-!       MODULE   DEFINITION      !
-!                                !
-!--------------------------------!
+!------+-------------------+------|
+! ++++ | MODULE DEFINITION | ++++ |
+!------+-------------------+------|
 module wakepanel_classdef
   use vr_classdef
   implicit none
@@ -377,11 +369,9 @@ contains
 end module wakepanel_classdef
 
 
-!--------------------------------!
-!                                !
-!       MODULE   DEFINITION      !
-!                                !
-!--------------------------------!
+!------+-------------------+------|
+! ++++ | MODULE DEFINITION | ++++ |
+!------+-------------------+------|
 module blade_classdef
   use wingpanel_classdef
   use wakepanel_classdef
@@ -389,7 +379,6 @@ module blade_classdef
   type blade_class
     type(wingpanel_class), allocatable, dimension(:,:) :: wiP
     type(wakepanel_class), allocatable, dimension(:,:) :: waP
-    real(dp) :: pivotLE  ! pivot location from LE [x/c]
     real(dp) :: theta
     real(dp) :: psi
 
@@ -398,23 +387,53 @@ module blade_classdef
 end module blade_classdef
 
 
-!--------------------------------!
-!                                !
-!       MODULE   DEFINITION      !
-!                                !
-!--------------------------------!
+!------+-------------------+------|
+! ++++ | MODULE DEFINITION | ++++ |
+!------+-------------------+------|
 module rotor_classdef
   use blade_classdef
+  use library
   implicit none
   type rotor_class
     integer :: nb,ns,nc
     type(blade_class), allocatable, dimension(:) :: blade
-    real(dp), dimension(3) :: Omega
+    real(dp), dimension :: Omega
+    real(dp), dimension(3) :: shaft_axis
     real(dp), dimension(3) :: hub_coords, CG_coords
-    real(dp) :: root_cut
-    real(dp), dimension(3) :: control_pitch, theta_twist  ! theta0,thetaC,thetaS
+    real(dp) :: radius, chord, root_cut
+    real(dp), dimension(4) :: control_pitch  ! theta0,thetaC,thetaS
+    real(dp) :: theta_twist
+    real(dp) :: pivotLE  ! pivot location from LE [x/c]
+    real(dp) :: flap_hinge  ! hinge location from centre [x/R]
     real(dp), dimension(3) :: uvw_body, pqr_body
-
+  contains
+    procedure :: getdata
   end type rotor_class
+
+contains
+
+  subroutine getdata(this,filename)
+  class(rotor_class) :: this
+    character(len=*), intent(in) :: filename
+    integer :: i
+    real(dp) allocatable, dimension(:) :: chord_sectional
+
+    open(unit=12,file=filename)
+    call skiplines(12,2)
+    read(12,*) this%nb
+    call skiplines(12,3)
+    read(12,*) this%ns,this%nc
+    call skiplines(12,4)
+    read(12,*) this%hub_coords(1),this%hub_coords(2),this%hub_coords(3)
+    read(12,*) this%CG_coords(1),this%CG_coords(2),this%CG_coords(3)
+    read(12,*) this%radius, this%root_cut, this%chord
+    read(12,*) this%Omega, this%shaft_axis(1), this%shaft_axis(2), this%shaft_axis(3)
+    read(12,*) this%control_pitch(1), this%control_pitch(2),this%control_pitch(3), this%theta_twist
+    read(12,*) this%uvw_body(1), this%uvw_body(2), this%uvw_body(3) &
+      ,        this%pqr_body(1), this%pqr_body(2), this%pqr_body(3)
+    read(12,*) this%pivotLE, this%flap_hinge
+    close(12)
+
+  end subroutine getdata
 
 end module rotor_classdef

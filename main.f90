@@ -24,33 +24,6 @@ program main
     call rotor(irotor)%getdata(rotorfile)
   enddo
 
-  ! Read wing data from file
-  open(unit=12,file='inputfile')
-  read(12,*)
-  read(12,*)
-  read(12,*) chord,span,root_cut,dt
-  read(12,*)
-  read(12,*)
-  read(12,*)
-  read(12,*) vwind(1),vwind(2),vwind(3),pivotLE
-  read(12,*)
-  read(12,*)
-  read(12,*)
-  read(12,*) theta0,thetac,thetas,om_theta
-  read(12,*)
-  read(12,*)
-  read(12,*)
-  read(12,*) h0,om_h,init_wake_vel,starting_vortex_core
-  read(12,*)
-  read(12,*)
-  read(12,*)
-  read(12,*) om_body(1),om_body(2),om_body(3)
-  read(12,*)
-  read(12,*)
-  read(12,*)
-  read(12,*) wing_mid_core,wake_mid_core,wing_tip_core,wake_tip_core
-  close(12)
-
   ! Conversions
   call degtorad(theta0)
   call degtorad(thetac)
