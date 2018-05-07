@@ -15,13 +15,14 @@ program main
   read(11,*) nr
   close(11)
 
-  ! Allocate variables
+  ! Allocate rotor objects
+  allocate(rotor(nr))
 
   ! Read rotor??.in files
   do irotor=1,nr
     write(rotor_char,'(I0.2)') irotor
     rotorfile='rotor'//rotor_char//'.in'
-    call rotor(irotor)%getdata(rotorfile)
+    call rotor(irotor)%getdata(rotorfile,nt)
   enddo
 
   ! Conversions

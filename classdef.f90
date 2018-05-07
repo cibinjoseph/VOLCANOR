@@ -413,9 +413,10 @@ module rotor_classdef
 
 contains
 
-  subroutine getdata(this,filename)
+  subroutine getdata(this,filename,nt)
   class(rotor_class) :: this
     character(len=*), intent(in) :: filename
+    integer, intent(in) :: nt  ! nt passed for allocting wake panels
     integer :: i
     real(dp) allocatable, dimension(:) :: chord_sectional
 
@@ -449,10 +450,19 @@ contains
     do i=1,3
       call degtorad(this%control_pitch(i))
     enddo
-      call degtorad(this%theta_twist)
-      call degtorad(this%psi_start)
-      this%spanwise_core=this%spanwise_core*chord
-      this%chordwise_core=this%chordwise_core*chord
+    call degtorad(this%theta_twist)
+    call degtorad(this%psi_start)
+    this%spanwise_core=this%spanwise_core*chord
+    this%chordwise_core=this%chordwise_core*chord
+
+    ! Allocate rotor object variables
+    allocate(this%blade(nb))
+    ! Allocate blade object variables
+    do iblade=1,this%nb
+      allocate(this%blade(iblade)%wiP(this%nc,this%ns))
+      allocate(this%blade(iblade)%waP(nt,this%ns))
+    enddo
+
   end subroutine getdata
 
 end module rotor_classdef
