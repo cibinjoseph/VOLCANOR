@@ -13,6 +13,7 @@ real(dp), dimension(3) :: hub_coords
 real(dp) :: chord, span, root_cut
 
 ! Kinematics
+integer :: nt,nr
 real(dp) :: dt, om_theta, om_h
 real(dp) :: theta_pitch, dtheta_pitch
 real(dp) :: theta0, thetac, thetas, h0, hdot, thetadot
@@ -27,11 +28,13 @@ real(dp), dimension(3,nt,ns+1) :: vind_wake
 real(dp), allocatable, dimension(:,:,:) :: vind_wake1, vind_wake2, vind_wake3
 real(dp), allocatable, dimension(:,:,:) :: Pvind_wake, vind_wake_step
 character(len=5) :: timestamp
+character(len=2) :: rotor_char
+character(len=10) :: rotorfile
 real(dp) :: wing_mid_core,wake_mid_core,wing_tip_core,wake_tip_core
 real(dp) :: pivotLE
 
 ! Iterators
-integer :: ispan, ichord, row, col, i, j, indx, iter, row_now
+integer :: ispan, ichord, row, col, i, j, indx, iter, row_now, irotor
 
 
 ! Allocate vars required for wake convection

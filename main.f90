@@ -7,22 +7,22 @@ program main
 
   ! Read config.in file
   open(unit=11,file='config.in')
-  read(11,*)
-  read(11,*)
+  call skiplines(11,2)
   read(11,*) nt
-  read(11,*)
-  read(11,*)
-  read(11,*)
+  call skiplines(11,3)
   read(11,*) dt
-  read(11,*)
-  read(11,*)
-  read(11,*)
+  call skiplines(11,3)
   read(11,*) nr
   close(11)
 
-  ! Read rotor.in files
-
   ! Allocate variables
+
+  ! Read rotor??.in files
+  do irotor=1,nr
+    write(rotor_char,'(I0.2)') irotor
+    rotorfile='rotor'//rotor_char//'.in'
+    call rotor(irotor)%getdata(rotorfile)
+  enddo
 
   ! Read wing data from file
   open(unit=12,file='inputfile')
