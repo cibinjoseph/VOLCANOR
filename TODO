@@ -4,7 +4,7 @@ Read rotor input data using rotor_class subroutine with input files named as rot
 Logical input arrangement inside rotorxx.in files
 BLADE DIMENSIONS - Nb, chord_switch, radius, root_cut, hub_coords, CG_coords
 chord - [i/s] @(ns+1) points
-MOTION - Omega as vector, uvw_body, pqr_body,
+MOTION - shaft_axis, Omega, uvw_body, pqr_body,
 CONTROL - Pitch inputs, twist_switch
 twist - [i/s] @(ns+1) points
 VORTEX CORE RADII
@@ -17,7 +17,7 @@ Order of execution
 main executes
 read 'init_file.f90' with allocatable variables and all other variables
 read 'config.in' file containing nr, nt, dt, feature_switches
-read each 'rotor??.in' file containing specific rotor data
+read each 'rotor??.in' file containing specific rotor data (init_wake_vel, psi_start)
 allocate variables accordingly
 continue execution of main.f90 file
 

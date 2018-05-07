@@ -7,6 +7,17 @@ program main
 
   ! Read config.in file
   open(unit=11,file='config.in')
+  read(11,*)
+  read(11,*)
+  read(11,*) nt
+  read(11,*)
+  read(11,*)
+  read(11,*)
+  read(11,*) dt
+  read(11,*)
+  read(11,*)
+  read(11,*)
+  read(11,*) nr
   close(11)
 
   ! Read rotor.in files
