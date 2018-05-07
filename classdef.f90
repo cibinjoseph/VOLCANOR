@@ -387,8 +387,11 @@ module blade_classdef
   use wakepanel_classdef
   implicit none
   type blade_class
-    type(wingpanel_class), allocatable, dimension(:,:) :: wing
-    type(wakepanel_class), allocatable, dimension(:,:) :: wake
+    type(wingpanel_class), allocatable, dimension(:,:) :: wiP
+    type(wakepanel_class), allocatable, dimension(:,:) :: waP
+    real(dp) :: pivotLE  ! pivot location from LE [x/c]
+    real(dp) :: theta
+    real(dp) :: psi
 
   end type blade_class
 
@@ -404,10 +407,13 @@ module rotor_classdef
   use blade_classdef
   implicit none
   type rotor_class
+    integer :: nb,ns,nc
     type(blade_class), allocatable, dimension(:) :: blade
-    !real(dp), dimension(3) :: hub_coords
-    !real(dp), dimension(3) :: Omega
-    !real(dp), dimension(3) :: CG_coords
+    real(dp), dimension(3) :: Omega
+    real(dp), dimension(3) :: hub_coords, CG_coords
+    real(dp) :: root_cut
+    real(dp), dimension(3) :: control_pitch, theta_twist  ! theta0,thetaC,thetaS
+    real(dp), dimension(3) :: uvw_body, pqr_body
 
   end type rotor_class
 

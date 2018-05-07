@@ -2,11 +2,16 @@ program main
   use library
   use postproc
 
-  ! Switches file
-  include "switches.f90"
-
   ! Variables
   include "init_file.f90"
+
+  ! Read config.in file
+  open(unit=11,file='config.in')
+  close(11)
+
+  ! Read rotor.in files
+
+  ! Allocate variables
 
   ! Read wing data from file
   open(unit=12,file='inputfile')
