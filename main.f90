@@ -25,19 +25,8 @@ program main
   enddo
 
   ! Conversions
-  call degtorad(theta0)
-  call degtorad(thetac)
-  call degtorad(thetas)
-  !om_theta=2._dp*pi*om_theta
-  !om_h    =2._dp*pi*om_h
   vbody=-1._dp*vwind
   pqr=-1._dp*om_body
-  init_wake_vel = -1._dp*init_wake_vel
-  wing_mid_core=wing_mid_core*chord
-  wing_tip_core=wing_tip_core*chord
-  wake_mid_core=wake_mid_core*chord
-  wake_tip_core=wake_tip_core*chord
-  starting_vortex_core=starting_vortex_core*chord
 
   ! Geometry Definition
   !xvec=linspace(0._dp,chord,nc+1)

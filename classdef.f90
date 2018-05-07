@@ -406,6 +406,7 @@ module rotor_classdef
     real(dp) :: pivotLE  ! pivot location from LE [x/c]
     real(dp) :: flap_hinge  ! hinge location from centre [x/R]
     real(dp), dimension(3) :: uvw_body, pqr_body
+    real(dp) :: spanwise_core, chordwise_core
   contains
     procedure :: getdata
   end type rotor_class
@@ -425,15 +426,33 @@ contains
     read(12,*) this%ns,this%nc
     call skiplines(12,4)
     read(12,*) this%hub_coords(1),this%hub_coords(2),this%hub_coords(3)
+    call skiplines(12,3)
     read(12,*) this%CG_coords(1),this%CG_coords(2),this%CG_coords(3)
+    call skiplines(12,4)
     read(12,*) this%radius, this%root_cut, this%chord
+    call skiplines(12,4)
     read(12,*) this%Omega, this%shaft_axis(1), this%shaft_axis(2), this%shaft_axis(3)
+    call skiplines(12,3)
     read(12,*) this%control_pitch(1), this%control_pitch(2),this%control_pitch(3), this%theta_twist
+    call skiplines(12,4)
     read(12,*) this%uvw_body(1), this%uvw_body(2), this%uvw_body(3) &
       ,        this%pqr_body(1), this%pqr_body(2), this%pqr_body(3)
+    call skiplines(12,4)
     read(12,*) this%pivotLE, this%flap_hinge
+    call skiplines(12,4)
+    read(12,*) this%spanwise_core, this%chordwise_core
+    call skiplines(12,4)
+    read(12,*) this%init_wake_vel, this%psi_start
     close(12)
 
+    ! Conversions
+    do i=1,3
+      call degtorad(this%control_pitch(i))
+    enddo
+      call degtorad(this%theta_twist)
+      call degtorad(this%psi_start)
+      this%spanwise_core=this%spanwise_core*chord
+      this%chordwise_core=this%chordwise_core*chord
   end subroutine getdata
 
 end module rotor_classdef

@@ -40,16 +40,12 @@ pivot point from LE[x/chord]    flap_hinge from centre[r/R]
         0.25                            0.0
 ===============================================================
 
-spanwise core radius[x/c]   chordwise vortex core switch[i/s]
+spanwise core radius[x/c]   chordwise core radius[x/c]
 ----------------------------------------------------------------
-        0.14                            i
-
-chordwise core radius[x/c]
-----------------------------------------------------------------
-        0.14
+        0.14                           0.14
 ===============================================================
 
-init_wake_vel[m/s]     psi_start[rad]
+init_wake_vel[m/s]     psi_start[deg]
 ----------------------------------------------------------------
     25.0                   0.0
 
