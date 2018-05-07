@@ -764,4 +764,17 @@ contains
       enddo
     enddo
   end function calcdrag
+
+  !|------+----------------------+------|
+  !| ++++ | Bookeeping functions | ++++ |
+  !|------+----------------------+------|
+
+  subroutine skiplines(fileunit,nlines)
+    integer, intent(in) :: fileunit,nlines
+    integer :: i
+    do i=1,nlines
+      read(fileunit,*)
+    enddo
+  end subroutine skiplines
+
 end module library
