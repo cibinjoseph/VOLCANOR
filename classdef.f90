@@ -381,8 +381,78 @@ module blade_classdef
     type(wakepanel_class), allocatable, dimension(:,:) :: waP
     real(dp) :: theta
     real(dp) :: psi
-
+    real(dp) :: pivotLE
+  contains
+    procedure :: blade_move => move
+    procedure :: rot_pitch
+    procedure :: bladeclass_rot_axis => rot_axis
   end type blade_class
+contains
+
+  subroutine blade_move(this,dshift)
+  class(blade_class) :: this
+    real(dp), intent(in), dimension(3) :: dshift
+    integer :: i,j
+
+    do j=1,size(this%wiP,2)
+      do i=1,size(this%wiP,1)
+        call this%wiP(i,j)%shiftdP(dshift)
+      enddo
+    enddo
+  end subroutine blade_move
+
+  subroutine rot_pitch(wing_array,theta)  !pitch about pivotLE from LE
+    ! pivot point calculated using straight line joining LE and TE of root panels
+  class(blade_class), intent(inout) :: this
+    real(dp), intent(in) :: theta
+    real(dp), dimension(3) :: axis  
+    real(dp), dimension(3) :: origin
+
+    if (abs(theta)>eps) then
+      origin=this%wiP(1,1)%pc(:,1)*(1._dp-this%pivotLE)+this%wiP(rows,1)%pc(:,2)*this%pivotLE
+
+      ! Construct axes of rotation from LE of first panel
+      axis=this%wiP(1,1)%pc(:,4)-this%wiP(1,1)%pc(:,1)
+
+      call this%rot_axis(theta,axis,origin)
+    endif
+  end subroutine rot_pitch
+
+  subroutine bladeclass_rot_axis(this,theta,axis,origin)  !rotate about axis at origin
+  class(blade_class), intent(inout) :: this
+    real(dp), intent(in) :: theta
+    real(dp), intent(in), dimension(3) :: axis  
+    real(dp), intent(inout) :: origin
+    real(dp), dimension(3,3) :: Tmat
+    integer :: i,j,rows
+    real(dp), dimension(3) :: dshift
+    real(dp) :: ct,st,omct
+
+    if (abs(theta)>eps) then
+      ! Translate to origin
+      rows=size(this%wiP,1)
+      call this%move(-origin)
+
+      ! Calculate TMat
+      ct=cos(theta)
+      st=sin(theta)
+      omct=1-ct
+
+      Tmat(:,1)=(/      ct+axis(1)*axis(1)*omct,  axis(3)*st+axis(2)*axis(1)*omct, -axis(2)*st+axis(3)*axis(1)*omct/)
+      Tmat(:,2)=(/-axis(3)*st+axis(1)*axis(2)*omct,       ct+axis(2)*axis(2)*omct,  axis(1)*st+axis(3)*axis(2)*omct/)
+      Tmat(:,3)=(/ axis(2)*st+axis(1)*axis(3)*omct, -axis(1)*st+axis(2)*axis(3)*omct,       ct+axis(3)*axis(3)*omct/)
+
+      ! Rotate about axis
+      do j=1,size(wing_array,2)
+        do i=1,size(wing_array,1)
+          call this%wiP(i,j)%rot(TMat)
+        enddo
+      enddo
+
+      ! Untranslate from origin
+      call this%move(origin)
+    endif
+  end subroutine blade_class_rot_axis
 
 end module blade_classdef
 
@@ -409,6 +479,7 @@ module rotor_classdef
     real(dp) :: spanwise_core, chordwise_core
   contains
     procedure :: getdata
+    procedure :: rotor_move => move
     procedure :: init_rotor
   end type rotor_class
 
@@ -419,7 +490,6 @@ contains
     character(len=*), intent(in) :: filename
     integer, intent(in) :: nt  ! nt passed for allocting wake panels
     integer :: i
-    real(dp) allocatable, dimension(:) :: chord_sectional
 
     open(unit=12,file=filename)
     call skiplines(12,2)
@@ -531,6 +601,7 @@ contains
 
       ! Initialize gamma
       this%blade(iblade)%wiP%vr%gam=0._dp
+      this%blade(iblade)%pivotLE=this%pivotLE
 
       ! Initialize mid vortex core radius
       do i=1,4
@@ -571,8 +642,9 @@ contains
     enddo
 
     ! Move rotor to hub coordinates
-    ! *** CREATE mov_rotor()
-    call this%mov_rotor(this%hub_coords)  
+    do iblade=1,this%nb
+      call this%blade(iblade)%move(this%hub_coords)
+    enddo
 
     ! Rotate remaining blades to their positions
     ! Rotate blades for multi-bladed rotors
@@ -580,11 +652,27 @@ contains
       blade_offset=2._dp*pi/this%nb*(iblade-1)
       ! *** CREATE rot_blade() in blade_class
       call this%blade(iblade)%rot_blade((/0._dp,0._dp,blade_offset/),this%hub_coords,1)    ! Wing Global rotation
+
+      ! Pitch blades to theta0
     enddo
 
-    ! Pitch blades to theta0
 
     ! Wake initialization
 
   end subroutine init_rotor
+
+  subroutine rotor_move(this,dshift)
+  class(rotor_class) :: this
+    real(dp), intent(in), dimension(3) :: dshift
+
+    integer :: iblade
+
+    do iblade=1,this%nb
+      call this%blade(iblade)%move(dshift)
+    enddo
+    this%hub_coords=this%hub_coords+dshift
+    this%CG_coords=this%CG_coords+dshift
+
+  end subroutine rotor_move
+
 end module rotor_classdef

@@ -269,45 +269,46 @@ contains
 
   end subroutine rot_wing
 
-  subroutine rot_about_axis(wing_array,theta,pivotLE)  !pitch about pivotLE from LE
-    ! pivot point calculated using straight line joining LE and TE of root panels
-    type(wingpanel_class), intent(inout), dimension(:,:) :: wing_array
-    real(dp), intent(in) :: theta, pivotLE
-    real(dp), dimension(3,3) :: Tmat
-    integer :: i,j,rows
-    real(dp), dimension(3) :: u  ! Axis vector
-    real(dp), dimension(3) :: dshift  
-    real(dp) :: ct,st,omct
+  !ALTERNATE blade_class: rot_axis
+  !subroutine rot_about_axis(wing_array,theta,pivotLE)  !pitch about pivotLE from LE
+  !  ! pivot point calculated using straight line joining LE and TE of root panels
+  !  type(wingpanel_class), intent(inout), dimension(:,:) :: wing_array
+  !  real(dp), intent(in) :: theta, pivotLE
+  !  real(dp), dimension(3,3) :: Tmat
+  !  integer :: i,j,rows
+  !  real(dp), dimension(3) :: u  ! Axis vector
+  !  real(dp), dimension(3) :: dshift  
+  !  real(dp) :: ct,st,omct
 
-    if (abs(theta)>eps) then
-      ! Translate to origin
-      rows=size(wing_array,1)
-      dshift=wing_array(1,1)%pc(:,1)*(1._dp-pivotLE)+wing_array(rows,1)%pc(:,2)*pivotLE
-      call mov_wing(wing_array,-dshift)
+  !  if (abs(theta)>eps) then
+  !    ! Translate to origin
+  !    rows=size(wing_array,1)
+  !    dshift=wing_array(1,1)%pc(:,1)*(1._dp-pivotLE)+wing_array(rows,1)%pc(:,2)*pivotLE
+  !    call mov_wing(wing_array,-dshift)
 
-      ! Construct axes of rotation from LE of first panel
-      u=wing_array(1,1)%pc(:,4)-wing_array(1,1)%pc(:,1)
+  !    ! Construct axes of rotation from LE of first panel
+  !    u=wing_array(1,1)%pc(:,4)-wing_array(1,1)%pc(:,1)
 
-      ! Calculate TMat
-      ct=cos(theta)
-      st=sin(theta)
-      omct=1-ct
+  !    ! Calculate TMat
+  !    ct=cos(theta)
+  !    st=sin(theta)
+  !    omct=1-ct
 
-      Tmat(:,1)=(/      ct+u(1)*u(1)*omct,  u(3)*st+u(2)*u(1)*omct, -u(2)*st+u(3)*u(1)*omct/)
-      Tmat(:,2)=(/-u(3)*st+u(1)*u(2)*omct,       ct+u(2)*u(2)*omct,  u(1)*st+u(3)*u(2)*omct/)
-      Tmat(:,3)=(/ u(2)*st+u(1)*u(3)*omct, -u(1)*st+u(2)*u(3)*omct,       ct+u(3)*u(3)*omct/)
+  !    Tmat(:,1)=(/      ct+u(1)*u(1)*omct,  u(3)*st+u(2)*u(1)*omct, -u(2)*st+u(3)*u(1)*omct/)
+  !    Tmat(:,2)=(/-u(3)*st+u(1)*u(2)*omct,       ct+u(2)*u(2)*omct,  u(1)*st+u(3)*u(2)*omct/)
+  !    Tmat(:,3)=(/ u(2)*st+u(1)*u(3)*omct, -u(1)*st+u(2)*u(3)*omct,       ct+u(3)*u(3)*omct/)
 
-      ! Rotate about axis
-      do j=1,size(wing_array,2)
-        do i=1,size(wing_array,1)
-          call wing_array(i,j)%rot(TMat)
-        enddo
-      enddo
+  !    ! Rotate about axis
+  !    do j=1,size(wing_array,2)
+  !      do i=1,size(wing_array,1)
+  !        call wing_array(i,j)%rot(TMat)
+  !      enddo
+  !    enddo
 
-      ! Untranslate from origin
-      call mov_wing(wing_array,dshift)
-    endif
-  end subroutine rot_about_axis
+  !    ! Untranslate from origin
+  !    call mov_wing(wing_array,dshift)
+  !  endif
+  !end subroutine rot_about_axis
 
   ! OBSOLETE SUBROUTINE - use rot_about_axis
   subroutine pitch_wing(wing_array,theta_pitch,pts)  !pitch about a fixed point fp
@@ -338,17 +339,19 @@ contains
     endif
   end subroutine pitch_wing
 
-  subroutine mov_wing(wing_array,dshift)
-    type(wingpanel_class), intent(inout), dimension(:,:) :: wing_array
-    real(dp), intent(in), dimension(3) :: dshift
-    integer :: i,j
+  ! ALTERNATE blade_class : mov_blade()
+  ! ALTERNATE rotor_class : mov_rotor()
+  !subroutine mov_wing(wing_array,dshift)
+  !  type(wingpanel_class), intent(inout), dimension(:,:) :: wing_array
+  !  real(dp), intent(in), dimension(3) :: dshift
+  !  integer :: i,j
 
-    do j=1,size(wing_array,2)
-      do i=1,size(wing_array,1)
-        call wing_array(i,j)%shiftdP(dshift)
-      enddo
-    enddo
-  end subroutine mov_wing
+  !  do j=1,size(wing_array,2)
+  !    do i=1,size(wing_array,1)
+  !      call wing_array(i,j)%shiftdP(dshift)
+  !    enddo
+  !  enddo
+  !end subroutine mov_wing
 
   !--------------------------------------------------------!
   !                    Wake Functions                      !
