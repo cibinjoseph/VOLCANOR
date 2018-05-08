@@ -238,7 +238,8 @@ contains
     Tgb(3,3)=cs_phi(1)*cs_theta(1)
   end function Tgb
 
-  !ALTERNATE blade_class: rot_pts
+  !ALTERNATE blade_class: blade_rot_pts
+  !ALTERNATE rot_class: rotor_rot_pts
   !subroutine rot_wing(wing_array,pts,origin,order)  
   !  type(wingpanel_class), intent(inout), dimension(:,:) :: wing_array
   !  real(dp), dimension(3), intent(in) :: pts    ! pts => phi,theta,psi

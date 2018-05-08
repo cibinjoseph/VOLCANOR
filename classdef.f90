@@ -407,8 +407,8 @@ contains
   class(blade_class), intent(inout) :: this
     real(dp), dimension(3), intent(in) :: pts    ! pts => phi,theta,psi
     real(dp), dimension(3), intent(in) :: origin ! rotation about
+    integer, intent(in) :: order    ! [1]gb & +ve theta , [2]bg & -ve theta
     integer :: i, j
-    integer :: order    ! [1]gb & +ve theta , [2]bg & -ve theta
     real(dp), dimension(3,3) :: TMat
 
     select case (order)
@@ -513,6 +513,7 @@ module rotor_classdef
   contains
     procedure :: getdata
     procedure :: rotor_move => move
+    procedure :: rotor_rot_pts => rot_pts
     procedure :: init_rotor
   end type rotor_class
 
@@ -708,4 +709,40 @@ contains
 
   end subroutine rotor_move
 
+  subroutine rotor_rot_pts(this,pts,origin,order)
+  class(rotor_class), intent(inout) :: this
+    real(dp), dimension(3), intent(in) :: pts    ! pts => phi,theta,psi
+    real(dp), dimension(3), intent(in) :: origin ! rotation about
+    integer, intent(in) :: order    ! [1]gb & +ve theta , [2]bg & -ve theta
+    integer :: iblade
+    real(dp), dimension(3,3) :: TMat
+
+    select case (order)
+    case (2)
+      TMat=Tbg((/cos(pts(1)),sin(pts(1))/),&
+        (/cos(pts(2)),sin(pts(2))/),&
+        (/cos(pts(3)),sin(pts(3))/))
+    case (1)
+      TMat=Tgb((/cos(pts(1)),sin(pts(1))/),&
+        (/cos(pts(2)),sin(pts(2))/),&
+        (/cos(pts(3)),sin(pts(3))/))
+    case default
+      error stop 'Error: wrong option for order'
+    end select
+
+    do iblade=1,this%nb
+      call this%blade(iblade)%rot_pts(pts,origin,order)
+    enddo
+
+    this%shaft_axis=matmul(TMat,this%shaft_axis)
+
+    this%hub_coords=this%hub_coords-origin
+    this%hub_coords=matmul(TMat,this%hub_coords)
+    this%hub_coords=this%hub_coords+origin
+
+    this%CG_coords=this%CG_coords-origin
+    this%CG_coords=matmul(TMat,this%CG_coords)
+    this%CG_coords=this%CG_coords+origin
+
+  end subroutine rotor_rot_pts
 end module rotor_classdef
