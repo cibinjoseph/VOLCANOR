@@ -238,36 +238,37 @@ contains
     Tgb(3,3)=cs_phi(1)*cs_theta(1)
   end function Tgb
 
-  subroutine rot_wing(wing_array,pts,origin,order)  
-    type(wingpanel_class), intent(inout), dimension(:,:) :: wing_array
-    real(dp), dimension(3), intent(in) :: pts    ! pts => phi,theta,psi
-    real(dp), dimension(3), intent(in) :: origin ! rotation about
-    integer :: i, j
-    integer :: order    ! [1]gb & +ve theta , [2]bg & -ve theta       
-    real(dp), dimension(3,3) :: TMat
+  !ALTERNATE blade_class: rot_pts
+  !subroutine rot_wing(wing_array,pts,origin,order)  
+  !  type(wingpanel_class), intent(inout), dimension(:,:) :: wing_array
+  !  real(dp), dimension(3), intent(in) :: pts    ! pts => phi,theta,psi
+  !  real(dp), dimension(3), intent(in) :: origin ! rotation about
+  !  integer :: i, j
+  !  integer :: order    ! [1]gb & +ve theta , [2]bg & -ve theta       
+  !  real(dp), dimension(3,3) :: TMat
 
-    select case (order)
-    case (2)
-      TMat=Tbg((/cos(pts(1)),sin(pts(1))/),&
-        (/cos(pts(2)),sin(pts(2))/),&
-        (/cos(pts(3)),sin(pts(3))/))
-    case (1)
-      TMat=Tgb((/cos(pts(1)),sin(pts(1))/),&
-        (/cos(pts(2)),sin(pts(2))/),&
-        (/cos(pts(3)),sin(pts(3))/))
-    case default
-      error stop 'Error: wrong option for order'
-    end select
+  !  select case (order)
+  !  case (2)
+  !    TMat=Tbg((/cos(pts(1)),sin(pts(1))/),&
+  !      (/cos(pts(2)),sin(pts(2))/),&
+  !      (/cos(pts(3)),sin(pts(3))/))
+  !  case (1)
+  !    TMat=Tgb((/cos(pts(1)),sin(pts(1))/),&
+  !      (/cos(pts(2)),sin(pts(2))/),&
+  !      (/cos(pts(3)),sin(pts(3))/))
+  !  case default
+  !    error stop 'Error: wrong option for order'
+  !  end select
 
-    do j=1,size(wing_array,2)
-      do i=1,size(wing_array,1)
-        call wing_array(i,j)%shiftdP(-origin)
-        call wing_array(i,j)%rot(TMat)
-        call wing_array(i,j)%shiftdP(origin)
-      enddo
-    enddo
+  !  do j=1,size(wing_array,2)
+  !    do i=1,size(wing_array,1)
+  !      call wing_array(i,j)%shiftdP(-origin)
+  !      call wing_array(i,j)%rot(TMat)
+  !      call wing_array(i,j)%shiftdP(origin)
+  !    enddo
+  !  enddo
 
-  end subroutine rot_wing
+  !end subroutine rot_wing
 
   !ALTERNATE blade_class: rot_axis
   !subroutine rot_about_axis(wing_array,theta,pivotLE)  !pitch about pivotLE from LE
@@ -311,33 +312,33 @@ contains
   !end subroutine rot_about_axis
 
   ! OBSOLETE SUBROUTINE - use rot_about_axis
-  subroutine pitch_wing(wing_array,theta_pitch,pts)  !pitch about a fixed point fp
-    ! assuming motion is 2dimensional and body has not undergone 3d rotations
-    type(wingpanel_class), intent(inout), dimension(:,:) :: wing_array
-    real(dp), intent(in) :: theta_pitch
-    real(dp), dimension(3), intent(in) :: pts
-    real(dp), dimension(3) :: dshift, origin
+  !subroutine pitch_wing(wing_array,theta_pitch,pts)  !pitch about a fixed point fp
+  !  ! assuming motion is 2dimensional and body has not undergone 3d rotations
+  !  type(wingpanel_class), intent(inout), dimension(:,:) :: wing_array
+  !  real(dp), intent(in) :: theta_pitch
+  !  real(dp), dimension(3), intent(in) :: pts
+  !  real(dp), dimension(3) :: dshift, origin
 
-    origin=0._dp
+  !  origin=0._dp
 
-    if (abs(theta_pitch)>eps) then
-      ! Translate to origin
-      dshift=(/wing_array(1,1)%pc(:,1)/)
-      call mov_wing(wing_array,-dshift)
+  !  if (abs(theta_pitch)>eps) then
+  !    ! Translate to origin
+  !    dshift=(/wing_array(1,1)%pc(:,1)/)
+  !    call mov_wing(wing_array,-dshift)
 
-      ! Rotate global angles
-      call rot_wing(wing_array,pts,origin,1)
+  !    ! Rotate global angles
+  !    call rot_wing(wing_array,pts,origin,1)
 
-      ! Rotate pitch angle
-      call rot_wing(wing_array,(/0._dp,-theta_pitch,0._dp/),origin,1)
+  !    ! Rotate pitch angle
+  !    call rot_wing(wing_array,(/0._dp,-theta_pitch,0._dp/),origin,1)
 
-      ! Unrotate global angles
-      call rot_wing(wing_array,-1._dp*pts,origin,1)
+  !    ! Unrotate global angles
+  !    call rot_wing(wing_array,-1._dp*pts,origin,1)
 
-      ! Untranslate from origin
-      call mov_wing(wing_array,dshift)
-    endif
-  end subroutine pitch_wing
+  !    ! Untranslate from origin
+  !    call mov_wing(wing_array,dshift)
+  !  endif
+  !end subroutine pitch_wing
 
   ! ALTERNATE blade_class : mov_blade()
   ! ALTERNATE rotor_class : mov_rotor()

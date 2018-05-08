@@ -375,6 +375,7 @@ end module wakepanel_classdef
 module blade_classdef
   use wingpanel_classdef
   use wakepanel_classdef
+  use library
   implicit none
   type blade_class
     type(wingpanel_class), allocatable, dimension(:,:) :: wiP
@@ -384,8 +385,9 @@ module blade_classdef
     real(dp) :: pivotLE
   contains
     procedure :: blade_move => move
-    procedure :: rot_pitch
-    procedure :: bladeclass_rot_axis => rot_axis
+    procedure :: blade_rot_pitch => rot_pitch
+    procedure :: blade_rot_axis => rot_axis
+    procedure :: blade_rot_pts => rot_pts
   end type blade_class
 contains
 
@@ -401,7 +403,38 @@ contains
     enddo
   end subroutine blade_move
 
-  subroutine rot_pitch(wing_array,theta)  !pitch about pivotLE from LE
+  subroutine blade_rot_pts(this,pts,origin,order)
+  class(blade_class), intent(inout) :: this
+    real(dp), dimension(3), intent(in) :: pts    ! pts => phi,theta,psi
+    real(dp), dimension(3), intent(in) :: origin ! rotation about
+    integer :: i, j
+    integer :: order    ! [1]gb & +ve theta , [2]bg & -ve theta
+    real(dp), dimension(3,3) :: TMat
+
+    select case (order)
+    case (2)
+      TMat=Tbg((/cos(pts(1)),sin(pts(1))/),&
+        (/cos(pts(2)),sin(pts(2))/),&
+        (/cos(pts(3)),sin(pts(3))/))
+    case (1)
+      TMat=Tgb((/cos(pts(1)),sin(pts(1))/),&
+        (/cos(pts(2)),sin(pts(2))/),&
+        (/cos(pts(3)),sin(pts(3))/))
+    case default
+      error stop 'Error: wrong option for order'
+    end select
+
+    do j=1,size(this%wiP,2)
+      do i=1,size(this%wiP,1)
+        call this%wiP(i,j)%shiftdP(-origin)
+        call this%wiP(i,j)%rot(TMat)
+        call this%wiP(i,j)%shiftdP(origin)
+      enddo
+    enddo
+
+  end subroutine blade_rot_pts
+
+  subroutine blade_rot_pitch(wing_array,theta)  !pitch about pivotLE from LE
     ! pivot point calculated using straight line joining LE and TE of root panels
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: theta
@@ -416,9 +449,9 @@ contains
 
       call this%rot_axis(theta,axis,origin)
     endif
-  end subroutine rot_pitch
+  end subroutine blade_rot_pitch
 
-  subroutine bladeclass_rot_axis(this,theta,axis,origin)  !rotate about axis at origin
+  subroutine blade_rot_axis(this,theta,axis,origin)  !rotate about axis at origin
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: theta
     real(dp), intent(in), dimension(3) :: axis  
@@ -452,7 +485,7 @@ contains
       ! Untranslate from origin
       call this%move(origin)
     endif
-  end subroutine blade_class_rot_axis
+  end subroutine blade_rot_axis
 
 end module blade_classdef
 
