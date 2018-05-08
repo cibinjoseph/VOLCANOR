@@ -340,7 +340,7 @@ contains
 
   ! Checks whether CP lies inside viscous core region of vortex ring
   function isCPinsidecore(this)
-    class(wingpanel_class), intent(in) :: this
+  class(wingpanel_class), intent(in) :: this
     logical :: isCPinsidecore
     real(dp) :: deltaxby4, deltayby2
 
@@ -517,7 +517,6 @@ end module blade_classdef
 !------+-------------------+------|
 module rotor_classdef
   use blade_classdef
-  use library
   implicit none
   type rotor_class
     integer :: nb,ns,nc
@@ -706,10 +705,7 @@ contains
     ! Rotate blades for multi-bladed rotors
     do iblade=2,this%nb
       blade_offset=2._dp*pi/this%nb*(iblade-1)
-      ! *** CREATE rot_blade() in blade_class
-      call this%blade(iblade)%rot_blade((/0._dp,0._dp,blade_offset/),this%hub_coords,1)    ! Wing Global rotation
-
-      ! Pitch blades to theta0
+      call this%blade(iblade)%rot_axis(blade_offset,this%shaft_axis,this%hub_coords,1)
     enddo
 
 

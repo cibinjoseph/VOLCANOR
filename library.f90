@@ -188,7 +188,7 @@ contains
 
   end subroutine init_wake
 
-  ! Transfered to inside wingpanel_class
+  ! TRANSFERED TO INSIDE WINGPANEL_CLASS
   ! Checks whether CP lies inside viscous core region of vortex ring
   !function isCPinsidecore(wing_panel)
   !  type(wingpanel_class), intent(in) :: wing_panel
@@ -209,6 +209,7 @@ contains
   !    isCPinsidecore = .true.  ! Bottom edge
   !  endif
   !end function isCPinsidecore
+
   !--------------------------------------------------------!
   !                 Wing Motion Functions                  !
   !--------------------------------------------------------!
