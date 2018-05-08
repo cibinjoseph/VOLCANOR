@@ -238,6 +238,7 @@ module wingpanel_classdef
     procedure :: calc_alpha
     procedure :: calc_area
     procedure :: orthproj
+    procedure :: isCPinsidecore
   end type wingpanel_class
 
 contains
@@ -336,6 +337,27 @@ contains
     velCPm_cap=this%velCPm/norm2(this%velCPm)
     orthproj=idenmat-outer_product(velCPm_cap,velCPm_cap)
   end function orthproj
+
+  ! Checks whether CP lies inside viscous core region of vortex ring
+  function isCPinsidecore(this)
+    class(wingpanel_class), intent(in) :: this
+    logical :: isCPinsidecore
+    real(dp) :: deltaxby4, deltayby2
+
+    deltaxby4=0.25_dp*abs(this%vr%vf(1)%fc(1,1)-this%vr%vf(2)%fc(1,1))
+    deltayby2=0.5_dp *abs(this%vr%vf(1)%fc(2,1)-this%vr%vf(4)%fc(2,1))
+
+    isCPinsidecore = .false.
+    if (deltayby2 .lt. this%vr%vf(1)%r_vc) then
+      isCPinsidecore = .true.    ! Left edge
+    elseif (deltayby2 .lt. this%vr%vf(3)%r_vc) then
+      isCPinsidecore = .true.  ! Right edge
+    elseif (deltaxby4 .lt. this%vr%vf(2)%r_vc) then
+      isCPinsidecore = .true.  ! Upper edge
+    elseif (3._dp*deltaxby4 .lt. this%vr%vf(4)%r_vc) then
+      isCPinsidecore = .true.  ! Bottom edge
+    endif
+  end function isCPinsidecore
 
 end module wingpanel_classdef
 

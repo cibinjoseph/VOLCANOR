@@ -26,108 +26,109 @@ contains
   !                Initialization Functions                !
   !--------------------------------------------------------!
 
+  ! ALTERNATE: rotor_class : init_rotor()
   ! Assigns coordinates to all corners of pc and vr
-  subroutine init_wing(wing_array,xvec,yvec,mid_core_radius,tip_core_radius)
-    type(wingpanel_class), intent(out), dimension(:,:) :: wing_array
-    real(dp), intent(in), dimension(:) :: xvec 
-    real(dp), intent(in), dimension(:) :: yvec
-    real(dp), intent(in) :: mid_core_radius, tip_core_radius
-    real(dp) :: xshiftLE, xshiftTE
-    integer :: i,j,rows,cols
+  !subroutine init_wing(wing_array,xvec,yvec,mid_core_radius,tip_core_radius)
+  !  type(wingpanel_class), intent(out), dimension(:,:) :: wing_array
+  !  real(dp), intent(in), dimension(:) :: xvec 
+  !  real(dp), intent(in), dimension(:) :: yvec
+  !  real(dp), intent(in) :: mid_core_radius, tip_core_radius
+  !  real(dp) :: xshiftLE, xshiftTE
+  !  integer :: i,j,rows,cols
 
-    rows=size(wing_array,1)
-    cols=size(wing_array,2)
+  !  rows=size(wing_array,1)
+  !  cols=size(wing_array,2)
 
-    if ((size(xvec) .ne. rows+1) .and. (size(yvec) .ne. cols+1)) then
-      error stop 'Size mismatch between xvec, yvec and panel_array'
-    endif
+  !  if ((size(xvec) .ne. rows+1) .and. (size(yvec) .ne. cols+1)) then
+  !    error stop 'Size mismatch between xvec, yvec and panel_array'
+  !  endif
 
-    ! Initialize panel coordinates
-    do j=1,cols
-      do i=1,rows
-        call wing_array(i,j)%assignP(1,(/xvec(i  ),yvec(j  ),0._dp/))
-        call wing_array(i,j)%assignP(2,(/xvec(i+1),yvec(j  ),0._dp/))
-        call wing_array(i,j)%assignP(3,(/xvec(i+1),yvec(j+1),0._dp/))
-        call wing_array(i,j)%assignP(4,(/xvec(i  ),yvec(j+1),0._dp/))
-      enddo
-    enddo
+  !  ! Initialize panel coordinates
+  !  do j=1,cols
+  !    do i=1,rows
+  !      call wing_array(i,j)%assignP(1,(/xvec(i  ),yvec(j  ),0._dp/))
+  !      call wing_array(i,j)%assignP(2,(/xvec(i+1),yvec(j  ),0._dp/))
+  !      call wing_array(i,j)%assignP(3,(/xvec(i+1),yvec(j+1),0._dp/))
+  !      call wing_array(i,j)%assignP(4,(/xvec(i  ),yvec(j+1),0._dp/))
+  !    enddo
+  !  enddo
 
-    ! Initialize vr coords of all panels except last row (to accomodate mismatch of vr coords when using unequal spacing)
-    do i=1,rows-1
-      xshiftLE=(xvec(i+1)-xvec(i))*0.25_dp  ! Shift x coord by dx/4
-      xshiftTE=(xvec(i+2)-xvec(i+1))*0.25_dp  ! Shift x coord by dx/4
-      do j=1,cols
-        call wing_array(i,j)%vr%assignP(1,(/xvec(i  )+xshiftLE,yvec(j  ),0._dp/))
-        call wing_array(i,j)%vr%assignP(2,(/xvec(i+1)+xshiftTE,yvec(j  ),0._dp/))
-        call wing_array(i,j)%vr%assignP(3,(/xvec(i+1)+xshiftTE,yvec(j+1),0._dp/))
-        call wing_array(i,j)%vr%assignP(4,(/xvec(i  )+xshiftLE,yvec(j+1),0._dp/))
-      enddo
-    enddo
+  !  ! Initialize vr coords of all panels except last row (to accomodate mismatch of vr coords when using unequal spacing)
+  !  do i=1,rows-1
+  !    xshiftLE=(xvec(i+1)-xvec(i))*0.25_dp  ! Shift x coord by dx/4
+  !    xshiftTE=(xvec(i+2)-xvec(i+1))*0.25_dp  ! Shift x coord by dx/4
+  !    do j=1,cols
+  !      call wing_array(i,j)%vr%assignP(1,(/xvec(i  )+xshiftLE,yvec(j  ),0._dp/))
+  !      call wing_array(i,j)%vr%assignP(2,(/xvec(i+1)+xshiftTE,yvec(j  ),0._dp/))
+  !      call wing_array(i,j)%vr%assignP(3,(/xvec(i+1)+xshiftTE,yvec(j+1),0._dp/))
+  !      call wing_array(i,j)%vr%assignP(4,(/xvec(i  )+xshiftLE,yvec(j+1),0._dp/))
+  !    enddo
+  !  enddo
 
-    ! Initializing vr coords of last row
-    xshiftLE=(xvec(rows+1)-xvec(rows))*0.25_dp  ! Shift x coord by dx/4
-    xshiftTE=0._dp
-    do j=1,cols
-      call wing_array(rows,j)%vr%assignP(1,(/xvec(rows  )+xshiftLE,yvec(j  ),0._dp/))
-      call wing_array(rows,j)%vr%assignP(2,(/xvec(rows+1)+xshiftTE,yvec(j  ),0._dp/))
-      call wing_array(rows,j)%vr%assignP(3,(/xvec(rows+1)+xshiftTE,yvec(j+1),0._dp/))
-      call wing_array(rows,j)%vr%assignP(4,(/xvec(rows  )+xshiftLE,yvec(j+1),0._dp/))
-    enddo
+  !  ! Initializing vr coords of last row
+  !  xshiftLE=(xvec(rows+1)-xvec(rows))*0.25_dp  ! Shift x coord by dx/4
+  !  xshiftTE=0._dp
+  !  do j=1,cols
+  !    call wing_array(rows,j)%vr%assignP(1,(/xvec(rows  )+xshiftLE,yvec(j  ),0._dp/))
+  !    call wing_array(rows,j)%vr%assignP(2,(/xvec(rows+1)+xshiftTE,yvec(j  ),0._dp/))
+  !    call wing_array(rows,j)%vr%assignP(3,(/xvec(rows+1)+xshiftTE,yvec(j+1),0._dp/))
+  !    call wing_array(rows,j)%vr%assignP(4,(/xvec(rows  )+xshiftLE,yvec(j+1),0._dp/))
+  !  enddo
 
-    ! Initialize CP coords, ncap, panel_area and r_hinge
-    do j=1,cols
-      do i=1,rows
-        call wing_array(i,j)%calcCP()
-        call wing_array(i,j)%calcN()
-        wing_array(i,j)%r_hinge=length3d((wing_array(1,j)%pc(:,1)+wing_array(1,j)%pc(:,4))*0.5_dp,wing_array(i,j)%cp)
-        call wing_array(i,j)%calc_area()
-      enddo
-    enddo
+  !  ! Initialize CP coords, ncap, panel_area and r_hinge
+  !  do j=1,cols
+  !    do i=1,rows
+  !      call wing_array(i,j)%calcCP()
+  !      call wing_array(i,j)%calcN()
+  !      wing_array(i,j)%r_hinge=length3d((wing_array(1,j)%pc(:,1)+wing_array(1,j)%pc(:,4))*0.5_dp,wing_array(i,j)%cp)
+  !      call wing_array(i,j)%calc_area()
+  !    enddo
+  !  enddo
 
-    ! Initialize gamma
-    wing_array%vr%gam=0._dp
+  !  ! Initialize gamma
+  !  wing_array%vr%gam=0._dp
 
-    ! Initialize tag
-    wing_array%tag=2.
+  !  ! Initialize tag
+  !  wing_array%tag=2.
 
-    ! Initialize mid vortex core radius
-    do i=1,4
-      wing_array%vr%vf(i)%r_vc0=mid_core_radius
-      wing_array%vr%vf(i)%r_vc =mid_core_radius
-      wing_array%vr%vf(i)%age=0._dp
-    enddo
+  !  ! Initialize mid vortex core radius
+  !  do i=1,4
+  !    wing_array%vr%vf(i)%r_vc0=mid_core_radius
+  !    wing_array%vr%vf(i)%r_vc =mid_core_radius
+  !    wing_array%vr%vf(i)%age=0._dp
+  !  enddo
 
-    ! Initialize tip vortex core radius
-    do i=1,rows
-      wing_array(i,1)%vr%vf(1)%r_vc0    = tip_core_radius
-      wing_array(i,1)%vr%vf(1)%r_vc     = tip_core_radius
-      wing_array(i,cols)%vr%vf(3)%r_vc0 = tip_core_radius
-      wing_array(i,cols)%vr%vf(3)%r_vc  = tip_core_radius
-    enddo
+  !  ! Initialize tip vortex core radius
+  !  do i=1,rows
+  !    wing_array(i,1)%vr%vf(1)%r_vc0    = tip_core_radius
+  !    wing_array(i,1)%vr%vf(1)%r_vc     = tip_core_radius
+  !    wing_array(i,cols)%vr%vf(3)%r_vc0 = tip_core_radius
+  !    wing_array(i,cols)%vr%vf(3)%r_vc  = tip_core_radius
+  !  enddo
 
-    ! Verify CP is outside vortex core for boundary panels
-    if (isCPinsidecore(wing_array(1,1))) then
-      print*,'Warning: CP inside vortex core at panel LU'
-      print*,'Any key to continue. Ctrl-C to exit'
-      read(*,*)
-    endif
-    if (isCPinsidecore(wing_array(rows,1))) then
-      print*,'Warning: CP inside vortex core at panel LB'
-      print*,'Any key to continue. Ctrl-C to exit'
-      read(*,*)
-    endif
-    if (isCPinsidecore(wing_array(1,cols))) then
-      print*,'Warning: CP inside vortex core at panel RU'
-      print*,'Any key to continue. Ctrl-C to exit'
-      read(*,*)
-    endif
-    if (isCPinsidecore(wing_array(rows,cols))) then
-      print*,'Warning: CP inside vortex core at panel RB'
-      print*,'Any key to continue. Ctrl-C to exit'
-      read(*,*)
-    endif
+  !  ! Verify CP is outside vortex core for boundary panels
+  !  if (isCPinsidecore(wing_array(1,1))) then
+  !    print*,'Warning: CP inside vortex core at panel LU'
+  !    print*,'Any key to continue. Ctrl-C to exit'
+  !    read(*,*)
+  !  endif
+  !  if (isCPinsidecore(wing_array(rows,1))) then
+  !    print*,'Warning: CP inside vortex core at panel LB'
+  !    print*,'Any key to continue. Ctrl-C to exit'
+  !    read(*,*)
+  !  endif
+  !  if (isCPinsidecore(wing_array(1,cols))) then
+  !    print*,'Warning: CP inside vortex core at panel RU'
+  !    print*,'Any key to continue. Ctrl-C to exit'
+  !    read(*,*)
+  !  endif
+  !  if (isCPinsidecore(wing_array(rows,cols))) then
+  !    print*,'Warning: CP inside vortex core at panel RB'
+  !    print*,'Any key to continue. Ctrl-C to exit'
+  !    read(*,*)
+  !  endif
 
-  end subroutine init_wing
+  !end subroutine init_wing
 
   ! Assigns vortex code radii to all filaments
   subroutine init_wake(wake_array,mid_core_radius,tip_core_radius,starting_vortex_core)
@@ -187,26 +188,27 @@ contains
 
   end subroutine init_wake
 
+  ! Transfered to inside wingpanel_class
   ! Checks whether CP lies inside viscous core region of vortex ring
-  function isCPinsidecore(wing_panel)
-    type(wingpanel_class), intent(in) :: wing_panel
-    logical :: isCPinsidecore
-    real(dp) :: deltaxby4, deltayby2
+  !function isCPinsidecore(wing_panel)
+  !  type(wingpanel_class), intent(in) :: wing_panel
+  !  logical :: isCPinsidecore
+  !  real(dp) :: deltaxby4, deltayby2
 
-    deltaxby4=0.25_dp*abs(wing_panel%vr%vf(1)%fc(1,1)-wing_panel%vr%vf(2)%fc(1,1))
-    deltayby2=0.5_dp *abs(wing_panel%vr%vf(1)%fc(2,1)-wing_panel%vr%vf(4)%fc(2,1))
+  !  deltaxby4=0.25_dp*abs(wing_panel%vr%vf(1)%fc(1,1)-wing_panel%vr%vf(2)%fc(1,1))
+  !  deltayby2=0.5_dp *abs(wing_panel%vr%vf(1)%fc(2,1)-wing_panel%vr%vf(4)%fc(2,1))
 
-    isCPinsidecore = .false.
-    if (deltayby2 .lt. wing_panel%vr%vf(1)%r_vc) then
-      isCPinsidecore = .true.    ! Left edge
-    elseif (deltayby2 .lt. wing_panel%vr%vf(3)%r_vc) then 
-      isCPinsidecore = .true.  ! Right edge
-    elseif (deltaxby4 .lt. wing_panel%vr%vf(2)%r_vc) then
-      isCPinsidecore = .true.  ! Upper edge
-    elseif (3._dp*deltaxby4 .lt. wing_panel%vr%vf(4)%r_vc) then
-      isCPinsidecore = .true.  ! Bottom edge
-    endif
-  end function isCPinsidecore
+  !  isCPinsidecore = .false.
+  !  if (deltayby2 .lt. wing_panel%vr%vf(1)%r_vc) then
+  !    isCPinsidecore = .true.    ! Left edge
+  !  elseif (deltayby2 .lt. wing_panel%vr%vf(3)%r_vc) then 
+  !    isCPinsidecore = .true.  ! Right edge
+  !  elseif (deltaxby4 .lt. wing_panel%vr%vf(2)%r_vc) then
+  !    isCPinsidecore = .true.  ! Upper edge
+  !  elseif (3._dp*deltaxby4 .lt. wing_panel%vr%vf(4)%r_vc) then
+  !    isCPinsidecore = .true.  ! Bottom edge
+  !  endif
+  !end function isCPinsidecore
   !--------------------------------------------------------!
   !                 Wing Motion Functions                  !
   !--------------------------------------------------------!
