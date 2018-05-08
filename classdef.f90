@@ -409,6 +409,7 @@ module rotor_classdef
     real(dp) :: spanwise_core, chordwise_core
   contains
     procedure :: getdata
+    procedure :: init_rotor
   end type rotor_class
 
 contains
@@ -465,4 +466,125 @@ contains
 
   end subroutine getdata
 
+  subroutine init_rotor(this,span_spacing_switch)
+  class(rotor_class) :: this
+    integer, intent(in) :: span_spacing_switch
+
+    real(dp), dimension(this%nc+1) :: xvec
+    real(dp), dimension(this%ns+1) :: yvec
+    integer :: i,j,iblade
+    real(dp) :: blade_offset
+
+    ! Blade initialization
+    xvec=linspace(-this%chord,0._dp,this%nc+1)
+    select case (span_spacing_switch)
+    case (1)
+      yvec=linspace(this%root_cut*this%span,this%span,this%ns+1)
+    case (2)
+      yvec=cosspace(this%root_cut*this%span,this%span,this%ns+1)
+    case (3)
+      yvec=halfsinspace(this%root_cut*this%span,this%span,this%ns+1)
+    end select
+
+    do iblade=1,this%nb
+      ! Initialize panel coordinates
+      do j=1,this%ns
+        do i=1,this%nc
+          call this%blade(iblade)%wiP(i,j)%assignP(1,(/xvec(i  ),yvec(j  ),0._dp/))
+          call this%blade(iblade)%wiP(i,j)%assignP(2,(/xvec(i+1),yvec(j  ),0._dp/))
+          call this%blade(iblade)%wiP(i,j)%assignP(3,(/xvec(i+1),yvec(j+1),0._dp/))
+          call this%blade(iblade)%wiP(i,j)%assignP(4,(/xvec(i  ),yvec(j+1),0._dp/))
+        enddo
+      enddo
+
+      ! Initialize vr coords of all panels except last row (to accomodate mismatch of vr coords when usi    ng unequal spacing)
+      do i=1,this%nc-1
+        xshiftLE=(xvec(i+1)-xvec(i))*0.25_dp  ! Shift x coord by dx/4
+        xshiftTE=(xvec(i+2)-xvec(i+1))*0.25_dp  ! Shift x coord by dx/4
+        do j=1,this%ns
+          call this%blade(iblade)%wiP(i,j)%vr%assignP(1,(/xvec(i  )+xshiftLE,yvec(j  ),0._dp/))
+          call this%blade(iblade)%wiP(i,j)%vr%assignP(2,(/xvec(i+1)+xshiftTE,yvec(j  ),0._dp/))
+          call this%blade(iblade)%wiP(i,j)%vr%assignP(3,(/xvec(i+1)+xshiftTE,yvec(j+1),0._dp/))
+          call this%blade(iblade)%wiP(i,j)%vr%assignP(4,(/xvec(i  )+xshiftLE,yvec(j+1),0._dp/))
+        enddo
+      enddo
+
+      ! Initializing vr coords of last row
+      xshiftLE=(xvec(this%nc+1)-xvec(this%nc))*0.25_dp  ! Shift x coord by dx/4
+      xshiftTE=0._dp
+      do j=1,this%ns
+        call this%blade(iblade)%wiP(this%nc,j)%vr%assignP(1,(/xvec(this%nc  )+xshiftLE,yvec(j  ),0._dp/))
+        call this%blade(iblade)%wiP(this%nc,j)%vr%assignP(2,(/xvec(this%nc+1)+xshiftTE,yvec(j  ),0._dp/))
+        call this%blade(iblade)%wiP(this%nc,j)%vr%assignP(3,(/xvec(this%nc+1)+xshiftTE,yvec(j+1),0._dp/))
+        call this%blade(iblade)%wiP(this%nc,j)%vr%assignP(4,(/xvec(this%nc  )+xshiftLE,yvec(j+1),0._dp/))
+      enddo
+
+      ! Initialize CP coords, ncap, panel_area and pivotLE
+      do j=1,this%ns
+        do i=1,this%nc
+          call this%blade(iblade)%wiP(i,j)%calcCP()
+          call this%blade(iblade)%wiP(i,j)%calcN()
+          this%blade(iblade)%wiP(i,j)%r_hinge=length3d((this%blade(iblade)%wiP(1,j)%pc(:,1)+this%blade(iblade)%wiP(1,j)%pc(:,4))*0.5_dp,this%blade(iblade)%(i,j)%cp)
+          call this%blade(iblade)%wiP(i,j)%calc_area()
+        enddo
+      enddo
+
+      ! Initialize gamma
+      this%blade(iblade)%wiP%vr%gam=0._dp
+
+      ! Initialize mid vortex core radius
+      do i=1,4
+        this%blade(iblade)%wiP%vr%vf(i)%r_vc0= this%spanwise_core
+        this%blade(iblade)%wiP%vr%vf(i)%r_vc = this%spanwise_core
+        this%blade(iblade)%wiP%vr%vf(i)%age  = 0._dp
+      enddo
+
+      ! Initialize tip vortex core radius
+      do i=1,this%nc
+        this%blade(iblade)%wiP(i,1)%vr%vf(1)%r_vc0       = this%chordwise_core
+        this%blade(iblade)%wiP(i,1)%vr%vf(1)%r_vc        = this%chordwise_core
+        this%blade(iblade)%wiP(i,this%ns)%vr%vf(3)%r_vc0 = this%chordwise_core
+        this%blade(iblade)%wiP(i,this%ns)%vr%vf(3)%r_vc  = this%chordwise_core
+      enddo
+
+      ! Verify CP is outside vortex core for boundary panels
+      if (isCPinsidecore(this%blade(iblade)%wiP(1,1))) then
+        print*,'Warning: CP inside vortex core at panel LU'
+        print*,'Any key to continue. Ctrl-C to exit'
+        read(*,*)
+      endif
+      if (isCPinsidecore(this%blade(iblade)%wiP(this%nc,1))) then
+        print*,'Warning: CP inside vortex core at panel LB'
+        print*,'Any key to continue. Ctrl-C to exit'
+        read(*,*)
+      endif
+      if (isCPinsidecore(this%blade(iblade)%wiP(1,this%ns))) then
+        print*,'Warning: CP inside vortex core at panel RU'
+        print*,'Any key to continue. Ctrl-C to exit'
+        read(*,*)
+      endif
+      if (isCPinsidecore(this%blade(iblade)%wiP(this%nc,this%ns))) then
+        print*,'Warning: CP inside vortex core at panel RB'
+        print*,'Any key to continue. Ctrl-C to exit'
+        read(*,*)
+      endif
+    enddo
+
+    ! Move rotor to hub coordinates
+    ! *** CREATE mov_rotor()
+    call this%mov_rotor(this%hub_coords)  
+
+    ! Rotate remaining blades to their positions
+    ! Rotate blades for multi-bladed rotors
+    do iblade=2,this%nb
+      blade_offset=2._dp*pi/this%nb*(iblade-1)
+      ! *** CREATE rot_blade() in blade_class
+      call this%blade(iblade)%rot_blade((/0._dp,0._dp,blade_offset/),this%hub_coords,1)    ! Wing Global rotation
+    enddo
+
+    ! Pitch blades to theta0
+
+    ! Wake initialization
+
+  end subroutine init_rotor
 end module rotor_classdef
