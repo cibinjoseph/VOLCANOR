@@ -650,6 +650,8 @@ contains
         call this%blade(iblade)%wiP(this%nc,j)%vr%assignP(4,(/xvec(this%nc  )+xshiftLE,yvec(j+1),0._dp/))
       enddo
 
+      ! Shed them!!
+
       ! Initialize CP coords, ncap, panel_area and pivotLE
       do j=1,this%ns
         do i=1,this%nc

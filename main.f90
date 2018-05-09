@@ -25,33 +25,34 @@ program main
     call rotor(irotor)%getdata(rotorfile,nt)
   enddo
 
+  ! *** CHECK THIS ***
   ! Conversions
   vbody=-1._dp*vwind
   pqr=-1._dp*om_body
 
   ! Geometry Definition
-  !xvec=linspace(0._dp,chord,nc+1)
-  xvec=linspace(-chord,0._dp,nc+1)
-  select case (span_spacing_switch)
-  case (1)
-    yvec=linspace(root_cut*span,span,ns+1)
-  case (2)
-    yvec=cosspace(root_cut*span,span,ns+1)
-  case (3)
-    yvec=halfsinspace(root_cut*span,span,ns+1)
-  end select
+  do irotor=1,nr
+    call rotor(irotor)%init(span_spacing_switch,nt)
+  enddo
 
-  ! Initialize wake geometry and core radius
-  call init_wake(wake,wake_mid_core,wake_tip_core,starting_vortex_core)
+  !!xvec=linspace(0._dp,chord,nc+1)
+  !xvec=linspace(-chord,0._dp,nc+1)
+  !select case (span_spacing_switch)
+  !case (1)
+  !  yvec=linspace(root_cut*span,span,ns+1)
+  !case (2)
+  !  yvec=cosspace(root_cut*span,span,ns+1)
+  !case (3)
+  !  yvec=halfsinspace(root_cut*span,span,ns+1)
+  !end select
+
+  !! Initialize wake geometry and core radius
+  !call init_wake(wake,wake_mid_core,wake_tip_core,starting_vortex_core)
   gamvec_prev=0._dp
 
   ! Initialize wing geometry, vr, cp, ncap coordinates and core radius
-  call init_wing(wing,xvec,yvec,wing_mid_core,wing_tip_core)
-  hub_coords=0._dp
-
-  ! Rotate wing pc, vr, cp and ncap by initial pitch angle 
-  theta_pitch=theta0
-  call rot_about_axis(wing,theta_pitch,pivotLE)
+  !call init_wing(wing,xvec,yvec,wing_mid_core,wing_tip_core)
+  !hub_coords=0._dp
 
   !  TE vortex position
   v_shed=0.2_dp*vwind
@@ -60,6 +61,10 @@ program main
     call wing(nc,ispan)%vr%shiftdP(2,v_shed*dt)
     call wing(nc,ispan)%vr%shiftdP(3,v_shed*dt)
   enddo
+
+  ! Rotate wing pc, vr, cp and ncap by initial pitch angle 
+  theta_pitch=theta0
+  call rot_about_axis(wing,theta_pitch,pivotLE)
 
   ! Influence Coefficient Matrix 
   row=1
