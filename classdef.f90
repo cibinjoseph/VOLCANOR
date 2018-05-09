@@ -530,7 +530,7 @@ module rotor_classdef
     real(dp) :: pivotLE  ! pivot location from LE [x/c]
     real(dp) :: flap_hinge  ! hinge location from centre [x/R]
     real(dp), dimension(3) :: uvw_body, pqr_body
-    real(dp) :: spanwise_core, chordwise_core
+    real(dp) :: spanwise_core, streamwise_core
   contains
     procedure :: getdata
     procedure :: rotor_move => move
@@ -567,7 +567,7 @@ contains
     call skiplines(12,4)
     read(12,*) this%pivotLE, this%flap_hinge
     call skiplines(12,4)
-    read(12,*) this%spanwise_core, this%chordwise_core
+    read(12,*) this%spanwise_core, this%streamwise_core
     call skiplines(12,4)
     read(12,*) this%init_wake_vel, this%psi_start
     close(12)
@@ -579,7 +579,7 @@ contains
     call degtorad(this%theta_twist)
     call degtorad(this%psi_start)
     this%spanwise_core=this%spanwise_core*chord
-    this%chordwise_core=this%chordwise_core*chord
+    this%streamwise_core=this%streamwise_core*chord
 
     ! Allocate rotor object variables
     allocate(this%blade(nb))
@@ -667,10 +667,10 @@ contains
 
       ! Initialize tip vortex core radius
       do i=1,this%nc
-        this%blade(iblade)%wiP(i,1)%vr%vf(1)%r_vc0       = this%chordwise_core
-        this%blade(iblade)%wiP(i,1)%vr%vf(1)%r_vc        = this%chordwise_core
-        this%blade(iblade)%wiP(i,this%ns)%vr%vf(3)%r_vc0 = this%chordwise_core
-        this%blade(iblade)%wiP(i,this%ns)%vr%vf(3)%r_vc  = this%chordwise_core
+        this%blade(iblade)%wiP(i,1)%vr%vf(1)%r_vc0       = this%streamwise_core
+        this%blade(iblade)%wiP(i,1)%vr%vf(1)%r_vc        = this%streamwise_core
+        this%blade(iblade)%wiP(i,this%ns)%vr%vf(3)%r_vc0 = this%streamwise_core
+        this%blade(iblade)%wiP(i,this%ns)%vr%vf(3)%r_vc  = this%streamwise_core
       enddo
 
       ! Verify CP is outside vortex core for boundary panels
@@ -710,6 +710,56 @@ contains
 
 
     ! Wake initialization
+    cols=size(wake_array,2)
+    rows=size(wake_array,1)
+
+    ! Assign core_radius to mid vortices
+    do i=1,4
+      wake_array%vr%vf(i)%r_vc0=mid_core_radius
+      wake_array%vr%vf(i)%r_vc =mid_core_radius
+      wake_array%vr%vf(i)%age=0._dp
+    enddo
+
+    wake_array%tag=-1
+    wake_array%vr%gam=0._dp
+
+    ! Assign core_radius to tip vortices
+    do i=1,rows
+      ! Root vortex
+      wake_array(i,1)%vr%vf(1)%r_vc0      = this%streamwise_core
+      wake_array(i,1)%vr%vf(1)%r_vc       = this%streamwise_core
+      wake_array(i,1)%vr%vf(3)%r_vc0      = this%streamwise_core
+      wake_array(i,1)%vr%vf(3)%r_vc       = this%streamwise_core
+
+      wake_array(i,2)%vr%vf(1)%r_vc0      = this%streamwise_core
+      wake_array(i,2)%vr%vf(1)%r_vc       = this%streamwise_core
+      wake_array(i,2)%vr%vf(3)%r_vc0      = this%streamwise_core
+      wake_array(i,2)%vr%vf(3)%r_vc       = this%streamwise_core
+
+      ! Tip vortex
+      wake_array(i,cols)%vr%vf(1)%r_vc0   = this%streamwise_core
+      wake_array(i,cols)%vr%vf(1)%r_vc    = this%streamwise_core
+      wake_array(i,cols)%vr%vf(3)%r_vc0   = this%streamwise_core
+      wake_array(i,cols)%vr%vf(3)%r_vc    = this%streamwise_core
+
+      wake_array(i,cols-1)%vr%vf(3)%r_vc0 = this%streamwise_core
+      wake_array(i,cols-1)%vr%vf(3)%r_vc  = this%streamwise_core
+      wake_array(i,cols-1)%vr%vf(3)%r_vc0 = this%streamwise_core
+      wake_array(i,cols-1)%vr%vf(3)%r_vc  = this%streamwise_core
+    enddo
+
+    if (starting_vortex_core > eps) then
+      ! Assign core_radius to starting vortices
+      do i=1,cols
+        do j=2,4,2
+          wake_array(rows,i)%vr%vf(j)%r_vc0 = starting_vortex_core
+          wake_array(rows,i)%vr%vf(j)%r_vc  = starting_vortex_core
+          wake_array(rows-1,i)%vr%vf(j)%r_vc0 = starting_vortex_core
+          wake_array(rows-1,i)%vr%vf(j)%r_vc  = starting_vortex_core
+        enddo
+      enddo
+    endif
+
 
   end subroutine init_rotor
 
