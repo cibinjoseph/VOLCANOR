@@ -39,26 +39,32 @@ program main
 
   ! Rotate wing pc, vr, cp and ncap by initial pitch angle 
   do irotor=1,nr
-    call this(irotor)%pitch(wing,theta_pitch,pivotLE)
+    call rotor(irotor)%pitch(wing,theta_pitch,pivotLE)
   enddo
 
   ! Influence Coefficient Matrix 
-  row=1
-  col=1
-  do ispan=1,ns      ! Collocation point loop
-    do ichord=1,nc
-      row=ichord+nc*(ispan-1)
-      do j=1,ns       ! Vortex ring loop
-        do i=1,nc   
-          col=i+nc*(j-1)
-          vec_dummy=wing(i,j)%vr%vind(wing(ichord,ispan)%cp)
-          Amat(row,col)=dot_product(vec_dummy,wing(ichord,ispan)%ncap)
+  do irotor=1,nr
+    do iblade=1,rotor(irotor)%nb
+      do ispan=1,rotor(irotor)%ns      ! Collocation point loop
+        do ichord=1,rotor(irotor)%nc
+          row=ichord+rotor(irotor)%nc*(ispan-1)+rotor(irotor)%ns*rotor(irotor)%nc*(iblade-1)
+
+          do jblade=1,rotor(irotor)%nb
+            do j=1,rotor(irotor)%ns       ! Vortex ring loop
+              do i=1,rotor(irotor)%nc   
+                col=i+nc*(j-1)+rotor(irotor)%ns*rotor(irotor)%nc*(jblade-1)
+                vec_dummy=wing(i,j)%vr%vind(wing(ichord,ispan)%cp)
+                Amat(row,col,irotor)=dot_product(vec_dummy,wing(ichord,ispan)%ncap)
+              enddo
+            enddo
+          enddo
+
         enddo
       enddo
     enddo
   enddo
 
-  Amat_inv=inv(Amat)
+  Amat_invi(:,:,irotor)=inv(Amat(:,:,irotor))
 
   ! Initial Solution
   if (slowstart_switch .eq. 0) then

@@ -531,6 +531,7 @@ module rotor_classdef
     real(dp) :: flap_hinge  ! hinge location from centre [x/R]
     real(dp), dimension(3) :: uvw_body, pqr_body
     real(dp) :: spanwise_core, streamwise_core
+    real(dp), allocatable, dimension(:,:) :: AIC  ! Influence coefficient matrix
   contains
     procedure :: rotor_getdata => getdata
     procedure :: rotor_init => init

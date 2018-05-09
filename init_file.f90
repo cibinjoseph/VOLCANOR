@@ -1,9 +1,7 @@
 ! Contains variable declarations
 type(rotor_class), allocatable, dimension(:) :: rotor
-real(dp), dimension(nc+1)   :: xvec
-real(dp), dimension(ns+1)     :: yvec
+!real(dp), dimension(nc*ns,nc*ns) :: Amat, Amat_inv
 type(wakepanel_class), allocatable, dimension(:,:) :: Pwake
-real(dp), dimension(nc*ns,nc*ns) :: Amat, Amat_inv
 real(dp), dimension(nc*ns) :: RHS, gamvec, gamvec_prev
 real(dp), dimension(ns) :: gam_sectional
 
