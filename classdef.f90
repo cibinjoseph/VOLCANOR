@@ -861,28 +861,33 @@ contains
   end subroutine assignshed
 
   ! Convect wake using dP_array=vind_array*dt
-  subroutine convectwake(wake_array,dP_array)
-    type(wakepanel_class), intent(inout), dimension(:,:) :: wake_array
+  subroutine convectwake(this,row_now,dP_array)
+  class(rotor_class), intent(inout) :: this
+    integer, intent(in) :: row_now
     real(dp), intent(in), dimension(:,:,:) :: dP_array
-    integer :: i,j,rows,cols
+    integer :: i,j,rows,cols,iblade
 
-    rows=size(wake_array,1)
-    cols=size(wake_array,2)
+    rows=size(this%blade(iblade)%waP,1)-row_now+1
+    cols=this%ns
 
-    !$omp parallel do collapse(2)
-    do j=1,cols
-      do i=1,rows
-        call wake_array(i,j)%vr%shiftdP(2,dP_array(:,i,j))
+    do iblade=1,this%nb
+      !$omp parallel do collapse(2)
+      do j=1,cols
+        do i=row_now,rows
+          call this%blade(iblade)%waP(i,j)%vr%shiftdP(2,dP_array(:,i,j))
+        enddo
       enddo
-    enddo
-    !$omp end parallel do
+      !$omp end parallel do
 
-    !$omp parallel do
-    do i=1,rows
-      call wake_array(i,cols)%vr%shiftdP(3,dP_array(:,i,cols+1))
+      !$omp parallel do
+      do i=row_now,rows
+        call this%blade(iblade)%waP(i,cols)%vr%shiftdP(3,dP_array(:,i,cols+1))
+      enddo
+      !$omp end parallel do
     enddo
-    !$omp end parallel do
-    call wake_continuity(wake_array)
+
+    call wake_continuity
+
   end subroutine convectwake
 
 end module rotor_classdef

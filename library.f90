@@ -363,58 +363,60 @@ contains
   !                    Wake Functions                      !
   !--------------------------------------------------------!
 
-  subroutine assignshed(wake_row,wing_row,edge)      
-    ! assigns coordinates to wake_row from wing_row
-    type(wakepanel_class), intent(inout), dimension(:) :: wake_row
-    type(wingpanel_class), intent(in), dimension(:) :: wing_row
-    character(len=2), intent(in) :: edge
-    integer :: i
+  ! ALTERNATE : ROTOR_CLASS : ASSIGNSHED()
+  !subroutine assignshed(wake_row,wing_row,edge)      
+  !  ! assigns coordinates to wake_row from wing_row
+  !  type(wakepanel_class), intent(inout), dimension(:) :: wake_row
+  !  type(wingpanel_class), intent(in), dimension(:) :: wing_row
+  !  character(len=2), intent(in) :: edge
+  !  integer :: i
 
-    wake_row%vr%gam=wing_row%vr%gam
+  !  wake_row%vr%gam=wing_row%vr%gam
 
-    select case (edge)
-    case ('LE')    ! assign to LE 
-      do i=1,size(wing_row)
-        call wake_row(i)%vr%assignP(1,wing_row(i)%vr%vf(2)%fc(:,1))
-        call wake_row(i)%vr%assignP(4,wing_row(i)%vr%vf(3)%fc(:,1))
-        call wake_row(i)%vr%calclength(.TRUE.)    ! TRUE => record original length
-      enddo
-      wake_row%tag=1
-    case ('TE')    ! assign to TE
-      do i=1,size(wing_row)
-        call wake_row(i)%vr%assignP(2,wing_row(i)%vr%vf(2)%fc(:,1))
-        call wake_row(i)%vr%assignP(3,wing_row(i)%vr%vf(3)%fc(:,1))
-      enddo
-    case default
-      error stop 'Error: Wrong option for edge'
-    end select
+  !  select case (edge)
+  !  case ('LE')    ! assign to LE 
+  !    do i=1,size(wing_row)
+  !      call wake_row(i)%vr%assignP(1,wing_row(i)%vr%vf(2)%fc(:,1))
+  !      call wake_row(i)%vr%assignP(4,wing_row(i)%vr%vf(3)%fc(:,1))
+  !      call wake_row(i)%vr%calclength(.TRUE.)    ! TRUE => record original length
+  !    enddo
+  !    wake_row%tag=1
+  !  case ('TE')    ! assign to TE
+  !    do i=1,size(wing_row)
+  !      call wake_row(i)%vr%assignP(2,wing_row(i)%vr%vf(2)%fc(:,1))
+  !      call wake_row(i)%vr%assignP(3,wing_row(i)%vr%vf(3)%fc(:,1))
+  !    enddo
+  !  case default
+  !    error stop 'Error: Wrong option for edge'
+  !  end select
 
-  end subroutine assignshed
+  !end subroutine assignshed
 
+  ! ALTERNATE ROTOR_CLASS : CONVECTWAKE()
   ! Convect wake using dP_array=vind_array*dt
-  subroutine convectwake(wake_array,dP_array)
-    type(wakepanel_class), intent(inout), dimension(:,:) :: wake_array
-    real(dp), intent(in), dimension(:,:,:) :: dP_array
-    integer :: i,j,rows,cols
+  !subroutine convectwake(wake_array,dP_array)
+  !  type(wakepanel_class), intent(inout), dimension(:,:) :: wake_array
+  !  real(dp), intent(in), dimension(:,:,:) :: dP_array
+  !  integer :: i,j,rows,cols
 
-    rows=size(wake_array,1)
-    cols=size(wake_array,2)
+  !  rows=size(wake_array,1)
+  !  cols=size(wake_array,2)
 
-    !$omp parallel do collapse(2)
-    do j=1,cols
-      do i=1,rows
-        call wake_array(i,j)%vr%shiftdP(2,dP_array(:,i,j))
-      enddo
-    enddo
-    !$omp end parallel do
+  !  !$omp parallel do collapse(2)
+  !  do j=1,cols
+  !    do i=1,rows
+  !      call wake_array(i,j)%vr%shiftdP(2,dP_array(:,i,j))
+  !    enddo
+  !  enddo
+  !  !$omp end parallel do
 
-    !$omp parallel do
-    do i=1,rows
-      call wake_array(i,cols)%vr%shiftdP(3,dP_array(:,i,cols+1))
-    enddo
-    !$omp end parallel do
-    call wake_continuity(wake_array)
-  end subroutine convectwake
+  !  !$omp parallel do
+  !  do i=1,rows
+  !    call wake_array(i,cols)%vr%shiftdP(3,dP_array(:,i,cols+1))
+  !  enddo
+  !  !$omp end parallel do
+  !  call wake_continuity(wake_array)
+  !end subroutine convectwake
 
   ! Maintain continuity between vortex ring elements after convection
   ! of vortex ring corners
