@@ -130,63 +130,64 @@ contains
 
   !end subroutine init_wing
 
+  ! ALTERNATE ROTOR_CLASS: INIT_ROTOR()
   ! Assigns vortex code radii to all filaments
-  subroutine init_wake(wake_array,mid_core_radius,tip_core_radius,starting_vortex_core)
-    type(wakepanel_class), intent(out), dimension(:,:) :: wake_array
-    real(dp), intent(in) :: mid_core_radius, tip_core_radius, starting_vortex_core
-    integer :: i,j,cols,rows
+  !subroutine init_wake(wake_array,mid_core_radius,tip_core_radius,starting_vortex_core)
+  !  type(wakepanel_class), intent(out), dimension(:,:) :: wake_array
+  !  real(dp), intent(in) :: mid_core_radius, tip_core_radius, starting_vortex_core
+  !  integer :: i,j,cols,rows
 
-    cols=size(wake_array,2)
-    rows=size(wake_array,1)
+  !  cols=size(wake_array,2)
+  !  rows=size(wake_array,1)
 
-    ! Assign core_radius to mid vortices
-    do i=1,4
-      wake_array%vr%vf(i)%r_vc0=mid_core_radius
-      wake_array%vr%vf(i)%r_vc =mid_core_radius
-      wake_array%vr%vf(i)%age=0._dp
-    enddo
+  !  ! Assign core_radius to mid vortices
+  !  do i=1,4
+  !    wake_array%vr%vf(i)%r_vc0=mid_core_radius
+  !    wake_array%vr%vf(i)%r_vc =mid_core_radius
+  !    wake_array%vr%vf(i)%age=0._dp
+  !  enddo
 
-    wake_array%tag=-1
-    wake_array%vr%gam=0._dp
+  !  wake_array%tag=-1
+  !  wake_array%vr%gam=0._dp
 
-    ! Assign core_radius to tip vortices
-    do i=1,rows
-      ! Root vortex 
-      wake_array(i,1)%vr%vf(1)%r_vc0      = tip_core_radius 
-      wake_array(i,1)%vr%vf(1)%r_vc       = tip_core_radius 
-      wake_array(i,1)%vr%vf(3)%r_vc0      = tip_core_radius 
-      wake_array(i,1)%vr%vf(3)%r_vc       = tip_core_radius 
+  !  ! Assign core_radius to tip vortices
+  !  do i=1,rows
+  !    ! Root vortex 
+  !    wake_array(i,1)%vr%vf(1)%r_vc0      = tip_core_radius 
+  !    wake_array(i,1)%vr%vf(1)%r_vc       = tip_core_radius 
+  !    wake_array(i,1)%vr%vf(3)%r_vc0      = tip_core_radius 
+  !    wake_array(i,1)%vr%vf(3)%r_vc       = tip_core_radius 
 
-      wake_array(i,2)%vr%vf(1)%r_vc0      = tip_core_radius 
-      wake_array(i,2)%vr%vf(1)%r_vc       = tip_core_radius 
-      wake_array(i,2)%vr%vf(3)%r_vc0      = tip_core_radius 
-      wake_array(i,2)%vr%vf(3)%r_vc       = tip_core_radius 
+  !    wake_array(i,2)%vr%vf(1)%r_vc0      = tip_core_radius 
+  !    wake_array(i,2)%vr%vf(1)%r_vc       = tip_core_radius 
+  !    wake_array(i,2)%vr%vf(3)%r_vc0      = tip_core_radius 
+  !    wake_array(i,2)%vr%vf(3)%r_vc       = tip_core_radius 
 
-      ! Tip vortex 
-      wake_array(i,cols)%vr%vf(1)%r_vc0   = tip_core_radius 
-      wake_array(i,cols)%vr%vf(1)%r_vc    = tip_core_radius 
-      wake_array(i,cols)%vr%vf(3)%r_vc0   = tip_core_radius 
-      wake_array(i,cols)%vr%vf(3)%r_vc    = tip_core_radius 
+  !    ! Tip vortex 
+  !    wake_array(i,cols)%vr%vf(1)%r_vc0   = tip_core_radius 
+  !    wake_array(i,cols)%vr%vf(1)%r_vc    = tip_core_radius 
+  !    wake_array(i,cols)%vr%vf(3)%r_vc0   = tip_core_radius 
+  !    wake_array(i,cols)%vr%vf(3)%r_vc    = tip_core_radius 
 
-      wake_array(i,cols-1)%vr%vf(3)%r_vc0 = tip_core_radius 
-      wake_array(i,cols-1)%vr%vf(3)%r_vc  = tip_core_radius 
-      wake_array(i,cols-1)%vr%vf(3)%r_vc0 = tip_core_radius 
-      wake_array(i,cols-1)%vr%vf(3)%r_vc  = tip_core_radius 
-    enddo
+  !    wake_array(i,cols-1)%vr%vf(3)%r_vc0 = tip_core_radius 
+  !    wake_array(i,cols-1)%vr%vf(3)%r_vc  = tip_core_radius 
+  !    wake_array(i,cols-1)%vr%vf(3)%r_vc0 = tip_core_radius 
+  !    wake_array(i,cols-1)%vr%vf(3)%r_vc  = tip_core_radius 
+  !  enddo
 
-    if (starting_vortex_core > eps) then
-      ! Assign core_radius to starting vortices
-      do i=1,cols
-        do j=2,4,2
-          wake_array(rows,i)%vr%vf(j)%r_vc0 = starting_vortex_core
-          wake_array(rows,i)%vr%vf(j)%r_vc  = starting_vortex_core
-          wake_array(rows-1,i)%vr%vf(j)%r_vc0 = starting_vortex_core
-          wake_array(rows-1,i)%vr%vf(j)%r_vc  = starting_vortex_core
-        enddo
-      enddo
-    endif
+  !  if (starting_vortex_core > eps) then
+  !    ! Assign core_radius to starting vortices
+  !    do i=1,cols
+  !      do j=2,4,2
+  !        wake_array(rows,i)%vr%vf(j)%r_vc0 = starting_vortex_core
+  !        wake_array(rows,i)%vr%vf(j)%r_vc  = starting_vortex_core
+  !        wake_array(rows-1,i)%vr%vf(j)%r_vc0 = starting_vortex_core
+  !        wake_array(rows-1,i)%vr%vf(j)%r_vc  = starting_vortex_core
+  !      enddo
+  !    enddo
+  !  endif
 
-  end subroutine init_wake
+  !end subroutine init_wake
 
   ! TRANSFERED TO INSIDE WINGPANEL_CLASS
   ! Checks whether CP lies inside viscous core region of vortex ring
