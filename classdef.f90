@@ -532,15 +532,15 @@ module rotor_classdef
     real(dp), dimension(3) :: uvw_body, pqr_body
     real(dp) :: spanwise_core, streamwise_core
   contains
-    procedure :: getdata
+    procedure :: rotor_getdata => getdata
     procedure :: rotor_move => move
     procedure :: rotor_rot_pts => rot_pts
-    procedure :: init_rotor
+    procedure :: rotor_init => init
   end type rotor_class
 
 contains
 
-  subroutine getdata(this,filename,nt)
+  subroutine rotor_getdata(this,filename,nt)
   class(rotor_class) :: this
     character(len=*), intent(in) :: filename
     integer, intent(in) :: nt  ! nt passed for allocting wake panels
@@ -589,9 +589,9 @@ contains
       allocate(this%blade(iblade)%waP(nt,this%ns))
     enddo
 
-  end subroutine getdata
+  end subroutine rotor_getdata
 
-  subroutine init_rotor(this,span_spacing_switch,nt)
+  subroutine rotor_init(this,span_spacing_switch,nt)
   class(rotor_class) :: this
     integer, intent(in) :: span_spacing_switch
     integer, intent(in) :: nt
@@ -760,7 +760,7 @@ contains
       !endif
     enddo
 
-  end subroutine init_rotor
+  end subroutine rotor_init
 
   subroutine rotor_move(this,dshift)
   class(rotor_class) :: this
