@@ -536,9 +536,14 @@ module rotor_classdef
     procedure :: rotor_move => move
     procedure :: rotor_rot_pts => rot_pts
     procedure :: rotor_init => init
+    procedure :: assignshed
   end type rotor_class
 
 contains
+
+  !-----+--------------------------+-----|
+  ! -+- | Initialization Functions | -+- |
+  !-----+--------------------------+-----|
 
   subroutine rotor_getdata(this,filename,nt)
   class(rotor_class) :: this
@@ -762,6 +767,10 @@ contains
 
   end subroutine rotor_init
 
+  !-----+------------------+-----|
+  ! -+- | Motion Functions | -+- |
+  !-----+------------------+-----|
+
   subroutine rotor_move(this,dshift)
   class(rotor_class) :: this
     real(dp), intent(in), dimension(3) :: dshift
@@ -812,4 +821,68 @@ contains
     this%CG_coords=this%CG_coords+origin
 
   end subroutine rotor_rot_pts
+
+  !-----+----------------+-----|
+  ! -+- | Wake Functions | -+- |
+  !-----+----------------+-----|
+
+  ! Assigns coordinates to first row of wake from last row of blade
+  subroutine assignshed(this,row_now,edge)
+  class(rotor_class), intent(inout) :: this
+    integer, intent(in) :: row_now
+    character(len=2), intent(in) :: edge
+    integer :: i, iblade
+
+    do iblade=1,this%nb
+      this%blade(iblade)%waP%vr%gam=this%blade(iblade)%wiP%vr%gam
+    enddo
+
+    select case (edge)
+    case ('LE')    ! assign to LE
+      do iblade=1,this%nb
+        do i=1,this%ns
+          call this%blade(iblade)%waP(row_now,i)%vr%assignP(1,this%blade(iblade)%wiP(this%nc,i)%vr%vf(2)%fc(:,1))
+          call this%blade(iblade)%waP(row_now,i)%vr%assignP(4,this%blade(iblade)%wiP(this%nc,i)%vr%vf(3)%fc(:,1))
+          call this%blade(iblade)%waP(row_now,i)%vr%calclength(.TRUE.)    ! TRUE => record original length
+        enddo
+        wake_row%tag=1
+      enddo
+    case ('TE')    ! assign to TE
+      do iblade=1,this%nb
+        do i=1,this%ns
+          call this%blade(iblade)%waP(row_now,i)%vr%assignP(2,this%blade(iblade)%wiP(this%nc,i)%vr%vf(2)%fc(:,1))
+          call this%blade(iblade)%waP(row_now,i)%vr%assignP(3,this%blade(iblade)%wiP(this%nc,i)%vr%vf(3)%fc(:,1))
+        enddo
+      enddo
+    case default
+      error stop 'Error: Wrong option for edge'
+    end select
+
+  end subroutine assignshed
+
+  ! Convect wake using dP_array=vind_array*dt
+  subroutine convectwake(wake_array,dP_array)
+    type(wakepanel_class), intent(inout), dimension(:,:) :: wake_array
+    real(dp), intent(in), dimension(:,:,:) :: dP_array
+    integer :: i,j,rows,cols
+
+    rows=size(wake_array,1)
+    cols=size(wake_array,2)
+
+    !$omp parallel do collapse(2)
+    do j=1,cols
+      do i=1,rows
+        call wake_array(i,j)%vr%shiftdP(2,dP_array(:,i,j))
+      enddo
+    enddo
+    !$omp end parallel do
+
+    !$omp parallel do
+    do i=1,rows
+      call wake_array(i,cols)%vr%shiftdP(3,dP_array(:,i,cols+1))
+    enddo
+    !$omp end parallel do
+    call wake_continuity(wake_array)
+  end subroutine convectwake
+
 end module rotor_classdef
