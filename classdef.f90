@@ -456,7 +456,7 @@ contains
 
   end subroutine blade_rot_pts
 
-  subroutine blade_rot_pitch(wing_array,theta)  !pitch about pivotLE from LE
+  subroutine blade_rot_pitch(this,theta)  !pitch about pivotLE from LE
     ! pivot point calculated using straight line joining LE and TE of root panels
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: theta
@@ -498,8 +498,8 @@ contains
       Tmat(:,3)=(/ axis(2)*st+axis(1)*axis(3)*omct, -axis(1)*st+axis(2)*axis(3)*omct,       ct+axis(3)*axis(3)*omct/)
 
       ! Rotate about axis
-      do j=1,size(wing_array,2)
-        do i=1,size(wing_array,1)
+      do j=1,size(this%wiP,2)
+        do i=1,size(this%wiP,1)
           call this%wiP(i,j)%rot(TMat)
         enddo
       enddo
@@ -533,10 +533,12 @@ module rotor_classdef
     real(dp) :: spanwise_core, streamwise_core
   contains
     procedure :: rotor_getdata => getdata
+    procedure :: rotor_init => init
     procedure :: rotor_move => move
     procedure :: rotor_rot_pts => rot_pts
-    procedure :: rotor_init => init
+    procedure :: rotor_pitch => pitch
     procedure :: assignshed
+    procedure :: convectwake
   end type rotor_class
 
 contains
@@ -596,7 +598,7 @@ contains
 
   end subroutine rotor_getdata
 
-  subroutine rotor_init(this,span_spacing_switch,nt)
+  subroutine rotor_init(this,span_spacing_switch,nt,dt)
   class(rotor_class) :: this
     integer, intent(in) :: span_spacing_switch
     integer, intent(in) :: nt
@@ -651,6 +653,11 @@ contains
       enddo
 
       ! Shed them!!
+      v_shed=0.2_dp*this%radius*this%Omega
+      do j=1,this%ns
+        call this%blade(iblade)%wiP(this%nc,j)%vr%shiftdP(2,v_shed*dt)
+        call this%blade(iblade)%wiP(this%nc,j)%vr%shiftdP(3,v_shed*dt)
+      enddo
 
       ! Initialize CP coords, ncap, panel_area and pivotLE
       do j=1,this%ns
@@ -750,8 +757,8 @@ contains
 
         this%blade(iblade)%waP(i,this%ns-1)%vr%vf(3)%r_vc0 = this%streamwise_core
         this%blade(iblade)%waP(i,this%ns-1)%vr%vf(3)%r_vc  = this%streamwise_core
-        this%blade(iblade)%waP(i,this%ns-1)%vr%vf(3)%r_vc0 = this%streamwise_core
-        this%blade(iblade)%waP(i,this%ns-1)%vr%vf(3)%r_vc  = this%streamwise_core
+        !this%blade(iblade)%waP(i,this%ns-1)%vr%vf(3)%r_vc0 = this%streamwise_core
+        !this%blade(iblade)%waP(i,this%ns-1)%vr%vf(3)%r_vc  = this%streamwise_core
       enddo
 
       !if (starting_vortex_core > eps) then
@@ -823,6 +830,16 @@ contains
     this%CG_coords=this%CG_coords+origin
 
   end subroutine rotor_rot_pts
+
+  subroutine rotor_pitch(this,theta_pitch)
+  class(rotor_class), intent(inout) :: this
+    real(dp), intent(in) :: theta_pitch
+    integer :: iblade
+
+    do iblade=1,nb
+      call this%blade(iblade)%rot_pitch(theta_pitch)
+    enddo
+  end subroutine rotor_pitch
 
   !-----+----------------+-----|
   ! -+- | Wake Functions | -+- |
