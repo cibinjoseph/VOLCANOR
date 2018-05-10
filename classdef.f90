@@ -462,8 +462,10 @@ contains
     real(dp), intent(in) :: theta
     real(dp), dimension(3) :: axis  
     real(dp), dimension(3) :: origin
+    integer :: rows
 
     if (abs(theta)>eps) then
+      rows=size(this%wiP,1)
       origin=this%wiP(1,1)%pc(:,1)*(1._dp-this%pivotLE)+this%wiP(rows,1)%pc(:,2)*this%pivotLE
 
       ! Construct axes of rotation from LE of first panel
@@ -532,12 +534,11 @@ module rotor_classdef
     real(dp), dimension(3) :: uvw_body, pqr_body
     real(dp) :: spanwise_core, streamwise_core
     real(dp), allocatable, dimension(:,:) :: AIC,AIC_inv  ! Influence coefficient matrix
-    real(dp), allocatable, dimension(:) :: gamvec
-    real(dp), allocatable, dimension(:) :: gamvec_prev
+    real(dp), allocatable, dimension(:) :: gamvec,gamvec_prev,RHS
   contains
     procedure :: rotor_getdata => getdata
     procedure :: rotor_init => init
-    procedure :: rotor_move => move
+    procedure :: move => move
     procedure :: rotor_rot_pts => rot_pts
     procedure :: rotor_pitch => pitch
     procedure :: assignshed
@@ -593,12 +594,15 @@ contains
 
     ! Allocate rotor object variables
     allocate(this%blade(nb))
+      allocate(this%AIC(this%nc*this%ns*this%nb,this%nc*this%ns*this%nb))
+      allocate(this%AIC_inv(this%nc*this%ns*this%nb,this%nc*this%ns*this%nb))
+      allocate(this%gamvec(this%nc*this%ns*this%nb))
+      allocate(this%gamvec_prev(this%nc*this%ns*this%nb))
+      allocate(this%RHS(this%nc*this%ns*this%nb))
     ! Allocate blade object variables
     do iblade=1,this%nb
       allocate(this%blade(iblade)%wiP(this%nc,this%ns))
       allocate(this%blade(iblade)%waP(nt,this%ns))
-      allocate(this%blade(iblade)%AIC(this%nc*this%ns*this%nb,this%nc*this%ns*this%nb))
-      allocate(this%blade(iblade)%AIC_inv(this%nc*this%ns*this%nb,this%nc*this%ns*this%nb))
     enddo
 
   end subroutine rotor_getdata
@@ -785,7 +789,7 @@ contains
   ! -+- | Motion Functions | -+- |
   !-----+------------------+-----|
 
-  subroutine rotor_move(this,dshift)
+  subroutine move(this,dshift)
   class(rotor_class) :: this
     real(dp), intent(in), dimension(3) :: dshift
 
@@ -797,7 +801,7 @@ contains
     this%hub_coords=this%hub_coords+dshift
     this%CG_coords=this%CG_coords+dshift
 
-  end subroutine rotor_move
+  end subroutine move
 
   subroutine rotor_rot_pts(this,pts,origin,order)
   class(rotor_class), intent(inout) :: this

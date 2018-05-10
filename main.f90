@@ -55,23 +55,24 @@ program main
     hdot=om_h*h0*cos(om_h*t)
     vel_plunge=(/0._dp,0._dp,hdot/)  
 
-    indx=1
-    do ispan=1,ns
-      do ichord=1,nc
-        RHS(indx) = dot_product(vwind-vel_plunge,wing(ichord,ispan)%ncap)
+    do iblade=1,nb
+      do ispan=1,ns
+        do ichord=1,nc
+          row=ichord+nc*(ispan-1)+ns*nc*(iblade-1)
+          RHS(row) = dot_product(vwind-vel_plunge,wing(iblade,ichord,ispan)%ncap)
 
-        ! Pitch vel
-        wing(ichord,ispan)%vel_pitch=thetadot*wing(ichord,ispan)%r_hinge
-        RHS(indx)= RHS(indx)+wing(ichord,ispan)%vel_pitch
+          ! Pitch vel
+          wing(iblade,ichord,ispan)%vel_pitch=thetadot*wing(iblade,ichord,ispan)%r_hinge
+          RHS(row)= RHS(row)+wing(iblade,ichord,ispan)%vel_pitch
 
-        ! pqr vel
-        RHS(indx)= RHS(indx)+dot_product(cross3(pqr,wing(ichord,ispan)%cp),wing(ichord,ispan)%ncap)
-        indx=indx+1
+          ! pqr vel
+          RHS(row)= RHS(row)+dot_product(cross3(pqr,wing(iblade,ichord,ispan)%cp),wing(iblade,ichord,ispan)%ncap)
+        enddo
       enddo
     enddo
     RHS=-1._dp*RHS
 
-    gamvec=matmul(Amat_inv,RHS)
+    rotor(irotor)gamvec=matmul(Amat_inv,RHS)
   else
     gamvec=0._dp
   endif
