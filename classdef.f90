@@ -228,7 +228,6 @@ module wingpanel_classdef
     real(dp) :: panel_area            ! Panel area for computing lift
     real(dp) :: r_hinge               ! dist to point about which pitching occurs (LE of wing)
     real(dp) :: alpha                 ! local angle of attack
-    integer :: tag                    ! for identifying panel to be wing or wake
   contains
     procedure :: assignP => wingpanel_class_assignP
     procedure :: calcCP => wingpanel_class_calcCP
@@ -370,7 +369,6 @@ module wakepanel_classdef
   implicit none
   type wakepanel_class
     type(vr_class) :: vr
-    integer :: tag                   ! for identifying panel to be wing or wake
   end type wakepanel_class
 
 contains
@@ -397,7 +395,6 @@ end module wakepanel_classdef
 module blade_classdef
   use wingpanel_classdef
   use wakepanel_classdef
-  use library
   implicit none
   type blade_class
     type(wingpanel_class), allocatable, dimension(:,:) :: wiP
@@ -406,14 +403,14 @@ module blade_classdef
     real(dp) :: psi
     real(dp) :: pivotLE
   contains
-    procedure :: blade_move => move
-    procedure :: blade_rot_pitch => rot_pitch
-    procedure :: blade_rot_axis => rot_axis
-    procedure :: blade_rot_pts => rot_pts
+    procedure :: move
+    procedure :: rot_pitch 
+    procedure :: rot_axis
+    procedure :: rot_pts
   end type blade_class
 contains
 
-  subroutine blade_move(this,dshift)
+  subroutine move(this,dshift)
   class(blade_class) :: this
     real(dp), intent(in), dimension(3) :: dshift
     integer :: i,j
@@ -423,9 +420,9 @@ contains
         call this%wiP(i,j)%shiftdP(dshift)
       enddo
     enddo
-  end subroutine blade_move
+  end subroutine move
 
-  subroutine blade_rot_pts(this,pts,origin,order)
+  subroutine rot_pts(this,pts,origin,order)
   class(blade_class), intent(inout) :: this
     real(dp), dimension(3), intent(in) :: pts    ! pts => phi,theta,psi
     real(dp), dimension(3), intent(in) :: origin ! rotation about
@@ -454,9 +451,9 @@ contains
       enddo
     enddo
 
-  end subroutine blade_rot_pts
+  end subroutine rot_pts
 
-  subroutine blade_rot_pitch(this,theta)  !pitch about pivotLE from LE
+  subroutine rot_pitch(this,theta)  !pitch about pivotLE from LE
     ! pivot point calculated using straight line joining LE and TE of root panels
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: theta
@@ -473,16 +470,15 @@ contains
 
       call this%rot_axis(theta,axis,origin)
     endif
-  end subroutine blade_rot_pitch
+  end subroutine rot_pitch
 
-  subroutine blade_rot_axis(this,theta,axis,origin)  !rotate about axis at origin
+  subroutine rot_axis(this,theta,axis,origin)  !rotate about axis at origin
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: theta
     real(dp), intent(in), dimension(3) :: axis  
-    real(dp), intent(inout) :: origin
+    real(dp), intent(in), dimension(3) :: origin
     real(dp), dimension(3,3) :: Tmat
     integer :: i,j,rows
-    real(dp), dimension(3) :: dshift
     real(dp) :: ct,st,omct
 
     if (abs(theta)>eps) then
@@ -509,7 +505,7 @@ contains
       ! Untranslate from origin
       call this%move(origin)
     endif
-  end subroutine blade_rot_axis
+  end subroutine rot_axis
 
 end module blade_classdef
 
@@ -523,7 +519,7 @@ module rotor_classdef
   type rotor_class
     integer :: nb,ns,nc
     type(blade_class), allocatable, dimension(:) :: blade
-    real(dp), dimension :: Omega
+    real(dp) :: Omega
     real(dp), dimension(3) :: shaft_axis
     real(dp), dimension(3) :: hub_coords, CG_coords
     real(dp) :: radius, chord, root_cut
@@ -535,12 +531,13 @@ module rotor_classdef
     real(dp) :: spanwise_core, streamwise_core
     real(dp), allocatable, dimension(:,:) :: AIC,AIC_inv  ! Influence coefficient matrix
     real(dp), allocatable, dimension(:) :: gamvec,gamvec_prev,RHS
+    real(dp) :: init_wake_vel, psi_start
   contains
-    procedure :: rotor_getdata => getdata
-    procedure :: rotor_init => init
+    procedure :: getdata => getdata
+    procedure :: init => init
     procedure :: move => move
-    procedure :: rotor_rot_pts => rot_pts
-    procedure :: rotor_pitch => pitch
+    procedure :: rot_pts => rot_pts
+    procedure :: pitch => pitch
     procedure :: assignshed
     procedure :: convectwake
   end type rotor_class
@@ -551,11 +548,11 @@ contains
   ! -+- | Initialization Functions | -+- |
   !-----+--------------------------+-----|
 
-  subroutine rotor_getdata(this,filename,nt)
+  subroutine getdata(this,filename,nt)
   class(rotor_class) :: this
     character(len=*), intent(in) :: filename
     integer, intent(in) :: nt  ! nt passed for allocting wake panels
-    integer :: i
+    integer :: i,iblade
 
     open(unit=12,file=filename)
     call skiplines(12,2)
@@ -589,43 +586,45 @@ contains
     enddo
     call degtorad(this%theta_twist)
     call degtorad(this%psi_start)
-    this%spanwise_core=this%spanwise_core*chord
-    this%streamwise_core=this%streamwise_core*chord
+    this%spanwise_core=this%spanwise_core*this%chord
+    this%streamwise_core=this%streamwise_core*this%chord
 
     ! Allocate rotor object variables
-    allocate(this%blade(nb))
-      allocate(this%AIC(this%nc*this%ns*this%nb,this%nc*this%ns*this%nb))
-      allocate(this%AIC_inv(this%nc*this%ns*this%nb,this%nc*this%ns*this%nb))
-      allocate(this%gamvec(this%nc*this%ns*this%nb))
-      allocate(this%gamvec_prev(this%nc*this%ns*this%nb))
-      allocate(this%RHS(this%nc*this%ns*this%nb))
+    allocate(this%blade(this%nb))
+    allocate(this%AIC(this%nc*this%ns*this%nb,this%nc*this%ns*this%nb))
+    allocate(this%AIC_inv(this%nc*this%ns*this%nb,this%nc*this%ns*this%nb))
+    allocate(this%gamvec(this%nc*this%ns*this%nb))
+    allocate(this%gamvec_prev(this%nc*this%ns*this%nb))
+    allocate(this%RHS(this%nc*this%ns*this%nb))
     ! Allocate blade object variables
     do iblade=1,this%nb
       allocate(this%blade(iblade)%wiP(this%nc,this%ns))
       allocate(this%blade(iblade)%waP(nt,this%ns))
     enddo
 
-  end subroutine rotor_getdata
+  end subroutine getdata
 
-  subroutine rotor_init(this,span_spacing_switch,nt,dt)
+  subroutine init(this,span_spacing_switch,nt,dt)
   class(rotor_class) :: this
     integer, intent(in) :: span_spacing_switch
     integer, intent(in) :: nt
+    real(dp), intent(in) :: dt
 
     real(dp), dimension(this%nc+1) :: xvec
     real(dp), dimension(this%ns+1) :: yvec
     integer :: i,j,iblade
     real(dp) :: blade_offset
+    real(dp) :: xshiftLE,xshiftTE,v_shed
 
     ! Blade initialization
     xvec=linspace(-this%chord,0._dp,this%nc+1)
     select case (span_spacing_switch)
     case (1)
-      yvec=linspace(this%root_cut*this%span,this%span,this%ns+1)
+      yvec=linspace(this%root_cut*this%radius,this%radius,this%ns+1)
     case (2)
-      yvec=cosspace(this%root_cut*this%span,this%span,this%ns+1)
+      yvec=cosspace(this%root_cut*this%radius,this%radius,this%ns+1)
     case (3)
-      yvec=halfsinspace(this%root_cut*this%span,this%span,this%ns+1)
+      yvec=halfsinspace(this%root_cut*this%radius,this%radius,this%ns+1)
     end select
 
     do iblade=1,this%nb
@@ -664,8 +663,8 @@ contains
       ! Shed them!!
       v_shed=0.2_dp*this%radius*this%Omega
       do j=1,this%ns
-        call this%blade(iblade)%wiP(this%nc,j)%vr%shiftdP(2,v_shed*dt)
-        call this%blade(iblade)%wiP(this%nc,j)%vr%shiftdP(3,v_shed*dt)
+        call this%blade(iblade)%wiP(this%nc,j)%vr%shiftdP(2,(/v_shed*dt,0._dp,0._dp/))
+        call this%blade(iblade)%wiP(this%nc,j)%vr%shiftdP(3,(/v_shed*dt,0._dp,0._dp/))
       enddo
 
       ! Initialize CP coords, ncap, panel_area and pivotLE
@@ -673,7 +672,8 @@ contains
         do i=1,this%nc
           call this%blade(iblade)%wiP(i,j)%calcCP()
           call this%blade(iblade)%wiP(i,j)%calcN()
-          this%blade(iblade)%wiP(i,j)%r_hinge=length3d((this%blade(iblade)%wiP(1,j)%pc(:,1)+this%blade(iblade)%wiP(1,j)%pc(:,4))*0.5_dp,this%blade(iblade)%(i,j)%cp)
+          this%blade(iblade)%wiP(i,j)%r_hinge=length3d((this%blade(iblade)%wiP(1,j)%pc(:,1)  &
+            +                                           this%blade(iblade)%wiP(1,j)%pc(:,4))*0.5_dp,this%blade(iblade)%wiP(i,j)%cp)
           call this%blade(iblade)%wiP(i,j)%calc_area()
         enddo
       enddo
@@ -729,7 +729,7 @@ contains
     ! Rotate blades for multi-bladed rotors
     do iblade=2,this%nb
       blade_offset=2._dp*pi/this%nb*(iblade-1)
-      call this%blade(iblade)%rot_axis(blade_offset,this%shaft_axis,this%hub_coords,1)
+      call this%blade(iblade)%rot_axis(blade_offset,this%shaft_axis,this%hub_coords)
     enddo
 
 
@@ -742,7 +742,6 @@ contains
         this%blade(iblade)%waP%vr%vf(i)%age=0._dp
       enddo
 
-      this%blade(iblade)%waP%tag=-1
       this%blade(iblade)%waP%vr%gam=0._dp
 
       ! Assign core_radius to tip vortices
@@ -783,7 +782,7 @@ contains
       !endif
     enddo
 
-  end subroutine rotor_init
+  end subroutine init
 
   !-----+------------------+-----|
   ! -+- | Motion Functions | -+- |
@@ -803,7 +802,7 @@ contains
 
   end subroutine move
 
-  subroutine rotor_rot_pts(this,pts,origin,order)
+  subroutine rot_pts(this,pts,origin,order)
   class(rotor_class), intent(inout) :: this
     real(dp), dimension(3), intent(in) :: pts    ! pts => phi,theta,psi
     real(dp), dimension(3), intent(in) :: origin ! rotation about
@@ -838,17 +837,17 @@ contains
     this%CG_coords=matmul(TMat,this%CG_coords)
     this%CG_coords=this%CG_coords+origin
 
-  end subroutine rotor_rot_pts
+  end subroutine rot_pts
 
-  subroutine rotor_pitch(this,theta_pitch)
+  subroutine pitch(this,theta_pitch)
   class(rotor_class), intent(inout) :: this
     real(dp), intent(in) :: theta_pitch
     integer :: iblade
 
-    do iblade=1,nb
+    do iblade=1,this%nb
       call this%blade(iblade)%rot_pitch(theta_pitch)
     enddo
-  end subroutine rotor_pitch
+  end subroutine pitch
 
   !-----+----------------+-----|
   ! -+- | Wake Functions | -+- |
@@ -873,7 +872,7 @@ contains
           call this%blade(iblade)%waP(row_now,i)%vr%assignP(4,this%blade(iblade)%wiP(this%nc,i)%vr%vf(3)%fc(:,1))
           call this%blade(iblade)%waP(row_now,i)%vr%calclength(.TRUE.)    ! TRUE => record original length
         enddo
-        wake_row%tag=1
+
       enddo
     case ('TE')    ! assign to TE
       do iblade=1,this%nb
@@ -932,8 +931,8 @@ contains
           do jblade=1,this%nb
             do j=1,this%ns       ! Vortex ring loop
               do i=1,this%nc
-                col=i+nc*(j-1)+this%ns*this%nc*(jblade-1)
-                vec_dummy=this%blade(jblade)%wiP(i,j)%vr%vind(thisi%blade(iblade)%wiP(ichord,ispan)%CP)
+                col=i+this%nc*(j-1)+this%ns*this%nc*(jblade-1)
+                vec_dummy=this%blade(jblade)%wiP(i,j)%vr%vind(this%blade(iblade)%wiP(ichord,ispan)%CP)
                 this%AIC(row,col)=dot_product(vec_dummy,this%blade(iblade)%wiP(ichord,ispan)%ncap)
               enddo
             enddo
@@ -943,6 +942,6 @@ contains
       enddo
       this%AIC_inv=inv(this%AIC)
     enddo
-  end subroutine caclAIC
+  end subroutine calcAIC
 
 end module rotor_classdef
