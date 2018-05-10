@@ -35,21 +35,17 @@ program main
     call rotor(irotor)%init(span_spacing_switch,nt,dt)
   enddo
 
-  gamvec_prev=0._dp
+  !gamvec_prev=0._dp
 
   ! Rotate wing pc, vr, cp and ncap by initial pitch angle 
   do irotor=1,nr
     call rotor(irotor)%pitch(wing,theta_pitch,pivotLE)
   enddo
 
-  ! Influence Coefficient Matrix 
+  ! Compute AIC and AIC_inv matrices for rotors
   do irotor=1,nr
     call rotor(irotor)%calcAIC()
   enddo
-
-  !enddo
-
-  !Amat_inv(:,:,irotor)=inv(Amat(:,:,irotor))
 
   ! Initial Solution
   if (slowstart_switch .eq. 0) then

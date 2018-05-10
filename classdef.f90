@@ -532,6 +532,8 @@ module rotor_classdef
     real(dp), dimension(3) :: uvw_body, pqr_body
     real(dp) :: spanwise_core, streamwise_core
     real(dp), allocatable, dimension(:,:) :: AIC,AIC_inv  ! Influence coefficient matrix
+    real(dp), allocatable, dimension(:) :: gamvec
+    real(dp), allocatable, dimension(:) :: gamvec_prev
   contains
     procedure :: rotor_getdata => getdata
     procedure :: rotor_init => init
@@ -595,8 +597,8 @@ contains
     do iblade=1,this%nb
       allocate(this%blade(iblade)%wiP(this%nc,this%ns))
       allocate(this%blade(iblade)%waP(nt,this%ns))
-      allocate(this%blade(iblade)%AIC(this%nc*this%ns,this%nc*this%ns))
-      allocate(this%blade(iblade)%AIC_inv(this%nc*this%ns,this%nc*this%ns))
+      allocate(this%blade(iblade)%AIC(this%nc*this%ns*this%nb,this%nc*this%ns*this%nb))
+      allocate(this%blade(iblade)%AIC_inv(this%nc*this%ns*this%nb,this%nc*this%ns*this%nb))
     enddo
 
   end subroutine rotor_getdata
@@ -928,14 +930,14 @@ contains
               do i=1,this%nc
                 col=i+nc*(j-1)+this%ns*this%nc*(jblade-1)
                 vec_dummy=this%blade(jblade)%wiP(i,j)%vr%vind(thisi%blade(iblade)%wiP(ichord,ispan)%CP)
-                this%blade(iblade)%AIC(row,col)=dot_product(vec_dummy,this%blade(iblade)%wiP(ichord,ispan)%ncap)
+                this%AIC(row,col)=dot_product(vec_dummy,this%blade(iblade)%wiP(ichord,ispan)%ncap)
               enddo
             enddo
           enddo
 
         enddo
       enddo
-      this%blade(iblade)%AIC_inv=inv(this%blade(iblade)%AIC)
+      this%AIC_inv=inv(this%AIC)
     enddo
   end subroutine caclAIC
 
