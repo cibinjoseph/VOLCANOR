@@ -268,6 +268,37 @@ contains
     norm=sqrt(norm)
   end function norm
 
+  !--------------------------------------------------------!
+  !              Transformation Functions                  !
+  !--------------------------------------------------------!
+
+  ! Transformation matrix bg
+  function Tbg(cs_phi,cs_theta,cs_psi)
+    real(dp), dimension(2), intent(in) :: cs_phi, cs_theta, cs_psi  ! cos and sin
+    real(dp), dimension(3,3) :: Tbg
+    Tbg(1,:)=(/cs_psi(1)*cs_theta(1),cs_theta(1)*cs_psi(2),-1._dp*cs_theta(2)/)
+    Tbg(2,1)=cs_psi(1)*cs_phi(2)*cs_theta(2)-cs_phi(1)*cs_psi(2)
+    Tbg(2,2)=cs_phi(1)*cs_psi(1)+cs_phi(2)*cs_psi(2)*cs_theta(2)
+    Tbg(2,3)=cs_theta(1)*cs_phi(2)
+    Tbg(3,1)=cs_phi(1)*cs_psi(1)*cs_theta(2)+cs_phi(2)*cs_psi(2)
+    Tbg(3,2)=cs_phi(1)*cs_psi(2)*cs_theta(2)-cs_psi(1)*cs_phi(2)
+    Tbg(3,3)=cs_phi(1)*cs_theta(1)
+  end function Tbg
+
+  function Tgb(cs_phi,cs_theta,cs_psi)
+    real(dp), dimension(2), intent(in) :: cs_phi, cs_theta, cs_psi  ! cos and sin
+    real(dp), dimension(3,3) :: Tgb
+    Tgb(1,1)=cs_psi(1)*cs_theta(1)
+    Tgb(1,2)=cs_phi(2)*cs_theta(2)*cs_psi(1)-cs_psi(2)*cs_phi(1)
+    Tgb(1,3)=cs_phi(2)*cs_psi(2)+cs_theta(2)*cs_phi(1)*cs_psi(1)
+    Tgb(2,1)=cs_psi(2)*cs_theta(1)
+    Tgb(2,2)=cs_phi(2)*cs_psi(2)*cs_theta(2)+cs_phi(1)*cs_psi(1)
+    Tgb(2,3)=cs_psi(2)*cs_theta(2)*cs_phi(1)-cs_phi(2)*cs_psi(1)
+    Tgb(3,1)=-cs_theta(2)
+    Tgb(3,2)=cs_phi(2)*cs_theta(1)
+    Tgb(3,3)=cs_phi(1)*cs_theta(1)
+  end function Tgb
+
 
 
 end module mymathlib
