@@ -531,7 +531,7 @@ module rotor_classdef
     real(dp) :: flap_hinge  ! hinge location from centre [x/R]
     real(dp), dimension(3) :: uvw_body, pqr_body
     real(dp) :: spanwise_core, streamwise_core
-    real(dp), allocatable, dimension(:,:) :: AIC  ! Influence coefficient matrix
+    real(dp), allocatable, dimension(:,:) :: AIC,AIC_inv  ! Influence coefficient matrix
   contains
     procedure :: rotor_getdata => getdata
     procedure :: rotor_init => init
@@ -595,6 +595,8 @@ contains
     do iblade=1,this%nb
       allocate(this%blade(iblade)%wiP(this%nc,this%ns))
       allocate(this%blade(iblade)%waP(nt,this%ns))
+      allocate(this%blade(iblade)%AIC(this%nc*this%ns,this%nc*this%ns))
+      allocate(this%blade(iblade)%AIC_inv(this%nc*this%ns,this%nc*this%ns))
     enddo
 
   end subroutine rotor_getdata
@@ -909,5 +911,32 @@ contains
     call wake_continuity
 
   end subroutine convectwake
+
+  subroutine calcAIC(this)
+  class(rotor_class), intent(inout) :: this
+    integer :: iblade,jblade,ispan,ichord,i,j,row,col
+    real(dp), dimension(3) :: vec_dummy
+
+    ! Influence Coefficient Matrix
+    do iblade=1,this%nb
+      do ispan=1,this%ns      ! Collocation point loop
+        do ichord=1,this%nc
+          row=ichord+this%nc*(ispan-1)+this%ns*this%nc*(iblade-1)
+
+          do jblade=1,this%nb
+            do j=1,this%ns       ! Vortex ring loop
+              do i=1,this%nc
+                col=i+nc*(j-1)+this%ns*this%nc*(jblade-1)
+                vec_dummy=this%blade(jblade)%wiP(i,j)%vr%vind(thisi%blade(iblade)%wiP(ichord,ispan)%CP)
+                this%blade(iblade)%AIC(row,col)=dot_product(vec_dummy,this%blade(iblade)%wiP(ichord,ispan)%ncap)
+              enddo
+            enddo
+          enddo
+
+        enddo
+      enddo
+      this%blade(iblade)%AIC_inv=inv(this%blade(iblade)%AIC)
+    enddo
+  end subroutine caclAIC
 
 end module rotor_classdef

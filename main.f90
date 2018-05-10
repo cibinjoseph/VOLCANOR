@@ -44,27 +44,12 @@ program main
 
   ! Influence Coefficient Matrix 
   do irotor=1,nr
-    do iblade=1,rotor(irotor)%nb
-      do ispan=1,rotor(irotor)%ns      ! Collocation point loop
-        do ichord=1,rotor(irotor)%nc
-          row=ichord+rotor(irotor)%nc*(ispan-1)+rotor(irotor)%ns*rotor(irotor)%nc*(iblade-1)
-
-          do jblade=1,rotor(irotor)%nb
-            do j=1,rotor(irotor)%ns       ! Vortex ring loop
-              do i=1,rotor(irotor)%nc   
-                col=i+nc*(j-1)+rotor(irotor)%ns*rotor(irotor)%nc*(jblade-1)
-                vec_dummy=wing(i,j)%vr%vind(wing(ichord,ispan)%cp)
-                Amat(row,col,irotor)=dot_product(vec_dummy,wing(ichord,ispan)%ncap)
-              enddo
-            enddo
-          enddo
-
-        enddo
-      enddo
-    enddo
+    call rotor(irotor)%calcAIC()
   enddo
 
-  Amat_invi(:,:,irotor)=inv(Amat(:,:,irotor))
+  !enddo
+
+  !Amat_inv(:,:,irotor)=inv(Amat(:,:,irotor))
 
   ! Initial Solution
   if (slowstart_switch .eq. 0) then
