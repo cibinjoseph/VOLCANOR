@@ -25,10 +25,9 @@ program main
     call rotor(irotor)%getdata(rotorfile,nt)
   enddo
 
-  ! *** CHECK THIS ***
   ! Conversions
-  vbody=-1._dp*vwind
-  pqr=-1._dp*om_body
+  !vbody=-1._dp*vwind
+  !pqr=-1._dp*om_body
 
   ! Rotor and wake initialization
   do irotor=1,nr
@@ -51,33 +50,36 @@ program main
   if (slowstart_switch .eq. 0) then
     t=0._dp
 
-    thetadot=thetas*om_theta*cos(om_theta*t)
-    hdot=om_h*h0*cos(om_h*t)
-    vel_plunge=(/0._dp,0._dp,hdot/)  
+    do irotor=1,nr
+      do iblade=1,rotor(irotor)%nb
+        do ispan=1,rotor(irotor)%ns
+          do ichord=1,rotor(irotor)%nc
+            row=ichord+rotor(irotor)%nc*(ispan-1)+rotor(irotor)%ns*rotor(irotor)%nc*(iblade-1)
+            rotor(irotor)%RHS(row) = dot_product(rotor(irotor)%v_wind,rotor(irotor)%blade%(iblade)%wiP(ichord,ispan)%ncap)
 
-    do iblade=1,nb
-      do ispan=1,ns
-        do ichord=1,nc
-          row=ichord+nc*(ispan-1)+ns*nc*(iblade-1)
-          RHS(row) = dot_product(vwind-vel_plunge,wing(iblade,ichord,ispan)%ncap)
+            ! Pitch vel
+            !rotor(irotor)%blade%(iblade)%wing(ichord,ispan)%vel_pitch=rotor(irotor)%thetadot_pitch(0._dp,iblade)*rotor(irotor)%blade(iblade)%wiP(ichord,ispan)%r_hinge
+            !rotor(irotor)%RHS(row)= RHS(row)+wing(iblade,ichord,ispan)%vel_pitch
 
-          ! Pitch vel
-          wing(iblade,ichord,ispan)%vel_pitch=thetadot*wing(iblade,ichord,ispan)%r_hinge
-          RHS(row)= RHS(row)+wing(iblade,ichord,ispan)%vel_pitch
-
-          ! pqr vel
-          RHS(row)= RHS(row)+dot_product(cross3(pqr,wing(iblade,ichord,ispan)%cp),wing(iblade,ichord,ispan)%ncap)
+            ! pqr vel
+            rotor(irotor)%RHS(row)=rotor(irotor)%RHS(row)+dot_product(cross3(rotor(irotor)%om_wind-rotor(irotor)%Omega*this%shaft_axis  &
+              ,rotor(irotor)%blade(iblade)%wiP(ichord,ispan)%cp),rotor(irotor)%blade(iblade)%wiP(ichord,ispan)%ncap)
+          enddo
         enddo
       enddo
+      rotor(irotor)%RHS=-1._dp*rotor(irotor)%RHS
+      rotor(irotor)%gamvec=matmul(rotor(irotor)%AIC_inv,rotor(irotor)%RHS)
     enddo
-    RHS=-1._dp*RHS
 
-    rotor(irotor)gamvec=matmul(Amat_inv,RHS)
   else
-    gamvec=0._dp
+    do irotor=1,nr
+      rotor(irotor)%gamvec=0._dp
+    enddo
   endif
 
-  gamvec_prev=gamvec
+  do irotor=1,nr
+    rotor(irotor)%gamvec_prev=rotor(irotor)%gamvec
+  enddo
 
   ! Map gamvec to wing gam
   wing%vr%gam=reshape(gamvec,(/nc,ns/))    ! ns,nc due to transpose
