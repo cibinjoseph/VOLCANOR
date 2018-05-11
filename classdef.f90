@@ -801,7 +801,7 @@ contains
     blade_offset=2._dp*pi/this%nb*(iblade-1)
     theta_pitch=this%control_pitch(1)  &
       +         this%control_pitch(2)*cos(psi+blade_offset)  &
-      +         this%control_pitch(3)*sin(psi+blade_offset)  &
+      +         this%control_pitch(3)*sin(psi+blade_offset)  
 
     end function theta_pitch
 
@@ -809,12 +809,12 @@ contains
     class(rotor_class) :: this
       real(dp), intent(in) :: psi
       integer, intent(in) :: iblade
-      real(dp) :: theta_pitch
+      real(dp) :: thetadot_pitch
       real(dp) :: blade_offset
 
       blade_offset=2._dp*pi/this%nb*(iblade-1)
-      theta_pitch=-this%control_pitch(2)*sin(psi+blade_offset)  &
-        +          this%control_pitch(3)*cos(psi+blade_offset)  &
+      thetadot_pitch=-this%control_pitch(2)*sin(psi+blade_offset)  &
+        +          this%control_pitch(3)*cos(psi+blade_offset)  
 
       end function thetadot_pitch
 
@@ -981,8 +981,9 @@ contains
       subroutine map_gam(this)
       class(rotor_class), intent(inout) :: this
         integer :: ib
-        do ib=1,nb
-          this%blade(ib)wiP%vr%gam=reshape(this%gamvec(1+this%nc*this%ns*(ib-1):this%nc*this%ns*ib),(/this%nc,this%ns/))
+        do ib=1,this%nb
+          this%blade(ib)%wiP%vr%gam  &
+            =reshape(this%gamvec(1+this%nc*this%ns*(ib-1):this%nc*this%ns*ib),(/this%nc,this%ns/))
         enddo
       end subroutine map_gam
 
