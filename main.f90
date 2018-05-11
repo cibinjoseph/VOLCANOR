@@ -86,10 +86,9 @@ program main
     call rotor(ir)map_gam()
   enddo
 
-  call assignshed(wake(nt,:),wing(nc,:),'TE')  ! Store shed vortex as TE
-
-  dpts=om_body*dt     ! dphi dtheta dpsi
-  pts=0._dp        ! phi theta psi
+  do ir=1,nr
+    call rotor(ir)%assignshed(nt,'TE')  ! Store shed vortex as TE
+  enddo
 
   ! ------- MAIN LOOP START -------
   do iter=1,nt

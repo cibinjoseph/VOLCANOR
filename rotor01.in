@@ -14,6 +14,10 @@ X-hub_coords     Y-hub_coords     Z-hub_coords    [all in m]
 X-CG_coords      Y-CG_coords      Z-CG_coords     [all in m]
 ---------------------------------------------------------------
     0.0              0.0              0.0
+
+    Phi             Theta             Psi     [all in deg]
+---------------------------------------------------------------
+    0.0              0.0              0.0
 ===============================================================
 
 Radius[m]        root_cut[r/R]       chord[m]      

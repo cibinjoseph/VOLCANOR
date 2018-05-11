@@ -529,6 +529,7 @@ module rotor_classdef
     real(dp) :: flap_hinge  ! hinge location from centre [x/R]
     real(dp), dimension(3) :: v_body, om_body
     real(dp), dimension(3) :: v_wind, om_wind
+    real(sp), dimension(3) :: pts, dpts  ! phi,theta,psi
     real(dp) :: spanwise_core, streamwise_core
     real(dp), allocatable, dimension(:,:) :: AIC,AIC_inv  ! Influence coefficient matrix
     real(dp), allocatable, dimension(:) :: gamvec,gamvec_prev,RHS
@@ -567,6 +568,8 @@ contains
     read(12,*) this%hub_coords(1),this%hub_coords(2),this%hub_coords(3)
     call skiplines(12,3)
     read(12,*) this%CG_coords(1),this%CG_coords(2),this%CG_coords(3)
+    call skiplines(12,3)
+    read(12,*) this%pts(1),this%pts(2),this%pts(3)
     call skiplines(12,4)
     read(12,*) this%radius, this%root_cut, this%chord
     call skiplines(12,4)
@@ -587,6 +590,7 @@ contains
     ! Conversions
     do i=1,3
       call degtorad(this%control_pitch(i))
+      call degtorad(this%pts(i))
     enddo
     call degtorad(this%theta_twist)
     call degtorad(this%psi_start)
@@ -664,7 +668,7 @@ contains
         call this%blade(iblade)%wiP(this%nc,j)%vr%assignP(4,(/xvec(this%nc  )+xshiftLE,yvec(j+1),0._dp/))
       enddo
 
-      ! Shed them!!
+      ! Shed last row of vortices
       v_shed=0.2_dp*this%radius*this%Omega
       do j=1,this%ns
         call this%blade(iblade)%wiP(this%nc,j)%vr%shiftdP(2,(/v_shed*dt,0._dp,0._dp/))
@@ -740,6 +744,9 @@ contains
     this%v_wind=-1._dp*this%v_body
     this%om_wind=-1._dp*this%om_body
 
+    ! Assign pts and dpts
+    this%dpts=this%om_body*dt
+
     ! Wake initialization
     ! Assign core_radius to mid vortices
     do iblade=1,this%nb
@@ -803,188 +810,188 @@ contains
       +         this%control_pitch(2)*cos(psi+blade_offset)  &
       +         this%control_pitch(3)*sin(psi+blade_offset)  
 
-    end function theta_pitch
+  end function theta_pitch
 
-    function thetadot_pitch(this,psi,iblade)
-    class(rotor_class) :: this
-      real(dp), intent(in) :: psi
-      integer, intent(in) :: iblade
-      real(dp) :: thetadot_pitch
-      real(dp) :: blade_offset
+  function thetadot_pitch(this,psi,iblade)
+  class(rotor_class) :: this
+    real(dp), intent(in) :: psi
+    integer, intent(in) :: iblade
+    real(dp) :: thetadot_pitch
+    real(dp) :: blade_offset
 
-      blade_offset=2._dp*pi/this%nb*(iblade-1)
-      thetadot_pitch=-this%control_pitch(2)*sin(psi+blade_offset)  &
-        +          this%control_pitch(3)*cos(psi+blade_offset)  
+    blade_offset=2._dp*pi/this%nb*(iblade-1)
+    thetadot_pitch=-this%control_pitch(2)*sin(psi+blade_offset)  &
+      +          this%control_pitch(3)*cos(psi+blade_offset)  
 
-      end function thetadot_pitch
+  end function thetadot_pitch
 
-      !-----+------------------+-----|
-      ! -+- | Motion Functions | -+- |
-      !-----+------------------+-----|
+  !-----+------------------+-----|
+  ! -+- | Motion Functions | -+- |
+  !-----+------------------+-----|
 
-      subroutine rotor_move(this,dshift)
-      class(rotor_class) :: this
-        real(dp), intent(in), dimension(3) :: dshift
+  subroutine rotor_move(this,dshift)
+  class(rotor_class) :: this
+    real(dp), intent(in), dimension(3) :: dshift
 
-        integer :: iblade
+    integer :: iblade
 
-        do iblade=1,this%nb
-          call this%blade(iblade)%move(dshift)
-        enddo
-        this%hub_coords=this%hub_coords+dshift
-        this%CG_coords=this%CG_coords+dshift
+    do iblade=1,this%nb
+      call this%blade(iblade)%move(dshift)
+    enddo
+    this%hub_coords=this%hub_coords+dshift
+    this%CG_coords=this%CG_coords+dshift
 
-      end subroutine rotor_move
+  end subroutine rotor_move
 
-      subroutine rotor_rot_pts(this,pts,origin,order)
-      class(rotor_class), intent(inout) :: this
-        real(dp), dimension(3), intent(in) :: pts    ! pts => phi,theta,psi
-        real(dp), dimension(3), intent(in) :: origin ! rotation about
-        integer, intent(in) :: order    ! [1]gb & +ve theta , [2]bg & -ve theta
-        integer :: iblade
-        real(dp), dimension(3,3) :: TMat
+  subroutine rotor_rot_pts(this,pts,origin,order)
+  class(rotor_class), intent(inout) :: this
+    real(dp), dimension(3), intent(in) :: pts    ! pts => phi,theta,psi
+    real(dp), dimension(3), intent(in) :: origin ! rotation about
+    integer, intent(in) :: order    ! [1]gb & +ve theta , [2]bg & -ve theta
+    integer :: iblade
+    real(dp), dimension(3,3) :: TMat
 
-        select case (order)
-        case (2)
-          TMat=Tbg((/cos(pts(1)),sin(pts(1))/),&
-            (/cos(pts(2)),sin(pts(2))/),&
-            (/cos(pts(3)),sin(pts(3))/))
-        case (1)
-          TMat=Tgb((/cos(pts(1)),sin(pts(1))/),&
-            (/cos(pts(2)),sin(pts(2))/),&
-            (/cos(pts(3)),sin(pts(3))/))
-        case default
-          error stop 'Error: wrong option for order'
-        end select
+    select case (order)
+    case (2)
+      TMat=Tbg((/cos(pts(1)),sin(pts(1))/),&
+        (/cos(pts(2)),sin(pts(2))/),&
+        (/cos(pts(3)),sin(pts(3))/))
+    case (1)
+      TMat=Tgb((/cos(pts(1)),sin(pts(1))/),&
+        (/cos(pts(2)),sin(pts(2))/),&
+        (/cos(pts(3)),sin(pts(3))/))
+    case default
+      error stop 'Error: wrong option for order'
+    end select
 
-        do iblade=1,this%nb
-          call this%blade(iblade)%rot_pts(pts,origin,order)
-        enddo
+    do iblade=1,this%nb
+      call this%blade(iblade)%rot_pts(pts,origin,order)
+    enddo
 
-        this%shaft_axis=matmul(TMat,this%shaft_axis)
+    this%shaft_axis=matmul(TMat,this%shaft_axis)
 
-        this%hub_coords=this%hub_coords-origin
-        this%hub_coords=matmul(TMat,this%hub_coords)
-        this%hub_coords=this%hub_coords+origin
+    this%hub_coords=this%hub_coords-origin
+    this%hub_coords=matmul(TMat,this%hub_coords)
+    this%hub_coords=this%hub_coords+origin
 
-        this%CG_coords=this%CG_coords-origin
-        this%CG_coords=matmul(TMat,this%CG_coords)
-        this%CG_coords=this%CG_coords+origin
+    this%CG_coords=this%CG_coords-origin
+    this%CG_coords=matmul(TMat,this%CG_coords)
+    this%CG_coords=this%CG_coords+origin
 
-      end subroutine rotor_rot_pts
+  end subroutine rotor_rot_pts
 
-      subroutine pitch(this,theta_pitch)
-      class(rotor_class), intent(inout) :: this
-        real(dp), intent(in) :: theta_pitch
-        integer :: iblade
+  subroutine pitch(this,theta_pitch)
+  class(rotor_class), intent(inout) :: this
+    real(dp), intent(in) :: theta_pitch
+    integer :: iblade
 
-        do iblade=1,this%nb
-          call this%blade(iblade)%rot_pitch(theta_pitch)
-        enddo
-      end subroutine pitch
+    do iblade=1,this%nb
+      call this%blade(iblade)%rot_pitch(theta_pitch)
+    enddo
+  end subroutine pitch
 
-      !-----+----------------+-----|
-      ! -+- | Wake Functions | -+- |
-      !-----+----------------+-----|
+  !-----+----------------+-----|
+  ! -+- | Wake Functions | -+- |
+  !-----+----------------+-----|
 
-      ! Assigns coordinates to first row of wake from last row of blade
-      subroutine assignshed(this,row_now,edge)
-      class(rotor_class), intent(inout) :: this
-        integer, intent(in) :: row_now
-        character(len=2), intent(in) :: edge
-        integer :: i, iblade
+  ! Assigns coordinates to first row of wake from last row of blade
+  subroutine assignshed(this,row_now,edge)
+  class(rotor_class), intent(inout) :: this
+    integer, intent(in) :: row_now
+    character(len=2), intent(in) :: edge
+    integer :: i, iblade
 
-        do iblade=1,this%nb
-          this%blade(iblade)%waP%vr%gam=this%blade(iblade)%wiP%vr%gam
-        enddo
+    do iblade=1,this%nb
+      this%blade(iblade)%waP%vr%gam=this%blade(iblade)%wiP%vr%gam
+    enddo
 
-        select case (edge)
-        case ('LE')    ! assign to LE
-          do iblade=1,this%nb
-            do i=1,this%ns
-              call this%blade(iblade)%waP(row_now,i)%vr%assignP(1,this%blade(iblade)%wiP(this%nc,i)%vr%vf(2)%fc(:,1))
-              call this%blade(iblade)%waP(row_now,i)%vr%assignP(4,this%blade(iblade)%wiP(this%nc,i)%vr%vf(3)%fc(:,1))
-              call this%blade(iblade)%waP(row_now,i)%vr%calclength(.TRUE.)    ! TRUE => record original length
-            enddo
-
-          enddo
-        case ('TE')    ! assign to TE
-          do iblade=1,this%nb
-            do i=1,this%ns
-              call this%blade(iblade)%waP(row_now,i)%vr%assignP(2,this%blade(iblade)%wiP(this%nc,i)%vr%vf(2)%fc(:,1))
-              call this%blade(iblade)%waP(row_now,i)%vr%assignP(3,this%blade(iblade)%wiP(this%nc,i)%vr%vf(3)%fc(:,1))
-            enddo
-          enddo
-        case default
-          error stop 'Error: Wrong option for edge'
-        end select
-
-      end subroutine assignshed
-
-      ! Convect wake using dP_array=vind_array*dt
-      subroutine convectwake(this,row_now,dP_array)
-      class(rotor_class), intent(inout) :: this
-        integer, intent(in) :: row_now
-        real(dp), intent(in), dimension(:,:,:) :: dP_array
-        integer :: i,j,rows,cols,iblade
-
-        rows=size(this%blade(iblade)%waP,1)-row_now+1
-        cols=this%ns
-
-        do iblade=1,this%nb
-          !$omp parallel do collapse(2)
-          do j=1,cols
-            do i=row_now,rows
-              call this%blade(iblade)%waP(i,j)%vr%shiftdP(2,dP_array(:,i,j))
-            enddo
-          enddo
-          !$omp end parallel do
-
-          !$omp parallel do
-          do i=row_now,rows
-            call this%blade(iblade)%waP(i,cols)%vr%shiftdP(3,dP_array(:,i,cols+1))
-          enddo
-          !$omp end parallel do
+    select case (edge)
+    case ('LE')    ! assign to LE
+      do iblade=1,this%nb
+        do i=1,this%ns
+          call this%blade(iblade)%waP(row_now,i)%vr%assignP(1,this%blade(iblade)%wiP(this%nc,i)%vr%vf(2)%fc(:,1))
+          call this%blade(iblade)%waP(row_now,i)%vr%assignP(4,this%blade(iblade)%wiP(this%nc,i)%vr%vf(3)%fc(:,1))
+          call this%blade(iblade)%waP(row_now,i)%vr%calclength(.TRUE.)    ! TRUE => record original length
         enddo
 
-        call wake_continuity
+      enddo
+    case ('TE')    ! assign to TE
+      do iblade=1,this%nb
+        do i=1,this%ns
+          call this%blade(iblade)%waP(row_now,i)%vr%assignP(2,this%blade(iblade)%wiP(this%nc,i)%vr%vf(2)%fc(:,1))
+          call this%blade(iblade)%waP(row_now,i)%vr%assignP(3,this%blade(iblade)%wiP(this%nc,i)%vr%vf(3)%fc(:,1))
+        enddo
+      enddo
+    case default
+      error stop 'Error: Wrong option for edge'
+    end select
 
-      end subroutine convectwake
+  end subroutine assignshed
 
-      subroutine calcAIC(this)
-      class(rotor_class), intent(inout) :: this
-        integer :: iblade,jblade,ispan,ichord,i,j,row,col
-        real(dp), dimension(3) :: vec_dummy
+  ! Convect wake using dP_array=vind_array*dt
+  subroutine convectwake(this,row_now,dP_array)
+  class(rotor_class), intent(inout) :: this
+    integer, intent(in) :: row_now
+    real(dp), intent(in), dimension(:,:,:) :: dP_array
+    integer :: i,j,rows,cols,iblade
 
-        ! Influence Coefficient Matrix
-        do iblade=1,this%nb
-          do ispan=1,this%ns      ! Collocation point loop
-            do ichord=1,this%nc
-              row=ichord+this%nc*(ispan-1)+this%ns*this%nc*(iblade-1)
+    rows=size(this%blade(iblade)%waP,1)-row_now+1
+    cols=this%ns
 
-              do jblade=1,this%nb
-                do j=1,this%ns       ! Vortex ring loop
-                  do i=1,this%nc
-                    col=i+this%nc*(j-1)+this%ns*this%nc*(jblade-1)
-                    vec_dummy=this%blade(jblade)%wiP(i,j)%vr%vind(this%blade(iblade)%wiP(ichord,ispan)%CP)
-                    this%AIC(row,col)=dot_product(vec_dummy,this%blade(iblade)%wiP(ichord,ispan)%ncap)
-                  enddo
-                enddo
+    do iblade=1,this%nb
+      !$omp parallel do collapse(2)
+      do j=1,cols
+        do i=row_now,rows
+          call this%blade(iblade)%waP(i,j)%vr%shiftdP(2,dP_array(:,i,j))
+        enddo
+      enddo
+      !$omp end parallel do
+
+      !$omp parallel do
+      do i=row_now,rows
+        call this%blade(iblade)%waP(i,cols)%vr%shiftdP(3,dP_array(:,i,cols+1))
+      enddo
+      !$omp end parallel do
+    enddo
+
+    call wake_continuity
+
+  end subroutine convectwake
+
+  subroutine calcAIC(this)
+  class(rotor_class), intent(inout) :: this
+    integer :: iblade,jblade,ispan,ichord,i,j,row,col
+    real(dp), dimension(3) :: vec_dummy
+
+    ! Influence Coefficient Matrix
+    do iblade=1,this%nb
+      do ispan=1,this%ns      ! Collocation point loop
+        do ichord=1,this%nc
+          row=ichord+this%nc*(ispan-1)+this%ns*this%nc*(iblade-1)
+
+          do jblade=1,this%nb
+            do j=1,this%ns       ! Vortex ring loop
+              do i=1,this%nc
+                col=i+this%nc*(j-1)+this%ns*this%nc*(jblade-1)
+                vec_dummy=this%blade(jblade)%wiP(i,j)%vr%vind(this%blade(iblade)%wiP(ichord,ispan)%CP)
+                this%AIC(row,col)=dot_product(vec_dummy,this%blade(iblade)%wiP(ichord,ispan)%ncap)
               enddo
-
             enddo
           enddo
-          this%AIC_inv=inv(this%AIC)
-        enddo
-      end subroutine calcAIC
 
-      subroutine map_gam(this)
-      class(rotor_class), intent(inout) :: this
-        integer :: ib
-        do ib=1,this%nb
-          this%blade(ib)%wiP%vr%gam  &
-            =reshape(this%gamvec(1+this%nc*this%ns*(ib-1):this%nc*this%ns*ib),(/this%nc,this%ns/))
         enddo
-      end subroutine map_gam
+      enddo
+      this%AIC_inv=inv(this%AIC)
+    enddo
+  end subroutine calcAIC
 
-    end module rotor_classdef
+  subroutine map_gam(this)
+  class(rotor_class), intent(inout) :: this
+    integer :: ib
+    do ib=1,this%nb
+      this%blade(ib)%wiP%vr%gam  &
+        =reshape(this%gamvec(1+this%nc*this%ns*(ib-1):this%nc*this%ns*ib),(/this%nc,this%ns/))
+    enddo
+  end subroutine map_gam
+
+end module rotor_classdef
