@@ -403,14 +403,14 @@ module blade_classdef
     real(dp) :: psi
     real(dp) :: pivotLE
   contains
-    procedure :: move
+    procedure :: move => blade_move
     procedure :: rot_pitch 
     procedure :: rot_axis
-    procedure :: rot_pts
+    procedure :: rot_pts => blade_rot_pts
   end type blade_class
 contains
 
-  subroutine move(this,dshift)
+  subroutine blade_move(this,dshift)
   class(blade_class) :: this
     real(dp), intent(in), dimension(3) :: dshift
     integer :: i,j
@@ -420,9 +420,9 @@ contains
         call this%wiP(i,j)%shiftdP(dshift)
       enddo
     enddo
-  end subroutine move
+  end subroutine blade_move
 
-  subroutine rot_pts(this,pts,origin,order)
+  subroutine blade_rot_pts(this,pts,origin,order)
   class(blade_class), intent(inout) :: this
     real(dp), dimension(3), intent(in) :: pts    ! pts => phi,theta,psi
     real(dp), dimension(3), intent(in) :: origin ! rotation about
@@ -451,7 +451,7 @@ contains
       enddo
     enddo
 
-  end subroutine rot_pts
+  end subroutine blade_rot_pts
 
   subroutine rot_pitch(this,theta)  !pitch about pivotLE from LE
     ! pivot point calculated using straight line joining LE and TE of root panels
@@ -533,11 +533,11 @@ module rotor_classdef
     real(dp), allocatable, dimension(:) :: gamvec,gamvec_prev,RHS
     real(dp) :: init_wake_vel, psi_start
   contains
-    procedure :: getdata => getdata
-    procedure :: init => init
-    procedure :: move => move
-    procedure :: rot_pts => rot_pts
-    procedure :: pitch => pitch
+    procedure :: getdata
+    procedure :: init
+    procedure :: move => rotor_move
+    procedure :: rot_pts => rotor_rot_pts
+    procedure :: pitch
     procedure :: assignshed
     procedure :: convectwake
   end type rotor_class
@@ -788,7 +788,7 @@ contains
   ! -+- | Motion Functions | -+- |
   !-----+------------------+-----|
 
-  subroutine move(this,dshift)
+  subroutine rotor_move(this,dshift)
   class(rotor_class) :: this
     real(dp), intent(in), dimension(3) :: dshift
 
@@ -800,9 +800,9 @@ contains
     this%hub_coords=this%hub_coords+dshift
     this%CG_coords=this%CG_coords+dshift
 
-  end subroutine move
+  end subroutine rotor_move
 
-  subroutine rot_pts(this,pts,origin,order)
+  subroutine rotor_rot_pts(this,pts,origin,order)
   class(rotor_class), intent(inout) :: this
     real(dp), dimension(3), intent(in) :: pts    ! pts => phi,theta,psi
     real(dp), dimension(3), intent(in) :: origin ! rotation about
@@ -837,7 +837,7 @@ contains
     this%CG_coords=matmul(TMat,this%CG_coords)
     this%CG_coords=this%CG_coords+origin
 
-  end subroutine rot_pts
+  end subroutine rotor_rot_pts
 
   subroutine pitch(this,theta_pitch)
   class(rotor_class), intent(inout) :: this
