@@ -543,6 +543,7 @@ module rotor_classdef
     procedure :: pitch
     procedure :: assignshed
     procedure :: convectwake
+    procedure :: map_gam
   end type rotor_class
 
 contains
@@ -976,5 +977,13 @@ contains
           this%AIC_inv=inv(this%AIC)
         enddo
       end subroutine calcAIC
+
+      subroutine map_gam(this)
+      class(rotor_class), intent(inout) :: this
+        integer :: ib
+        do ib=1,nb
+          this%blade(ib)wiP%vr%gam=reshape(this%gamvec(1+this%nc*this%ns*(ib-1):this%nc*this%ns*ib),(/this%nc,this%ns/))
+        enddo
+      end subroutine map_gam
 
     end module rotor_classdef

@@ -81,8 +81,10 @@ program main
     rotor(ir)%gamvec_prev=rotor(ir)%gamvec
   enddo
 
-  ! Map gamvec to wing gam
-  wing%vr%gam=reshape(gamvec,(/nc,ns/))    ! ns,nc due to transpose
+  ! Map gamvec to wing gam for each blade in rotor
+  do ir=1,nr
+    call rotor(ir)map_gam()
+  enddo
 
   call assignshed(wake(nt,:),wing(nc,:),'TE')  ! Store shed vortex as TE
 
