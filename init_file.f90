@@ -1,16 +1,15 @@
 ! Contains variable declarations
 type(rotor_class), allocatable, dimension(:) :: rotor
-!real(dp), dimension(nc*ns,nc*ns) :: Amat, Amat_inv
 type(wakepanel_class), allocatable, dimension(:,:) :: Pwake
 real(dp), dimension(ns) :: gam_sectional
 
 ! Kinematics
 integer :: nt,nr,dt
 real(dp) :: theta_pitch, dtheta_pitch
-real(dp), dimension(3) :: vwind, om_body, pqr, vbody, om_body_slow
+real(dp), dimension(3) :: om_body_slow
 
 ! Other Variables
-real(dp) :: t, init_wake_vel, starting_vortex_core
+real(dp) :: t
 real(dp), dimension(nt) :: lift, drag
 real(dp), dimension(3) :: pts, dpts   ! phi, theta, psi
 real(dp), dimension(3,nt,ns+1) :: vind_wake
@@ -21,7 +20,7 @@ character(len=2) :: rotor_char
 character(len=10) :: rotorfile
 
 ! Iterators
-integer :: ispan,ichord,row,col,i,j,iter,row_now,irotor,iblade
+integer :: is,ic,row,col,i,j,iter,row_now,ir,ib
 
 
 ! Allocate vars required for wake convection

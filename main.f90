@@ -19,10 +19,10 @@ program main
   allocate(rotor(nr))
 
   ! Read rotor??.in files
-  do irotor=1,nr
-    write(rotor_char,'(I0.2)') irotor
+  do ir=1,nr
+    write(rotor_char,'(I0.2)') ir
     rotorfile='rotor'//rotor_char//'.in'
-    call rotor(irotor)%getdata(rotorfile,nt)
+    call rotor(ir)%getdata(rotorfile,nt)
   enddo
 
   ! Conversions
@@ -30,55 +30,55 @@ program main
   !pqr=-1._dp*om_body
 
   ! Rotor and wake initialization
-  do irotor=1,nr
-    call rotor(irotor)%init(span_spacing_switch,nt,dt)
+  do ir=1,nr
+    call rotor(ir)%init(span_spacing_switch,nt,dt)
   enddo
 
   !gamvec_prev=0._dp
 
   ! Rotate wing pc, vr, cp and ncap by initial pitch angle 
-  do irotor=1,nr
-    call rotor(irotor)%pitch(wing,theta_pitch,pivotLE)
+  do ir=1,nr
+    call rotor(ir)%pitch(wing,theta_pitch,pivotLE)
   enddo
 
   ! Compute AIC and AIC_inv matrices for rotors
-  do irotor=1,nr
-    call rotor(irotor)%calcAIC()
+  do ir=1,nr
+    call rotor(ir)%calcAIC()
   enddo
 
   ! Initial Solution
   if (slowstart_switch .eq. 0) then
     t=0._dp
 
-    do irotor=1,nr
-      do iblade=1,rotor(irotor)%nb
-        do ispan=1,rotor(irotor)%ns
-          do ichord=1,rotor(irotor)%nc
-            row=ichord+rotor(irotor)%nc*(ispan-1)+rotor(irotor)%ns*rotor(irotor)%nc*(iblade-1)
-            rotor(irotor)%RHS(row) = dot_product(rotor(irotor)%v_wind,rotor(irotor)%blade%(iblade)%wiP(ichord,ispan)%ncap)
+    do ir=1,nr
+      do ib=1,rotor(ir)%nb
+        do is=1,rotor(ir)%ns
+          do ic=1,rotor(ir)%nc
+            row=ic+rotor(ir)%nc*(is-1)+rotor(ir)%ns*rotor(ir)%nc*(ib-1)
+            rotor(ir)%RHS(row) = dot_product(rotor(ir)%v_wind,rotor(ir)%blade%(ib)%wiP(ic,is)%ncap)
 
             ! Pitch vel
-            !rotor(irotor)%blade%(iblade)%wing(ichord,ispan)%vel_pitch=rotor(irotor)%thetadot_pitch(0._dp,iblade)*rotor(irotor)%blade(iblade)%wiP(ichord,ispan)%r_hinge
-            !rotor(irotor)%RHS(row)= RHS(row)+wing(iblade,ichord,ispan)%vel_pitch
+            !rotor(ir)%blade%(ib)%wing(ic,is)%vel_pitch=rotor(ir)%thetadot_pitch(0._dp,ib)*rotor(ir)%blade(ib)%wiP(ic,is)%r_hinge
+            !rotor(ir)%RHS(row)= RHS(row)+wing(ib,ic,is)%vel_pitch
 
             ! pqr vel
-            rotor(irotor)%RHS(row)=rotor(irotor)%RHS(row)+dot_product(cross3(rotor(irotor)%om_wind-rotor(irotor)%Omega*this%shaft_axis  &
-              ,rotor(irotor)%blade(iblade)%wiP(ichord,ispan)%cp),rotor(irotor)%blade(iblade)%wiP(ichord,ispan)%ncap)
+            rotor(ir)%RHS(row)=rotor(ir)%RHS(row)+dot_product(cross3(rotor(ir)%om_wind-rotor(ir)%Omega*this%shaft_axis  &
+              ,rotor(ir)%blade(ib)%wiP(ic,is)%cp),rotor(ir)%blade(ib)%wiP(ic,is)%ncap)
           enddo
         enddo
       enddo
-      rotor(irotor)%RHS=-1._dp*rotor(irotor)%RHS
-      rotor(irotor)%gamvec=matmul(rotor(irotor)%AIC_inv,rotor(irotor)%RHS)
+      rotor(ir)%RHS=-1._dp*rotor(ir)%RHS
+      rotor(ir)%gamvec=matmul(rotor(ir)%AIC_inv,rotor(ir)%RHS)
     enddo
 
   else
-    do irotor=1,nr
-      rotor(irotor)%gamvec=0._dp
+    do ir=1,nr
+      rotor(ir)%gamvec=0._dp
     enddo
   endif
 
-  do irotor=1,nr
-    rotor(irotor)%gamvec_prev=rotor(irotor)%gamvec
+  do ir=1,nr
+    rotor(ir)%gamvec_prev=rotor(ir)%gamvec
   enddo
 
   ! Map gamvec to wing gam
@@ -148,14 +148,14 @@ program main
     call vind_CP(wing,vwind-vel_plunge,pqr,wake(row_now:nt,:))
     RHS=0._dp
     indx=1
-    do ispan=1,ns
-      do ichord=1,nc
+    do is=1,ns
+      do ic=1,nc
         ! Normal component
-        RHS(indx)=dot_product(wing(ichord,ispan)%velCP,wing(ichord,ispan)%ncap) 
+        RHS(indx)=dot_product(wing(ic,is)%velCP,wing(ic,is)%ncap) 
 
         ! Pitch vel
-        wing(ichord,ispan)%vel_pitch=thetadot*wing(ichord,ispan)%r_hinge
-        RHS(indx)=RHS(indx)+wing(ichord,ispan)%vel_pitch
+        wing(ic,is)%vel_pitch=thetadot*wing(ic,is)%r_hinge
+        RHS(indx)=RHS(indx)+wing(ic,is)%vel_pitch
 
         indx=indx+1
       enddo
