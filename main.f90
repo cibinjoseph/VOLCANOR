@@ -2,7 +2,7 @@ program main
   use rotor_classdef
   !use postproc
 
-  ! Variables
+  ! Variable Initialization
   include "init_file.f90"
 
   ! Read config.in file
@@ -27,10 +27,6 @@ program main
 
   ! Allocate rotor objects
   allocate(rotor(nr))
-  close(11)
-
-  ! Allocate rotor objects
-  allocate(rotor(nr))
 
   ! Read rotor??.in files
   do ir=1,nr
@@ -47,32 +43,6 @@ program main
   do ir=1,nr
     call rotor(ir)%init(span_spacing_switch,nt,dt)
   enddo
-  close(11)
-
-  ! Allocate rotor objects
-  allocate(rotor(nr))
-  close(11)
-
-  ! Allocate rotor objects
-  allocate(rotor(nr))
-
-  ! Read rotor??.in files
-  do ir=1,nr
-    write(rotor_char,'(I0.2)') ir
-    rotorfile='rotor'//rotor_char//'.in'
-    call rotor(ir)%getdata(rotorfile,nt)
-  enddo
-
-  ! Conversions
-  !vbody=-1._dp*vwind
-  !pqr=-1._dp*om_body
-
-  ! Rotor and wake initialization
-  do ir=1,nr
-    call rotor(ir)%init(span_spacing_switch,nt,dt)
-  enddo
-
-  !gamvec_prev=0._dp
 
   ! Rotate wing pc, vr, cp and ncap by initial pitch angle 
   do ir=1,nr
