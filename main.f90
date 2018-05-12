@@ -142,18 +142,20 @@ program main
       enddo
     endif
 
-    !    ! Wing velocities
-    !    thetadot=thetas*om_theta*cos(om_theta*t)
-    !    hdot=om_h*h0*cos(om_h*t)
-    !    vel_plunge=(/0._dp,0._dp,hdot/)
-    !
-    !    ! Wing motion 
-    !    call mov_wing(wing,(vbody+vel_plunge)*dt)    ! Translate wing
-    !    hub_coords=hub_coords+(vbody+vel_plunge)*dt
-    !    call rot_wing(wing,dpts,hub_coords,1)    ! Wing Global rotation
-    !    call rot_about_axis(wing,dtheta_pitch,pivotLE)    ! Wing Pitch rotation
-    !
-    !    call assignshed(wake(row_now,:),wing(nc,:),'LE')    ! Store shed vortex as LE
+    !! Wing velocities
+    !thetadot=thetas*om_theta*cos(om_theta*t)
+    !hdot=om_h*h0*cos(om_h*t)
+    !vel_plunge=(/0._dp,0._dp,hdot/)
+
+    !! Wing motion 
+    !call mov_wing(wing,(vbody+vel_plunge)*dt)    ! Translate wing
+    !hub_coords=hub_coords+(vbody+vel_plunge)*dt
+    !call rot_wing(wing,dpts,hub_coords,1)    ! Wing Global rotation
+    !call rot_about_axis(wing,dtheta_pitch,pivotLE)    ! Wing Pitch rotation
+
+    do ir=1,nr
+      call rotor(ir)%assignshed(row_now,'LE')  ! Store shed vortex as TE
+    enddo
     !
     !    ! Write out wing n' wake
     !    if (wakeplot_switch .eq. 2) call mesh2file(wing,wake(row_now:nt,:),'Results/wNw'//timestamp//'.tec')
