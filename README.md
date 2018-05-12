@@ -7,7 +7,6 @@ A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method
 
 ## Features
 - Parallelized implementation using OpenMP
-- Provisions for analysis of sinusoid pitching and plunging motions
 - Rankine vortex model (includes ideal vortex model)
 - Vortex dissipation due to turbulence and viscosity
 - Slow-start to avoid large starting vortex
@@ -29,7 +28,6 @@ A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method
 - Prandtl-glauert, Karman-Tsien compressibility corrections etc.
 - Induced drag computation drastically overpredicted
 - Check 25% of panel span inset of vortices create difference
-- Convert switches.f90 to readable input file
 - Auto evaluated unit tests for a few standard test cases
 
 ### Performance Improvements

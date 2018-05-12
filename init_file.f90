@@ -4,7 +4,7 @@ type(wakepanel_class), allocatable, dimension(:,:) :: Pwake
 real(dp), dimension(ns) :: gam_sectional
 
 ! Kinematics
-integer :: nt,nr,dt
+integer :: nt,dt,nr
 real(dp) :: theta_pitch, dtheta_pitch
 real(dp), dimension(3) :: om_body_slow
 
@@ -22,6 +22,14 @@ character(len=10) :: rotorfile
 ! Iterators
 integer :: is,ic,row,col,i,j,iter,row_now,ir,ib
 
+! Switches
+integer, parameter :: span_spacing_switch
+integer, parameter :: tip_diss_switch, wakestrain_switch
+integer, parameter :: slowstart_switch, slowstart_nt
+integer, parameter :: wakeplot_switch
+integer, parameter :: FDscheme_switch
+integer, parameter :: wake_ignore_nt
+integer, parameter :: init_wake_vel_nt
 
 ! Allocate vars required for wake convection
 ! on the basis of finite diff scheme
