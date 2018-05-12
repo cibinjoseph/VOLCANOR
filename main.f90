@@ -125,21 +125,23 @@ program main
     !case default
     !  error stop "Assign correct slowstart_switch"
     !end select
-    
-        t=t+dt
+
+    t=t+dt
     !    pts=pts+dpts
     !    dtheta_pitch=theta_pitch
     !    theta_pitch=theta0+thetas*sin(om_theta*t)
     !    dtheta_pitch=dtheta_pitch-theta_pitch
-    !
-    !    if (tip_diss_switch .eq. 1) then
-    !      ! Age vortex filaments
-    !      call age_wake(wake(row_now:nt,:),dt)
-    !
-    !      ! Wake tip dissipation
-    !      call dissipate_tip(wake(row_now:nt,:))
-    !    endif
-    !
+
+    if (tip_diss_switch .eq. 1) then
+      do ir=1,nr
+        ! Age vortex filaments
+        call rotor(ir)%age_wake(row_now,dt)
+
+        ! Wake tip dissipation
+        call rotor(ir)%dissipate_tip(row_now)
+      enddo
+    endif
+
     !    ! Wing velocities
     !    thetadot=thetas*om_theta*cos(om_theta*t)
     !    hdot=om_h*h0*cos(om_h*t)

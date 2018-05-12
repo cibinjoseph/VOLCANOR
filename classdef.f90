@@ -546,6 +546,8 @@ module rotor_classdef
     procedure :: assignshed
     procedure :: convectwake
     procedure :: map_gam
+    procedure :: age_wake
+    procedure :: dissipate_tip
   end type rotor_class
 
 contains
@@ -826,6 +828,42 @@ contains
 
   end function thetadot_pitch
 
+  subroutine calcAIC(this)
+  class(rotor_class), intent(inout) :: this
+    integer :: iblade,jblade,ispan,ichord,i,j,row,col
+    real(dp), dimension(3) :: vec_dummy
+
+    ! Influence Coefficient Matrix
+    do iblade=1,this%nb
+      do ispan=1,this%ns      ! Collocation point loop
+        do ichord=1,this%nc
+          row=ichord+this%nc*(ispan-1)+this%ns*this%nc*(iblade-1)
+
+          do jblade=1,this%nb
+            do j=1,this%ns       ! Vortex ring loop
+              do i=1,this%nc
+                col=i+this%nc*(j-1)+this%ns*this%nc*(jblade-1)
+                vec_dummy=this%blade(jblade)%wiP(i,j)%vr%vind(this%blade(iblade)%wiP(ichord,ispan)%CP)
+                this%AIC(row,col)=dot_product(vec_dummy,this%blade(iblade)%wiP(ichord,ispan)%ncap)
+              enddo
+            enddo
+          enddo
+
+        enddo
+      enddo
+      this%AIC_inv=inv(this%AIC)
+    enddo
+  end subroutine calcAIC
+
+  subroutine map_gam(this)
+  class(rotor_class), intent(inout) :: this
+    integer :: ib
+    do ib=1,this%nb
+      this%blade(ib)%wiP%vr%gam  &
+        =reshape(this%gamvec(1+this%nc*this%ns*(ib-1):this%nc*this%ns*ib),(/this%nc,this%ns/))
+    enddo
+  end subroutine map_gam
+
   !-----+------------------+-----|
   ! -+- | Motion Functions | -+- |
   !-----+------------------+-----|
@@ -959,40 +997,60 @@ contains
 
   end subroutine convectwake
 
-  subroutine calcAIC(this)
+  subroutine age_wake(this,row_now,dt)
   class(rotor_class), intent(inout) :: this
-    integer :: iblade,jblade,ispan,ichord,i,j,row,col
-    real(dp), dimension(3) :: vec_dummy
-
-    ! Influence Coefficient Matrix
-    do iblade=1,this%nb
-      do ispan=1,this%ns      ! Collocation point loop
-        do ichord=1,this%nc
-          row=ichord+this%nc*(ispan-1)+this%ns*this%nc*(iblade-1)
-
-          do jblade=1,this%nb
-            do j=1,this%ns       ! Vortex ring loop
-              do i=1,this%nc
-                col=i+this%nc*(j-1)+this%ns*this%nc*(jblade-1)
-                vec_dummy=this%blade(jblade)%wiP(i,j)%vr%vind(this%blade(iblade)%wiP(ichord,ispan)%CP)
-                this%AIC(row,col)=dot_product(vec_dummy,this%blade(iblade)%wiP(ichord,ispan)%ncap)
-              enddo
-            enddo
-          enddo
-
-        enddo
-      enddo
-      this%AIC_inv=inv(this%AIC)
-    enddo
-  end subroutine calcAIC
-
-  subroutine map_gam(this)
-  class(rotor_class), intent(inout) :: this
-    integer :: ib
+    integer, intent(in) :: row_now
+    real(dp),intent(in) :: dt
+    integer :: i, ib, row_last
+    row_last=size(this%blade(1)%waP,1)
     do ib=1,this%nb
-      this%blade(ib)%wiP%vr%gam  &
-        =reshape(this%gamvec(1+this%nc*this%ns*(ib-1):this%nc*this%ns*ib),(/this%nc,this%ns/))
+      !$omp parallel do
+      do i=1,4
+        this%blade(ib)%waP(row_now:row_last,:)%vr%vf(i)%age=this%blade(ib)%waP(row_now:row_last,:)%vr%vf(i)%age+dt
+      enddo
+      !$omp end parallel do
     enddo
-  end subroutine map_gam
+  end subroutine age_wake
+
+  subroutine dissipate_tip(this,row_now)
+  class(rotor_class), intent(inout) :: this
+    real(dp) :: oseen_param, turb_visc, kin_visc, new_radius
+    integer, intent(in) :: row_now
+    integer :: row_last
+    integer :: ii,tip,ib
+    oseen_param= 1.2564_dp
+    kin_visc   = 0.0000181_dp
+    turb_visc  = 500._dp
+
+    row_last=size(this%blade(1)%waP,1)
+    tip=this%ns
+    do ib=1,this%nb
+      do ii=row_now,row_last
+        ! Root vortex core
+        new_radius=sqrt(this%blade(ib)%waP(ii,1)%vr%vf(1)%r_vc**2._dp &
+          +4._dp*oseen_param*turb_visc*kin_visc*this%blade(ib)%waP(ii,1)%vr%vf(1)%age)
+        this%blade(ib)%waP(ii,1)%vr%vf(1)%r_vc=new_radius
+
+        ! Tip vortex core
+        new_radius=sqrt(this%blade(ib)%waP(ii,tip)%vr%vf(3)%r_vc**2._dp &
+          +4._dp*oseen_param*turb_visc*kin_visc*this%blade(ib)%waP(ii,tip)%vr%vf(3)%age)
+        this%blade(ib)%waP(ii,tip)%vr%vf(3)%r_vc=new_radius
+      enddo
+    enddo
+  end subroutine dissipate_tip
+
+  !subroutine strain_wake(this,wake_array)
+  !class(rotor_class), intent(inout) :: this
+  !  integer :: i,j
+  !  !$omp parallel do collapse(2)
+  !  do j=1,size(wake_array,2)
+  !    do i=1,size(wake_array,1)
+  !      call wake_array(i,j)%vr%calclength(.FALSE.)    ! Update current length
+  !      call wake_array(i,j)%vr%strain()
+  !    enddo
+  !  enddo
+  !  !$omp end parallel do
+
+  !end subroutine strain_wake
 
 end module rotor_classdef
