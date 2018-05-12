@@ -529,7 +529,7 @@ module rotor_classdef
     real(dp) :: flap_hinge  ! hinge location from centre [x/R]
     real(dp), dimension(3) :: v_body, om_body
     real(dp), dimension(3) :: v_wind, om_wind
-    real(sp), dimension(3) :: pts, dpts  ! phi,theta,psi
+    real(dp), dimension(3) :: pts, dpts  ! phi,theta,psi
     real(dp) :: spanwise_core, streamwise_core
     real(dp), allocatable, dimension(:,:) :: AIC,AIC_inv  ! Influence coefficient matrix
     real(dp), allocatable, dimension(:) :: gamvec,gamvec_prev,RHS
