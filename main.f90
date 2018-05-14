@@ -144,30 +144,46 @@ program main
     do ir=1,nr
       call rotor(ir)%assignshed(row_now,'LE')  ! Store shed vortex as TE
     enddo
-    !
+
     !    ! Write out wing n' wake
     !    if (wakeplot_switch .eq. 2) call mesh2file(wing,wake(row_now:nt,:),'Results/wNw'//timestamp//'.tec')
     !    call tip2file(wing,wake(row_now:nt,:),'Results/tip'//timestamp//'.tec')
     !    gam_sectional=calcgam(wing)
     !    call gam2file(yvec,gam_sectional,'Results/gam'//timestamp//'.curve')
     !
-    !    ! Induced vel at coll. point (excluding pitch and wing induced velocities)
-    !    call vind_CP(wing,vwind-vel_plunge,pqr,wake(row_now:nt,:))
-    !    RHS=0._dp
-    !    indx=1
-    !    do is=1,ns
-    !      do ic=1,nc
-    !        ! Normal component
-    !        RHS(indx)=dot_product(wing(ic,is)%velCP,wing(ic,is)%ncap) 
-    !
-    !        ! Pitch vel
-    !        wing(ic,is)%vel_pitch=thetadot*wing(ic,is)%r_hinge
-    !        RHS(indx)=RHS(indx)+wing(ic,is)%vel_pitch
-    !
-    !        indx=indx+1
-    !      enddo
-    !    enddo
-    !    RHS=-1._dp*RHS
+    ! Induced vel at coll. point (excluding pitch and wing induced velocities)
+    !call vind_CP(wing,vwind-vel_plunge,pqr,wake(row_now:nt,:))
+    do ir=1,nr
+      rotor(ir)%RHS=0._dp
+      do ib=1,rotor(ir)%nb
+        do is=1,rotor(ir)%ns
+          do ic=1,rotor(ir)%nc
+            row=ic+rotor(ir)%nc*(is-1)+rotor(ir)%ns*rotor(ir)%nc*(ib-1)
+
+            ! Translational vel
+            rotor(ir)%blade(ib)%wiP(ic,is)%velCP=rotor(ir)%v_wind
+
+            ! Rotational vel
+            rotor(ir)%blade(ib)%wiP(ic,is)%velCP=rotor(ir)%blade(ib)%wiP(ic,is)%velCP  &
+            +cross3(rotor(ir)%om_wind-rotor(ir)%Omega_slow*this%shaft_axis,rotor(ir)%blade(ib)%wiP(ic,is)%cp)
+
+            ! Wake vel
+            do jb=1,nb
+              rotor(ir)%blade(ib)%wiP(ic,is)%velCP=rotor(ir)%blade(ib)%wiP(ic,is)%velCP  &
+              +vind_bywake(rotor(ir)%blade(jb)%waP(row_now:nt,:),rotor(ir)%blade(ib)%wiP(ic,is)%cp)
+            enddo
+
+            rotor(ir)%RHS(row)=dot_product(rotor(ir)%blade(ib)%wiP(ic,is)%velCP,rotor(ir)%blade(ib)%wiP(ic,is)%ncap)
+
+            ! Pitch vel
+            !wing(ib,ic,is)%vel_pitch=thetadot*wing(ib,ic,is)%r_hinge
+            !RHS(row)=RHS(row)+wing(ib,ic,is)%vel_pitch
+          enddo
+        enddo
+      enddo
+      rotor(ir)%RHS=-1._dp*rotor(ir)%RHS
+    enddo
+
     !
     !    gamvec_prev=gamvec    ! For calculating dGam/dT
     !    gamvec=matmul(Amat_inv,RHS)

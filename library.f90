@@ -128,6 +128,7 @@ contains
     enddo
   end function vind_panelgeo_wing
 
+  ! ------- RETAIN IN LIBRARY -----------
   ! Induced velocity by a wake array on point P
   function vind_panelgeo_wake(wake_array,P) result(velind)
     type(wakepanel_class), intent(in), dimension(:,:) :: wake_array
@@ -152,6 +153,31 @@ contains
     !$omp end parallel do
   end function vind_panelgeo_wake
 
+  ! Induced velocity by a wake array on point P
+  function vind_bywake(wake_array,P) result(velind)
+    type(wakepanel_class), intent(in), dimension(:,:) :: wake_array
+    real(dp), intent(in), dimension(3) :: P
+    real(dp), dimension(3,size(wake_array,1),size(wake_array,2)) :: velind_mat
+    real(dp), dimension(3) :: velind
+    integer :: i,j
+
+    velind_mat=0._dp
+    !$omp parallel do collapse(2) shared(wake_array,velind_mat)
+    do j=1,size(wake_array,2)
+      do i=1,size(wake_array,1)
+        velind_mat(:,i,j)=wake_array(i,j)%vr%vind(P)*wake_array(i,j)%vr%gam
+      enddo
+    enddo
+    !$omp end parallel do
+
+    !$omp parallel do
+    do i=1,3
+      velind(i)=sum(velind_mat(i,:,:))
+    enddo
+    !$omp end parallel do
+  end function vind_bywake
+
+  ! ------- RETAIN IN LIBRARY -----------
   ! Induced velocity by wing_array on wake_array corner points
   function vind_onwake_bywing(wing_array,wake_array) result(vind_array)
     type(wingpanel_class), intent(in), dimension(:,:) :: wing_array
@@ -177,6 +203,7 @@ contains
     !$omp end parallel do
   end function vind_onwake_bywing
 
+  ! ------- RETAIN IN LIBRARY -----------
   ! Induced velocity by bywake_array on wake_array corner points
   function vind_onwake_bywake(bywake_array,wake_array) result(vind_array)
     type(wakepanel_class), intent(in), dimension(:,:) :: bywake_array
