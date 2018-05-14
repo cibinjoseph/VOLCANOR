@@ -1082,4 +1082,40 @@ contains
     enddo
   end subroutine strain_wake
 
+  ! Maintain continuity between vortex ring elements after convection
+  ! of vortex ring corners
+  subroutine wake_continuity(this,row_now)
+  class(rotor_class), intent(inout) :: this
+    integer, intent(in) :: row_now
+    integer :: i,j,rows,cols
+
+    rows=size(this%blade(1)%waP,1)
+    cols=this%ns
+
+    do ib=1,this%nb
+      !$omp parallel do collapse(2)
+      do j=1,cols-1
+        do i=row_now+1,rows
+          call this%blade(ib)%waP(i,j)%vr%assignP(1,this%blade(ib)%waP(i-1,j)%vr%vf(2)%fc(:,1))
+          call this%blade(ib)%waP(i,j)%vr%assignP(3,this%blade(ib)%waP(i,j+1)%vr%vf(2)%fc(:,1))
+          call this%blade(ib)%waP(i,j)%vr%assignP(4,this%blade(ib)%waP(i-1,j+1)%vr%vf(2)%fc(:,1))
+        enddo
+      enddo
+      !$omp end parallel do
+
+      !$omp parallel do
+      do j=1,cols-1
+        call this%blade(ib)%waP(row_now,j)%vr%assignP(3,this%blade(ib)%waP(row_now,j+1)%vr%vf(2)%fc(:,1))
+      enddo
+      !$omp end parallel do
+
+      !$omp parallel do
+      do i=row_now+1,rows
+        call this%blade(ib)%waP(i,cols)%vr%assignP(1,this%blade(ib)%waP(i-1,cols)%vr%vf(2)%fc(:,1))
+        call this%blade(ib)%waP(i,cols)%vr%assignP(4,this%blade(ib)%waP(i-1,cols)%vr%vf(3)%fc(:,1))
+      enddo
+      !$omp end parallel do
+    enddo
+  end subroutine wake_continuity
+
 end module rotor_classdef

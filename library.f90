@@ -17,43 +17,6 @@ module library
 contains
 
   !--------------------------------------------------------!
-  !                    Wake Functions                      !
-  !--------------------------------------------------------!
-
-  ! Maintain continuity between vortex ring elements after convection
-  ! of vortex ring corners
-  subroutine wake_continuity(wake_array)
-    type(wakepanel_class), intent(inout), dimension(:,:) :: wake_array
-    integer :: i,j,rows,cols
-
-    rows=size(wake_array,1)
-    cols=size(wake_array,2)
-
-    !$omp parallel do collapse(2)
-    do j=1,cols-1
-      do i=2,rows
-        call wake_array(i,j)%vr%assignP(1,wake_array(i-1,j)%vr%vf(2)%fc(:,1))
-        call wake_array(i,j)%vr%assignP(3,wake_array(i,j+1)%vr%vf(2)%fc(:,1))
-        call wake_array(i,j)%vr%assignP(4,wake_array(i-1,j+1)%vr%vf(2)%fc(:,1))
-      enddo
-    enddo
-    !$omp end parallel do
-
-    !$omp parallel do
-    do j=1,cols-1
-      call wake_array(1,j)%vr%assignP(3,wake_array(1,j+1)%vr%vf(2)%fc(:,1))
-    enddo
-    !$omp end parallel do
-
-    !$omp parallel do
-    do i=2,rows
-      call wake_array(i,cols)%vr%assignP(1,wake_array(i-1,cols)%vr%vf(2)%fc(:,1))
-      call wake_array(i,cols)%vr%assignP(4,wake_array(i-1,cols)%vr%vf(3)%fc(:,1))
-    enddo
-    !$omp end parallel do
-  end subroutine wake_continuity
-
-  !--------------------------------------------------------!
   !                Induced Velocity Functions              !
   !--------------------------------------------------------!
 
