@@ -100,6 +100,7 @@ program main
 
   ! ------- MAIN LOOP START -------
   do iter=1,nt
+    t=t+dt
     print*,iter,nt
     write(timestamp,'(I0.5)') iter
     row_now=nt-(iter-1)
@@ -123,12 +124,6 @@ program main
       error stop "Assign correct slowstart_switch"
     end select
 
-    t=t+dt
-    !    pts=pts+dpts
-    !    dtheta_pitch=theta_pitch
-    !    theta_pitch=theta0+thetas*sin(om_theta*t)
-    !    dtheta_pitch=dtheta_pitch-theta_pitch
-
     if (tip_diss_switch .eq. 1) then
       do ir=1,nr
         ! Age vortex filaments
@@ -139,18 +134,12 @@ program main
       enddo
     endif
 
-    !! Wing velocities
-    !thetadot=thetas*om_theta*cos(om_theta*t)
-    !hdot=om_h*h0*cos(om_h*t)
-    !vel_plunge=(/0._dp,0._dp,hdot/)
-
-    !! Wing motion 
+    ! Wing motion 
     do ir=1,nr
       call rotor(ir)%move(rotor(ir)%v_body*dt)
       call rotor(ir)%rot_pts(rotor(ir)%om_body*dt)
       call rotor(ir)%rot_advance(rotor(ir)%Omega_slow)
     enddo
-    !call rot_about_axis(wing,dtheta_pitch,pivotLE)    ! Wing Pitch rotation
 
     do ir=1,nr
       call rotor(ir)%assignshed(row_now,'LE')  ! Store shed vortex as TE
