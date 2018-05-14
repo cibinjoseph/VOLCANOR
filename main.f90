@@ -148,9 +148,11 @@ program main
     !vel_plunge=(/0._dp,0._dp,hdot/)
 
     !! Wing motion 
-    !call mov_wing(wing,(vbody+vel_plunge)*dt)    ! Translate wing
-    !hub_coords=hub_coords+(vbody+vel_plunge)*dt
-    !call rot_wing(wing,dpts,hub_coords,1)    ! Wing Global rotation
+    do ir=1,nr
+      call rotor(ir)%move(rotor(ir)%v_body*dt)
+      call rotor(ir)%rot_pts(rotor(ir)%om_body*dt)
+      call rotor(ir)%rot_advance(rotor(ir)%Omega_slow)
+    enddo
     !call rot_about_axis(wing,dtheta_pitch,pivotLE)    ! Wing Pitch rotation
 
     do ir=1,nr

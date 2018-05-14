@@ -486,6 +486,9 @@ contains
       rows=size(this%wiP,1)
       call this%move(-origin)
 
+      ! Ensure axis is normalized
+      axis=axis/norm2(axis)
+
       ! Calculate TMat
       ct=cos(theta)
       st=sin(theta)
@@ -519,7 +522,7 @@ module rotor_classdef
   type rotor_class
     integer :: nb,ns,nc
     type(blade_class), allocatable, dimension(:) :: blade
-    real(dp) :: Omega
+    real(dp) :: Omega, Omega_slow
     real(dp), dimension(3) :: shaft_axis
     real(dp), dimension(3) :: hub_coords, CG_coords
     real(dp) :: radius, chord, root_cut
@@ -529,8 +532,8 @@ module rotor_classdef
     real(dp) :: flap_hinge  ! hinge location from centre [x/R]
     real(dp), dimension(3) :: v_body, om_body
     real(dp), dimension(3) :: v_wind, om_wind
-    real(dp), dimension(3) :: psi, dpsi  
-    real(dp), dimension(3) :: pts, dpts  ! phi,theta,psi about CG_coords
+    real(dp), dimension(3) :: psi
+    real(dp), dimension(3) :: pts  ! phi,theta,psi about CG_coords
     real(dp) :: spanwise_core, streamwise_core
     real(dp), allocatable, dimension(:,:) :: AIC,AIC_inv  ! Influence coefficient matrix
     real(dp), allocatable, dimension(:) :: gamvec,gamvec_prev,RHS
@@ -538,10 +541,10 @@ module rotor_classdef
   contains
     procedure :: getdata
     procedure :: init
-    procedure :: theta_pitch
     procedure :: thetadot_pitch
     procedure :: move => rotor_move
     procedure :: rot_pts => rotor_rot_pts
+    procedure :: rot_advance => rotor_rot_advance
     procedure :: pitch
     procedure :: assignshed
     procedure :: convectwake
@@ -748,7 +751,7 @@ contains
     this%om_wind=-1._dp*this%om_body
 
     ! Assign pts and dpts
-    this%dpts=this%om_body*dt
+    !this%dpts=this%om_body*dt
 
     ! Wake initialization
     ! Assign core_radius to mid vortices
@@ -919,16 +922,20 @@ contains
 
   end subroutine rotor_rot_pts
 
-  subroutine pitch(this,theta_pitch)
+  subroutine rotor_rot_advance(this,dpsi)
   class(rotor_class), intent(inout) :: this
-    real(dp), intent(in) :: theta_pitch
     integer :: iblade
+    real(dp) :: dtheta
 
+    this%psi=this%psi+dpsi
     do iblade=1,this%nb
-      call this%blade(iblade)%rot_pitch(theta_pitch)
+      call this%blade(iblade)%rot_axis(dpsi,this%shaft_axis,this%hub_coords)
+      this%blade(iblade)%psi=this%blade(iblade)%psi+dpsi
+      dtheta=this%blade(iblade)%theta-this%theta_pitch(this%psi,iblade)
+      call this%blade(iblade)%rot_pitch(dtheta)
     enddo
-  end subroutine pitch
 
+  end subroutine rotor_rot_advance
   !-----+----------------+-----|
   ! -+- | Wake Functions | -+- |
   !-----+----------------+-----|
