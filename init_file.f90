@@ -10,6 +10,7 @@ real(dp) :: theta_pitch, dtheta_pitch
 
 ! Other Variables
 real(dp) :: t
+real(dp) :: density
 !real(dp), dimension(nt) :: lift, drag
 !real(dp), dimension(3,nt,ns+1) :: vind_wake
 !real(dp), allocatable, dimension(:,:,:) :: vind_wake1, vind_wake2, vind_wake3

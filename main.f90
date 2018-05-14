@@ -10,6 +10,8 @@ program main
   call skiplines(11,2)
   read(11,*) nt,dt,nr
   call skiplines(11,5)
+  read(11,*) density
+  call skiplines(11,4)
   read(11,*) span_spacing_switch
   call skiplines(11,4)
   read(11,*) tip_diss_switch, wakestrain_switch

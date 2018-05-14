@@ -7,9 +7,6 @@ module library
   !integer, parameter :: ns = 13
   !integer, parameter :: nc = 1
 
-  ! Global env parameters
-  real(dp), parameter :: density = 1.2_dp
-
   ! Overloaded functions
   !interface vind_onwake
   !  module procedure vind_onwake_bywing, vind_onwake_bywake
