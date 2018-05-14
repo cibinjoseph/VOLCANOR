@@ -186,13 +186,16 @@ program main
       rotor(ir)%RHS=-1._dp*rotor(ir)%RHS
     enddo
 
-    !
-    !    gamvec_prev=gamvec    ! For calculating dGam/dT
-    !    gamvec=matmul(Amat_inv,RHS)
-    !
-    !    ! Map gamvec to wing gam
-    !    wing%vr%gam=reshape(gamvec,(/nc,ns/))    ! ns,nc due to transpose
-    !
+    do ir=1,nr
+      rotor(ir)%gamvec_prev=rotor(ir)%gamvec    ! For calculating dGam/dT
+      rotor(ir)%gamvec=matmul(rotor(ir)%AIC_inv,rotor(ir)%RHS)
+    enddo
+
+    ! Map gamvec to wing gam for each blade in rotor
+    do ir=1,nr
+      call rotor(ir)%map_gam()
+    enddo
+
     !    ! Forces computation
     !    call calc_wingalpha(wing)
     !    lift(iter)=calclift(wing,gamvec_prev,dt)

@@ -10,9 +10,9 @@ module library
   real(dp), parameter :: density = 1.2_dp
 
   ! Overloaded functions
-  interface vind_onwake
-    module procedure vind_onwake_bywing, vind_onwake_bywake
-  end interface 
+  !interface vind_onwake
+  !  module procedure vind_onwake_bywing, vind_onwake_bywake
+  !end interface 
 
 contains
 
@@ -37,20 +37,20 @@ contains
   !  enddo
   !end subroutine vind_CP
 
-  ! Calculates induced vel at P by chordwise vortices of wing_array
-  function vind_chordvortex(wing_array,P) result(velind)
-    type(wingpanel_class), intent(in), dimension(:,:) :: wing_array
-    real(dp), intent(in), dimension(3) :: P
-    real(dp), dimension(3) :: velind
-    integer :: i,j
-    velind=0._dp
-    do j=1,size(wing_array,2)
-      do i=1,size(wing_array,1)
-        velind=velind+wing_array(i,j)%vr%vf(1)%vind(P)*wing_array(i,j)%vr%gam
-        velind=velind+wing_array(i,j)%vr%vf(3)%vind(P)*wing_array(i,j)%vr%gam
-      enddo
-    enddo
-  end function vind_chordvortex
+ ! ! Calculates induced vel at P by chordwise vortices of wing_array
+ ! function vind_chordvortex(wing_array,P) result(velind)
+ !   type(wingpanel_class), intent(in), dimension(:,:) :: wing_array
+ !   real(dp), intent(in), dimension(3) :: P
+ !   real(dp), dimension(3) :: velind
+ !   integer :: i,j
+ !   velind=0._dp
+ !   do j=1,size(wing_array,2)
+ !     do i=1,size(wing_array,1)
+ !       velind=velind+wing_array(i,j)%vr%vf(1)%vind(P)*wing_array(i,j)%vr%gam
+ !       velind=velind+wing_array(i,j)%vr%vf(3)%vind(P)*wing_array(i,j)%vr%gam
+ !     enddo
+ !   enddo
+ ! end function vind_chordvortex
 
   ! ------- RETAIN IN LIBRARY -----------
   ! Induced velocity by a wake array on point P
