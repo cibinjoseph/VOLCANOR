@@ -566,6 +566,7 @@ module rotor_classdef
     procedure :: assignshed
     procedure :: convectwake
     procedure :: map_gam
+    procedure :: wake_continuity
     procedure :: age_wake
     procedure :: dissipate_tip
   end type rotor_class
@@ -1020,7 +1021,7 @@ contains
       !$omp end parallel do
     enddo
 
-    call wake_continuity
+    call this%wake_continuity(row_now)
 
   end subroutine convectwake
 
@@ -1069,7 +1070,7 @@ contains
   subroutine strain_wake(this,row_now)
   class(rotor_class), intent(inout) :: this
     integer, intent(in) :: row_now
-    integer :: i,j
+    integer :: i,j,ib
     do ib=1,this%nb
       !$omp parallel do collapse(2)
       do j=1,this%ns
@@ -1087,7 +1088,7 @@ contains
   subroutine wake_continuity(this,row_now)
   class(rotor_class), intent(inout) :: this
     integer, intent(in) :: row_now
-    integer :: i,j,rows,cols
+    integer :: i,j,rows,cols,ib
 
     rows=size(this%blade(1)%waP,1)
     cols=this%ns
