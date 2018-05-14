@@ -165,12 +165,14 @@ program main
 
             ! Rotational vel
             rotor(ir)%blade(ib)%wiP(ic,is)%velCP=rotor(ir)%blade(ib)%wiP(ic,is)%velCP  &
-            +cross3(rotor(ir)%om_wind-rotor(ir)%Omega_slow*this%shaft_axis,rotor(ir)%blade(ib)%wiP(ic,is)%cp)
+              +cross3(rotor(ir)%om_wind-rotor(ir)%Omega_slow*this%shaft_axis,rotor(ir)%blade(ib)%wiP(ic,is)%cp)
 
             ! Wake vel
-            do jb=1,nb
-              rotor(ir)%blade(ib)%wiP(ic,is)%velCP=rotor(ir)%blade(ib)%wiP(ic,is)%velCP  &
-              +vind_bywake(rotor(ir)%blade(jb)%waP(row_now:nt,:),rotor(ir)%blade(ib)%wiP(ic,is)%cp)
+            do jr=1,nr
+              do jb=1,rotor(jr)%nb
+                rotor(ir)%blade(ib)%wiP(ic,is)%velCP=rotor(ir)%blade(ib)%wiP(ic,is)%velCP  &
+                  +vind_bywake(rotor(jr)%blade(jb)%waP(row_now:nt,:),rotor(ir)%blade(ib)%wiP(ic,is)%cp)
+              enddo
             enddo
 
             rotor(ir)%RHS(row)=dot_product(rotor(ir)%blade(ib)%wiP(ic,is)%velCP,rotor(ir)%blade(ib)%wiP(ic,is)%ncap)

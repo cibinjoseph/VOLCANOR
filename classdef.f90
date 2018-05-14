@@ -407,6 +407,7 @@ module blade_classdef
     procedure :: rot_pitch 
     procedure :: rot_axis
     procedure :: rot_pts => blade_rot_pts
+    procedure :: vind => blade_vind
   end type blade_class
 contains
 
@@ -509,6 +510,22 @@ contains
       call this%move(origin)
     endif
   end subroutine rot_axis
+
+  function blade_vind(this,P)  ! Induced velocity at a point P
+    ! pivot point calculated using straight line joining LE and TE of root panels
+  class(blade_class), intent(inout) :: this
+    real(dp), intent(in), dimension(3) :: P
+    real(dp), dimension(3) :: blade_vind
+    integer :: i,j
+
+    blade_vind=0._dp
+    do j=1,size(this%wiP,2)
+      do i=1,size(this%wiP,1)
+        blade_vind=blade_vind+this%wiP(i,j)%vr%vind(P)
+      enddo
+    enddo
+
+  end function blade_vind
 
 end module blade_classdef
 
