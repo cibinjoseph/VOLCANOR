@@ -475,7 +475,7 @@ contains
   subroutine rot_axis(this,theta,axis,origin)  !rotate about axis at origin
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: theta
-    real(dp), intent(in), dimension(3) :: axis  
+    real(dp), intent(inout), dimension(3) :: axis  
     real(dp), intent(in), dimension(3) :: origin
     real(dp), dimension(3,3) :: Tmat
     integer :: i,j,rows
@@ -532,7 +532,7 @@ module rotor_classdef
     real(dp) :: flap_hinge  ! hinge location from centre [x/R]
     real(dp), dimension(3) :: v_body, om_body
     real(dp), dimension(3) :: v_wind, om_wind
-    real(dp), dimension(3) :: psi
+    real(dp) :: psi
     real(dp), dimension(3) :: pts  ! phi,theta,psi about CG_coords
     real(dp) :: spanwise_core, streamwise_core
     real(dp), allocatable, dimension(:,:) :: AIC,AIC_inv  ! Influence coefficient matrix
@@ -541,11 +541,11 @@ module rotor_classdef
   contains
     procedure :: getdata
     procedure :: init
-    procedure :: thetadot_pitch
+    procedure :: gettheta
+    procedure :: getthetadot
     procedure :: move => rotor_move
     procedure :: rot_pts => rotor_rot_pts
     procedure :: rot_advance => rotor_rot_advance
-    procedure :: pitch
     procedure :: assignshed
     procedure :: convectwake
     procedure :: map_gam
@@ -804,32 +804,32 @@ contains
 
   end subroutine init
 
-  function theta_pitch(this,psi,iblade)
+  function gettheta(this,psi,iblade)
   class(rotor_class) :: this
     real(dp), intent(in) :: psi
     integer, intent(in) :: iblade
-    real(dp) :: theta_pitch
+    real(dp) :: gettheta
     real(dp) :: blade_offset
 
     blade_offset=2._dp*pi/this%nb*(iblade-1)
-    theta_pitch=this%control_pitch(1)  &
+    gettheta=this%control_pitch(1)  &
       +         this%control_pitch(2)*cos(psi+blade_offset)  &
       +         this%control_pitch(3)*sin(psi+blade_offset)  
 
-  end function theta_pitch
+  end function gettheta
 
-  function thetadot_pitch(this,psi,iblade)
+  function getthetadot(this,psi,iblade)
   class(rotor_class) :: this
     real(dp), intent(in) :: psi
     integer, intent(in) :: iblade
-    real(dp) :: thetadot_pitch
+    real(dp) :: getthetadot
     real(dp) :: blade_offset
 
     blade_offset=2._dp*pi/this%nb*(iblade-1)
-    thetadot_pitch=-this%control_pitch(2)*sin(psi+blade_offset)  &
+    getthetadot=-this%control_pitch(2)*sin(psi+blade_offset)  &
       +          this%control_pitch(3)*cos(psi+blade_offset)  
 
-  end function thetadot_pitch
+  end function getthetadot
 
   subroutine calcAIC(this)
   class(rotor_class), intent(inout) :: this
@@ -924,6 +924,7 @@ contains
 
   subroutine rotor_rot_advance(this,dpsi)
   class(rotor_class), intent(inout) :: this
+    real(dp), intent(in) :: dpsi
     integer :: iblade
     real(dp) :: dtheta
 
@@ -931,11 +932,13 @@ contains
     do iblade=1,this%nb
       call this%blade(iblade)%rot_axis(dpsi,this%shaft_axis,this%hub_coords)
       this%blade(iblade)%psi=this%blade(iblade)%psi+dpsi
-      dtheta=this%blade(iblade)%theta-this%theta_pitch(this%psi,iblade)
+      dtheta=this%blade(iblade)%theta-this%gettheta(this%psi,iblade)
       call this%blade(iblade)%rot_pitch(dtheta)
     enddo
 
   end subroutine rotor_rot_advance
+
+
   !-----+----------------+-----|
   ! -+- | Wake Functions | -+- |
   !-----+----------------+-----|
