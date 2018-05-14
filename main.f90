@@ -104,27 +104,24 @@ program main
     write(timestamp,'(I0.5)') iter
     row_now=nt-(iter-1)
 
-    !select case (slowstart_switch)
-    !case (0)    ! No slow start
-    !  rotor(ir)%Omega_slow=rotor(ir)%Omega
-    !case (1)    ! Linear slope
-    !  do ir=1,nr
-    !    om_body_slow=min(real(slowstart_nt),real(iter+1))*om_body/slowstart_nt
-    !    rotor(ir)%dpsi=rotor(ir)%Omega*rotor(ir)%shaft_axis+om_body_slow*rotor(ir)%shaft_axis*dt     ! dphi dtheta dpsi
-    !  enddo
-    !case (2)    ! tanh slope
-    !  do ir=1,nr
-    !    om_body_slow=tanh(5._dp*iter/slowstart_nt)*om_body
-    !    dpts=om_body_slow*dt     ! dphi dtheta dpsi
-    !  enddo
-    !case (3)    ! tanh slope
-    !  do ir=1,nr
-    !    om_body_slow=(tanh(6._dp*real(iter)/real(slowstart_nt)-3._dp)+1._dp)*0.5_dp*om_body
-    !    dpts=om_body_slow*dt     ! dphi dtheta dpsi
-    !  enddo
-    !case default
-    !  error stop "Assign correct slowstart_switch"
-    !end select
+    select case (slowstart_switch)
+    case (0)    ! No slow start
+      rotor(ir)%Omega_slow=rotor(ir)%Omega
+    case (1)    ! Linear slope
+      do ir=1,nr
+        rotor(ir)%Omega_slow=min(real(slowstart_nt),real(iter+1))*rotor(ir)%Omega/slowstart_nt
+      enddo
+    case (2)    ! tanh slope
+      do ir=1,nr
+        rotor(ir)%Omega_slow=tanh(5._dp*iter/slowstart_nt)*rotor(ir)%Omega
+      enddo
+    case (3)    ! tanh slope
+      do ir=1,nr
+        rotor(ir)%Omega_slow=(tanh(6._dp*real(iter)/real(slowstart_nt)-3._dp)+1._dp)*0.5_dp*rotor(ir)%Omega
+      enddo
+    case default
+      error stop "Assign correct slowstart_switch"
+    end select
 
     t=t+dt
     !    pts=pts+dpts
