@@ -1066,18 +1066,20 @@ contains
     enddo
   end subroutine dissipate_tip
 
-  !subroutine strain_wake(this,wake_array)
-  !class(rotor_class), intent(inout) :: this
-  !  integer :: i,j
-  !  !$omp parallel do collapse(2)
-  !  do j=1,size(wake_array,2)
-  !    do i=1,size(wake_array,1)
-  !      call wake_array(i,j)%vr%calclength(.FALSE.)    ! Update current length
-  !      call wake_array(i,j)%vr%strain()
-  !    enddo
-  !  enddo
-  !  !$omp end parallel do
-
-  !end subroutine strain_wake
+  subroutine strain_wake(this,row_now)
+  class(rotor_class), intent(inout) :: this
+    integer, intent(in) :: row_now
+    integer :: i,j
+    do ib=1,this%nb
+      !$omp parallel do collapse(2)
+      do j=1,this%ns
+        do i=row_now,size(this%blade(1)%waP)
+          call this%blade(ib)%waP(i,j)%vr%calclength(.FALSE.)    ! Update current length
+          call this%blade(ib)%waP(i,j)%vr%strain()
+        enddo
+      enddo
+      !$omp end parallel do
+    enddo
+  end subroutine strain_wake
 
 end module rotor_classdef

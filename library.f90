@@ -53,20 +53,6 @@ contains
     !$omp end parallel do
   end subroutine wake_continuity
 
-  subroutine strain_wake(wake_array)
-    type(wakepanel_class), intent(inout), dimension(:,:) :: wake_array
-    integer :: i,j
-    !$omp parallel do collapse(2)
-    do j=1,size(wake_array,2)
-      do i=1,size(wake_array,1)
-        call wake_array(i,j)%vr%calclength(.FALSE.)    ! Update current length
-        call wake_array(i,j)%vr%strain() 
-      enddo
-    enddo
-    !$omp end parallel do
-
-  end subroutine strain_wake
-
   !--------------------------------------------------------!
   !                Induced Velocity Functions              !
   !--------------------------------------------------------!
