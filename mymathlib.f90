@@ -299,6 +299,17 @@ contains
     Tgb(3,3)=cs_phi(1)*cs_theta(1)
   end function Tgb
 
+  !|------+----------------------+------|
+  !| ++++ | Bookeeping functions | ++++ |
+  !|------+----------------------+------|
+
+  subroutine skiplines(fileunit,nlines)
+    integer, intent(in) :: fileunit,nlines
+    integer :: i
+    do i=1,nlines
+      read(fileunit,*)
+    enddo
+  end subroutine skiplines
 
 
 end module mymathlib

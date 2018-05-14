@@ -32,7 +32,7 @@ lib_dbg:
 	@$(ifc) $(iflagsdbg) -c mymathlib.f90          -module $(objpath) -o $(objpath)/mymathlib.o
 	@$(ifc) $(iflagsdbg) -c classdef.f90           -module $(objpath) -o $(objpath)/classdef.o
 	@$(ifc) $(iflagsdbg) -c library.f90            -module $(objpath) -o $(objpath)/library.o
-	@$(ifc) $(iflagsdbg) -c postproc.f90           -module $(objpath) -o $(objpath)/postproc.o
+	#@$(ifc) $(iflagsdbg) -c postproc.f90           -module $(objpath) -o $(objpath)/postproc.o
 
 lib_prof:
 	reset
