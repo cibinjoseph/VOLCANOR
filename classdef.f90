@@ -402,6 +402,11 @@ module blade_classdef
     real(dp) :: theta
     real(dp) :: psi
     real(dp) :: pivotLE
+    real(dp), allocatable, dimension(:,:,:) :: vind_wake
+    real(dp), allocatable, dimension(:,:,:) :: vind_wake1, vind_wake2, vind_wake3
+    real(dp), allocatable, dimension(:,:,:) :: Pvind_wake, vind_wake_step
+    real(dp), allocatable, dimension(:,:) :: Pwake
+
   contains
     procedure :: move => blade_move
     procedure :: rot_pitch 
@@ -832,6 +837,32 @@ contains
 
     ! Assign pts and dpts
     !this%dpts=this%om_body*dt
+
+    ! Allocate vars required for wake convection
+    ! on the basis of finite diff scheme
+    do iblade=1,this%nb
+      select case (FDscheme_switch)
+      case (0)
+        allocate(this%blade(iblade)%vind_wake(3,nt,this%ns+1))
+      case (1)
+        allocate(this%blade(iblade)%Pwake(nt,this%ns))
+        allocate(this%blade(iblade)%vind_wake(3,nt,this%ns+1))
+        allocate(this%blade(iblade)%vind_wake1(3,nt,this%ns+1))
+        allocate(this%blade(iblade)%Pvind_wake(3,nt,this%ns+1))
+      case (2)
+        allocate(this%blade(iblade)%vind_wake(3,nt,this%ns+1))
+        allocate(this%blade(iblade)%vind_wake1(3,nt,this%ns+1))
+        allocate(this%blade(iblade)%vind_wake_step(3,nt,this%ns+1))
+      case (3)
+        allocate(this%blade(iblade)%vind_wake(3,nt,this%ns+1))
+        allocate(this%blade(iblade)%Pwake(nt,this%ns))
+        allocate(this%blade(iblade)%vind_wake1(3,nt,this%ns+1))
+        allocate(this%blade(iblade)%vind_wake2(3,nt,this%ns+1))
+        allocate(this%blade(iblade)%vind_wake3(3,nt,this%ns+1))
+        allocate(this%blade(iblade)%Pvind_wake(3,nt,this%ns+1))
+        allocate(this%blade(iblade)%vind_wake_step(3,nt,this%ns+1))
+      end select
+    enddo
 
     ! Wake initialization
     ! Assign core_radius to mid vortices
