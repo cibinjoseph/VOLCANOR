@@ -57,35 +57,33 @@ program main
   enddo
 
   ! Initial Solution
-  if (slowstart_switch .eq. 0) then
-    t=0._dp
-
+  if (slowstart_switch .ne. 0) then
     do ir=1,nr
-      do ib=1,rotor(ir)%nb
-        do is=1,rotor(ir)%ns
-          do ic=1,rotor(ir)%nc
-            row=ic+rotor(ir)%nc*(is-1)+rotor(ir)%ns*rotor(ir)%nc*(ib-1)
-            rotor(ir)%RHS(row) = dot_product(rotor(ir)%v_wind,rotor(ir)%blade(ib)%wiP(ic,is)%ncap)
-
-            ! Pitch vel
-            !rotor(ir)%blade%(ib)%wing(ic,is)%vel_pitch=rotor(ir)%thetadot_pitch(0._dp,ib)*rotor(ir)%blade(ib)%wiP(ic,is)%r_hinge
-            !rotor(ir)%RHS(row)= RHS(row)+wing(ib,ic,is)%vel_pitch
-
-            ! pqr vel
-            rotor(ir)%RHS(row)=rotor(ir)%RHS(row)+dot_product(cross3(rotor(ir)%om_wind-rotor(ir)%Omega*this%shaft_axis  &
-              ,rotor(ir)%blade(ib)%wiP(ic,is)%cp),rotor(ir)%blade(ib)%wiP(ic,is)%ncap)
-          enddo
-        enddo
-      enddo
-      rotor(ir)%RHS=-1._dp*rotor(ir)%RHS
-      rotor(ir)%gamvec=matmul(rotor(ir)%AIC_inv,rotor(ir)%RHS)
-    enddo
-
-  else
-    do ir=1,nr
-      rotor(ir)%gamvec=0._dp
+      rotor(ir)%Omega_slow=0._dp
     enddo
   endif
+  t=0._dp
+
+  do ir=1,nr
+    do ib=1,rotor(ir)%nb
+      do is=1,rotor(ir)%ns
+        do ic=1,rotor(ir)%nc
+          row=ic+rotor(ir)%nc*(is-1)+rotor(ir)%ns*rotor(ir)%nc*(ib-1)
+          rotor(ir)%RHS(row) = dot_product(rotor(ir)%v_wind,rotor(ir)%blade(ib)%wiP(ic,is)%ncap)
+
+          ! Pitch vel
+          !rotor(ir)%blade%(ib)%wing(ic,is)%vel_pitch=rotor(ir)%thetadot_pitch(0._dp,ib)*rotor(ir)%blade(ib)%wiP(ic,is)%r_hinge
+          !rotor(ir)%RHS(row)= RHS(row)+wing(ib,ic,is)%vel_pitch
+
+          ! pqr vel
+          rotor(ir)%RHS(row)=rotor(ir)%RHS(row)+dot_product(cross3(rotor(ir)%om_wind-rotor(ir)%Omega_slow*this%shaft_axis  &
+            ,rotor(ir)%blade(ib)%wiP(ic,is)%cp),rotor(ir)%blade(ib)%wiP(ic,is)%ncap)
+        enddo
+      enddo
+    enddo
+    rotor(ir)%RHS=-1._dp*rotor(ir)%RHS
+    rotor(ir)%gamvec=matmul(rotor(ir)%AIC_inv,rotor(ir)%RHS)
+  enddo
 
   do ir=1,nr
     rotor(ir)%gamvec_prev=rotor(ir)%gamvec
