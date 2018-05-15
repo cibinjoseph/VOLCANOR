@@ -627,6 +627,7 @@ module rotor_classdef
   contains
     procedure :: getdata
     procedure :: init
+    procedure :: deinit
     procedure :: gettheta
     procedure :: getthetadot
     procedure :: move => rotor_move
@@ -914,6 +915,37 @@ contains
     enddo
 
   end subroutine init
+
+  subroutine deinit(this,FDscheme_switch)
+  class(rotor_class) :: this
+    integer, intent(in) :: FDscheme_switch
+    integer :: ib
+    ! Deallocate variables
+    do ib=1,this%nb
+      select case (FDscheme_switch)
+      case (0)
+        deallocate(this%blade(ib)%vind_wake)
+      case (1)
+        deallocate(this%blade(ib)%Pwake)
+        deallocate(this%blade(ib)%vind_wake)
+        deallocate(this%blade(ib)%vind_wake1)
+        deallocate(this%blade(ib)%Pvind_wake)
+      case (2)
+        deallocate(this%blade(ib)%vind_wake)
+        deallocate(this%blade(ib)%vind_wake1)
+        deallocate(this%blade(ib)%vind_wake_step)
+      case (3)
+        deallocate(this%blade(ib)%Pwake)
+        deallocate(this%blade(ib)%vind_wake)
+        deallocate(this%blade(ib)%vind_wake1)
+        deallocate(this%blade(ib)%vind_wake2)
+        deallocate(this%blade(ib)%vind_wake3)
+        deallocate(this%blade(ib)%Pvind_wake)
+        deallocate(this%blade(ib)%vind_wake_step)
+      end select
+    enddo
+
+  end subroutine deinit
 
   function gettheta(this,psi,iblade)
   class(rotor_class) :: this

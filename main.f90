@@ -146,13 +146,11 @@ program main
     enddo
 
     !    ! Write out wing n' wake
-    !    if (wakeplot_switch .eq. 2) call mesh2file(wing,wake(row_now:nt,:),'Results/wNw'//timestamp//'.tec')
+        if (wakeplot_switch .eq. 2) call rotor2file(rotor,row_now,'Results/wNw'//timestamp//'.tec')
     !    call tip2file(wing,wake(row_now:nt,:),'Results/tip'//timestamp//'.tec')
     !    gam_sectional=calcgam(wing)
     !    call gam2file(yvec,gam_sectional,'Results/gam'//timestamp//'.curve')
-    !
-    ! Induced vel at coll. point (excluding pitch and wing induced velocities)
-    !call vind_CP(wing,vwind-vel_plunge,pqr,wake(row_now:nt,:))
+     
     do ir=1,nr
       rotor(ir)%RHS=0._dp
       do ib=1,rotor(ir)%nb
@@ -309,23 +307,9 @@ program main
   !  call drag2file(drag,'Results/drag.curve',(/dt,om_body(3),span,vwind(1)/))
   !
   !  if (wakeplot_switch .eq. 1) call mesh2file(wing,wake(row_now:nt,:),'Results/wNw'//timestamp//'.tec')
-  !
-  !  ! Deallocate variables
-  !  select case (FDscheme_switch)
-  !  case (1)
-  !    deallocate(Pwake)
-  !    deallocate(vind_wake1)
-  !    deallocate(Pvind_wake)
-  !  case (2)
-  !    deallocate(vind_wake1)
-  !    deallocate(vind_wake_step)
-  !  case (3)
-  !    deallocate(Pwake)
-  !    deallocate(vind_wake1)
-  !    deallocate(vind_wake2)
-  !    deallocate(vind_wake3)
-  !    deallocate(Pvind_wake)
-  !    deallocate(vind_wake_step)
-  !  end select
+   
+  do ir=1,nr
+    rotor(ir)%deinit(FDscheme_switch)
+  enddo
 
 end program main
