@@ -217,84 +217,89 @@ program main
       enddo
     enddo
 
-    !    ! Update wake vortex locations
-    !    select case (FDscheme_switch)
-    !
-    !    case (0)    ! Explicit forward diff (1st order)
-    !      call convectwake(wake(row_now:nt,:),vind_wake(:,row_now:nt,:)*dt)
-    !
-    !
-    !    case (1)    ! Predictor-Corrector (2nd order)
-    !      Pwake(row_now:nt,:)=wake(row_now:nt,:)
-    !      call convectwake(Pwake(row_now:nt,:),vind_wake(:,row_now:nt,:)*dt)
-    !
-    !      Pvind_wake(:,row_now:nt,:)=vind_onwake(wing,Pwake(row_now:nt,:))
-    !      if (iter > wake_ignore_nt .or. wake_ignore_nt .eq. 0) then 
-    !        Pvind_wake(:,row_now:nt,:)=Pvind_wake(:,row_now:nt,:)+vind_onwake(Pwake(row_now:nt,:),Pwake(row_now:nt,:))
-    !      endif 
-    !      if (iter < init_wake_vel_nt .or. init_wake_vel_nt .ne. 0) Pvind_wake(3,row_now:nt,:)=Pvind_wake(3,row_now:nt,:)+init_wake_vel
-    !
-    !      call convectwake(wake(row_now:nt,:),(vind_wake(:,row_now:nt,:)+Pvind_wake(:,row_now:nt,:))*dt*0.5_dp)
-    !
-    !
-    !    case (2)    ! Adam-Bashforth (2nd order)
-    !      if (iter == 1) then
-    !        call convectwake(wake(row_now:nt,:),vind_wake(:,row_now:nt,:)*dt)
-    !        vind_wake1=vind_wake
-    !      else
-    !        vind_wake_step=0.5_dp*(3._dp*vind_wake-vind_wake1)
-    !        call convectwake(wake(row_now:nt,:),vind_wake_step(:,row_now:nt,:)*dt)
-    !        vind_wake1=vind_wake
-    !      endif
-    !
-    !
-    !    case (3)    ! Predictor-Cprrector Adam-Bashforth (4th order)
-    !      if (iter == 1) then
-    !        call convectwake(wake(row_now:nt,:),vind_wake(:,row_now:nt,:)*dt)
-    !        vind_wake1=vind_wake
-    !      elseif (iter == 2) then
-    !        call convectwake(wake(row_now:nt,:),vind_wake(:,row_now:nt,:)*dt)
-    !        vind_wake2=vind_wake
-    !      elseif (iter == 3) then
-    !        call convectwake(wake(row_now:nt,:),vind_wake(:,row_now:nt,:)*dt)
-    !        vind_wake3=vind_wake
-    !      else
-    !        Pwake(row_now:nt,:)=wake(row_now:nt,:)
-    !        vind_wake_step =55._dp/24._dp*vind_wake  &
-    !          -59._dp/24._dp*vind_wake3 & 
-    !          +37._dp/24._dp*vind_wake2 & 
-    !          -09._dp/24._dp*vind_wake1  
-    !        call convectwake(Pwake(row_now:nt,:),vind_wake_step(:,row_now:nt,:)*dt)
-    !
-    !        Pvind_wake(:,row_now:nt,:)=vind_onwake(wing,Pwake(row_now:nt,:))
-    !        if (iter > wake_ignore_nt .or. wake_ignore_nt .eq. 0) then 
-    !          Pvind_wake(:,row_now:nt,:)=Pvind_wake(:,row_now:nt,:)+vind_onwake(Pwake(row_now:nt,:),Pwake(row_now:nt,:))
-    !        endif 
-    !
-    !        if (iter < init_wake_vel_nt .or. init_wake_vel_nt .ne. 0)  &
-    !          Pvind_wake(3,row_now:nt,:)=Pvind_wake(3,row_now:nt,:)+init_wake_vel
-    !
-    !        vind_wake_step =09._dp/24._dp*Pvind_wake  & 
-    !          +19._dp/24._dp* vind_wake  & 
-    !          -05._dp/24._dp* vind_wake3 &  
-    !          +01._dp/24._dp* vind_wake2  
-    !        call convectwake(wake(row_now:nt,:),vind_wake_step(:,row_now:nt,:)*dt)
-    !
-    !        vind_wake1=vind_wake2
-    !        vind_wake2=vind_wake3
-    !        vind_wake3=vind_wake
-    !      endif
-    !
-    !    end select
+    ! Update wake vortex locations
+    select case (FDscheme_switch)
+
+    case (0)    ! Explicit forward diff (1st order)
+      call convectwake(wake(row_now:nt,:),vind_wake(:,row_now:nt,:)*dt)
+      do ir=1,nr
+        do ib=1,rotor(ir)%nb
+          call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_wake(:,row_now:nt,:)*dt)
+        enddo
+      enddo
+
+
+      !    case (1)    ! Predictor-Corrector (2nd order)
+      !      Pwake(row_now:nt,:)=wake(row_now:nt,:)
+      !      call convectwake(Pwake(row_now:nt,:),vind_wake(:,row_now:nt,:)*dt)
+      !
+      !      Pvind_wake(:,row_now:nt,:)=vind_onwake(wing,Pwake(row_now:nt,:))
+      !      if (iter > wake_ignore_nt .or. wake_ignore_nt .eq. 0) then 
+      !        Pvind_wake(:,row_now:nt,:)=Pvind_wake(:,row_now:nt,:)+vind_onwake(Pwake(row_now:nt,:),Pwake(row_now:nt,:))
+      !      endif 
+      !      if (iter < init_wake_vel_nt .or. init_wake_vel_nt .ne. 0) Pvind_wake(3,row_now:nt,:)=Pvind_wake(3,row_now:nt,:)+init_wake_vel
+      !
+      !      call convectwake(wake(row_now:nt,:),(vind_wake(:,row_now:nt,:)+Pvind_wake(:,row_now:nt,:))*dt*0.5_dp)
+      !
+      !
+      !    case (2)    ! Adam-Bashforth (2nd order)
+      !      if (iter == 1) then
+      !        call convectwake(wake(row_now:nt,:),vind_wake(:,row_now:nt,:)*dt)
+      !        vind_wake1=vind_wake
+      !      else
+      !        vind_wake_step=0.5_dp*(3._dp*vind_wake-vind_wake1)
+      !        call convectwake(wake(row_now:nt,:),vind_wake_step(:,row_now:nt,:)*dt)
+      !        vind_wake1=vind_wake
+      !      endif
+      !
+      !
+      !    case (3)    ! Predictor-Cprrector Adam-Bashforth (4th order)
+      !      if (iter == 1) then
+      !        call convectwake(wake(row_now:nt,:),vind_wake(:,row_now:nt,:)*dt)
+      !        vind_wake1=vind_wake
+      !      elseif (iter == 2) then
+      !        call convectwake(wake(row_now:nt,:),vind_wake(:,row_now:nt,:)*dt)
+      !        vind_wake2=vind_wake
+      !      elseif (iter == 3) then
+      !        call convectwake(wake(row_now:nt,:),vind_wake(:,row_now:nt,:)*dt)
+      !        vind_wake3=vind_wake
+      !      else
+      !        Pwake(row_now:nt,:)=wake(row_now:nt,:)
+      !        vind_wake_step =55._dp/24._dp*vind_wake  &
+      !          -59._dp/24._dp*vind_wake3 & 
+      !          +37._dp/24._dp*vind_wake2 & 
+      !          -09._dp/24._dp*vind_wake1  
+      !        call convectwake(Pwake(row_now:nt,:),vind_wake_step(:,row_now:nt,:)*dt)
+      !
+      !        Pvind_wake(:,row_now:nt,:)=vind_onwake(wing,Pwake(row_now:nt,:))
+      !        if (iter > wake_ignore_nt .or. wake_ignore_nt .eq. 0) then 
+      !          Pvind_wake(:,row_now:nt,:)=Pvind_wake(:,row_now:nt,:)+vind_onwake(Pwake(row_now:nt,:),Pwake(row_now:nt,:))
+      !        endif 
+      !
+      !        if (iter < init_wake_vel_nt .or. init_wake_vel_nt .ne. 0)  &
+      !          Pvind_wake(3,row_now:nt,:)=Pvind_wake(3,row_now:nt,:)+init_wake_vel
+      !
+      !        vind_wake_step =09._dp/24._dp*Pvind_wake  & 
+      !          +19._dp/24._dp* vind_wake  & 
+      !          -05._dp/24._dp* vind_wake3 &  
+      !          +01._dp/24._dp* vind_wake2  
+      !        call convectwake(wake(row_now:nt,:),vind_wake_step(:,row_now:nt,:)*dt)
+      !
+      !        vind_wake1=vind_wake2
+      !        vind_wake2=vind_wake3
+      !        vind_wake3=vind_wake
+      !      endif
+      !
+    end select
     !
     !    ! Strain wake
     !    if (wakestrain_switch .eq. 1) call strain_wake(wake(row_now:nt,:))
     !
     !    ! Store shed vortex as TE for next wake panel
     !    if (row_now>1) call assignshed(wake(row_now-1,:),wing(nc,:),'TE')  
-    !
+
   enddo
-  !
+
   !  ! Postprocesing
   !  call lift2file(lift,'Results/lift.curve',(/dt,om_body(3),span,vwind(1)/))
   !  call drag2file(drag,'Results/drag.curve',(/dt,om_body(3),span,vwind(1)/))

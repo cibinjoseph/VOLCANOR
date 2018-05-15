@@ -408,6 +408,8 @@ module blade_classdef
     procedure :: rot_axis
     procedure :: rot_pts => blade_rot_pts
     procedure :: vind => blade_vind
+    procedure :: convectwake
+    procedure :: wake_continuity
   end type blade_class
 contains
 
@@ -527,6 +529,68 @@ contains
 
   end function blade_vind
 
+  ! Convect wake using dP_array=vind_array*dt
+  subroutine convectwake(this,dP_array)
+  class(blade_class), intent(inout) :: this
+    real(dp), intent(in), dimension(:,:,:) :: dP_array
+    integer :: i,j,rows,cols,row_now,row_end
+
+    rows=size(dP_array,2)
+    cols=size(this%waP,2)
+    row_end=size(this%waP,1)
+    row_now=row_end-(rows-1)
+
+    !$omp parallel do collapse(2)
+    do j=1,cols
+      do i=row_now,row_end
+        call this%waP(i,j)%vr%shiftdP(2,dP_array(:,i,j))
+      enddo
+    enddo
+    !$omp end parallel do
+
+    !$omp parallel do
+    do i=row_now,row_end
+      call this%waP(i,cols)%vr%shiftdP(3,dP_array(:,i,cols+1))
+    enddo
+    !$omp end parallel do
+
+    call this%wake_continuity(row_now)
+
+  end subroutine convectwake
+
+  ! Maintain continuity between vortex ring elements after convection
+  ! of vortex ring corners
+  subroutine wake_continuity(this,row_now)
+  class(blade_class), intent(inout) :: this
+    integer, intent(in) :: row_now
+    integer :: i,j,rows,cols
+
+    rows=size(this%waP,1)
+    cols=size(this%waP,2)
+
+    !$omp parallel do collapse(2)
+    do j=1,cols-1
+      do i=row_now+1,rows
+        call this%waP(i,j)%vr%assignP(1,this%waP(i-1,j)%vr%vf(2)%fc(:,1))
+        call this%waP(i,j)%vr%assignP(3,this%waP(i,j+1)%vr%vf(2)%fc(:,1))
+        call this%waP(i,j)%vr%assignP(4,this%waP(i-1,j+1)%vr%vf(2)%fc(:,1))
+      enddo
+    enddo
+    !$omp end parallel do
+
+    !$omp parallel do
+    do j=1,cols-1
+      call this%waP(row_now,j)%vr%assignP(3,this%waP(row_now,j+1)%vr%vf(2)%fc(:,1))
+    enddo
+    !$omp end parallel do
+
+    !$omp parallel do
+    do i=row_now+1,rows
+      call this%waP(i,cols)%vr%assignP(1,this%waP(i-1,cols)%vr%vf(2)%fc(:,1))
+      call this%waP(i,cols)%vr%assignP(4,this%waP(i-1,cols)%vr%vf(3)%fc(:,1))
+    enddo
+    !$omp end parallel do
+  end subroutine wake_continuity
 end module blade_classdef
 
 
@@ -564,9 +628,7 @@ module rotor_classdef
     procedure :: rot_pts => rotor_rot_pts
     procedure :: rot_advance => rotor_rot_advance
     procedure :: assignshed
-    procedure :: convectwake
     procedure :: map_gam
-    procedure :: wake_continuity
     procedure :: age_wake
     procedure :: dissipate_tip
   end type rotor_class
@@ -994,72 +1056,6 @@ contains
     end select
 
   end subroutine assignshed
-
-  ! Convect wake using dP_array=vind_array*dt
-  subroutine convectwake(this,row_now,dP_array)
-  class(rotor_class), intent(inout) :: this
-    integer, intent(in) :: row_now
-    real(dp), intent(in), dimension(:,:,:) :: dP_array
-    integer :: i,j,rows,cols,iblade
-
-    rows=size(this%blade(iblade)%waP,1)-row_now+1
-    cols=this%ns
-
-    do iblade=1,this%nb
-      !$omp parallel do collapse(2)
-      do j=1,cols
-        do i=row_now,rows
-          call this%blade(iblade)%waP(i,j)%vr%shiftdP(2,dP_array(:,i,j))
-        enddo
-      enddo
-      !$omp end parallel do
-
-      !$omp parallel do
-      do i=row_now,rows
-        call this%blade(iblade)%waP(i,cols)%vr%shiftdP(3,dP_array(:,i,cols+1))
-      enddo
-      !$omp end parallel do
-    enddo
-
-    call this%wake_continuity(row_now)
-
-  end subroutine convectwake
-
-  ! Maintain continuity between vortex ring elements after convection
-  ! of vortex ring corners
-  subroutine wake_continuity(this,row_now)
-  class(rotor_class), intent(inout) :: this
-    integer, intent(in) :: row_now
-    integer :: i,j,rows,cols,ib
-
-    rows=size(this%blade(1)%waP,1)
-    cols=this%ns
-
-    do ib=1,this%nb
-      !$omp parallel do collapse(2)
-      do j=1,cols-1
-        do i=row_now+1,rows
-          call this%blade(ib)%waP(i,j)%vr%assignP(1,this%blade(ib)%waP(i-1,j)%vr%vf(2)%fc(:,1))
-          call this%blade(ib)%waP(i,j)%vr%assignP(3,this%blade(ib)%waP(i,j+1)%vr%vf(2)%fc(:,1))
-          call this%blade(ib)%waP(i,j)%vr%assignP(4,this%blade(ib)%waP(i-1,j+1)%vr%vf(2)%fc(:,1))
-        enddo
-      enddo
-      !$omp end parallel do
-
-      !$omp parallel do
-      do j=1,cols-1
-        call this%blade(ib)%waP(row_now,j)%vr%assignP(3,this%blade(ib)%waP(row_now,j+1)%vr%vf(2)%fc(:,1))
-      enddo
-      !$omp end parallel do
-
-      !$omp parallel do
-      do i=row_now+1,rows
-        call this%blade(ib)%waP(i,cols)%vr%assignP(1,this%blade(ib)%waP(i-1,cols)%vr%vf(2)%fc(:,1))
-        call this%blade(ib)%waP(i,cols)%vr%assignP(4,this%blade(ib)%waP(i-1,cols)%vr%vf(3)%fc(:,1))
-      enddo
-      !$omp end parallel do
-    enddo
-  end subroutine wake_continuity
 
 
   !-----+----------------------------+-----|
