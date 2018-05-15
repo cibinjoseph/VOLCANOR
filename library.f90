@@ -84,6 +84,7 @@ contains
 
     rows=size(wake_array,1)
 
+    ! Induced velocity due to all blades
     do ib=1,rotor%nb
       !$omp parallel do collapse(2) 
       do j=1,rotor%ns
@@ -100,6 +101,11 @@ contains
         vind_array(:,i,rotor%ns+1)=rotor%blade(ib)%vind(wake_array(i,rotor%ns)%vr%vf(3)%fc(:,1))
       enddo
       !$omp end parallel do
+    enddo
+
+    ! Induced velocity due to all blade wakes
+    do ib=1,rotor%nb
+      vind_array=vind_array+vind_onwake_bywake(rotor%blade(ib)%waP,wake_array)
     enddo
   end function vind_onwake_byrotor
 

@@ -636,11 +636,11 @@ contains
 
   end subroutine getdata
 
-  subroutine init(this,span_spacing_switch,nt,dt)
+  subroutine init(this,nt,dt,span_spacing_switch,FDscheme_switch)
   class(rotor_class) :: this
-    integer, intent(in) :: span_spacing_switch
     integer, intent(in) :: nt
     real(dp), intent(in) :: dt
+    integer, intent(in) :: span_spacing_switch, FDscheme_switch
 
     real(dp), dimension(this%nc+1) :: xvec
     real(dp), dimension(this%ns+1) :: yvec

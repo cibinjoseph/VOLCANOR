@@ -43,7 +43,7 @@ program main
 
   ! Rotor and wake initialization
   do ir=1,nr
-    call rotor(ir)%init(span_spacing_switch,nt,dt)
+    call rotor(ir)%init(nt,dt,span_spacing_switch,FDscheme_switch)
   enddo
 
   ! Rotate wing pc, vr, cp and ncap by initial pitch angle 
@@ -200,14 +200,23 @@ program main
     !    call calc_wingalpha(wing)
     !    lift(iter)=calclift(wing,gamvec_prev,dt)
     !    drag(iter)=calcdrag(wing,gamvec_prev,dt)
-    !
-    !    ! Induced vel on wake vortices
-    !    vind_wake(:,row_now:nt,:)=vind_onwake(wing,wake(row_now:nt,:))
-    !    if (iter > wake_ignore_nt .or. wake_ignore_nt .eq. 0) then 
-    !      vind_wake(:,row_now:nt,:)=vind_wake(:,row_now:nt,:)+vind_onwake(wake(row_now:nt,:),wake(row_now:nt,:))
-    !    endif
-    !    if (iter < init_wake_vel_nt .or. init_wake_vel .ne. 0)  vind_wake(3,row_now:nt,:)=vind_wake(3,row_now:nt,:)+init_wake_vel
-    !
+
+    ! Induced vel on wake vortices
+    do ir=1,nr
+      do ib=1,rotor(ir)%nb
+        rotor(ir)%blade(ib)%vind_wake(:,row_now:nt,:)=0._dp
+      enddo
+    enddo
+
+    do ir=1,nr
+      do ib=1,rotor(ir)%nb
+        if (iter > wake_ignore_nt .or. wake_ignore_nt .eq. 0) then 
+          rotor(ir)%blade(ib)%vind_wake(:,row_now:nt,:)=vind_wake(:,row_now:nt,:)+vind_onwake_byrotor(rotor(ir),rotor(ir)%blade(ib)%waP(row_now:nt,:))
+        endif
+        if (iter < init_wake_vel_nt .or. init_wake_vel .ne. 0)  rotor(ir)%blade(ib)%vind_wake(3,row_now:nt,:)=rotor(ir)%blade(ib)%vind_wake(3,row_now:nt,:)+init_wake_vel
+      enddo
+    enddo
+
     !    ! Update wake vortex locations
     !    select case (FDscheme_switch)
     !
