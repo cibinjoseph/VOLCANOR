@@ -289,14 +289,18 @@ program main
       !        vind_wake2=vind_wake3
       !        vind_wake3=vind_wake
       !      endif
-      !
+
     end select
-    !
-    !    ! Strain wake
-    !    if (wakestrain_switch .eq. 1) call strain_wake(wake(row_now:nt,:))
-    !
-    !    ! Store shed vortex as TE for next wake panel
-    !    if (row_now>1) call assignshed(wake(row_now-1,:),wing(nc,:),'TE')  
+
+    do ir=1,nr
+      ! Strain wake
+      if (wakestrain_switch .eq. 1) call rotor(ir)%strain_wake(row_now)
+    enddo
+
+    do ir=1,nr
+      ! Store shed vortex as TE for next wake panel
+      if (row_now>1) call rotor(ir)%assignshed(row_now-1,'TE')  
+    enddo
 
   enddo
 
