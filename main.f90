@@ -48,7 +48,9 @@ program main
 
   ! Rotate wing pc, vr, cp and ncap by initial pitch angle 
   do ir=1,nr
-    call rotor(ir)%pitch(wing,theta_pitch,pivotLE)
+    do ib=1,rotor(ir)%nb
+      call rotor(ir)%blade(ib)%rot_pitch(theta_pitch)
+    enddo
   enddo
 
   ! Compute AIC and AIC_inv matrices for rotors
@@ -76,7 +78,7 @@ program main
           !rotor(ir)%RHS(row)= RHS(row)+wing(ib,ic,is)%vel_pitch
 
           ! pqr vel
-          rotor(ir)%RHS(row)=rotor(ir)%RHS(row)+dot_product(cross3(rotor(ir)%om_wind-rotor(ir)%Omega_slow*this%shaft_axis  &
+          rotor(ir)%RHS(row)=rotor(ir)%RHS(row)+dot_product(cross3(rotor(ir)%om_wind-rotor(ir)%Omega_slow*rotor(ir)%shaft_axis  &
             ,rotor(ir)%blade(ib)%wiP(ic,is)%cp),rotor(ir)%blade(ib)%wiP(ic,is)%ncap)
         enddo
       enddo
@@ -137,7 +139,7 @@ program main
     ! Wing motion 
     do ir=1,nr
       call rotor(ir)%move(rotor(ir)%v_body*dt)
-      call rotor(ir)%rot_pts(rotor(ir)%om_body*dt)
+      call rotor(ir)%rot_pts(rotor(ir)%om_body*dt,rotor(ir)%CG_coords,1)
       call rotor(ir)%rot_advance(rotor(ir)%Omega_slow)
     enddo
 
@@ -146,11 +148,11 @@ program main
     enddo
 
     !    ! Write out wing n' wake
-        if (wakeplot_switch .eq. 2) call rotor2file(rotor,row_now,'Results/wNw'//timestamp//'.tec')
+    if (wakeplot_switch .eq. 2) call rotor2file(rotor,row_now,'Results/wNw'//timestamp//'.tec')
     !    call tip2file(wing,wake(row_now:nt,:),'Results/tip'//timestamp//'.tec')
     !    gam_sectional=calcgam(wing)
     !    call gam2file(yvec,gam_sectional,'Results/gam'//timestamp//'.curve')
-     
+
     do ir=1,nr
       rotor(ir)%RHS=0._dp
       do ib=1,rotor(ir)%nb
@@ -163,7 +165,7 @@ program main
 
             ! Rotational vel
             rotor(ir)%blade(ib)%wiP(ic,is)%velCP=rotor(ir)%blade(ib)%wiP(ic,is)%velCP  &
-              +cross3(rotor(ir)%om_wind-rotor(ir)%Omega_slow*this%shaft_axis,rotor(ir)%blade(ib)%wiP(ic,is)%cp)
+              +cross3(rotor(ir)%om_wind-rotor(ir)%Omega_slow*rotor(ir)%shaft_axis,rotor(ir)%blade(ib)%wiP(ic,is)%cp)
 
             ! Wake vel
             do jr=1,nr
@@ -307,9 +309,9 @@ program main
   !  call drag2file(drag,'Results/drag.curve',(/dt,om_body(3),span,vwind(1)/))
   !
   !  if (wakeplot_switch .eq. 1) call mesh2file(wing,wake(row_now:nt,:),'Results/wNw'//timestamp//'.tec')
-   
+
   do ir=1,nr
-    rotor(ir)%deinit(FDscheme_switch)
+    call rotor(ir)%deinit(FDscheme_switch)
   enddo
 
 end program main

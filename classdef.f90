@@ -412,7 +412,8 @@ module blade_classdef
     procedure :: rot_pitch 
     procedure :: rot_axis
     procedure :: rot_pts => blade_rot_pts
-    procedure :: vind => blade_vind
+    procedure :: vind_bywing => blade_vind_bywing
+    procedure :: vind_bywake => blade_vind_bywake
     procedure :: convectwake
     procedure :: wake_continuity
   end type blade_class
@@ -518,21 +519,38 @@ contains
     endif
   end subroutine rot_axis
 
-  function blade_vind(this,P)  ! Induced velocity at a point P
+  function blade_vind_bywing(this,P)  ! Induced velocity at a point P
     ! pivot point calculated using straight line joining LE and TE of root panels
   class(blade_class), intent(inout) :: this
     real(dp), intent(in), dimension(3) :: P
-    real(dp), dimension(3) :: blade_vind
+    real(dp), dimension(3) :: blade_vind_bywing
     integer :: i,j
 
-    blade_vind=0._dp
+    blade_vind_bywing=0._dp
     do j=1,size(this%wiP,2)
       do i=1,size(this%wiP,1)
-        blade_vind=blade_vind+this%wiP(i,j)%vr%vind(P)
+        blade_vind_bywing=blade_vind_bywing+this%wiP(i,j)%vr%vind(P)
       enddo
     enddo
 
-  end function blade_vind
+  end function blade_vind_bywing
+
+  function blade_vind_bywake(this,row_now,P)  ! Induced velocity at a point P
+    ! pivot point calculated using straight line joining LE and TE of root panels
+  class(blade_class), intent(inout) :: this
+    integer, intent(in) :: row_now
+    real(dp), intent(in), dimension(3) :: P
+    real(dp), dimension(3) :: blade_vind_bywake
+    integer :: i,j
+
+    blade_vind_bywake=0._dp
+    do j=1,size(this%waP,2)
+      do i=row_now,size(this%waP,1)
+        blade_vind_bywake=blade_vind_bywake+this%waP(i,j)%vr%vind(P)
+      enddo
+    enddo
+
+  end function blade_vind_bywake
 
   ! Convect wake using dP_array=vind_array*dt
   subroutine convectwake(this,dP_array)
@@ -637,6 +655,9 @@ module rotor_classdef
     procedure :: map_gam
     procedure :: age_wake
     procedure :: dissipate_tip
+    procedure :: calcAIC
+    procedure :: vind_bywing => rotor_vind_bywing
+    procedure :: vind_bywake => rotor_vind_bywake
   end type rotor_class
 
 contains
@@ -1171,6 +1192,7 @@ contains
   class(rotor_class), intent(inout) :: this
     integer, intent(in) :: row_now
     integer :: i,j,ib
+
     do ib=1,this%nb
       !$omp parallel do collapse(2)
       do j=1,this%ns
@@ -1183,4 +1205,28 @@ contains
     enddo
   end subroutine strain_wake
 
+  function rotor_vind_bywing(this,P)
+  class(rotor_class), intent(inout) :: this
+    real(dp), intent(in), dimension(3) :: P
+    real(dp), dimension(3) :: rotor_vind_bywing
+    integer :: ib
+
+    rotor_vind_bywing=0._dp
+    do ib=1,this%nb
+      rotor_vind_bywing=rotor_vind_bywing+this%blade(ib)%vind_bywing(P)
+    enddo
+  end function rotor_vind_bywing
+
+  function rotor_vind_bywake(this,row_now,P)
+  class(rotor_class), intent(inout) :: this
+    real(dp), intent(in), dimension(3) :: P
+    real(dp), dimension(3) :: rotor_vind_bywake
+    integer, intent(in) :: row_now
+    integer :: ib
+
+    rotor_vind_bywake=0._dp
+    do ib=1,this%nb
+      rotor_vind_bywake=rotor_vind_bywake+this%blade(ib)%vind_bywake(row_now,P)
+    enddo
+  end function rotor_vind_bywake
 end module rotor_classdef

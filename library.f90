@@ -2,16 +2,6 @@ module library
   use rotor_classdef
   implicit none
 
-  ! Input parameters
-  !integer, parameter :: nt = 500
-  !integer, parameter :: ns = 13
-  !integer, parameter :: nc = 1
-
-  ! Overloaded functions
-  !interface vind_onwake
-  !  module procedure vind_onwake_bywing, vind_onwake_bywake
-  !end interface 
-
 contains
 
   !--------------------------------------------------------!
@@ -50,7 +40,6 @@ contains
   !   enddo
   ! end function vind_chordvortex
 
-  ! ------- RETAIN IN LIBRARY -----------
   ! Induced velocity by a wake array on point P
   function vind_bywake(wake_array,P) result(velind)
     type(wakepanel_class), intent(in), dimension(:,:) :: wake_array
@@ -80,16 +69,19 @@ contains
     type(rotor_class), intent(inout) :: rotor
     type(wakepanel_class), intent(in), dimension(:,:) :: wake_array
     real(dp), dimension(3,size(wake_array,1),size(wake_array,2)+1) :: vind_array
-    integer :: i,j,rows,ib
+    integer :: i,j,rows,ib,sz,row_now
 
     rows=size(wake_array,1)
+    sz=size(rotor%blade(1)%waP,1)
+    row_now=sz-(rows-1)
 
     ! Induced velocity due to all blades
     do ib=1,rotor%nb
       !$omp parallel do collapse(2) 
       do j=1,rotor%ns
         do i=1,rows
-          vind_array(:,i,j)=rotor%blade(ib)%vind(wake_array(i,j)%vr%vf(2)%fc(:,1))
+          vind_array(:,i,j)=rotor%blade(ib)%vind_bywing(wake_array(i,j)%vr%vf(2)%fc(:,1))  &
+          +                 rotor%blade(ib)%vind_bywake(row_now,wake_array(i,j)%vr%vf(2)%fc(:,1))
         enddo
       enddo
       !$omp end parallel do
@@ -98,42 +90,17 @@ contains
     do ib=1,rotor%nb
       !$omp parallel do 
       do i=1,rows
-        vind_array(:,i,rotor%ns+1)=rotor%blade(ib)%vind(wake_array(i,rotor%ns)%vr%vf(3)%fc(:,1))
+        vind_array(:,i,rotor%ns+1)=rotor%blade(ib)%vind_bywing(wake_array(i,rotor%ns)%vr%vf(3)%fc(:,1))  &
+        +                          rotor%blade(ib)%vind_bywake(row_nowwake_array(i,rotor%ns)%vr%vf(3)%fc(:,1))
       enddo
       !$omp end parallel do
     enddo
 
-    ! Induced velocity due to all blade wakes
-    do ib=1,rotor%nb
-      vind_array=vind_array+vind_onwake_bywake(rotor%blade(ib)%waP,wake_array)
-    enddo
+    !! Induced velocity due to all blade wakes
+    !do ib=1,rotor%nb
+    !  vind_array=vind_array+vind_onwake_bywake(rotor%blade(ib)%waP,wake_array)
+    !enddo
   end function vind_onwake_byrotor
-
-  ! OBSOLETE
-  !! Induced velocity by wing_array on wake_array corner points
-  !function vind_onwake_bywing(wing_array,wake_array) result(vind_array)
-  !  type(wingpanel_class), intent(in), dimension(:,:) :: wing_array
-  !  type(wakepanel_class), intent(in), dimension(:,:) :: wake_array
-  !  real(dp), dimension(3,size(wake_array,1),size(wake_array,2)+1) :: vind_array
-  !  integer :: i,j,rows,cols
-
-  !  rows=size(wake_array,1)
-  !  cols=size(wake_array,2)
-
-  !  !$omp parallel do collapse(2) shared(wake_array,wing_array,vind_array)
-  !  do j=1,cols
-  !    do i=1,rows
-  !      vind_array(:,i,j)=vind_panelgeo(wing_array,wake_array(i,j)%vr%vf(2)%fc(:,1))
-  !    enddo
-  !  enddo
-  !  !$omp end parallel do
-
-  !  !$omp parallel do shared(wake_array,wing_array,vind_array)
-  !  do i=1,rows
-  !    vind_array(:,i,cols+1)=vind_panelgeo(wing_array,wake_array(i,cols)%vr%vf(3)%fc(:,1))
-  !  enddo
-  !  !$omp end parallel do
-  !end function vind_onwake_bywing
 
   ! Induced velocity by bywake_array on wake_array corner points
   function vind_onwake_bywake(bywake_array,wake_array) result(vind_array)
