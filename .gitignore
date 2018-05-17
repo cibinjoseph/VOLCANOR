@@ -1,4 +1,5 @@
 main_two.f90
+note
 Results/*
 obj/*.o
 obj/*.mod
