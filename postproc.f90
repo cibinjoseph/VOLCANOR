@@ -4,12 +4,12 @@ module postproc
 contains
 
   subroutine rotor2file(rotor,row_now,filename)
-    type(wakepanel_class), intent(in) :: rotor
+    type(rotor_class), intent(in) :: rotor
     integer, intent(in) :: row_now
     character(len=*), intent(in) :: filename
     character(len=5) :: nx_char, ny_char
     real(dp), dimension(3,rotor%nc+1,rotor%ns+1) :: wing_mesh  
-    real(dp), dimension(3,size(waP,1)+1,rotor%ns+1) :: wake_mesh  
+    real(dp), dimension(3,size(rotor%blade(1)%waP,1)+1,rotor%ns+1) :: wake_mesh  
     integer :: i,j,nx,ny,ib
 
     nx=rotor%nc
@@ -21,7 +21,7 @@ contains
     write(10,*) 'Title = "Panel array"'
     write(10,*) 'VARIABLES = "X" "Y" "Z" "GAM" "TAG"'
 
-    do ib=1,nb
+    do ib=1,rotor%nb
       do j=1,ny
         do i=1,nx
           wing_mesh(:,i,j)=rotor%blade(ib)%wiP(i,j)%pc(:,1)
@@ -107,12 +107,11 @@ contains
     write(10,*) 'VARIABLES = "X" "Y" "Z" "GAM" "TAG"'
     write(10,*) 'Zone I='//trim(nx_char)//' J='//trim(ny_char)//' K=1  T="Wing"'
     write(10,*) 'DATAPACKING=BLOCK'
-    write(10,*) 'VARLOCATION=([4]=CELLCENTERED,[5]=CELLCENTERED)'
+    write(10,*) 'VARLOCATION=([4]=CELLCENTERED)'!,[5]=CELLCENTERED)'
     write(10,*) ((wing_mesh(1,i,j),i=1,nx+1),j=1,ny+1)
     write(10,*) ((wing_mesh(2,i,j),i=1,nx+1),j=1,ny+1)
     write(10,*) ((wing_mesh(3,i,j),i=1,nx+1),j=1,ny+1)
     write(10,*) ((-1._dp*wing_array(i,j)%vr%gam,i=1,nx),j=1,ny)
-    write(10,*) ((wing_array(i,j)%tag,i=1,nx),j=1,ny)
 
     nx=size(wake_array,1)
     ny=size(wake_array,2)
@@ -136,12 +135,11 @@ contains
 
     write(10,*) 'Zone I='//trim(nx_char)//' J='//trim(ny_char)//' K=1  T="Wake"'
     write(10,*) 'DATAPACKING=BLOCK'
-    write(10,*) 'VARLOCATION=([4]=CELLCENTERED,[5]=CELLCENTERED)'
+    write(10,*) 'VARLOCATION=([4]=CELLCENTERED)'!,[5]=CELLCENTERED)'
     write(10,*) ((wake_mesh(1,i,j),i=1,nx+1),j=1,ny+1)
     write(10,*) ((wake_mesh(2,i,j),i=1,nx+1),j=1,ny+1)
     write(10,*) ((wake_mesh(3,i,j),i=1,nx+1),j=1,ny+1)
     write(10,*) ((-1._dp*wake_array(i,j)%vr%gam,i=1,nx),j=1,ny)
-    write(10,*) ((wake_array(i,j)%tag,i=1,nx),j=1,ny)
 
     close(10)
   end subroutine mesh2file
