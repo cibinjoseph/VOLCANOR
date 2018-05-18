@@ -37,10 +37,6 @@ program main
     call rotor(ir)%getdata(rotorfile,nt)
   enddo
 
-  ! Conversions
-  !vbody=-1._dp*vwind
-  !pqr=-1._dp*om_body
-
   ! Rotor and wake initialization
   do ir=1,nr
     call rotor(ir)%init(nt,dt,span_spacing_switch,FDscheme_switch)
