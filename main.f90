@@ -1,6 +1,6 @@
 program main
-  use rotor_classdef
-  !use postproc
+  use library
+  use postproc
 
   ! Variable Initialization
   include "init_file.f90"
@@ -9,7 +9,7 @@ program main
   open(unit=11,file='config.in')
   call skiplines(11,2)
   read(11,*) nt,dt,nr
-  call skiplines(11,5)
+  call skiplines(11,4)
   read(11,*) density
   call skiplines(11,4)
   read(11,*) span_spacing_switch
@@ -148,7 +148,9 @@ program main
     enddo
 
     !    ! Write out wing n' wake
-    if (wakeplot_switch .eq. 2) call rotor2file(rotor,row_now,'Results/wNw'//timestamp//'.tec')
+    do ir=1,nr
+      if (wakeplot_switch .eq. 2) call rotor2file(rotor(ir),row_now,'Results/wNw'//timestamp//'.tec')
+    enddo
     !    call tip2file(wing,wake(row_now:nt,:),'Results/tip'//timestamp//'.tec')
     !    gam_sectional=calcgam(wing)
     !    call gam2file(yvec,gam_sectional,'Results/gam'//timestamp//'.curve')
@@ -209,9 +211,11 @@ program main
     do ir=1,nr
       do ib=1,rotor(ir)%nb
         if (iter > wake_ignore_nt .or. wake_ignore_nt .eq. 0) then 
-          rotor(ir)%blade(ib)%vind_wake(:,row_now:nt,:)=vind_wake(:,row_now:nt,:)+vind_onwake_byrotor(rotor(ir),rotor(ir)%blade(ib)%waP(row_now:nt,:))
+          rotor(ir)%blade(ib)%vind_wake(:,row_now:nt,:)=rotor(ir)%blade(ib)%vind_wake(:,row_now:nt,:)+vind_onwake_byrotor(rotor(ir),rotor(ir)%blade(ib)%waP(row_now:nt,:))
         endif
-        if (iter < init_wake_vel_nt .or. init_wake_vel .ne. 0)  rotor(ir)%blade(ib)%vind_wake(3,row_now:nt,:)=rotor(ir)%blade(ib)%vind_wake(3,row_now:nt,:)+init_wake_vel
+        if (iter < init_wake_vel_nt .or. rotor(ir)%init_wake_vel .ne. 0) then
+          rotor(ir)%blade(ib)%vind_wake(3,row_now:nt,:)=rotor(ir)%blade(ib)%vind_wake(3,row_now:nt,:)+rotor(ir)%init_wake_vel
+        endif
       enddo
     enddo
 
@@ -219,7 +223,6 @@ program main
     select case (FDscheme_switch)
 
     case (0)    ! Explicit forward diff (1st order)
-      call convectwake(wake(row_now:nt,:),vind_wake(:,row_now:nt,:)*dt)
       do ir=1,nr
         do ib=1,rotor(ir)%nb
           call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_wake(:,row_now:nt,:)*dt)

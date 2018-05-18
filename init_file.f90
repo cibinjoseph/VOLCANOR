@@ -6,7 +6,7 @@ type(rotor_class), allocatable, dimension(:) :: rotor
 ! Kinematics
 integer :: nt,nr
 real(dp) :: dt
-real(dp) :: theta_pitch, dtheta_pitch
+real(dp) :: theta_pitch
 !real(dp), dimension(3) :: om_body_slow
 
 ! Other Variables
@@ -21,7 +21,7 @@ character(len=2) :: rotor_char
 character(len=10) :: rotorfile
 
 ! Iterators
-integer :: is,ic,row,col,i,j,iter,row_now,ir,jr,ib,jb
+integer :: is,ic,row,iter,row_now,ir,jr,ib
 
 ! Switches
 integer :: span_spacing_switch

@@ -655,6 +655,7 @@ module rotor_classdef
     procedure :: map_gam
     procedure :: age_wake
     procedure :: dissipate_tip
+    procedure :: strain_wake
     procedure :: calcAIC
     procedure :: vind_bywing => rotor_vind_bywing
     procedure :: vind_bywake => rotor_vind_bywake

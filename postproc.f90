@@ -19,7 +19,7 @@ contains
 
     open(unit=10,file=filename,position='append')
     write(10,*) 'Title = "Panel array"'
-    write(10,*) 'VARIABLES = "X" "Y" "Z" "GAM" "TAG"'
+    write(10,*) 'VARIABLES = "X" "Y" "Z" "GAM"'
 
     do ib=1,rotor%nb
       do j=1,ny
@@ -104,7 +104,7 @@ contains
     wing_mesh(:,nx+1,ny+1)=wing_array(nx,ny)%pc(:,3)
 
     write(10,*) 'Title = "Panel array"'
-    write(10,*) 'VARIABLES = "X" "Y" "Z" "GAM" "TAG"'
+    write(10,*) 'VARIABLES = "X" "Y" "Z" "GAM"'
     write(10,*) 'Zone I='//trim(nx_char)//' J='//trim(ny_char)//' K=1  T="Wing"'
     write(10,*) 'DATAPACKING=BLOCK'
     write(10,*) 'VARLOCATION=([4]=CELLCENTERED)'!,[5]=CELLCENTERED)'
@@ -251,7 +251,7 @@ contains
     wing_mesh(:,nx+1,ny+1)=wing_array(nx,ny)%pc(:,3)
 
     write(10,*) 'Title = "Panel array"'
-    write(10,*) 'VARIABLES = "X" "Y" "Z"'! "gam" "tag"'
+    write(10,*) 'VARIABLES = "X" "Y" "Z"'
     write(10,*) 'Zone I='//trim(nx_char)//' J='//trim(ny_char)//' K=1  T="Wing"'
     write(10,*) 'DATAPACKING=BLOCK'
     write(10,*) ((wing_mesh(1,i,j),i=1,nx+1),j=1,ny+1)
