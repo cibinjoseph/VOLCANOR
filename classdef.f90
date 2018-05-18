@@ -671,7 +671,7 @@ contains
   class(rotor_class) :: this
     character(len=*), intent(in) :: filename
     integer, intent(in) :: nt  ! nt passed for allocting wake panels
-    integer :: i,iblade
+    integer :: i,ib
 
     open(unit=12,file=filename)
     call skiplines(12,2)
@@ -719,9 +719,9 @@ contains
     allocate(this%gamvec_prev(this%nc*this%ns*this%nb))
     allocate(this%RHS(this%nc*this%ns*this%nb))
     ! Allocate blade object variables
-    do iblade=1,this%nb
-      allocate(this%blade(iblade)%wiP(this%nc,this%ns))
-      allocate(this%blade(iblade)%waP(nt,this%ns))
+    do ib=1,this%nb
+      allocate(this%blade(ib)%wiP(this%nc,this%ns))
+      allocate(this%blade(ib)%waP(nt,this%ns))
     enddo
 
   end subroutine getdata
@@ -734,7 +734,7 @@ contains
 
     real(dp), dimension(this%nc+1) :: xvec
     real(dp), dimension(this%ns+1) :: yvec
-    integer :: i,j,iblade
+    integer :: i,j,ib
     real(dp) :: blade_offset
     real(dp) :: xshiftLE,xshiftTE,v_shed
 
@@ -749,14 +749,14 @@ contains
       yvec=halfsinspace(this%root_cut*this%radius,this%radius,this%ns+1)
     end select
 
-    do iblade=1,this%nb
+    do ib=1,this%nb
       ! Initialize panel coordinates
       do j=1,this%ns
         do i=1,this%nc
-          call this%blade(iblade)%wiP(i,j)%assignP(1,(/xvec(i  ),yvec(j  ),0._dp/))
-          call this%blade(iblade)%wiP(i,j)%assignP(2,(/xvec(i+1),yvec(j  ),0._dp/))
-          call this%blade(iblade)%wiP(i,j)%assignP(3,(/xvec(i+1),yvec(j+1),0._dp/))
-          call this%blade(iblade)%wiP(i,j)%assignP(4,(/xvec(i  ),yvec(j+1),0._dp/))
+          call this%blade(ib)%wiP(i,j)%assignP(1,(/xvec(i  ),yvec(j  ),0._dp/))
+          call this%blade(ib)%wiP(i,j)%assignP(2,(/xvec(i+1),yvec(j  ),0._dp/))
+          call this%blade(ib)%wiP(i,j)%assignP(3,(/xvec(i+1),yvec(j+1),0._dp/))
+          call this%blade(ib)%wiP(i,j)%assignP(4,(/xvec(i  ),yvec(j+1),0._dp/))
         enddo
       enddo
 
@@ -765,10 +765,10 @@ contains
         xshiftLE=(xvec(i+1)-xvec(i))*0.25_dp  ! Shift x coord by dx/4
         xshiftTE=(xvec(i+2)-xvec(i+1))*0.25_dp  ! Shift x coord by dx/4
         do j=1,this%ns
-          call this%blade(iblade)%wiP(i,j)%vr%assignP(1,(/xvec(i  )+xshiftLE,yvec(j  ),0._dp/))
-          call this%blade(iblade)%wiP(i,j)%vr%assignP(2,(/xvec(i+1)+xshiftTE,yvec(j  ),0._dp/))
-          call this%blade(iblade)%wiP(i,j)%vr%assignP(3,(/xvec(i+1)+xshiftTE,yvec(j+1),0._dp/))
-          call this%blade(iblade)%wiP(i,j)%vr%assignP(4,(/xvec(i  )+xshiftLE,yvec(j+1),0._dp/))
+          call this%blade(ib)%wiP(i,j)%vr%assignP(1,(/xvec(i  )+xshiftLE,yvec(j  ),0._dp/))
+          call this%blade(ib)%wiP(i,j)%vr%assignP(2,(/xvec(i+1)+xshiftTE,yvec(j  ),0._dp/))
+          call this%blade(ib)%wiP(i,j)%vr%assignP(3,(/xvec(i+1)+xshiftTE,yvec(j+1),0._dp/))
+          call this%blade(ib)%wiP(i,j)%vr%assignP(4,(/xvec(i  )+xshiftLE,yvec(j+1),0._dp/))
         enddo
       enddo
 
@@ -776,66 +776,66 @@ contains
       xshiftLE=(xvec(this%nc+1)-xvec(this%nc))*0.25_dp  ! Shift x coord by dx/4
       xshiftTE=0._dp
       do j=1,this%ns
-        call this%blade(iblade)%wiP(this%nc,j)%vr%assignP(1,(/xvec(this%nc  )+xshiftLE,yvec(j  ),0._dp/))
-        call this%blade(iblade)%wiP(this%nc,j)%vr%assignP(2,(/xvec(this%nc+1)+xshiftTE,yvec(j  ),0._dp/))
-        call this%blade(iblade)%wiP(this%nc,j)%vr%assignP(3,(/xvec(this%nc+1)+xshiftTE,yvec(j+1),0._dp/))
-        call this%blade(iblade)%wiP(this%nc,j)%vr%assignP(4,(/xvec(this%nc  )+xshiftLE,yvec(j+1),0._dp/))
+        call this%blade(ib)%wiP(this%nc,j)%vr%assignP(1,(/xvec(this%nc  )+xshiftLE,yvec(j  ),0._dp/))
+        call this%blade(ib)%wiP(this%nc,j)%vr%assignP(2,(/xvec(this%nc+1)+xshiftTE,yvec(j  ),0._dp/))
+        call this%blade(ib)%wiP(this%nc,j)%vr%assignP(3,(/xvec(this%nc+1)+xshiftTE,yvec(j+1),0._dp/))
+        call this%blade(ib)%wiP(this%nc,j)%vr%assignP(4,(/xvec(this%nc  )+xshiftLE,yvec(j+1),0._dp/))
       enddo
 
       ! Shed last row of vortices
       v_shed=0.2_dp*this%radius*this%Omega
       do j=1,this%ns
-        call this%blade(iblade)%wiP(this%nc,j)%vr%shiftdP(2,(/v_shed*dt,0._dp,0._dp/))
-        call this%blade(iblade)%wiP(this%nc,j)%vr%shiftdP(3,(/v_shed*dt,0._dp,0._dp/))
+        call this%blade(ib)%wiP(this%nc,j)%vr%shiftdP(2,(/v_shed*dt,0._dp,0._dp/))
+        call this%blade(ib)%wiP(this%nc,j)%vr%shiftdP(3,(/v_shed*dt,0._dp,0._dp/))
       enddo
 
       ! Initialize CP coords, ncap, panel_area and pivotLE
       do j=1,this%ns
         do i=1,this%nc
-          call this%blade(iblade)%wiP(i,j)%calcCP()
-          call this%blade(iblade)%wiP(i,j)%calcN()
-          this%blade(iblade)%wiP(i,j)%r_hinge=length3d((this%blade(iblade)%wiP(1,j)%pc(:,1)  &
-            +                                           this%blade(iblade)%wiP(1,j)%pc(:,4))*0.5_dp,this%blade(iblade)%wiP(i,j)%cp)
-          call this%blade(iblade)%wiP(i,j)%calc_area()
+          call this%blade(ib)%wiP(i,j)%calcCP()
+          call this%blade(ib)%wiP(i,j)%calcN()
+          this%blade(ib)%wiP(i,j)%r_hinge=length3d((this%blade(ib)%wiP(1,j)%pc(:,1)  &
+            +                                           this%blade(ib)%wiP(1,j)%pc(:,4))*0.5_dp,this%blade(ib)%wiP(i,j)%cp)
+          call this%blade(ib)%wiP(i,j)%calc_area()
         enddo
       enddo
 
       ! Initialize gamma
-      this%blade(iblade)%wiP%vr%gam=0._dp
-      this%blade(iblade)%pivotLE=this%pivotLE
+      this%blade(ib)%wiP%vr%gam=0._dp
+      this%blade(ib)%pivotLE=this%pivotLE
 
       ! Initialize mid vortex core radius
       do i=1,4
-        this%blade(iblade)%wiP%vr%vf(i)%r_vc0= this%spanwise_core
-        this%blade(iblade)%wiP%vr%vf(i)%r_vc = this%spanwise_core
-        this%blade(iblade)%wiP%vr%vf(i)%age  = 0._dp
+        this%blade(ib)%wiP%vr%vf(i)%r_vc0= this%spanwise_core
+        this%blade(ib)%wiP%vr%vf(i)%r_vc = this%spanwise_core
+        this%blade(ib)%wiP%vr%vf(i)%age  = 0._dp
       enddo
 
       ! Initialize tip vortex core radius
       do i=1,this%nc
-        this%blade(iblade)%wiP(i,1)%vr%vf(1)%r_vc0       = this%streamwise_core
-        this%blade(iblade)%wiP(i,1)%vr%vf(1)%r_vc        = this%streamwise_core
-        this%blade(iblade)%wiP(i,this%ns)%vr%vf(3)%r_vc0 = this%streamwise_core
-        this%blade(iblade)%wiP(i,this%ns)%vr%vf(3)%r_vc  = this%streamwise_core
+        this%blade(ib)%wiP(i,1)%vr%vf(1)%r_vc0       = this%streamwise_core
+        this%blade(ib)%wiP(i,1)%vr%vf(1)%r_vc        = this%streamwise_core
+        this%blade(ib)%wiP(i,this%ns)%vr%vf(3)%r_vc0 = this%streamwise_core
+        this%blade(ib)%wiP(i,this%ns)%vr%vf(3)%r_vc  = this%streamwise_core
       enddo
 
       ! Verify CP is outside vortex core for boundary panels
-      if (isCPinsidecore(this%blade(iblade)%wiP(1,1))) then
+      if (isCPinsidecore(this%blade(ib)%wiP(1,1))) then
         print*,'Warning: CP inside vortex core at panel LU'
         print*,'Any key to continue. Ctrl-C to exit'
         read(*,*)
       endif
-      if (isCPinsidecore(this%blade(iblade)%wiP(this%nc,1))) then
+      if (isCPinsidecore(this%blade(ib)%wiP(this%nc,1))) then
         print*,'Warning: CP inside vortex core at panel LB'
         print*,'Any key to continue. Ctrl-C to exit'
         read(*,*)
       endif
-      if (isCPinsidecore(this%blade(iblade)%wiP(1,this%ns))) then
+      if (isCPinsidecore(this%blade(ib)%wiP(1,this%ns))) then
         print*,'Warning: CP inside vortex core at panel RU'
         print*,'Any key to continue. Ctrl-C to exit'
         read(*,*)
       endif
-      if (isCPinsidecore(this%blade(iblade)%wiP(this%nc,this%ns))) then
+      if (isCPinsidecore(this%blade(ib)%wiP(this%nc,this%ns))) then
         print*,'Warning: CP inside vortex core at panel RB'
         print*,'Any key to continue. Ctrl-C to exit'
         read(*,*)
@@ -843,15 +843,15 @@ contains
     enddo
 
     ! Move rotor to hub coordinates
-    do iblade=1,this%nb
-      call this%blade(iblade)%move(this%hub_coords)
+    do ib=1,this%nb
+      call this%blade(ib)%move(this%hub_coords)
     enddo
 
     ! Rotate remaining blades to their positions
     ! Rotate blades for multi-bladed rotors
-    do iblade=2,this%nb
-      blade_offset=2._dp*pi/this%nb*(iblade-1)
-      call this%blade(iblade)%rot_axis(blade_offset,this%shaft_axis,this%hub_coords)
+    do ib=2,this%nb
+      blade_offset=2._dp*pi/this%nb*(ib-1)
+      call this%blade(ib)%rot_axis(blade_offset,this%shaft_axis,this%hub_coords)
     enddo
 
     ! Assign wind velocities
@@ -863,74 +863,74 @@ contains
 
     ! Allocate vars required for wake convection
     ! on the basis of finite diff scheme
-    do iblade=1,this%nb
+    do ib=1,this%nb
       select case (FDscheme_switch)
       case (0)
-        allocate(this%blade(iblade)%vind_wake(3,nt,this%ns+1))
+        allocate(this%blade(ib)%vind_wake(3,nt,this%ns+1))
       case (1)
-        allocate(this%blade(iblade)%Pwake(nt,this%ns))
-        allocate(this%blade(iblade)%vind_wake(3,nt,this%ns+1))
-        allocate(this%blade(iblade)%vind_wake1(3,nt,this%ns+1))
-        allocate(this%blade(iblade)%Pvind_wake(3,nt,this%ns+1))
+        allocate(this%blade(ib)%Pwake(nt,this%ns))
+        allocate(this%blade(ib)%vind_wake(3,nt,this%ns+1))
+        allocate(this%blade(ib)%vind_wake1(3,nt,this%ns+1))
+        allocate(this%blade(ib)%Pvind_wake(3,nt,this%ns+1))
       case (2)
-        allocate(this%blade(iblade)%vind_wake(3,nt,this%ns+1))
-        allocate(this%blade(iblade)%vind_wake1(3,nt,this%ns+1))
-        allocate(this%blade(iblade)%vind_wake_step(3,nt,this%ns+1))
+        allocate(this%blade(ib)%vind_wake(3,nt,this%ns+1))
+        allocate(this%blade(ib)%vind_wake1(3,nt,this%ns+1))
+        allocate(this%blade(ib)%vind_wake_step(3,nt,this%ns+1))
       case (3)
-        allocate(this%blade(iblade)%vind_wake(3,nt,this%ns+1))
-        allocate(this%blade(iblade)%Pwake(nt,this%ns))
-        allocate(this%blade(iblade)%vind_wake1(3,nt,this%ns+1))
-        allocate(this%blade(iblade)%vind_wake2(3,nt,this%ns+1))
-        allocate(this%blade(iblade)%vind_wake3(3,nt,this%ns+1))
-        allocate(this%blade(iblade)%Pvind_wake(3,nt,this%ns+1))
-        allocate(this%blade(iblade)%vind_wake_step(3,nt,this%ns+1))
+        allocate(this%blade(ib)%vind_wake(3,nt,this%ns+1))
+        allocate(this%blade(ib)%Pwake(nt,this%ns))
+        allocate(this%blade(ib)%vind_wake1(3,nt,this%ns+1))
+        allocate(this%blade(ib)%vind_wake2(3,nt,this%ns+1))
+        allocate(this%blade(ib)%vind_wake3(3,nt,this%ns+1))
+        allocate(this%blade(ib)%Pvind_wake(3,nt,this%ns+1))
+        allocate(this%blade(ib)%vind_wake_step(3,nt,this%ns+1))
       end select
     enddo
 
     ! Wake initialization
     ! Assign core_radius to mid vortices
-    do iblade=1,this%nb
+    do ib=1,this%nb
       do i=1,4
-        this%blade(iblade)%waP%vr%vf(i)%r_vc0 = this%spanwise_core
-        this%blade(iblade)%waP%vr%vf(i)%r_vc  = this%spanwise_core
-        this%blade(iblade)%waP%vr%vf(i)%age=0._dp
+        this%blade(ib)%waP%vr%vf(i)%r_vc0 = this%spanwise_core
+        this%blade(ib)%waP%vr%vf(i)%r_vc  = this%spanwise_core
+        this%blade(ib)%waP%vr%vf(i)%age=0._dp
       enddo
 
-      this%blade(iblade)%waP%vr%gam=0._dp
+      this%blade(ib)%waP%vr%gam=0._dp
 
       ! Assign core_radius to tip vortices
       do i=1,nt
         ! Root vortex
-        this%blade(iblade)%waP(i,1)%vr%vf(1)%r_vc0      = this%streamwise_core
-        this%blade(iblade)%waP(i,1)%vr%vf(1)%r_vc       = this%streamwise_core
-        this%blade(iblade)%waP(i,1)%vr%vf(3)%r_vc0      = this%streamwise_core
-        this%blade(iblade)%waP(i,1)%vr%vf(3)%r_vc       = this%streamwise_core
+        this%blade(ib)%waP(i,1)%vr%vf(1)%r_vc0      = this%streamwise_core
+        this%blade(ib)%waP(i,1)%vr%vf(1)%r_vc       = this%streamwise_core
+        this%blade(ib)%waP(i,1)%vr%vf(3)%r_vc0      = this%streamwise_core
+        this%blade(ib)%waP(i,1)%vr%vf(3)%r_vc       = this%streamwise_core
 
-        this%blade(iblade)%waP(i,2)%vr%vf(1)%r_vc0      = this%streamwise_core
-        this%blade(iblade)%waP(i,2)%vr%vf(1)%r_vc       = this%streamwise_core
-        this%blade(iblade)%waP(i,2)%vr%vf(3)%r_vc0      = this%streamwise_core
-        this%blade(iblade)%waP(i,2)%vr%vf(3)%r_vc       = this%streamwise_core
+        this%blade(ib)%waP(i,2)%vr%vf(1)%r_vc0      = this%streamwise_core
+        this%blade(ib)%waP(i,2)%vr%vf(1)%r_vc       = this%streamwise_core
+        this%blade(ib)%waP(i,2)%vr%vf(3)%r_vc0      = this%streamwise_core
+        this%blade(ib)%waP(i,2)%vr%vf(3)%r_vc       = this%streamwise_core
 
         ! Tip vortex
-        this%blade(iblade)%waP(i,this%ns)%vr%vf(1)%r_vc0   = this%streamwise_core
-        this%blade(iblade)%waP(i,this%ns)%vr%vf(1)%r_vc    = this%streamwise_core
-        this%blade(iblade)%waP(i,this%ns)%vr%vf(3)%r_vc0   = this%streamwise_core
-        this%blade(iblade)%waP(i,this%ns)%vr%vf(3)%r_vc    = this%streamwise_core
+        this%blade(ib)%waP(i,this%ns)%vr%vf(1)%r_vc0   = this%streamwise_core
+        this%blade(ib)%waP(i,this%ns)%vr%vf(1)%r_vc    = this%streamwise_core
+        this%blade(ib)%waP(i,this%ns)%vr%vf(3)%r_vc0   = this%streamwise_core
+        this%blade(ib)%waP(i,this%ns)%vr%vf(3)%r_vc    = this%streamwise_core
 
-        this%blade(iblade)%waP(i,this%ns-1)%vr%vf(3)%r_vc0 = this%streamwise_core
-        this%blade(iblade)%waP(i,this%ns-1)%vr%vf(3)%r_vc  = this%streamwise_core
-        !this%blade(iblade)%waP(i,this%ns-1)%vr%vf(3)%r_vc0 = this%streamwise_core
-        !this%blade(iblade)%waP(i,this%ns-1)%vr%vf(3)%r_vc  = this%streamwise_core
+        this%blade(ib)%waP(i,this%ns-1)%vr%vf(3)%r_vc0 = this%streamwise_core
+        this%blade(ib)%waP(i,this%ns-1)%vr%vf(3)%r_vc  = this%streamwise_core
+        !this%blade(ib)%waP(i,this%ns-1)%vr%vf(3)%r_vc0 = this%streamwise_core
+        !this%blade(ib)%waP(i,this%ns-1)%vr%vf(3)%r_vc  = this%streamwise_core
       enddo
 
       !if (starting_vortex_core > eps) then
       !  ! Assign core_radius to starting vortices
       !  do i=1,this%ns
       !    do j=2,4,2
-      !      this%blade(iblade)%waP(rows,i)%vr%vf(j)%r_vc0 = starting_vortex_core
-      !      this%blade(iblade)%waP(rows,i)%vr%vf(j)%r_vc  = starting_vortex_core
-      !      this%blade(iblade)%waP(rows-1,i)%vr%vf(j)%r_vc0 = starting_vortex_core
-      !      this%blade(iblade)%waP(rows-1,i)%vr%vf(j)%r_vc  = starting_vortex_core
+      !      this%blade(ib)%waP(rows,i)%vr%vf(j)%r_vc0 = starting_vortex_core
+      !      this%blade(ib)%waP(rows,i)%vr%vf(j)%r_vc  = starting_vortex_core
+      !      this%blade(ib)%waP(rows-1,i)%vr%vf(j)%r_vc0 = starting_vortex_core
+      !      this%blade(ib)%waP(rows-1,i)%vr%vf(j)%r_vc  = starting_vortex_core
       !    enddo
       !  enddo
       !endif
@@ -969,28 +969,28 @@ contains
 
   end subroutine deinit
 
-  function gettheta(this,psi,iblade)
+  function gettheta(this,psi,ib)
   class(rotor_class) :: this
     real(dp), intent(in) :: psi
-    integer, intent(in) :: iblade
+    integer, intent(in) :: ib
     real(dp) :: gettheta
     real(dp) :: blade_offset
 
-    blade_offset=2._dp*pi/this%nb*(iblade-1)
+    blade_offset=2._dp*pi/this%nb*(ib-1)
     gettheta=this%control_pitch(1)  &
       +         this%control_pitch(2)*cos(psi+blade_offset)  &
       +         this%control_pitch(3)*sin(psi+blade_offset)  
 
   end function gettheta
 
-  function getthetadot(this,psi,iblade)
+  function getthetadot(this,psi,ib)
   class(rotor_class) :: this
     real(dp), intent(in) :: psi
-    integer, intent(in) :: iblade
+    integer, intent(in) :: ib
     real(dp) :: getthetadot
     real(dp) :: blade_offset
 
-    blade_offset=2._dp*pi/this%nb*(iblade-1)
+    blade_offset=2._dp*pi/this%nb*(ib-1)
     getthetadot=-this%control_pitch(2)*sin(psi+blade_offset)  &
       +          this%control_pitch(3)*cos(psi+blade_offset)  
 
@@ -998,21 +998,21 @@ contains
 
   subroutine calcAIC(this)
   class(rotor_class), intent(inout) :: this
-    integer :: iblade,jblade,ispan,ichord,i,j,row,col
+    integer :: ib,jblade,is,ic,i,j,row,col
     real(dp), dimension(3) :: vec_dummy
 
     ! Influence Coefficient Matrix
-    do iblade=1,this%nb
-      do ispan=1,this%ns      ! Collocation point loop
-        do ichord=1,this%nc
-          row=ichord+this%nc*(ispan-1)+this%ns*this%nc*(iblade-1)
+    do ib=1,this%nb
+      do is=1,this%ns      ! Collocation point loop
+        do ic=1,this%nc
+          row=ic+this%nc*(is-1)+this%ns*this%nc*(ib-1)
 
           do jblade=1,this%nb
             do j=1,this%ns       ! Vortex ring loop
               do i=1,this%nc
                 col=i+this%nc*(j-1)+this%ns*this%nc*(jblade-1)
-                vec_dummy=this%blade(jblade)%wiP(i,j)%vr%vind(this%blade(iblade)%wiP(ichord,ispan)%CP)
-                this%AIC(row,col)=dot_product(vec_dummy,this%blade(iblade)%wiP(ichord,ispan)%ncap)
+                vec_dummy=this%blade(jblade)%wiP(i,j)%vr%vind(this%blade(ib)%wiP(ic,is)%CP)
+                this%AIC(row,col)=dot_product(vec_dummy,this%blade(ib)%wiP(ic,is)%ncap)
               enddo
             enddo
           enddo
@@ -1040,10 +1040,10 @@ contains
   class(rotor_class) :: this
     real(dp), intent(in), dimension(3) :: dshift
 
-    integer :: iblade
+    integer :: ib
 
-    do iblade=1,this%nb
-      call this%blade(iblade)%move(dshift)
+    do ib=1,this%nb
+      call this%blade(ib)%move(dshift)
     enddo
     this%hub_coords=this%hub_coords+dshift
     this%CG_coords=this%CG_coords+dshift
@@ -1055,7 +1055,7 @@ contains
     real(dp), dimension(3), intent(in) :: pts    ! pts => phi,theta,psi
     real(dp), dimension(3), intent(in) :: origin ! rotation about
     integer, intent(in) :: order    ! [1]gb & +ve theta , [2]bg & -ve theta
-    integer :: iblade
+    integer :: ib
     real(dp), dimension(3,3) :: TMat
 
     select case (order)
@@ -1071,8 +1071,8 @@ contains
       error stop 'Error: wrong option for order'
     end select
 
-    do iblade=1,this%nb
-      call this%blade(iblade)%rot_pts(pts,origin,order)
+    do ib=1,this%nb
+      call this%blade(ib)%rot_pts(pts,origin,order)
     enddo
 
     this%shaft_axis=matmul(TMat,this%shaft_axis)
@@ -1090,15 +1090,15 @@ contains
   subroutine rotor_rot_advance(this,dpsi)
   class(rotor_class), intent(inout) :: this
     real(dp), intent(in) :: dpsi
-    integer :: iblade
+    integer :: ib
     real(dp) :: dtheta
 
     this%psi=this%psi+dpsi
-    do iblade=1,this%nb
-      call this%blade(iblade)%rot_axis(dpsi,this%shaft_axis,this%hub_coords)
-      this%blade(iblade)%psi=this%blade(iblade)%psi+dpsi
-      dtheta=this%blade(iblade)%theta-this%gettheta(this%psi,iblade)
-      call this%blade(iblade)%rot_pitch(dtheta)
+    do ib=1,this%nb
+      call this%blade(ib)%rot_axis(dpsi,this%shaft_axis,this%hub_coords)
+      this%blade(ib)%psi=this%blade(ib)%psi+dpsi
+      dtheta=this%blade(ib)%theta-this%gettheta(this%psi,ib)
+      call this%blade(ib)%rot_pitch(dtheta)
     enddo
 
   end subroutine rotor_rot_advance
@@ -1113,27 +1113,27 @@ contains
   class(rotor_class), intent(inout) :: this
     integer, intent(in) :: row_now
     character(len=2), intent(in) :: edge
-    integer :: i, iblade
+    integer :: i, ib
 
-    do iblade=1,this%nb
-      this%blade(iblade)%waP%vr%gam=this%blade(iblade)%wiP%vr%gam
+    do ib=1,this%nb
+      this%blade(ib)%waP%vr%gam=this%blade(ib)%wiP%vr%gam
     enddo
 
     select case (edge)
     case ('LE')    ! assign to LE
-      do iblade=1,this%nb
+      do ib=1,this%nb
         do i=1,this%ns
-          call this%blade(iblade)%waP(row_now,i)%vr%assignP(1,this%blade(iblade)%wiP(this%nc,i)%vr%vf(2)%fc(:,1))
-          call this%blade(iblade)%waP(row_now,i)%vr%assignP(4,this%blade(iblade)%wiP(this%nc,i)%vr%vf(3)%fc(:,1))
-          call this%blade(iblade)%waP(row_now,i)%vr%calclength(.TRUE.)    ! TRUE => record original length
+          call this%blade(ib)%waP(row_now,i)%vr%assignP(1,this%blade(ib)%wiP(this%nc,i)%vr%vf(2)%fc(:,1))
+          call this%blade(ib)%waP(row_now,i)%vr%assignP(4,this%blade(ib)%wiP(this%nc,i)%vr%vf(3)%fc(:,1))
+          call this%blade(ib)%waP(row_now,i)%vr%calclength(.TRUE.)    ! TRUE => record original length
         enddo
 
       enddo
     case ('TE')    ! assign to TE
-      do iblade=1,this%nb
+      do ib=1,this%nb
         do i=1,this%ns
-          call this%blade(iblade)%waP(row_now,i)%vr%assignP(2,this%blade(iblade)%wiP(this%nc,i)%vr%vf(2)%fc(:,1))
-          call this%blade(iblade)%waP(row_now,i)%vr%assignP(3,this%blade(iblade)%wiP(this%nc,i)%vr%vf(3)%fc(:,1))
+          call this%blade(ib)%waP(row_now,i)%vr%assignP(2,this%blade(ib)%wiP(this%nc,i)%vr%vf(2)%fc(:,1))
+          call this%blade(ib)%waP(row_now,i)%vr%assignP(3,this%blade(ib)%wiP(this%nc,i)%vr%vf(3)%fc(:,1))
         enddo
       enddo
     case default
