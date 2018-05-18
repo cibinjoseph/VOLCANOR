@@ -169,10 +169,8 @@ program main
 
             ! Wake vel
             do jr=1,nr
-              do jb=1,rotor(jr)%nb
-                rotor(ir)%blade(ib)%wiP(ic,is)%velCP=rotor(ir)%blade(ib)%wiP(ic,is)%velCP  &
-                  +vind_bywake(rotor(jr)%blade(jb)%waP(row_now:nt,:),rotor(ir)%blade(ib)%wiP(ic,is)%cp)
-              enddo
+              rotor(ir)%blade(ib)%wiP(ic,is)%velCP=rotor(ir)%blade(ib)%wiP(ic,is)%velCP  &
+                +rotor(jr)%vind_bywake(row_now,rotor(ir)%blade(ib)%wiP(ic,is)%cp)
             enddo
 
             rotor(ir)%RHS(row)=dot_product(rotor(ir)%blade(ib)%wiP(ic,is)%velCP,rotor(ir)%blade(ib)%wiP(ic,is)%ncap)
