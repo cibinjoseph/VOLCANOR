@@ -138,7 +138,7 @@ program main
     do ir=1,nr
       call rotor(ir)%move(rotor(ir)%v_body*dt)
       call rotor(ir)%rot_pts(rotor(ir)%om_body*dt,rotor(ir)%CG_coords,1)
-      call rotor(ir)%rot_advance(rotor(ir)%Omega_slow)
+      call rotor(ir)%rot_advance(rotor(ir)%Omega_slow*dt)
     enddo
 
     do ir=1,nr

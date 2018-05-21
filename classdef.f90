@@ -1099,8 +1099,9 @@ contains
     do ib=1,this%nb
       call this%blade(ib)%rot_axis(dpsi,this%shaft_axis,this%hub_coords)
       this%blade(ib)%psi=this%blade(ib)%psi+dpsi
-      dtheta=this%blade(ib)%theta-this%gettheta(this%psi,ib)
+      dtheta=this%gettheta(this%psi,ib)-this%blade(ib)%theta
       call this%blade(ib)%rot_pitch(dtheta)
+      this%blade(ib)%theta=this%gettheta(this%psi,ib)
     enddo
 
   end subroutine rotor_rot_advance
