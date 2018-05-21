@@ -105,7 +105,9 @@ program main
 
     select case (slowstart_switch)
     case (0)    ! No slow start
-      rotor(ir)%Omega_slow=rotor(ir)%Omega
+      do ir=1,nr
+        rotor(ir)%Omega_slow=rotor(ir)%Omega
+      enddo
     case (1)    ! Linear slope
       do ir=1,nr
         rotor(ir)%Omega_slow=min(real(slowstart_nt),real(iter+1))*rotor(ir)%Omega/slowstart_nt
