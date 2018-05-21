@@ -105,11 +105,15 @@ contains
     real(dp), dimension(4,3) :: vind_mat
     integer :: i
 
+    print*,
+
     vind=0._dp
 
     do i=1,4
       vind_mat(i,:)=this%vf(i)%vind(P) 
+      print*,vind_mat(i,:)
     enddo
+    print*,'HAHA'
     vind=sum(vind_mat,1)
 
   end function vrclass_vind
@@ -1012,6 +1016,8 @@ contains
               do i=1,this%nc
                 col=i+this%nc*(j-1)+this%ns*this%nc*(jblade-1)
                 vec_dummy=this%blade(jblade)%wiP(i,j)%vr%vind(this%blade(ib)%wiP(ic,is)%CP)
+                print*,vec_dummy
+                stop
                 this%AIC(row,col)=dot_product(vec_dummy,this%blade(ib)%wiP(ic,is)%ncap)
               enddo
             enddo
