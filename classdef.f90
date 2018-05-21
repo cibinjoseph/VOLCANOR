@@ -1019,8 +1019,10 @@ contains
 
         enddo
       enddo
-      this%AIC_inv=inv(this%AIC)
     enddo
+    !call print_mat(this%AIC)
+    !stop
+    this%AIC_inv=inv(this%AIC)
   end subroutine calcAIC
 
   subroutine map_gam(this)
@@ -1116,7 +1118,7 @@ contains
     integer :: i, ib
 
     do ib=1,this%nb
-      this%blade(ib)%waP%vr%gam=this%blade(ib)%wiP%vr%gam
+      this%blade(ib)%waP(row_now,:)%vr%gam=this%blade(ib)%wiP(this%nc,:)%vr%gam
     enddo
 
     select case (edge)
