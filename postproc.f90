@@ -12,16 +12,16 @@ contains
     real(dp), dimension(3,size(rotor%blade(1)%waP,1)+1,rotor%ns+1) :: wake_mesh  
     integer :: i,j,nx,ny,ib
 
-    nx=rotor%nc
-    ny=rotor%ns
-    write(nx_char,'(I5)') nx+1
-    write(ny_char,'(I5)') ny+1
-
     open(unit=10,file=filename,position='append')
     write(10,*) 'Title = "Panel array"'
     write(10,*) 'VARIABLES = "X" "Y" "Z" "GAM"'
 
     do ib=1,rotor%nb
+      nx=rotor%nc
+      ny=rotor%ns
+      write(nx_char,'(I5)') nx+1
+      write(ny_char,'(I5)') ny+1
+
       do j=1,ny
         do i=1,nx
           wing_mesh(:,i,j)=rotor%blade(ib)%wiP(i,j)%pc(:,1)
