@@ -53,8 +53,6 @@ program main
   do ir=1,nr
     call rotor(ir)%calcAIC()
   enddo
-  print*,(rotor(1)%AIC(1,1))
-  stop
 
   ! Initial Solution
   if (slowstart_switch .ne. 0) then

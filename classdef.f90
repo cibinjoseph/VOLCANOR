@@ -105,15 +105,11 @@ contains
     real(dp), dimension(4,3) :: vind_mat
     integer :: i
 
-    print*,
-
     vind=0._dp
 
     do i=1,4
       vind_mat(i,:)=this%vf(i)%vind(P) 
-      print*,vind_mat(i,:)
     enddo
-    print*,'HAHA'
     vind=sum(vind_mat,1)
 
   end function vrclass_vind
@@ -787,7 +783,11 @@ contains
       enddo
 
       ! Shed last row of vortices
-      v_shed=0.2_dp*this%radius*this%Omega
+      if (abs(norm2(this%v_wind)) < eps) then
+        v_shed=0.02_dp*this%chord/(dt*this%nc)
+      else
+        v_shed=0.2_dp*norm2(this%v_wind)
+      endif
       do j=1,this%ns
         call this%blade(ib)%wiP(this%nc,j)%vr%shiftdP(2,(/v_shed*dt,0._dp,0._dp/))
         call this%blade(ib)%wiP(this%nc,j)%vr%shiftdP(3,(/v_shed*dt,0._dp,0._dp/))
@@ -1016,8 +1016,6 @@ contains
               do i=1,this%nc
                 col=i+this%nc*(j-1)+this%ns*this%nc*(jblade-1)
                 vec_dummy=this%blade(jblade)%wiP(i,j)%vr%vind(this%blade(ib)%wiP(ic,is)%CP)
-                print*,vec_dummy
-                stop
                 this%AIC(row,col)=dot_product(vec_dummy,this%blade(ib)%wiP(ic,is)%ncap)
               enddo
             enddo
@@ -1026,8 +1024,6 @@ contains
         enddo
       enddo
     enddo
-    !call print_mat(this%AIC)
-    !stop
     this%AIC_inv=inv(this%AIC)
   end subroutine calcAIC
 
