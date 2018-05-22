@@ -19,7 +19,7 @@ contains
     sz=size(rotor%blade(1)%waP,1)
     row_now=sz-(rows-1)
 
-    ! Induced velocity due to all blades
+    ! Induced velocity due to all blades and wake
     !$omp parallel do collapse(2) 
     do j=1,rotor%ns
       do i=1,rows
