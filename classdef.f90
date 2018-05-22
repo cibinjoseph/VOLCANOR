@@ -556,28 +556,28 @@ contains
   subroutine convectwake(this,dP_array)
   class(blade_class), intent(inout) :: this
     real(dp), intent(in), dimension(:,:,:) :: dP_array
-    integer :: i,j,rows,cols,row_now,row_end
+    integer :: i,j,rows,cols,nt,index_offset
 
     rows=size(dP_array,2)
     cols=size(this%waP,2)
-    row_end=size(this%waP,1)
-    row_now=row_end-(rows-1)
+    nt=size(this%waP,1)
+    index_offset=nt-rows
 
     !$omp parallel do collapse(2)
     do j=1,cols
-      do i=row_now,row_end
-        call this%waP(i,j)%vr%shiftdP(2,dP_array(:,i,j))
+      do i=1,rows
+        call this%waP(i+index_offset,j)%vr%shiftdP(2,dP_array(:,i,j))
       enddo
     enddo
     !$omp end parallel do
 
     !$omp parallel do
-    do i=row_now,row_end
-      call this%waP(i,cols)%vr%shiftdP(3,dP_array(:,i,cols+1))
+    do i=1,rows
+      call this%waP(i+index_offset,cols)%vr%shiftdP(3,dP_array(:,i,cols+1))
     enddo
     !$omp end parallel do
 
-    call this%wake_continuity(row_now)
+    call this%wake_continuity(index_offset+1)
 
   end subroutine convectwake
 
