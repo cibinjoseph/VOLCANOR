@@ -217,6 +217,9 @@ program main
       enddo
     enddo
 
+    !print*,(rotor(1)%blade(1)%vind_wake(1,row_now:nt,:))
+    !read*
+
     ! Update wake vortex locations
     select case (FDscheme_switch)
 

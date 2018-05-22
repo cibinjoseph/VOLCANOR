@@ -558,7 +558,7 @@ contains
     real(dp), intent(in), dimension(:,:,:) :: dP_array
     integer :: i,j,rows,cols,row_now,row_end
 
-    rows=size(dP_array,2)
+    rows=size(dP_array,1)
     cols=size(this%waP,2)
     row_end=size(this%waP,1)
     row_now=row_end-(rows-1)
