@@ -16,7 +16,7 @@ contains
     integer :: i,j,rows,nt,row_now
 
     rows=size(wake_array,1)
-    sz=size(rotor%blade(1)%waP,1)
+    nt=size(rotor%blade(1)%waP,1)
     row_now=nt-(rows-1)
 
     ! Induced velocity due to all blades and wake
