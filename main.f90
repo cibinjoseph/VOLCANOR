@@ -206,19 +206,18 @@ program main
       enddo
     enddo
 
-    do ir=1,nr
-      do ib=1,rotor(ir)%nb
-        if (iter > wake_ignore_nt .or. wake_ignore_nt .eq. 0) then 
-          rotor(ir)%blade(ib)%vind_wake(:,row_now:nt,:)=rotor(ir)%blade(ib)%vind_wake(:,row_now:nt,:)+vind_onwake_byrotor(rotor(ir),rotor(ir)%blade(ib)%waP(row_now:nt,:))
-        endif
-        if (iter < init_wake_vel_nt .or. rotor(ir)%init_wake_vel .ne. 0) then
-          rotor(ir)%blade(ib)%vind_wake(3,row_now:nt,:)=rotor(ir)%blade(ib)%vind_wake(3,row_now:nt,:)+rotor(ir)%init_wake_vel
-        endif
+    do jr=1,nr
+      do ir=1,nr
+        do ib=1,rotor(ir)%nb
+          if (iter > wake_ignore_nt .or. wake_ignore_nt .eq. 0) then 
+            rotor(ir)%blade(ib)%vind_wake(:,row_now:nt,:)=rotor(ir)%blade(ib)%vind_wake(:,row_now:nt,:)+vind_onwake_byrotor(rotor(jr),rotor(ir)%blade(ib)%waP(row_now:nt,:))
+          endif
+          if (iter < init_wake_vel_nt .or. rotor(ir)%init_wake_vel .ne. 0) then
+            rotor(ir)%blade(ib)%vind_wake(3,row_now:nt,:)=rotor(ir)%blade(ib)%vind_wake(3,row_now:nt,:)+rotor(ir)%init_wake_vel
+          endif
+        enddo
       enddo
     enddo
-
-    !print*,(rotor(1)%blade(1)%vind_wake(1,row_now:nt,:))
-    !read*
 
     ! Update wake vortex locations
     select case (FDscheme_switch)
