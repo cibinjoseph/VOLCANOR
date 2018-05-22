@@ -206,9 +206,9 @@ program main
       enddo
     enddo
 
-    do jr=1,nr
-      do ir=1,nr
-        do ib=1,rotor(ir)%nb
+    do ir=1,nr
+      do ib=1,rotor(ir)%nb
+        do jr=1,nr
           if (iter > wake_ignore_nt .or. wake_ignore_nt .eq. 0) then 
             rotor(ir)%blade(ib)%vind_wake(:,row_now:nt,:)=rotor(ir)%blade(ib)%vind_wake(:,row_now:nt,:)+vind_onwake_byrotor(rotor(jr),rotor(ir)%blade(ib)%waP(row_now:nt,:))
           endif
