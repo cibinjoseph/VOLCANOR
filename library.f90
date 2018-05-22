@@ -13,11 +13,11 @@ contains
     type(rotor_class), intent(inout) :: rotor
     type(wakepanel_class), intent(in), dimension(:,:) :: wake_array
     real(dp), dimension(3,size(wake_array,1),size(wake_array,2)+1) :: vind_array
-    integer :: i,j,rows,sz,row_now
+    integer :: i,j,rows,nt,row_now
 
     rows=size(wake_array,1)
     sz=size(rotor%blade(1)%waP,1)
-    row_now=sz-(rows-1)
+    row_now=nt-(rows-1)
 
     ! Induced velocity due to all blades and wake
     !$omp parallel do collapse(2) 
