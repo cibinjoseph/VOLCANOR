@@ -529,7 +529,7 @@ contains
     blade_vind_bywing=0._dp
     do j=1,size(this%wiP,2)
       do i=1,size(this%wiP,1)
-        blade_vind_bywing=blade_vind_bywing+this%wiP(i,j)%vr%vind(P)
+        blade_vind_bywing=blade_vind_bywing+this%wiP(i,j)%vr%vind(P)*this%wiP(i,j)%vr%gam
       enddo
     enddo
 
@@ -546,7 +546,7 @@ contains
     blade_vind_bywake=0._dp
     do j=1,size(this%waP,2)
       do i=row_now,size(this%waP,1)
-        blade_vind_bywake=blade_vind_bywake+this%waP(i,j)%vr%vind(P)
+        blade_vind_bywake=blade_vind_bywake+this%waP(i,j)%vr%vind(P)*this%waP(i,j)%vr%gam
       enddo
     enddo
 
