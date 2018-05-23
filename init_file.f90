@@ -21,7 +21,7 @@ character(len=2) :: rotor_char
 character(len=10) :: rotorfile
 
 ! Iterators
-integer :: is,ic,row,iter,row_now,ir,jr,ib
+integer :: i,is,ic,row,iter,row_now,ir,jr,ib
 
 ! Switches
 integer :: span_spacing_switch
