@@ -503,9 +503,9 @@ contains
       st=sin(theta)
       omct=1-ct
 
-      Tmat(:,1)=(/      ct+axis(1)*axis(1)*omct,  axis(3)*st+axis(2)*axis(1)*omct, -axis(2)*st+axis(3)*axis(1)*omct/)
-      Tmat(:,2)=(/-axis(3)*st+axis(1)*axis(2)*omct,       ct+axis(2)*axis(2)*omct,  axis(1)*st+axis(3)*axis(2)*omct/)
-      Tmat(:,3)=(/ axis(2)*st+axis(1)*axis(3)*omct, -axis(1)*st+axis(2)*axis(3)*omct,       ct+axis(3)*axis(3)*omct/)
+      Tmat(:,1)=(/         ct+axis(1)*axis(1)*omct,  axis(3)*st+axis(2)*axis(1)*omct, -axis(2)*st+axis(3)*axis(1)*omct/)
+      Tmat(:,2)=(/-axis(3)*st+axis(1)*axis(2)*omct,          ct+axis(2)*axis(2)*omct,  axis(1)*st+axis(3)*axis(2)*omct/)
+      Tmat(:,3)=(/ axis(2)*st+axis(1)*axis(3)*omct, -axis(1)*st+axis(2)*axis(3)*omct,          ct+axis(3)*axis(3)*omct/)
 
       ! Rotate about axis
       do j=1,size(this%wiP,2)
