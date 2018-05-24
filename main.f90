@@ -45,7 +45,8 @@ program main
   ! Rotate wing pc, vr, cp and ncap by initial pitch angle 
   do ir=1,nr
     do ib=1,rotor(ir)%nb
-      call rotor(ir)%blade(ib)%rot_pitch(theta_pitch)
+      rotor(ir)%blade(ib)%theta=rotor(ir)%gettheta(rotor(ir)%psi_start,ib)
+      call rotor(ir)%blade(ib)%rot_pitch(rotor(ir)%blade(ib)%theta)
     enddo
   enddo
 
