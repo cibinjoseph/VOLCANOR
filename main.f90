@@ -59,6 +59,10 @@ program main
     do ir=1,nr
       rotor(ir)%Omega_slow=0._dp
     enddo
+  else 
+    do ir=1,nr
+      rotor(ir)%Omega_slow=rotor(ir)%Omega
+    enddo
   endif
   t=0._dp
 
