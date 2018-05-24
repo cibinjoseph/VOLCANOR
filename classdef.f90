@@ -476,6 +476,7 @@ contains
 
       ! Construct axes of rotation from LE of first panel
       axis=this%wiP(1,1)%pc(:,4)-this%wiP(1,1)%pc(:,1)
+      axis=axis/norm2(axis)
 
       call this%rot_axis(theta,axis,origin)
     endif
