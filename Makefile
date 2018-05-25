@@ -22,24 +22,36 @@ init:
 
 lib:
 	reset
-	@$(ifc) $(iflags) -c mymathlib.f90          -module $(objpath) -o $(objpath)/mymathlib.o
-	@$(ifc) $(iflags) -c classdef.f90           -module $(objpath) -o $(objpath)/classdef.o
-	@$(ifc) $(iflags) -c library.f90            -module $(objpath) -o $(objpath)/library.o
-	@$(ifc) $(iflags) -c postproc.f90           -module $(objpath) -o $(objpath)/postproc.o
+	@$(ifc) $(iflags) -c mymathlib.f90       -module $(objpath) -o $(objpath)/mymathlib.o
+	@printf '%s' 'Compiled 1/4...'
+	@$(ifc) $(iflags) -c classdef.f90        -module $(objpath) -o $(objpath)/classdef.o
+	@printf '\r%s' 'Compiled 2/4...'
+	@$(ifc) $(iflags) -c library.f90         -module $(objpath) -o $(objpath)/library.o
+	@printf '\r%s' 'Compiled 3/4...'
+	@$(ifc) $(iflags) -c postproc.f90        -module $(objpath) -o $(objpath)/postproc.o
+	@printf '\r%s\n' 'Compiled 4/4...'
 
 lib_dbg:
 	reset
-	@$(ifc) $(iflagsdbg) -c mymathlib.f90          -module $(objpath) -o $(objpath)/mymathlib.o
-	@$(ifc) $(iflagsdbg) -c classdef.f90           -module $(objpath) -o $(objpath)/classdef.o
-	@$(ifc) $(iflagsdbg) -c library.f90            -module $(objpath) -o $(objpath)/library.o
-	@$(ifc) $(iflagsdbg) -c postproc.f90           -module $(objpath) -o $(objpath)/postproc.o
+	@$(ifc) $(iflagsdbg) -c mymathlib.f90    -module $(objpath) -o $(objpath)/mymathlib.o
+	@printf '%s' 'Compiled 1/4...'
+	@$(ifc) $(iflagsdbg) -c classdef.f90     -module $(objpath) -o $(objpath)/classdef.o
+	@printf '\r%s' 'Compiled 2/4...'
+	@$(ifc) $(iflagsdbg) -c library.f90      -module $(objpath) -o $(objpath)/library.o
+	@printf '\r%s' 'Compiled 3/4...'
+	@$(ifc) $(iflagsdbg) -c postproc.f90     -module $(objpath) -o $(objpath)/postproc.o
+	@printf '\r%s\n' 'Compiled 4/4...'
 
 lib_prof:
 	reset
-	@$(ifc) $(iflagsprof) -c mymathlib.f90          -module $(objpath) -o $(objpath)/mymathlib.o
-	@$(ifc) $(iflagsprof) -c classdef.f90           -module $(objpath) -o $(objpath)/classdef.o
-	@$(ifc) $(iflagsprof) -c library.f90            -module $(objpath) -o $(objpath)/library.o
-	@$(ifc) $(iflagsprof) -c postproc.f90           -module $(objpath) -o $(objpath)/postproc.o
+	@$(ifc) $(iflagsprof) -c mymathlib.f90   -module $(objpath) -o $(objpath)/mymathlib.o
+	@printf '%s' 'Compiled 1/4...'
+	@$(ifc) $(iflagsprof) -c classdef.f90    -module $(objpath) -o $(objpath)/classdef.o
+	@printf '\r%s' 'Compiled 2/4...'
+	@$(ifc) $(iflagsprof) -c library.f90     -module $(objpath) -o $(objpath)/library.o
+	@printf '\r%s' 'Compiled 3/4...'
+	@$(ifc) $(iflagsprof) -c postproc.f90    -module $(objpath) -o $(objpath)/postproc.o
+	@printf '\r%s\n' 'Compiled 4/4...'
 
 run:
 	reset
@@ -79,17 +91,17 @@ trial_dbg:
 # Gfortran part
 glib_dbg:
 	reset
-	@$(gfc) $(gflagsdbg) -c mymathlib.f90          -J$(objpath) -o $(objpath)/mymathlib.o
-	@$(gfc) $(gflagsdbg) -c classdef.f90           -J$(objpath) -o $(objpath)/classdef.o
-	@$(gfc) $(gflagsdbg) -c library.f90            -J$(objpath) -o $(objpath)/library.o
-	@$(gfc) $(gflagsdbg) -c postproc.f90           -J$(objpath) -o $(objpath)/postproc.o
+	@$(gfc) $(gflagsdbg) -c mymathlib.f90  -J$(objpath) -o $(objpath)/mymathlib.o
+	@$(gfc) $(gflagsdbg) -c classdef.f90   -J$(objpath) -o $(objpath)/classdef.o
+	@$(gfc) $(gflagsdbg) -c library.f90    -J$(objpath) -o $(objpath)/library.o
+	@$(gfc) $(gflagsdbg) -c postproc.f90   -J$(objpath) -o $(objpath)/postproc.o
 
 glib:
 	reset
-	@$(gfc) $(gflags) -c mymathlib.f90          -J$(objpath) -o $(objpath)/mymathlib.o
-	@$(gfc) $(gflags) -c classdef.f90           -J$(objpath) -o $(objpath)/classdef.o
-	@$(gfc) $(gflags) -c library.f90            -J$(objpath) -o $(objpath)/library.o
-	@$(gfc) $(gflags) -c postproc.f90           -J$(objpath) -o $(objpath)/postproc.o
+	@$(gfc) $(gflags) -c mymathlib.f90     -J$(objpath) -o $(objpath)/mymathlib.o
+	@$(gfc) $(gflags) -c classdef.f90      -J$(objpath) -o $(objpath)/classdef.o
+	@$(gfc) $(gflags) -c library.f90       -J$(objpath) -o $(objpath)/library.o
+	@$(gfc) $(gflags) -c postproc.f90      -J$(objpath) -o $(objpath)/postproc.o
 
 grun:
 	reset
