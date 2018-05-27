@@ -1,13 +1,13 @@
 #### IFORT ####
 ifc=ifort
 iflags=-fast -O3 -implicitnone -r8 -qopenmp -parallel -heap-arrays 200  -ansi-alias -qopt-jump-tables='large' -xcore-avx2
-iflagsdbg=-traceback -O0 -warn all -implicitnone -r8 -check bounds -g -fpe0 #-pg
+iflagsdbg=-traceback -O0 -warn all -implicitnone -r8 -check bounds -g -fpe0 -debug extended #-pg
 iflagsprof=-traceback -O3 -implicitnone -r8 -g -debug inline-debug-info -parallel-source-info=2 -qopenmp -xcore-avx2 #-pg
 
 #### GFORTRAN ####
 gfc=gfortran-7 
 gflags=-O2 -ffree-form -fimplicit-none -fopenmp #-fmax-stack-var-size=4096
-gflagsdbg=-fbacktrace -O0 -ffree-form -Wall -Wextra -Wimplicit-interface -Wunused-parameter -Wline-truncation -Wcharacter-truncation -Wsurprising -Waliasing -fimplicit-none -fcheck=all -g -ffpe-trap=invalid,zero
+gflagsdbg=-fbacktrace -O0 -ffree-form -Wall -Wextra -Wimplicit-interface -Wunused-parameter -Wline-truncation -Wcharacter-truncation -Wsurprising -Waliasing -fimplicit-none -fcheck=all -g -ffpe-trap=invalid,zero,overflow,underflow
 
 objpath=./obj
 resultspath=./Results
