@@ -23,6 +23,7 @@ A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method
 - Interpolation of vortex core radii along span for wake
 
 ### Feature and Solution Improvements
+- Shift trailing edge vortex by corresponding r*Om
 - Account for pitching velocity
 - Precompute trajectory
 - Provision to restart
