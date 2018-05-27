@@ -41,7 +41,7 @@ u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]
 
 pivot point from LE[x/chord]    flap_hinge from centre[r/R]
 ----------------------------------------------------------------
-        0.25                            0.0
+        0.00                            0.0
 ===============================================================
 
 spanwise core radius[x/c]       streamwise core radius[x/c]
