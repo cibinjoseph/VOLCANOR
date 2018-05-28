@@ -221,7 +221,7 @@ program main
             rotor(ir)%blade(ib)%vind_wake(:,row_now:nt,:)=rotor(ir)%blade(ib)%vind_wake(:,row_now:nt,:)+vind_onwake_byrotor(rotor(jr),rotor(ir)%blade(ib)%waP(row_now:nt,:))
           enddo
         endif
-        if (iter < init_wake_vel_nt .or. abs(rotor(ir)%init_wake_vel) .lt. eps) then
+        if (iter < init_wake_vel_nt) then
           do i=1,3
             rotor(ir)%blade(ib)%vind_wake(i,row_now:nt,:)=rotor(ir)%blade(ib)%vind_wake(i,row_now:nt,:)-rotor(ir)%init_wake_vel*rotor(ir)%shaft_axis(i)
           enddo
