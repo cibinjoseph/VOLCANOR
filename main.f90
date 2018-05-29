@@ -189,9 +189,6 @@ program main
       rotor(ir)%RHS=-1._dp*rotor(ir)%RHS
     enddo
 
-    !print*,rotor(1)%RHS
-    !read*
-
     do ir=1,nr
       rotor(ir)%gamvec_prev=rotor(ir)%gamvec    ! For calculating dGam/dT
       rotor(ir)%gamvec=matmul(rotor(ir)%AIC_inv,rotor(ir)%RHS)
