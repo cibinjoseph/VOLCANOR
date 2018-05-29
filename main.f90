@@ -240,19 +240,23 @@ program main
       enddo
 
 
-      !    case (1)    ! Predictor-Corrector (2nd order)
-      !      Pwake(row_now:nt,:)=wake(row_now:nt,:)
-      !      call convectwake(Pwake(row_now:nt,:),vind_wake(:,row_now:nt,:)*dt)
-      !
-      !      Pvind_wake(:,row_now:nt,:)=vind_onwake(wing,Pwake(row_now:nt,:))
-      !      if (iter > wake_ignore_nt .or. wake_ignore_nt .eq. 0) then 
-      !        Pvind_wake(:,row_now:nt,:)=Pvind_wake(:,row_now:nt,:)+vind_onwake(Pwake(row_now:nt,:),Pwake(row_now:nt,:))
-      !      endif 
-      !      if (iter < init_wake_vel_nt .or. init_wake_vel_nt .ne. 0) Pvind_wake(3,row_now:nt,:)=Pvind_wake(3,row_now:nt,:)+init_wake_vel
-      !
-      !      call convectwake(wake(row_now:nt,:),(vind_wake(:,row_now:nt,:)+Pvind_wake(:,row_now:nt,:))*dt*0.5_dp)
-      !
-      !
+    case (1)    ! Predictor-Corrector (2nd order)
+      do ir=1,nr
+        do ib=1,rotor(ir)%nb
+          rotor(ir)%blade(ib)%Pwake(row_now:nt,:)=rotor(ir)%blade(ib)%waP(row_now:nt,:)
+          call rotor(ir)%blade(ib)%convectPwake(Pwake(row_now:nt,:),vind_wake(:,row_now:nt,:)*dt)
+        enddo
+      enddo
+
+      Pvind_wake(:,row_now:nt,:)=vind_onwake(wing,Pwake(row_now:nt,:))
+      if (iter > wake_ignore_nt .or. wake_ignore_nt .eq. 0) then 
+        Pvind_wake(:,row_now:nt,:)=Pvind_wake(:,row_now:nt,:)+vind_onwake(Pwake(row_now:nt,:),Pwake(row_now:nt,:))
+      endif 
+      if (iter < init_wake_vel_nt .or. init_wake_vel_nt .ne. 0) Pvind_wake(3,row_now:nt,:)=Pvind_wake(3,row_now:nt,:)+init_wake_vel
+
+      call convectwake(wake(row_now:nt,:),(vind_wake(:,row_now:nt,:)+Pvind_wake(:,row_now:nt,:))*dt*0.5_dp)
+
+
       !    case (2)    ! Adam-Bashforth (2nd order)
       !      if (iter == 1) then
       !        call convectwake(wake(row_now:nt,:),vind_wake(:,row_now:nt,:)*dt)

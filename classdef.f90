@@ -554,9 +554,10 @@ contains
   end function blade_vind_bywake
 
   ! Convect wake using dP_array=vind_array*dt
-  subroutine convectwake(this,dP_array)
+  subroutine convectwake(this,dP_array,opt_char)
   class(blade_class), intent(inout) :: this
     real(dp), intent(in), dimension(:,:,:) :: dP_array
+    character(len=1), optional :: opt_char  ! For predicted wake
     integer :: i,j,rows,cols,nt,index_offset
 
     rows=size(dP_array,2)
@@ -564,6 +565,9 @@ contains
     nt=size(this%waP,1)
     index_offset=nt-rows
 
+    if (.not. present(opt_char)) then
+
+    elseif
     !$omp parallel do collapse(2)
     do j=1,cols
       do i=1,rows
