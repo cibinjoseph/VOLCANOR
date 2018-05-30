@@ -241,15 +241,22 @@ program main
       do ir=1,nr
         do ib=1,rotor(ir)%nb
           rotor(ir)%blade(ib)%Pwake(row_now:nt,:)=rotor(ir)%blade(ib)%waP(row_now:nt,:)
-          call rotor(ir)%blade(ib)%convectwake(vind_wake(:,row_now:nt,:)*dt,'P')
+          call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_wake(:,row_now:nt,:)*dt,'P')
         enddo
       enddo
 
-      Pvind_wake(:,row_now:nt,:)=vind_onwake(wing,Pwake(row_now:nt,:))
+      do ir=1,nr
+        do ib=1,rotor(ir)%nb
+          do jr=1,nr
+            rotor(ir)%blade(ib)%Pvind_wake(:,row_now:nt,:)=vind_onwake_byrotorblades(rotor(jr),rotor(ir)%blade(ib)%Pwake(row_now:nt,:))
+          enddo
+        enddo
+      enddo
+
       if (iter > wake_ignore_nt .or. wake_ignore_nt .eq. 0) then 
         Pvind_wake(:,row_now:nt,:)=Pvind_wake(:,row_now:nt,:)+vind_onwake(Pwake(row_now:nt,:),Pwake(row_now:nt,:))
       endif 
-      if (iter < init_wake_vel_nt .or. init_wake_vel_nt .ne. 0) Pvind_wake(3,row_now:nt,:)=Pvind_wake(3,row_now:nt,:)+init_wake_vel
+      if (iter < init_wake_vel_nt) Pvind_wake(3,row_now:nt,:)=Pvind_wake(3,row_now:nt,:)+init_wake_vel
 
       call convectwake(wake(row_now:nt,:),(vind_wake(:,row_now:nt,:)+Pvind_wake(:,row_now:nt,:))*dt*0.5_dp)
 
