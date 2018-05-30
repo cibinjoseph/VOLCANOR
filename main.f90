@@ -226,9 +226,6 @@ program main
       enddo
     enddo
 
-    !print*,rotor(1)%blade(1)%vind_wake(3,row_now:nt,:)
-    !read*
-
     ! Update wake vortex locations
     select case (FDscheme_switch)
 
@@ -244,7 +241,7 @@ program main
       do ir=1,nr
         do ib=1,rotor(ir)%nb
           rotor(ir)%blade(ib)%Pwake(row_now:nt,:)=rotor(ir)%blade(ib)%waP(row_now:nt,:)
-          call rotor(ir)%blade(ib)%convectPwake(Pwake(row_now:nt,:),vind_wake(:,row_now:nt,:)*dt)
+          call rotor(ir)%blade(ib)%convectwake(vind_wake(:,row_now:nt,:)*dt,'P')
         enddo
       enddo
 

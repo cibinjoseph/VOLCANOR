@@ -399,13 +399,13 @@ module blade_classdef
   type blade_class
     type(wingpanel_class), allocatable, dimension(:,:) :: wiP
     type(wakepanel_class), allocatable, dimension(:,:) :: waP
+    type(wakepanel_class), allocatable, dimension(:,:) :: Pwake
     real(dp) :: theta
     real(dp) :: psi
     real(dp) :: pivotLE
     real(dp), allocatable, dimension(:,:,:) :: vind_wake
     real(dp), allocatable, dimension(:,:,:) :: vind_wake1, vind_wake2, vind_wake3
     real(dp), allocatable, dimension(:,:,:) :: Pvind_wake, vind_wake_step
-    real(dp), allocatable, dimension(:,:) :: Pwake
 
   contains
     procedure :: move => blade_move
@@ -566,59 +566,114 @@ contains
     index_offset=nt-rows
 
     if (.not. present(opt_char)) then
-
-    elseif
-    !$omp parallel do collapse(2)
-    do j=1,cols
-      do i=1,rows
-        call this%waP(i+index_offset,j)%vr%shiftdP(2,dP_array(:,i,j))
+      !$omp parallel do collapse(2)
+      do j=1,cols
+        do i=1,rows
+          call this%waP(i+index_offset,j)%vr%shiftdP(2,dP_array(:,i,j))
+        enddo
       enddo
-    enddo
-    !$omp end parallel do
+      !$omp end parallel do
 
-    !$omp parallel do
-    do i=1,rows
-      call this%waP(i+index_offset,cols)%vr%shiftdP(3,dP_array(:,i,cols+1))
-    enddo
-    !$omp end parallel do
+      !$omp parallel do
+      do i=1,rows
+        call this%waP(i+index_offset,cols)%vr%shiftdP(3,dP_array(:,i,cols+1))
+      enddo
+      !$omp end parallel do
 
-    call this%wake_continuity(index_offset+1)
+      call this%wake_continuity(index_offset+1)
+
+    elseif ((opt_char .eq. 'P') .or. (opt_char .eq. 'p')) then
+      ! For predicted wake convection
+
+      !$omp parallel do collapse(2)
+      do j=1,cols
+        do i=1,rows
+          call this%Pwake(i+index_offset,j)%vr%shiftdP(2,dP_array(:,i,j))
+        enddo
+      enddo
+      !$omp end parallel do
+
+      !$omp parallel do
+      do i=1,rows
+        call this%Pwake(i+index_offset,cols)%vr%shiftdP(3,dP_array(:,i,cols+1))
+      enddo
+      !$omp end parallel do
+
+      call this%wake_continuity(index_offset+1,'P')
+
+    else
+      error stop 'ERROR: Wrong character flag for convectwake()'
+    endif
 
   end subroutine convectwake
 
   ! Maintain continuity between vortex ring elements after convection
   ! of vortex ring corners
-  subroutine wake_continuity(this,row_now)
+  subroutine wake_continuity(this,row_now,opt_char)
   class(blade_class), intent(inout) :: this
     integer, intent(in) :: row_now
+    character(len=1), optional :: opt_char  ! For predicted wake
     integer :: i,j,rows,cols
 
     rows=size(this%waP,1)
     cols=size(this%waP,2)
 
-    !$omp parallel do collapse(2)
-    do j=1,cols-1
-      do i=row_now+1,rows
-        call this%waP(i,j)%vr%assignP(1,this%waP(i-1,j)%vr%vf(2)%fc(:,1))
-        call this%waP(i,j)%vr%assignP(3,this%waP(i,j+1)%vr%vf(2)%fc(:,1))
-        call this%waP(i,j)%vr%assignP(4,this%waP(i-1,j+1)%vr%vf(2)%fc(:,1))
+    if (.not. present(opt_char)) then
+      !$omp parallel do collapse(2)
+      do j=1,cols-1
+        do i=row_now+1,rows
+          call this%waP(i,j)%vr%assignP(1,this%waP(i-1,j)%vr%vf(2)%fc(:,1))
+          call this%waP(i,j)%vr%assignP(3,this%waP(i,j+1)%vr%vf(2)%fc(:,1))
+          call this%waP(i,j)%vr%assignP(4,this%waP(i-1,j+1)%vr%vf(2)%fc(:,1))
+        enddo
       enddo
-    enddo
-    !$omp end parallel do
+      !$omp end parallel do
 
-    !$omp parallel do
-    do j=1,cols-1
-      call this%waP(row_now,j)%vr%assignP(3,this%waP(row_now,j+1)%vr%vf(2)%fc(:,1))
-    enddo
-    !$omp end parallel do
+      !$omp parallel do
+      do j=1,cols-1
+        call this%waP(row_now,j)%vr%assignP(3,this%waP(row_now,j+1)%vr%vf(2)%fc(:,1))
+      enddo
+      !$omp end parallel do
 
-    !$omp parallel do
-    do i=row_now+1,rows
-      call this%waP(i,cols)%vr%assignP(1,this%waP(i-1,cols)%vr%vf(2)%fc(:,1))
-      call this%waP(i,cols)%vr%assignP(4,this%waP(i-1,cols)%vr%vf(3)%fc(:,1))
-    enddo
-    !$omp end parallel do
+      !$omp parallel do
+      do i=row_now+1,rows
+        call this%waP(i,cols)%vr%assignP(1,this%waP(i-1,cols)%vr%vf(2)%fc(:,1))
+        call this%waP(i,cols)%vr%assignP(4,this%waP(i-1,cols)%vr%vf(3)%fc(:,1))
+      enddo
+      !$omp end parallel do
+
+    elseif ((opt_char .eq. 'P') .or. (opt_char .eq. 'p')) then
+      ! For predicted wake
+
+      !$omp parallel do collapse(2)
+      do j=1,cols-1
+        do i=row_now+1,rows
+          call this%Pwake(i,j)%vr%assignP(1,this%Pwake(i-1,j)%vr%vf(2)%fc(:,1))
+          call this%Pwake(i,j)%vr%assignP(3,this%Pwake(i,j+1)%vr%vf(2)%fc(:,1))
+          call this%Pwake(i,j)%vr%assignP(4,this%Pwake(i-1,j+1)%vr%vf(2)%fc(:,1))
+        enddo
+      enddo
+      !$omp end parallel do
+
+      !$omp parallel do
+      do j=1,cols-1
+        call this%Pwake(row_now,j)%vr%assignP(3,this%Pwake(row_now,j+1)%vr%vf(2)%fc(:,1))
+      enddo
+      !$omp end parallel do
+
+      !$omp parallel do
+      do i=row_now+1,rows
+        call this%Pwake(i,cols)%vr%assignP(1,this%Pwake(i-1,cols)%vr%vf(2)%fc(:,1))
+        call this%Pwake(i,cols)%vr%assignP(4,this%Pwake(i-1,cols)%vr%vf(3)%fc(:,1))
+      enddo
+      !$omp end parallel do
+
+    else
+      error stop 'ERROR: Wrong character flag for convectwake()'
+    endif
+
   end subroutine wake_continuity
+
 end module blade_classdef
 
 
