@@ -33,7 +33,7 @@
        0
 
  IGNORE WAKE WAKE INTERACTION: [0]Off [1..]timesteps
-  wake_ignore_nt
+  wake_ignore_nt  *** NOT IMPLEMENTED ***
 -----------------------------------------------------------------------
        0
 
