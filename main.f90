@@ -275,11 +275,11 @@ program main
       else
         do ir=1,nr
           do ib=1,rotor(ir)%nb
-        rotor(ir)%blade(ib)%vind_wake_step=0.5_dp*(3._dp*rotor(ir)%blade(ib)%vind_wake-rotor(ir)%blade(ib)%vind_wake1)
-        call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_wake_step(:,row_now:nt,:)*dt)
-        rotor(ir)%blade(ib)%vind_wake1=rotor(ir)%blade(ib)%vind_wake
-      enddo
-    enddo
+            rotor(ir)%blade(ib)%vind_wake_step=0.5_dp*(3._dp*rotor(ir)%blade(ib)%vind_wake-rotor(ir)%blade(ib)%vind_wake1)
+            call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_wake_step(:,row_now:nt,:)*dt)
+            rotor(ir)%blade(ib)%vind_wake1=rotor(ir)%blade(ib)%vind_wake
+          enddo
+        enddo
       endif
 
 
