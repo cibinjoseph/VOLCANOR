@@ -8,7 +8,7 @@ contains
   !                Induced Velocity Functions              !
   !--------------------------------------------------------!
 
-  ! Induced velocity by wing_array on wake_array corner points
+  ! Induced velocity by rotor (wing n wake) on wake_array corner points
   function vind_onwake_byrotor(rotor,wake_array) result(vind_array)
     type(rotor_class), intent(inout) :: rotor
     type(wakepanel_class), intent(in), dimension(:,:) :: wake_array
@@ -38,6 +38,33 @@ contains
 
   end function vind_onwake_byrotor
 
+  ! Induced velocity by rotor (wing only) on wake_array corner points
+  function vind_onwake_byrotorblades(rotor,wake_array) result(vind_array)
+    type(rotor_class), intent(inout) :: rotor
+    type(wakepanel_class), intent(in), dimension(:,:) :: wake_array
+    real(dp), dimension(3,size(wake_array,1),size(wake_array,2)+1) :: vind_array
+    integer :: i,j,rows,nt,row_now
+
+    rows=size(wake_array,1)
+    nt=size(rotor%blade(1)%waP,1)
+    row_now=nt-(rows-1)
+
+    ! Induced velocity due to all blades
+    !$omp parallel do collapse(2) 
+    do j=1,rotor%ns
+      do i=1,rows
+        vind_array(:,i,j)=rotor%vind_bywing(wake_array(i,j)%vr%vf(2)%fc(:,1))
+      enddo
+    enddo
+    !$omp end parallel do
+
+    !$omp parallel do 
+    do i=1,rows
+      vind_array(:,i,rotor%ns+1)=rotor%vind_bywing(wake_array(i,rotor%ns)%vr%vf(3)%fc(:,1))
+    enddo
+    !$omp end parallel do
+
+  end function vind_onwake_byrotorblades
   !--------------------------------------------------------!
   !               Force Computation Functions              !
   !--------------------------------------------------------!
