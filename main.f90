@@ -264,17 +264,25 @@ program main
       enddo
 
 
-      !    case (2)    ! Adam-Bashforth (2nd order)
-      !      if (iter == 1) then
-      !        call convectwake(wake(row_now:nt,:),vind_wake(:,row_now:nt,:)*dt)
-      !        vind_wake1=vind_wake
-      !      else
-      !        vind_wake_step=0.5_dp*(3._dp*vind_wake-vind_wake1)
-      !        call convectwake(wake(row_now:nt,:),vind_wake_step(:,row_now:nt,:)*dt)
-      !        vind_wake1=vind_wake
-      !      endif
-      !
-      !
+    case (2)    ! Adam-Bashforth (2nd order)
+      if (iter == 1) then
+        do ir=1,nr
+          do ib=1,rotor(ir)%nb
+            call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_wake(:,row_now:nt,:)*dt)
+            rotor(ir)%blade(ib)%vind_wake1=rotor(ir)%blade(ib)%vind_wake
+          enddo
+        enddo
+      else
+        do ir=1,nr
+          do ib=1,rotor(ir)%nb
+        rotor(ir)%blade(ib)%vind_wake_step=0.5_dp*(3._dp*rotor(ir)%blade(ib)%vind_wake-rotor(ir)%blade(ib)%vind_wake1)
+        call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_wake_step(:,row_now:nt,:)*dt)
+        rotor(ir)%blade(ib)%vind_wake1=rotor(ir)%blade(ib)%vind_wake
+      enddo
+    enddo
+      endif
+
+
       !    case (3)    ! Predictor-Cprrector Adam-Bashforth (4th order)
       !      if (iter == 1) then
       !        call convectwake(wake(row_now:nt,:),vind_wake(:,row_now:nt,:)*dt)
