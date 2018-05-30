@@ -41,6 +41,8 @@ lib_dbg:
 	@printf '\r%s' 'Compiled 3/4...'
 	@$(ifc) $(iflagsdbg) -c postproc.f90     -module $(objpath) -o $(objpath)/postproc.o
 	@printf '\r%s\n' 'Compiled 4/4...'
+	@$(ifc) -c -I$(objpath) $(iflags) main.f90 $(objpath)/*.o   -o $(objpath)/main.o
+	@printf '\r%s\n' 'Compiled 5/4...'
 
 lib_prof:
 	reset
@@ -95,6 +97,7 @@ glib_dbg:
 	@$(gfc) $(gflagsdbg) -c classdef.f90   -J$(objpath) -o $(objpath)/classdef.o
 	@$(gfc) $(gflagsdbg) -c library.f90    -J$(objpath) -o $(objpath)/library.o
 	@$(gfc) $(gflagsdbg) -c postproc.f90   -J$(objpath) -o $(objpath)/postproc.o
+	@$(gfc) -c -I$(objpath) $(gflags) main.f90 $(objpath)/*.o 
 
 glib:
 	reset
