@@ -1,6 +1,6 @@
  NO. OF TIMESTEPS [nt]    TIMESTEP (sec) [dt]    NO. OF ROTORS [nr]
 -----------------------------------------------------------------------
-      20                       0.002                  1
+      800                       0.002                  1
 =======================================================================
 
    DENSITY [kg/m3] 
@@ -30,7 +30,7 @@
  WAKE CONVECTION FINITE-DIFFERENCE SCHEME: [0]FT1 [1]PC2 [2]AB2 [3]AB4
   FDscheme_switch
 -----------------------------------------------------------------------
-       0
+       1
 
  IGNORE WAKE WAKE INTERACTION: [0]Off [1..]timesteps
   wake_ignore_nt  *** NOT IMPLEMENTED ***
@@ -40,4 +40,4 @@
  INITIAL WAKE VELOCITY: [0]Off [1..]timesteps
   init_wake_vel_nt
 -----------------------------------------------------------------------
-      10
+      100
