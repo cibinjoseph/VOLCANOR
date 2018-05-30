@@ -245,6 +245,7 @@ program main
 
       do ir=1,nr
         do ib=1,rotor(ir)%nb
+          rotor(ir)%blade(ib)%Pvind_wake(:,row_now:nt,:)=0._dp
           do jr=1,nr
             rotor(ir)%blade(ib)%Pvind_wake(:,row_now:nt,:)=rotor(ir)%blade(ib)%Pvind_wake(:,row_now:nt,:)+vind_onwake_byrotor(rotor(jr),rotor(ir)%blade(ib)%Pwake(row_now:nt,:),'P')
           enddo
@@ -261,6 +262,7 @@ program main
           call rotor(ir)%blade(ib)%convectwake((rotor(ir)%blade(ib)%vind_wake(:,row_now:nt,:)+rotor(ir)%blade(ib)%Pvind_wake(:,row_now:nt,:))*dt*0.5_dp)
         enddo
       enddo
+
 
       !    case (2)    ! Adam-Bashforth (2nd order)
       !      if (iter == 1) then
