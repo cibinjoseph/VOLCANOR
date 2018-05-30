@@ -536,20 +536,32 @@ contains
 
   end function blade_vind_bywing
 
-  function blade_vind_bywake(this,row_now,P)  ! Induced velocity at a point P
+  function blade_vind_bywake(this,row_now,P,opt_char)  ! Induced velocity at a point P
     ! pivot point calculated using straight line joining LE and TE of root panels
   class(blade_class), intent(inout) :: this
     integer, intent(in) :: row_now
     real(dp), intent(in), dimension(3) :: P
+    character(len=1), optional :: opt_char
     real(dp), dimension(3) :: blade_vind_bywake
     integer :: i,j
 
     blade_vind_bywake=0._dp
-    do j=1,size(this%waP,2)
-      do i=row_now,size(this%waP,1)
-        blade_vind_bywake=blade_vind_bywake+this%waP(i,j)%vr%vind(P)*this%waP(i,j)%vr%gam
+    if (.not. present(opt_char)) then
+      do j=1,size(this%waP,2)
+        do i=row_now,size(this%waP,1)
+          blade_vind_bywake=blade_vind_bywake+this%waP(i,j)%vr%vind(P)*this%waP(i,j)%vr%gam
+        enddo
       enddo
-    enddo
+    elseif ((opt_char .eq. 'P') .or. (opt_char .eq. 'p')) then
+      do j=1,size(this%waP,2)
+        do i=row_now,size(this%waP,1)
+          blade_vind_bywake=blade_vind_bywake+this%Pwake(i,j)%vr%vind(P)*this%Pwake(i,j)%vr%gam
+        enddo
+      enddo
+    else
+      error stop 'ERROR: Wrong character flag for blade_vind_bywake()'
+    endif
+
 
   end function blade_vind_bywake
 
@@ -1283,16 +1295,25 @@ contains
     enddo
   end function rotor_vind_bywing
 
-  function rotor_vind_bywake(this,row_now,P)
+  function rotor_vind_bywake(this,row_now,P,opt_char)
   class(rotor_class), intent(inout) :: this
     real(dp), intent(in), dimension(3) :: P
-    real(dp), dimension(3) :: rotor_vind_bywake
     integer, intent(in) :: row_now
+    character(len=1), optional :: opt_char
+    real(dp), dimension(3) :: rotor_vind_bywake
     integer :: ib
 
     rotor_vind_bywake=0._dp
-    do ib=1,this%nb
-      rotor_vind_bywake=rotor_vind_bywake+this%blade(ib)%vind_bywake(row_now,P)
-    enddo
+    if (.not. present(opt_char)) then
+      do ib=1,this%nb
+        rotor_vind_bywake=rotor_vind_bywake+this%blade(ib)%vind_bywake(row_now,P)
+      enddo
+    elseif ((opt_char .eq. 'P') .or. (opt_char .eq. 'p')) then
+      do ib=1,this%nb
+        rotor_vind_bywake=rotor_vind_bywake+this%blade(ib)%vind_bywake(row_now,P,'P')
+      enddo
+    else 
+      error stop 'ERROR: Wrong character flag for rotor_vind_bywake()'
+    endif
   end function rotor_vind_bywake
 end module rotor_classdef
