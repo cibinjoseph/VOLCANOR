@@ -1,10 +1,10 @@
   No.of blades,nb     
 ------------------------
-       1
+       2
 
  Spanwise panels,ns     Chordwise panels,nc 
 ---------------------------------------------------------------
-       4                      1
+       13                      1
 ===============================================================
 
 X-hub_coords     Y-hub_coords     Z-hub_coords    [all in m]
