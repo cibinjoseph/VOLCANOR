@@ -710,7 +710,9 @@ module rotor_classdef
     real(dp), dimension(3) :: v_wind, om_wind
     real(dp) :: psi
     real(dp), dimension(3) :: pts  ! phi,theta,psi about CG_coords
-    real(dp) :: spanwise_core, streamwise_core
+    character(len=1) :: streamwise_core_switch
+    real(dp) :: spanwise_core
+    real(dp), allocatable, dimension(:) :: streamwise_core_vec
     real(dp), allocatable, dimension(:,:) :: AIC,AIC_inv  ! Influence coefficient matrix
     real(dp), allocatable, dimension(:) :: gamvec,gamvec_prev,RHS
     real(dp) :: init_wake_vel, psi_start
@@ -767,8 +769,20 @@ contains
       ,        this%om_body(1), this%om_body(2), this%om_body(3)
     call skiplines(12,4)
     read(12,*) this%pivotLE, this%flap_hinge
-    call skiplines(12,4)
-    read(12,*) this%spanwise_core, this%streamwise_core
+    call skiplines(12,5)
+    read(12,*) this%spanwise_core, this%streamwise_core_switch
+    call skiplines(12,3)
+    allocate(this%streamwise_core_vec(this%ns+1))
+    if (this%streamwise_core_switch .eq. 'i') then  ! [i]dentical
+      read(12,*) this%streamwise_core_vec(1)
+      do i=2,this%ns+1
+        this%streamwise_core_vec(i)=this%streamwise_core_vec(1)
+      enddo
+    elseif (this%streamwise_core_switch .eq. 's') then  ![s]ectional
+      read(12,*) (this%streamwise_core_vec(i),i=1,this%ns+1)
+    else
+      error stop 'ERROR: Wrong input for streamwise_core_switch in rotorXX.in'
+    endif
     call skiplines(12,4)
     read(12,*) this%init_wake_vel, this%psi_start
     close(12)
@@ -781,7 +795,7 @@ contains
     call degtorad(this%theta_twist)
     call degtorad(this%psi_start)
     this%spanwise_core=this%spanwise_core*this%chord
-    this%streamwise_core=this%streamwise_core*this%chord
+    this%streamwise_core_vec=this%streamwise_core_vec*this%chord
 
     ! Allocate rotor object variables
     allocate(this%blade(this%nb))
@@ -880,19 +894,26 @@ contains
       this%blade(ib)%wiP%vr%gam=0._dp
       this%blade(ib)%pivotLE=this%pivotLE
 
-      ! Initialize mid vortex core radius
-      do i=1,4
+      ! Initialize spanwise vortex core radius
+      do i=2,4,2
         this%blade(ib)%wiP%vr%vf(i)%r_vc0= this%spanwise_core
         this%blade(ib)%wiP%vr%vf(i)%r_vc = this%spanwise_core
         this%blade(ib)%wiP%vr%vf(i)%age  = 0._dp
       enddo
 
-      ! Initialize tip vortex core radius
-      do i=1,this%nc
-        this%blade(ib)%wiP(i,1)%vr%vf(1)%r_vc0       = this%streamwise_core
-        this%blade(ib)%wiP(i,1)%vr%vf(1)%r_vc        = this%streamwise_core
-        this%blade(ib)%wiP(i,this%ns)%vr%vf(3)%r_vc0 = this%streamwise_core
-        this%blade(ib)%wiP(i,this%ns)%vr%vf(3)%r_vc  = this%streamwise_core
+      ! Initialize streamwise vortex core radius
+      do j=1,this%ns
+        do i=1,this%nc
+          this%blade(ib)%wiP(i,j)%vr%vf(1)%r_vc0 = this%streamwise_core_vec(j)
+          this%blade(ib)%wiP(i,j)%vr%vf(1)%r_vc  = this%streamwise_core_vec(j)
+        enddo
+      enddo
+
+      do j=1,this%ns
+        do i=1,this%nc
+          this%blade(ib)%wiP(i,j)%vr%vf(3)%r_vc0 = this%streamwise_core_vec(j+1)
+          this%blade(ib)%wiP(i,j)%vr%vf(3)%r_vc  = this%streamwise_core_vec(j+1)
+        enddo
       enddo
 
       ! Verify CP is outside vortex core for boundary panels
@@ -966,7 +987,7 @@ contains
     ! Wake initialization
     ! Assign core_radius to mid vortices
     do ib=1,this%nb
-      do i=1,4
+      do i=2,4,2
         this%blade(ib)%waP%vr%vf(i)%r_vc0 = this%spanwise_core
         this%blade(ib)%waP%vr%vf(i)%r_vc  = this%spanwise_core
         this%blade(ib)%waP%vr%vf(i)%age=0._dp
@@ -975,41 +996,20 @@ contains
       this%blade(ib)%waP%vr%gam=0._dp
 
       ! Assign core_radius to tip vortices
-      do i=1,nt
-        ! Root vortex
-        this%blade(ib)%waP(i,1)%vr%vf(1)%r_vc0      = this%streamwise_core
-        this%blade(ib)%waP(i,1)%vr%vf(1)%r_vc       = this%streamwise_core
-        this%blade(ib)%waP(i,1)%vr%vf(3)%r_vc0      = this%streamwise_core
-        this%blade(ib)%waP(i,1)%vr%vf(3)%r_vc       = this%streamwise_core
-
-        this%blade(ib)%waP(i,2)%vr%vf(1)%r_vc0      = this%streamwise_core
-        this%blade(ib)%waP(i,2)%vr%vf(1)%r_vc       = this%streamwise_core
-        this%blade(ib)%waP(i,2)%vr%vf(3)%r_vc0      = this%streamwise_core
-        this%blade(ib)%waP(i,2)%vr%vf(3)%r_vc       = this%streamwise_core
-
-        ! Tip vortex
-        this%blade(ib)%waP(i,this%ns)%vr%vf(1)%r_vc0   = this%streamwise_core
-        this%blade(ib)%waP(i,this%ns)%vr%vf(1)%r_vc    = this%streamwise_core
-        this%blade(ib)%waP(i,this%ns)%vr%vf(3)%r_vc0   = this%streamwise_core
-        this%blade(ib)%waP(i,this%ns)%vr%vf(3)%r_vc    = this%streamwise_core
-
-        this%blade(ib)%waP(i,this%ns-1)%vr%vf(3)%r_vc0 = this%streamwise_core
-        this%blade(ib)%waP(i,this%ns-1)%vr%vf(3)%r_vc  = this%streamwise_core
-        !this%blade(ib)%waP(i,this%ns-1)%vr%vf(3)%r_vc0 = this%streamwise_core
-        !this%blade(ib)%waP(i,this%ns-1)%vr%vf(3)%r_vc  = this%streamwise_core
+      do j=1,this%ns
+        do i=1,this%nc
+          this%blade(ib)%wiP(i,j)%vr%vf(1)%r_vc0 = this%streamwise_core_vec(j)
+          this%blade(ib)%wiP(i,j)%vr%vf(1)%r_vc  = this%streamwise_core_vec(j)
+        enddo
       enddo
 
-      !if (starting_vortex_core > eps) then
-      !  ! Assign core_radius to starting vortices
-      !  do i=1,this%ns
-      !    do j=2,4,2
-      !      this%blade(ib)%waP(rows,i)%vr%vf(j)%r_vc0 = starting_vortex_core
-      !      this%blade(ib)%waP(rows,i)%vr%vf(j)%r_vc  = starting_vortex_core
-      !      this%blade(ib)%waP(rows-1,i)%vr%vf(j)%r_vc0 = starting_vortex_core
-      !      this%blade(ib)%waP(rows-1,i)%vr%vf(j)%r_vc  = starting_vortex_core
-      !    enddo
-      !  enddo
-      !endif
+      do j=1,this%ns
+        do i=1,this%nc
+          this%blade(ib)%waP(i,j)%vr%vf(3)%r_vc0 = this%streamwise_core_vec(j+1)
+          this%blade(ib)%waP(i,j)%vr%vf(3)%r_vc  = this%streamwise_core_vec(j+1)
+        enddo
+      enddo
+
     enddo
 
   end subroutine init

@@ -44,9 +44,14 @@ pivot point from LE[x/chord]    flap_hinge from centre[r/R]
         0.00                            0.0
 ===============================================================
 
-spanwise core radius[x/c]       streamwise core radius[x/c]
+spanwise core radius[x/c]       streamwise core_switch
+                                 [s]ectional  [i]dentical
 ----------------------------------------------------------------
-        0.14                            0.14
+        0.14                            i
+
+streamwise core radius[x/c]   root <----> tip  (ns+1 entries)
+----------------------------------------------------------------
+0.14 0.14 0.14 0.14 0.14 0.14 0.14 0.14 0.14 0.14 0.14 0.14 0.14 0.14
 ===============================================================
 
 init_wake_vel[m/s]     psi_start[deg]
