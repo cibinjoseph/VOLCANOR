@@ -32,6 +32,7 @@ A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method
 - Induced drag computation drastically overpredicted
 - Check 25% of panel span inset of vortices create difference
 - Auto evaluated unit tests for a few standard test cases
+- Include Trim algorithm
 
 ### Performance Improvements
 - Verify wake array is used as a shared variable in OpenMP part
