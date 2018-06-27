@@ -894,11 +894,16 @@ contains
       this%blade(ib)%wiP%vr%gam=0._dp
       this%blade(ib)%pivotLE=this%pivotLE
 
+      ! Initialize wake age
+      do i=1,4
+        this%blade(ib)%wiP%vr%vf(i)%age = 0._dp
+        this%blade(ib)%waP%vr%vf(i)%age = 0._dp
+      enddo
+
       ! Initialize spanwise vortex core radius
       do i=2,4,2
         this%blade(ib)%wiP%vr%vf(i)%r_vc0= this%spanwise_core
         this%blade(ib)%wiP%vr%vf(i)%r_vc = this%spanwise_core
-        this%blade(ib)%wiP%vr%vf(i)%age  = 0._dp
       enddo
 
       ! Initialize streamwise vortex core radius
@@ -990,7 +995,6 @@ contains
       do i=2,4,2
         this%blade(ib)%waP%vr%vf(i)%r_vc0 = this%spanwise_core
         this%blade(ib)%waP%vr%vf(i)%r_vc  = this%spanwise_core
-        this%blade(ib)%waP%vr%vf(i)%age=0._dp
       enddo
 
       this%blade(ib)%waP%vr%gam=0._dp
