@@ -56,5 +56,5 @@ streamwise core radius[x/c]   root <----> tip  (ns+1 entries)
 
 init_wake_vel[m/s]     psi_start[deg]
 ----------------------------------------------------------------
-     25.0                   0.0
+     00.0                   0.0
 
