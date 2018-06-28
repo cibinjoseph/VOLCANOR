@@ -1,4 +1,4 @@
-[![](https://img.shields.io/badge/status-under%20development-green.svg)]()  [![](https://img.shields.io/badge/Last%20Updated-May%202018-green.svg)]()  
+[![](https://img.shields.io/badge/status-under%20development-green.svg)]()  [![](https://img.shields.io/badge/Last%20Updated-June%202018-green.svg)]()  
 
 ![VOLCANOR](logo/VOLCANOR.png)
 
