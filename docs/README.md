@@ -20,7 +20,8 @@ A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method
 
 ## Improvements (To be made)
 ### Stability Improvements
-- Solve root vortex instability in hover
+- Fix root vortex instability in hover
+- Provision to provide precomputed initial solution
 
 ### Feature and Solution Improvements
 - Shift trailing edge vortex by corresponding r*Om
