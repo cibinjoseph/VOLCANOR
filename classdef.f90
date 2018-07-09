@@ -1001,14 +1001,14 @@ contains
 
       ! Assign core_radius to tip vortices
       do j=1,this%ns
-        do i=1,this%nc
+        do i=1,nt
           this%blade(ib)%waP(i,j)%vr%vf(1)%r_vc0 = this%streamwise_core_vec(j)
           this%blade(ib)%waP(i,j)%vr%vf(1)%r_vc  = this%streamwise_core_vec(j)
         enddo
       enddo
 
       do j=1,this%ns
-        do i=1,this%nc
+        do i=1,nt
           this%blade(ib)%waP(i,j)%vr%vf(3)%r_vc0 = this%streamwise_core_vec(j+1)
           this%blade(ib)%waP(i,j)%vr%vf(3)%r_vc  = this%streamwise_core_vec(j+1)
         enddo
