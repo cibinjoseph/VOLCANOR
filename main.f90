@@ -263,11 +263,17 @@ program main
 
       do ir=1,nr
         do ib=1,rotor(ir)%nb
-          call rotor(ir)%blade(ib)%convectwake((rotor(ir)%blade(ib)%vind_wake(:,row_now:nt,:)  &
-            +  rotor(ir)%blade(ib)%Pvind_wake(:,row_now:nt,:))*dt*0.5_dp)
+          call rotor(ir)%blade(ib)%convectwake(vel_order2(rotor(ir)%blade(ib)%vind_wake(:,row_now:nt,:)  &
+            ,  rotor(ir)%blade(ib)%Pvind_wake(:,row_now:nt,:))*dt)
         enddo
       enddo
 
+      !do ir=1,nr
+      !  do ib=1,rotor(ir)%nb
+      !    call rotor(ir)%blade(ib)%convectwake((rotor(ir)%blade(ib)%vind_wake(:,row_now:nt,:)  &
+      !      +  rotor(ir)%blade(ib)%Pvind_wake(:,row_now:nt,:))*dt*0.5_dp)
+      !  enddo
+      !enddo
 
     case (2)    ! Adam-Bashforth (2nd order)
       if (iter == 1) then

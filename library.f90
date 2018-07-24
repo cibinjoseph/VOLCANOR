@@ -21,47 +21,62 @@ contains
     row_now=nt-(rows-1)
 
     if (.not. present(opt_char)) then
-    ! Induced velocity due to all blades and wake
-    !$omp parallel do collapse(2) 
-    do j=1,rotor%ns
-      do i=1,rows
-        vind_array(:,i,j)=rotor%vind_bywing(wake_array(i,j)%vr%vf(2)%fc(:,1))  &
-          +               rotor%vind_bywake(row_now,wake_array(i,j)%vr%vf(2)%fc(:,1))
+      ! Induced velocity due to all blades and wake
+      !$omp parallel do collapse(2) 
+      do j=1,rotor%ns
+        do i=1,rows
+          vind_array(:,i,j)=rotor%vind_bywing(wake_array(i,j)%vr%vf(2)%fc(:,1))  &
+            +               rotor%vind_bywake(row_now,wake_array(i,j)%vr%vf(2)%fc(:,1))
+        enddo
       enddo
-    enddo
-    !$omp end parallel do
+      !$omp end parallel do
 
-    !$omp parallel do 
-    do i=1,rows
-      vind_array(:,i,rotor%ns+1)=rotor%vind_bywing(wake_array(i,rotor%ns)%vr%vf(3)%fc(:,1))  &
-        +                        rotor%vind_bywake(row_now,wake_array(i,rotor%ns)%vr%vf(3)%fc(:,1))
-    enddo
-    !$omp end parallel do
-
-  elseif ((opt_char .eq. 'P') .or. (opt_char .eq. 'p')) then
-
-    ! Induced velocity due to all blades and Pwake
-    !$omp parallel do collapse(2) 
-    do j=1,rotor%ns
+      !$omp parallel do 
       do i=1,rows
-        vind_array(:,i,j)=rotor%vind_bywing(wake_array(i,j)%vr%vf(2)%fc(:,1))  &
-          +               rotor%vind_bywake(row_now,wake_array(i,j)%vr%vf(2)%fc(:,1),'P')
+        vind_array(:,i,rotor%ns+1)=rotor%vind_bywing(wake_array(i,rotor%ns)%vr%vf(3)%fc(:,1))  &
+          +                        rotor%vind_bywake(row_now,wake_array(i,rotor%ns)%vr%vf(3)%fc(:,1))
       enddo
-    enddo
-    !$omp end parallel do
+      !$omp end parallel do
 
-    !$omp parallel do 
-    do i=1,rows
-      vind_array(:,i,rotor%ns+1)=rotor%vind_bywing(wake_array(i,rotor%ns)%vr%vf(3)%fc(:,1))  &
-        +                        rotor%vind_bywake(row_now,wake_array(i,rotor%ns)%vr%vf(3)%fc(:,1),'P')
-    enddo
-    !$omp end parallel do
+    elseif ((opt_char .eq. 'P') .or. (opt_char .eq. 'p')) then
 
-  else
-    error stop 'ERROR: Wrong character flag for vind_onwake_byrotor()'
-  endif
+      ! Induced velocity due to all blades and Pwake
+      !$omp parallel do collapse(2) 
+      do j=1,rotor%ns
+        do i=1,rows
+          vind_array(:,i,j)=rotor%vind_bywing(wake_array(i,j)%vr%vf(2)%fc(:,1))  &
+            +               rotor%vind_bywake(row_now,wake_array(i,j)%vr%vf(2)%fc(:,1),'P')
+        enddo
+      enddo
+      !$omp end parallel do
+
+      !$omp parallel do 
+      do i=1,rows
+        vind_array(:,i,rotor%ns+1)=rotor%vind_bywing(wake_array(i,rotor%ns)%vr%vf(3)%fc(:,1))  &
+          +                        rotor%vind_bywake(row_now,wake_array(i,rotor%ns)%vr%vf(3)%fc(:,1),'P')
+      enddo
+      !$omp end parallel do
+
+    else
+      error stop 'ERROR: Wrong character flag for vind_onwake_byrotor()'
+    endif
 
   end function vind_onwake_byrotor
+
+  ! Calculates 2nd order accurate induced velocity on wake
+  function vel_order2(v_wake_n,v_wake_np1)   ! np1 => n+1 
+    real(dp), intent(in), dimension(:,:,:) :: v_wake_n, v_wake_np1
+    real(dp), dimension(3,size(v_wake_n,2),size(v_wake_n,3)) :: vel_order2
+    integer :: i,j
+    do j=1,size(v_wake_n,3)
+      vel_order2(:,1,j)=(v_wake_np1(:,1,j)+v_wake_n(:,1,j))*0.5_dp
+      do i=2,size(v_wake_n,2)-1
+        vel_order2(:,i,j)=(v_wake_np1(:,i,j)+v_wake_np1(:,i-1,j)+v_wake_n(:,i+1,j)+v_wake_n(:,i,j))*0.25_dp
+      enddo
+      vel_order2(:,size(v_wake_n,2),j)=(v_wake_np1(:,size(v_wake_n,2),j)+v_wake_n(:,size(v_wake_n,2),j))*0.5_dp
+    enddo
+
+  end function vel_order2
 
   !--------------------------------------------------------!
   !               Force Computation Functions              !
