@@ -364,12 +364,12 @@ end module wingpanel_classdef
 !------+-------------------+------|
 ! ++++ | MODULE DEFINITION | ++++ |
 !------+-------------------+------|
-module wakepanel_classdef
+module Nwake_classdef
   use vr_classdef
   implicit none
-  type wakepanel_class
+  type Nwake_class
     type(vr_class) :: vr
-  end type wakepanel_class
+  end type Nwake_class
 
 contains
 
@@ -386,7 +386,36 @@ contains
   ! |
   ! V X along chord
 
-end module wakepanel_classdef
+end module Nwake_classdef
+
+
+!------+-------------------+------|
+! ++++ | MODULE DEFINITION | ++++ |
+!------+-------------------+------|
+module Fwake_classdef
+  use vf_classdef
+  implicit none
+  type Fwake_class
+    type(vf_class) :: vf
+    real(dp) :: gam
+  end type Fwake_class
+
+contains
+
+  ! VF coordinates
+  ! o---------> Y along span
+  ! |
+  ! |   1 
+  ! |   | 
+  ! |   | 
+  ! |   |1
+  ! |   | 
+  ! |   | 
+  ! |   2 
+  ! |
+  ! V X along chord
+
+end module Fwake_classdef
 
 
 !------+-------------------+------|
@@ -394,12 +423,13 @@ end module wakepanel_classdef
 !------+-------------------+------|
 module blade_classdef
   use wingpanel_classdef
-  use wakepanel_classdef
+  use Nwake_classdef
   implicit none
   type blade_class
     type(wingpanel_class), allocatable, dimension(:,:) :: wiP
-    type(wakepanel_class), allocatable, dimension(:,:) :: waP
-    type(wakepanel_class), allocatable, dimension(:,:) :: Pwake
+    type(Nwake_class), allocatable, dimension(:,:) :: waP
+    type(Fwake_class), allocatable, dimension(:) :: waF
+    type(Nwake_class), allocatable, dimension(:,:) :: Pwake
     real(dp) :: theta
     real(dp) :: psi
     real(dp) :: pivotLE
