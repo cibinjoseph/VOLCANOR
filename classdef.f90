@@ -726,7 +726,7 @@ module rotor_classdef
   use blade_classdef
   implicit none
   type rotor_class
-    integer :: nb,ns,nc
+    integer :: nb,ns,nc,nNwake,nFwake
     type(blade_class), allocatable, dimension(:) :: blade
     real(dp) :: Omega, Omega_slow
     real(dp), dimension(3) :: shaft_axis
@@ -781,7 +781,7 @@ contains
     call skiplines(12,2)
     read(12,*) this%nb
     call skiplines(12,3)
-    read(12,*) this%ns,this%nc
+    read(12,*) this%ns,this%nc,this%nNwake
     call skiplines(12,4)
     read(12,*) this%hub_coords(1),this%hub_coords(2),this%hub_coords(3)
     call skiplines(12,3)
@@ -824,6 +824,7 @@ contains
     enddo
     call degtorad(this%theta_twist)
     call degtorad(this%psi_start)
+    this%nFwake=nt-this%nNwake
     this%spanwise_core=this%spanwise_core*this%chord
     this%streamwise_core_vec=this%streamwise_core_vec*this%chord
 
@@ -837,7 +838,8 @@ contains
     ! Allocate blade object variables
     do ib=1,this%nb
       allocate(this%blade(ib)%wiP(this%nc,this%ns))
-      allocate(this%blade(ib)%waP(nt,this%ns))
+      allocate(this%blade(ib)%waP(nNwake,this%ns))
+      allocate(this%blade(ib)%waF(nFwake))
     enddo
 
   end subroutine getdata
