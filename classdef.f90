@@ -1000,24 +1000,24 @@ contains
     do ib=1,this%nb
       select case (FDscheme_switch)
       case (0)
-        allocate(this%blade(ib)%vind_wake(3,nt,this%ns+1))
+        allocate(this%blade(ib)%vind_wake(3,nNwake,this%ns+1))
       case (1)
-        allocate(this%blade(ib)%Pwake(nt,this%ns))
-        allocate(this%blade(ib)%vind_wake(3,nt,this%ns+1))
-        allocate(this%blade(ib)%vind_wake1(3,nt,this%ns+1))
-        allocate(this%blade(ib)%Pvind_wake(3,nt,this%ns+1))
+        allocate(this%blade(ib)%Pwake(nNwake,this%ns))
+        allocate(this%blade(ib)%vind_wake(3,nNwake,this%ns+1))
+        allocate(this%blade(ib)%vind_wake1(3,nNwake,this%ns+1))
+        allocate(this%blade(ib)%Pvind_wake(3,nNwake,this%ns+1))
       case (2)
-        allocate(this%blade(ib)%vind_wake(3,nt,this%ns+1))
-        allocate(this%blade(ib)%vind_wake1(3,nt,this%ns+1))
-        allocate(this%blade(ib)%vind_wake_step(3,nt,this%ns+1))
+        allocate(this%blade(ib)%vind_wake(3,nNwake,this%ns+1))
+        allocate(this%blade(ib)%vind_wake1(3,nNwake,this%ns+1))
+        allocate(this%blade(ib)%vind_wake_step(3,nNwake,this%ns+1))
       case (3)
-        allocate(this%blade(ib)%vind_wake(3,nt,this%ns+1))
-        allocate(this%blade(ib)%Pwake(nt,this%ns))
-        allocate(this%blade(ib)%vind_wake1(3,nt,this%ns+1))
-        allocate(this%blade(ib)%vind_wake2(3,nt,this%ns+1))
-        allocate(this%blade(ib)%vind_wake3(3,nt,this%ns+1))
-        allocate(this%blade(ib)%Pvind_wake(3,nt,this%ns+1))
-        allocate(this%blade(ib)%vind_wake_step(3,nt,this%ns+1))
+        allocate(this%blade(ib)%vind_wake(3,nNwake,this%ns+1))
+        allocate(this%blade(ib)%Pwake(nNwake,this%ns))
+        allocate(this%blade(ib)%vind_wake1(3,nNwake,this%ns+1))
+        allocate(this%blade(ib)%vind_wake2(3,nNwake,this%ns+1))
+        allocate(this%blade(ib)%vind_wake3(3,nNwake,this%ns+1))
+        allocate(this%blade(ib)%Pvind_wake(3,nNwake,this%ns+1))
+        allocate(this%blade(ib)%vind_wake_step(3,nNwake,this%ns+1))
       end select
     enddo
 
@@ -1033,14 +1033,14 @@ contains
 
       ! Assign core_radius to tip vortices
       do j=1,this%ns
-        do i=1,nt
+        do i=1,nNwake
           this%blade(ib)%waP(i,j)%vr%vf(1)%r_vc0 = this%streamwise_core_vec(j)
           this%blade(ib)%waP(i,j)%vr%vf(1)%r_vc  = this%streamwise_core_vec(j)
         enddo
       enddo
 
       do j=1,this%ns
-        do i=1,nt
+        do i=1,nNwake
           this%blade(ib)%waP(i,j)%vr%vf(3)%r_vc0 = this%streamwise_core_vec(j+1)
           this%blade(ib)%waP(i,j)%vr%vf(3)%r_vc  = this%streamwise_core_vec(j+1)
         enddo
