@@ -1049,8 +1049,8 @@ contains
       enddo
 
       !do i=1,this%nFwake
-        this%blade(ib)%waF%vf%r_vc0 = this%streamwise_core_vec(this%ns+1)
-        this%blade(ib)%waF%vf%r_vc  = this%streamwise_core_vec(this%ns+1)
+      this%blade(ib)%waF%vf%r_vc0 = this%streamwise_core_vec(this%ns+1)
+      this%blade(ib)%waF%vf%r_vc  = this%streamwise_core_vec(this%ns+1)
       !enddo
 
     enddo
@@ -1063,30 +1063,26 @@ contains
     integer :: ib
     ! Deallocate variables
     do ib=1,this%nb
+      deallocate(this%blade(ib)%vind_wake)
+      deallocate(this%blade(ib)%waF)
+
       select case (FDscheme_switch)
       case (0)
-        deallocate(this%blade(ib)%vind_wake)
-        deallocate(this%blade(ib)%waF)
+        ! Nothing to deallocate
       case (1)
         deallocate(this%blade(ib)%Pwake)
-        deallocate(this%blade(ib)%vind_wake)
         deallocate(this%blade(ib)%vind_wake1)
         deallocate(this%blade(ib)%Pvind_wake)
-        deallocate(this%blade(ib)%waF)
       case (2)
-        deallocate(this%blade(ib)%vind_wake)
         deallocate(this%blade(ib)%vind_wake1)
         deallocate(this%blade(ib)%vind_wake_step)
-        deallocate(this%blade(ib)%waF)
       case (3)
         deallocate(this%blade(ib)%Pwake)
-        deallocate(this%blade(ib)%vind_wake)
         deallocate(this%blade(ib)%vind_wake1)
         deallocate(this%blade(ib)%vind_wake2)
         deallocate(this%blade(ib)%vind_wake3)
         deallocate(this%blade(ib)%Pvind_wake)
         deallocate(this%blade(ib)%vind_wake_step)
-        deallocate(this%blade(ib)%waF)
       end select
     enddo
 
