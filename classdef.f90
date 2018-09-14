@@ -838,8 +838,8 @@ contains
     ! Allocate blade object variables
     do ib=1,this%nb
       allocate(this%blade(ib)%wiP(this%nc,this%ns))
-      allocate(this%blade(ib)%waP(nNwake,this%ns))
-      allocate(this%blade(ib)%waF(nFwake))
+      allocate(this%blade(ib)%waP(this%nNwake,this%ns))
+      allocate(this%blade(ib)%waF(this%nFwake))
     enddo
 
   end subroutine getdata
@@ -932,6 +932,8 @@ contains
         this%blade(ib)%waP%vr%vf(i)%age = 0._dp
       enddo
 
+      this%blade(ib)%waF%vf%age = 0._dp
+
       ! Initialize spanwise vortex core radius
       do i=2,4,2
         this%blade(ib)%wiP%vr%vf(i)%r_vc0= this%spanwise_core
@@ -1000,24 +1002,24 @@ contains
     do ib=1,this%nb
       select case (FDscheme_switch)
       case (0)
-        allocate(this%blade(ib)%vind_wake(3,nNwake,this%ns+1))
+        allocate(this%blade(ib)%vind_wake(3,this%nNwake,this%ns+1))
       case (1)
-        allocate(this%blade(ib)%Pwake(nNwake,this%ns))
-        allocate(this%blade(ib)%vind_wake(3,nNwake,this%ns+1))
-        allocate(this%blade(ib)%vind_wake1(3,nNwake,this%ns+1))
-        allocate(this%blade(ib)%Pvind_wake(3,nNwake,this%ns+1))
+        allocate(this%blade(ib)%Pwake(this%nNwake,this%ns))
+        allocate(this%blade(ib)%vind_wake(3,this%nNwake,this%ns+1))
+        allocate(this%blade(ib)%vind_wake1(3,this%nNwake,this%ns+1))
+        allocate(this%blade(ib)%Pvind_wake(3,this%nNwake,this%ns+1))
       case (2)
-        allocate(this%blade(ib)%vind_wake(3,nNwake,this%ns+1))
-        allocate(this%blade(ib)%vind_wake1(3,nNwake,this%ns+1))
-        allocate(this%blade(ib)%vind_wake_step(3,nNwake,this%ns+1))
+        allocate(this%blade(ib)%vind_wake(3,this%nNwake,this%ns+1))
+        allocate(this%blade(ib)%vind_wake1(3,this%nNwake,this%ns+1))
+        allocate(this%blade(ib)%vind_wake_step(3,this%nNwake,this%ns+1))
       case (3)
-        allocate(this%blade(ib)%vind_wake(3,nNwake,this%ns+1))
-        allocate(this%blade(ib)%Pwake(nNwake,this%ns))
-        allocate(this%blade(ib)%vind_wake1(3,nNwake,this%ns+1))
-        allocate(this%blade(ib)%vind_wake2(3,nNwake,this%ns+1))
-        allocate(this%blade(ib)%vind_wake3(3,nNwake,this%ns+1))
-        allocate(this%blade(ib)%Pvind_wake(3,nNwake,this%ns+1))
-        allocate(this%blade(ib)%vind_wake_step(3,nNwake,this%ns+1))
+        allocate(this%blade(ib)%vind_wake(3,this%nNwake,this%ns+1))
+        allocate(this%blade(ib)%Pwake(this%nNwake,this%ns))
+        allocate(this%blade(ib)%vind_wake1(3,this%nNwake,this%ns+1))
+        allocate(this%blade(ib)%vind_wake2(3,this%nNwake,this%ns+1))
+        allocate(this%blade(ib)%vind_wake3(3,this%nNwake,this%ns+1))
+        allocate(this%blade(ib)%Pvind_wake(3,this%nNwake,this%ns+1))
+        allocate(this%blade(ib)%vind_wake_step(3,this%nNwake,this%ns+1))
       end select
     enddo
 
@@ -1046,6 +1048,11 @@ contains
         enddo
       enddo
 
+      !do i=1,this%nFwake
+        this%blade(ib)%waF%vf%r_vc0 = this%streamwise_core_vec(this%ns+1)
+        this%blade(ib)%waF%vf%r_vc  = this%streamwise_core_vec(this%ns+1)
+      !enddo
+
     enddo
 
   end subroutine init
@@ -1059,15 +1066,18 @@ contains
       select case (FDscheme_switch)
       case (0)
         deallocate(this%blade(ib)%vind_wake)
+        deallocate(this%blade(ib)%waF)
       case (1)
         deallocate(this%blade(ib)%Pwake)
         deallocate(this%blade(ib)%vind_wake)
         deallocate(this%blade(ib)%vind_wake1)
         deallocate(this%blade(ib)%Pvind_wake)
+        deallocate(this%blade(ib)%waF)
       case (2)
         deallocate(this%blade(ib)%vind_wake)
         deallocate(this%blade(ib)%vind_wake1)
         deallocate(this%blade(ib)%vind_wake_step)
+        deallocate(this%blade(ib)%waF)
       case (3)
         deallocate(this%blade(ib)%Pwake)
         deallocate(this%blade(ib)%vind_wake)
@@ -1076,6 +1086,7 @@ contains
         deallocate(this%blade(ib)%vind_wake3)
         deallocate(this%blade(ib)%Pvind_wake)
         deallocate(this%blade(ib)%vind_wake_step)
+        deallocate(this%blade(ib)%waF)
       end select
     enddo
 
