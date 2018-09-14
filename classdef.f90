@@ -424,6 +424,7 @@ end module Fwake_classdef
 module blade_classdef
   use wingpanel_classdef
   use Nwake_classdef
+  use Fwake_classdef
   implicit none
   type blade_class
     type(wingpanel_class), allocatable, dimension(:,:) :: wiP
@@ -1035,14 +1036,14 @@ contains
 
       ! Assign core_radius to tip vortices
       do j=1,this%ns
-        do i=1,nNwake
+        do i=1,this%nNwake
           this%blade(ib)%waP(i,j)%vr%vf(1)%r_vc0 = this%streamwise_core_vec(j)
           this%blade(ib)%waP(i,j)%vr%vf(1)%r_vc  = this%streamwise_core_vec(j)
         enddo
       enddo
 
       do j=1,this%ns
-        do i=1,nNwake
+        do i=1,this%nNwake
           this%blade(ib)%waP(i,j)%vr%vf(3)%r_vc0 = this%streamwise_core_vec(j+1)
           this%blade(ib)%waP(i,j)%vr%vf(3)%r_vc  = this%streamwise_core_vec(j+1)
         enddo

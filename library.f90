@@ -11,7 +11,7 @@ contains
   ! Induced velocity by rotor (wing n wake) on wake_array corner points
   function vind_onwake_byrotor(rotor,wake_array,opt_char) result(vind_array)
     type(rotor_class), intent(inout) :: rotor
-    type(wakepanel_class), intent(in), dimension(:,:) :: wake_array
+    type(Nwake_class), intent(in), dimension(:,:) :: wake_array
     character(len=1), optional :: opt_char
     real(dp), dimension(3,size(wake_array,1),size(wake_array,2)+1) :: vind_array
     integer :: i,j,rows,nt,row_now

@@ -77,7 +77,7 @@ contains
 
   subroutine mesh2file(wing_array,wake_array,filename)
     type(wingpanel_class), intent(in), dimension(:,:) :: wing_array
-    type(wakepanel_class), intent(in), dimension(:,:) :: wake_array
+    type(Nwake_class), intent(in), dimension(:,:) :: wake_array
     character(len=*), intent(in) :: filename
     character(len=5) :: nx_char, ny_char
     real(dp), dimension(3,size(wing_array,1)+1,size(wing_array,2)+1) :: wing_mesh  
@@ -224,7 +224,7 @@ contains
 
   subroutine tip2file(wing_array,wake_array,filename)
     type(wingpanel_class), intent(in), dimension(:,:) :: wing_array
-    type(wakepanel_class), intent(in), dimension(:,:) :: wake_array
+    type(Nwake_class), intent(in), dimension(:,:) :: wake_array
     character(len=*), intent(in) :: filename
     character(len=5) :: nx_char, ny_char
     real(dp), dimension(3,size(wing_array,1)+1,size(wing_array,2)+1) :: wing_mesh  
