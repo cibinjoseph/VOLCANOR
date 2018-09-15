@@ -151,9 +151,9 @@ program main
 
     do ir=1,nr
       if (row_now(ir)<1) then
-        call rotor(ir)%assignshed(1,'LE')  ! Store shed vortex as TE
+        call rotor(ir)%assignshed(1,'LE')  ! Store shed vortex as LE
       else
-        call rotor(ir)%assignshed(row_now(ir),'LE')  ! Store shed vortex as TE
+        call rotor(ir)%assignshed(row_now(ir),'LE')  ! Store shed vortex as LE
       endif
     enddo
 
