@@ -764,6 +764,7 @@ module rotor_classdef
     procedure :: calcAIC
     procedure :: vind_bywing => rotor_vind_bywing
     procedure :: vind_bywake => rotor_vind_bywake
+    procedure :: shiftwake => rotor_shiftwake
   end type rotor_class
 
 contains
@@ -1360,4 +1361,14 @@ contains
       error stop 'ERROR: Wrong character flag for rotor_vind_bywake()'
     endif
   end function rotor_vind_bywake
+
+  subroutine rotor_shiftwake(this)
+  class(rotor_class), intent(inout) :: this
+    integer :: ib,i
+    do ib=1,this%nb
+      do i=this%nNwake,1,-1
+        this%blade(ib)%waP(i,:)=this%blade(ib)%waP(i-1,:)
+      enddo
+    enddo
+  end subroutine rotor_shiftwake
 end module rotor_classdef

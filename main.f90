@@ -99,7 +99,7 @@ program main
   enddo
 
   do ir=1,nr
-    call rotor(ir)%assignshed(nt,'TE')  ! Store shed vortex as TE
+    call rotor(ir)%assignshed(rotor(ir)%nNwake,'TE')  ! Store shed vortex as TE
   enddo
 
   ! ------- MAIN LOOP START -------
@@ -151,7 +151,8 @@ program main
 
     do ir=1,nr
       if (row_now(ir)<1) then
-        ! Cyclically shift wake and overwrite first row of wake panels
+        ! Shift wake and overwrite first row of wake panels
+        call rotor(ir)%shiftwake()
         call rotor(ir)%assignshed(1,'LE')  ! Store shed vortex as TE
       else
         call rotor(ir)%assignshed(row_now(ir),'LE')  ! Store shed vortex as TE
