@@ -6,3 +6,15 @@ Compute initial solution
 |  Convect wake
 |  Assign TE of wake 
 |- Repeat
+
+
+Compute initial solution
+|- Assign TE of wake 
+|  Move wing
+|  Assign LE of wake 
+|  Assign LE of wake tip
+|  Convect wake
+|  Assign TE of wake 
+|  Assign TE of wake tip
+|  Shift wake rows (Collapse last row)
+|- Repeat

@@ -1365,10 +1365,34 @@ contains
   subroutine rotor_shiftwake(this)
   class(rotor_class), intent(inout) :: this
     integer :: ib,i
+
     do ib=1,this%nb
       do i=this%nNwake,1,-1
         this%blade(ib)%waP(i,:)=this%blade(ib)%waP(i-1,:)
       enddo
     enddo
   end subroutine rotor_shiftwake
+
+  subroutine rotor_rollup(this,row_now,edge)
+  class(rotor_class), intent(inout) :: this
+    character(len=2), intent(in) :: edge
+    integer :: ib,i
+
+    ! Find centroid of vorticity
+
+    select case (edge)
+    case ('LE')    ! assign to LE
+      do ib=1,this%nb
+      enddo
+
+    case ('TE')    ! assign to TE
+      do ib=1,this%nb
+        ! Find gam_max from last row
+
+      enddo
+    case default
+      error stop 'Error: Wrong option for edge'
+    end select
+
+  end subroutine rotor_rollup
 end module rotor_classdef
