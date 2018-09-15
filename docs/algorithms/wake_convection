@@ -1,1 +1,8 @@
-Wake convection
+Wake assignment and convection
+Compute initial solution
+|- Assign TE of wake 
+|  Move wing
+|  Assign LE of wake 
+|  Convect wake
+|  Assign TE of wake 
+|- Repeat
