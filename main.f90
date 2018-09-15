@@ -222,7 +222,7 @@ program main
         ! Add zero velocity for far wake filaments
       else
         do ib=1,rotor(ir)%nb
-          rotor(ir)%blade(ib)%vind_wake(:,row_now(ir):nt,:)=0._dp
+          rotor(ir)%blade(ib)%vind_wake(:,row_now(ir):rotor(ir)%nNwake,:)=0._dp
         enddo
       endif
     enddo
