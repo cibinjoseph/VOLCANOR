@@ -1373,26 +1373,32 @@ contains
     enddo
   end subroutine rotor_shiftwake
 
-  subroutine rotor_rollup(this,row_now,edge)
+  subroutine rotor_rollup(this,row_now)
   class(rotor_class), intent(inout) :: this
-    character(len=2), intent(in) :: edge
-    integer :: ib,i
+    integer :: ib,ispan
+    real(dp), dimension(3) :: centroid_LE,centroid_TE
 
-    ! Find centroid of vorticity
+    centroid_LE=0._dp
+    centroid_TE=0._dp
 
-    select case (edge)
-    case ('LE')    ! assign to LE
-      do ib=1,this%nb
+    do ib=1,this%nb
+      do ispan=1,this%ns
+        ! Find centroid LE
+        centroid_LE=centroid_LE+this%waP(this%nNwake,ispan)%vr%vf(4)%fc(:,1)
+        ! Find centroid TE
+        centroid_TE=centroid_TE+this%waP(this%nNwake,ispan)%vr%vf(3)%fc(:,1)
       enddo
+      centroid_LE=centroid_LE/this%ns
+      centroid_TE=centroid_TE/this%ns
 
-    case ('TE')    ! assign to TE
-      do ib=1,this%nb
-        ! Find gam_max from last row
+      ! Assign to far wake tip
+      this%waF(row_now)%vf%fc(:,2)=centroid_LE
+      this%waF(row_now)%vf%fc(:,1)=centroid_TE
 
-      enddo
-    case default
-      error stop 'Error: Wrong option for edge'
-    end select
+      ! Find gam_max from last row
+
+
+    enddo
 
   end subroutine rotor_rollup
 end module rotor_classdef

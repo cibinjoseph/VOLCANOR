@@ -151,7 +151,6 @@ program main
 
     do ir=1,nr
       if (row_now(ir)<1) then
-        call rotor(ir)%assignshed(1,'LE')  ! Store shed vortex as LE
         call rotor(ir)%rollup(row_now(ir),'LE')  ! Roll up wake to tip vortex
       else
         call rotor(ir)%assignshed(row_now(ir),'LE')  ! Store shed vortex as LE
@@ -384,7 +383,7 @@ program main
     do ir=1,nr
       ! Store shed vortex as TE for next wake panel
       if (row_now(ir)<=1) then
-        call rotor(ir)%rollup(row_now(ir)-1,'TE')  ! Roll up wake to tip vortex
+        call rotor(ir)%rollup(row_now(ir)-1)  ! Roll up wake to tip vortex
         call rotor(ir)%shiftwake()  ! Shift wake 
         call rotor(ir)%assignshed(1,'TE')  
       else
