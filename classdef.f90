@@ -1395,9 +1395,8 @@ contains
       this%waF(row_now)%vf%fc(:,2)=centroid_LE
       this%waF(row_now)%vf%fc(:,1)=centroid_TE
 
-      ! Find gam_max from last row
-
-
+      ! Assign gam_max from last row to wake filament gamma
+      gam_max=min(this%waP(this%nNwake,:)%vr%gam)
     enddo
 
   end subroutine rotor_rollup
