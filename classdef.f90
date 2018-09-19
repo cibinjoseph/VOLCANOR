@@ -628,7 +628,7 @@ contains
       nFwake=size(this%waF,1)
       index_offset=nFwake-rows
       do i=1,rows
-        call this%waP(i+index_offset,j)%vr%shiftdP(2,dP_near(:,i,j))
+        call this%waF(i+index_offset,j)%shiftdP(2,dP_far(:,i))
       enddo
 
       call this%wake_continuity(index_offset+1)
