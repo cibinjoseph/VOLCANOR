@@ -567,10 +567,10 @@ contains
 
   end function blade_vind_bywing
 
-  function blade_vind_bywake(this,row_now,P,opt_char)  ! Induced velocity at a point P
+  function blade_vind_bywake(this,row_near,P,opt_char)  ! Induced velocity at a point P
     ! pivot point calculated using straight line joining LE and TE of root panels
   class(blade_class), intent(inout) :: this
-    integer, intent(in) :: row_now
+    integer, intent(in) :: row_near
     real(dp), intent(in), dimension(3) :: P
     character(len=1), optional :: opt_char
     real(dp), dimension(3) :: blade_vind_bywake
@@ -579,13 +579,13 @@ contains
     blade_vind_bywake=0._dp
     if (.not. present(opt_char)) then
       do j=1,size(this%waP,2)
-        do i=row_now,size(this%waP,1)
+        do i=row_near,size(this%waP,1)
           blade_vind_bywake=blade_vind_bywake+this%waP(i,j)%vr%vind(P)*this%waP(i,j)%vr%gam
         enddo
       enddo
     elseif ((opt_char .eq. 'P') .or. (opt_char .eq. 'p')) then
       do j=1,size(this%waP,2)
-        do i=row_now,size(this%waP,1)
+        do i=row_near,size(this%waP,1)
           blade_vind_bywake=blade_vind_bywake+this%Pwake(i,j)%vr%vind(P)*this%Pwake(i,j)%vr%gam
         enddo
       enddo
@@ -660,9 +660,9 @@ contains
 
   ! Maintain continuity between vortex ring elements after convection
   ! of vortex ring corners
-  subroutine wake_continuity(this,row_now,opt_char)
+  subroutine wake_continuity(this,row_near,opt_char)
   class(blade_class), intent(inout) :: this
-    integer, intent(in) :: row_now
+    integer, intent(in) :: row_near
     character(len=1), optional :: opt_char  ! For predicted wake
     integer :: i,j,rows,cols
 
@@ -672,7 +672,7 @@ contains
     if (.not. present(opt_char)) then
       !$omp parallel do collapse(2)
       do j=1,cols-1
-        do i=row_now+1,rows
+        do i=row_near+1,rows
           call this%waP(i,j)%vr%assignP(1,this%waP(i-1,j)%vr%vf(2)%fc(:,1))
           call this%waP(i,j)%vr%assignP(3,this%waP(i,j+1)%vr%vf(2)%fc(:,1))
           call this%waP(i,j)%vr%assignP(4,this%waP(i-1,j+1)%vr%vf(2)%fc(:,1))
@@ -682,12 +682,12 @@ contains
 
       !$omp parallel do
       do j=1,cols-1
-        call this%waP(row_now,j)%vr%assignP(3,this%waP(row_now,j+1)%vr%vf(2)%fc(:,1))
+        call this%waP(row_near,j)%vr%assignP(3,this%waP(row_near,j+1)%vr%vf(2)%fc(:,1))
       enddo
       !$omp end parallel do
 
       !$omp parallel do
-      do i=row_now+1,rows
+      do i=row_near+1,rows
         call this%waP(i,cols)%vr%assignP(1,this%waP(i-1,cols)%vr%vf(2)%fc(:,1))
         call this%waP(i,cols)%vr%assignP(4,this%waP(i-1,cols)%vr%vf(3)%fc(:,1))
       enddo
@@ -698,7 +698,7 @@ contains
 
       !$omp parallel do collapse(2)
       do j=1,cols-1
-        do i=row_now+1,rows
+        do i=row_near+1,rows
           call this%Pwake(i,j)%vr%assignP(1,this%Pwake(i-1,j)%vr%vf(2)%fc(:,1))
           call this%Pwake(i,j)%vr%assignP(3,this%Pwake(i,j+1)%vr%vf(2)%fc(:,1))
           call this%Pwake(i,j)%vr%assignP(4,this%Pwake(i-1,j+1)%vr%vf(2)%fc(:,1))
@@ -708,12 +708,12 @@ contains
 
       !$omp parallel do
       do j=1,cols-1
-        call this%Pwake(row_now,j)%vr%assignP(3,this%Pwake(row_now,j+1)%vr%vf(2)%fc(:,1))
+        call this%Pwake(row_near,j)%vr%assignP(3,this%Pwake(row_near,j+1)%vr%vf(2)%fc(:,1))
       enddo
       !$omp end parallel do
 
       !$omp parallel do
-      do i=row_now+1,rows
+      do i=row_near+1,rows
         call this%Pwake(i,cols)%vr%assignP(1,this%Pwake(i-1,cols)%vr%vf(2)%fc(:,1))
         call this%Pwake(i,cols)%vr%assignP(4,this%Pwake(i-1,cols)%vr%vf(3)%fc(:,1))
       enddo
@@ -1239,31 +1239,31 @@ contains
   !-----+---------------------------+-----|
 
   ! Assigns coordinates to first row of wake from last row of blade
-  subroutine assignshed(this,row_now,edge)
+  subroutine assignshed(this,row_near,edge)
   class(rotor_class), intent(inout) :: this
-    integer, intent(in) :: row_now
+    integer, intent(in) :: row_near
     character(len=2), intent(in) :: edge
     integer :: i, ib
 
     do ib=1,this%nb
-      this%blade(ib)%waP(row_now,:)%vr%gam=this%blade(ib)%wiP(this%nc,:)%vr%gam
+      this%blade(ib)%waP(row_near,:)%vr%gam=this%blade(ib)%wiP(this%nc,:)%vr%gam
     enddo
 
     select case (edge)
     case ('LE')    ! assign to LE
       do ib=1,this%nb
         do i=1,this%ns
-          call this%blade(ib)%waP(row_now,i)%vr%assignP(1,this%blade(ib)%wiP(this%nc,i)%vr%vf(2)%fc(:,1))
-          call this%blade(ib)%waP(row_now,i)%vr%assignP(4,this%blade(ib)%wiP(this%nc,i)%vr%vf(3)%fc(:,1))
-          call this%blade(ib)%waP(row_now,i)%vr%calclength(.TRUE.)    ! TRUE => record original length
+          call this%blade(ib)%waP(row_near,i)%vr%assignP(1,this%blade(ib)%wiP(this%nc,i)%vr%vf(2)%fc(:,1))
+          call this%blade(ib)%waP(row_near,i)%vr%assignP(4,this%blade(ib)%wiP(this%nc,i)%vr%vf(3)%fc(:,1))
+          call this%blade(ib)%waP(row_near,i)%vr%calclength(.TRUE.)    ! TRUE => record original length
         enddo
 
       enddo
     case ('TE')    ! assign to TE
       do ib=1,this%nb
         do i=1,this%ns
-          call this%blade(ib)%waP(row_now,i)%vr%assignP(2,this%blade(ib)%wiP(this%nc,i)%vr%vf(2)%fc(:,1))
-          call this%blade(ib)%waP(row_now,i)%vr%assignP(3,this%blade(ib)%wiP(this%nc,i)%vr%vf(3)%fc(:,1))
+          call this%blade(ib)%waP(row_near,i)%vr%assignP(2,this%blade(ib)%wiP(this%nc,i)%vr%vf(2)%fc(:,1))
+          call this%blade(ib)%waP(row_near,i)%vr%assignP(3,this%blade(ib)%wiP(this%nc,i)%vr%vf(3)%fc(:,1))
         enddo
       enddo
     case default
@@ -1277,25 +1277,25 @@ contains
   ! -+- | Wake Dissipation Functions | -+- |
   !-----+----------------------------+-----|
 
-  subroutine age_wake(this,row_now,dt)
+  subroutine age_wake(this,row_near,dt)
   class(rotor_class), intent(inout) :: this
-    integer, intent(in) :: row_now
+    integer, intent(in) :: row_near
     real(dp),intent(in) :: dt
     integer :: i, ib, row_last
     row_last=size(this%blade(1)%waP,1)
     do ib=1,this%nb
       !$omp parallel do
       do i=1,4
-        this%blade(ib)%waP(row_now:row_last,:)%vr%vf(i)%age=this%blade(ib)%waP(row_now:row_last,:)%vr%vf(i)%age+dt
+        this%blade(ib)%waP(row_near:row_last,:)%vr%vf(i)%age=this%blade(ib)%waP(row_near:row_last,:)%vr%vf(i)%age+dt
       enddo
       !$omp end parallel do
     enddo
   end subroutine age_wake
 
-  subroutine dissipate_tip(this,row_now)
+  subroutine dissipate_tip(this,row_near)
   class(rotor_class), intent(inout) :: this
     real(dp) :: oseen_param, turb_visc, kin_visc, new_radius
-    integer, intent(in) :: row_now
+    integer, intent(in) :: row_near
     integer :: row_last
     integer :: ii,tip,ib
     oseen_param= 1.2564_dp
@@ -1305,7 +1305,7 @@ contains
     row_last=size(this%blade(1)%waP,1)
     tip=this%ns
     do ib=1,this%nb
-      do ii=row_now,row_last
+      do ii=row_near,row_last
         ! Root vortex core
         new_radius=sqrt(this%blade(ib)%waP(ii,1)%vr%vf(1)%r_vc**2._dp &
           +4._dp*oseen_param*turb_visc*kin_visc*this%blade(ib)%waP(ii,1)%vr%vf(1)%age)
@@ -1319,15 +1319,15 @@ contains
     enddo
   end subroutine dissipate_tip
 
-  subroutine strain_wake(this,row_now)
+  subroutine strain_wake(this,row_near)
   class(rotor_class), intent(inout) :: this
-    integer, intent(in) :: row_now
+    integer, intent(in) :: row_near
     integer :: i,j,ib
 
     do ib=1,this%nb
       !$omp parallel do collapse(2)
       do j=1,this%ns
-        do i=row_now,size(this%blade(1)%waP)
+        do i=row_near,size(this%blade(1)%waP)
           call this%blade(ib)%waP(i,j)%vr%calclength(.FALSE.)    ! Update current length
           call this%blade(ib)%waP(i,j)%vr%strain()
         enddo
@@ -1348,10 +1348,10 @@ contains
     enddo
   end function rotor_vind_bywing
 
-  function rotor_vind_bywake(this,row_now,P,opt_char)
+  function rotor_vind_bywake(this,row_near,P,opt_char)
   class(rotor_class), intent(inout) :: this
     real(dp), intent(in), dimension(3) :: P
-    integer, intent(in) :: row_now
+    integer, intent(in) :: row_near
     character(len=1), optional :: opt_char
     real(dp), dimension(3) :: rotor_vind_bywake
     integer :: ib
@@ -1359,11 +1359,11 @@ contains
     rotor_vind_bywake=0._dp
     if (.not. present(opt_char)) then
       do ib=1,this%nb
-        rotor_vind_bywake=rotor_vind_bywake+this%blade(ib)%vind_bywake(row_now,P)
+        rotor_vind_bywake=rotor_vind_bywake+this%blade(ib)%vind_bywake(row_near,P)
       enddo
     elseif ((opt_char .eq. 'P') .or. (opt_char .eq. 'p')) then
       do ib=1,this%nb
-        rotor_vind_bywake=rotor_vind_bywake+this%blade(ib)%vind_bywake(row_now,P,'P')
+        rotor_vind_bywake=rotor_vind_bywake+this%blade(ib)%vind_bywake(row_near,P,'P')
       enddo
     else 
       error stop 'ERROR: Wrong character flag for rotor_vind_bywake()'
@@ -1381,7 +1381,7 @@ contains
     enddo
   end subroutine rotor_shiftwake
 
-  subroutine rotor_rollup(this,row_now)
+  subroutine rotor_rollup(this,row_near)
   class(rotor_class), intent(inout) :: this
     integer :: ib,ispan
     real(dp), dimension(3) :: centroid_LE,centroid_TE
@@ -1400,8 +1400,8 @@ contains
       centroid_TE=centroid_TE/this%ns
 
       ! Assign to far wake tip
-      this%waF(row_now)%vf%fc(:,2)=centroid_LE
-      this%waF(row_now)%vf%fc(:,1)=centroid_TE
+      this%waF(row_near)%vf%fc(:,2)=centroid_LE
+      this%waF(row_near)%vf%fc(:,1)=centroid_TE
 
       ! Assign gam_max from last row to wake filament gamma
       gam_max=min(this%waP(this%nNwake,:)%vr%gam)
