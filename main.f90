@@ -151,7 +151,7 @@ program main
 
     do ir=1,nr
       if (row_now(ir)<1) then
-        call rotor(ir)%rollup(row_now(ir),'LE')  ! Roll up wake to tip vortex
+        call rotor(ir)%assignshed(1,'LE')  ! Store shed vortex as LE
       else
         call rotor(ir)%assignshed(row_now(ir),'LE')  ! Store shed vortex as LE
       endif
@@ -246,7 +246,8 @@ program main
     case (0)    ! Explicit forward diff (1st order)
       do ir=1,nr
         do ib=1,rotor(ir)%nb
-          call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_wake(:,row_now(ir):nt,:)*dt)
+          call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_wake(:,row_now(ir):nt,:)*dt&
+                                               rotor(ir)%blade(ib)%vind_Fwake(:,row_now(ir):nt))
         enddo
       enddo
 
