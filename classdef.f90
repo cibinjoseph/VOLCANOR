@@ -596,32 +596,40 @@ contains
 
   end function blade_vind_bywake
 
-  ! Convect wake using dP_array=vind_array*dt
-  subroutine convectwake(this,dP_array,opt_char)
+  ! Convect wake using dP_near=vind_array*dt
+  subroutine convectwake(this,dP_near,dP_far,opt_char)
   class(blade_class), intent(inout) :: this
-    real(dp), intent(in), dimension(:,:,:) :: dP_array
+    real(dp), intent(in), dimension(:,:,:) :: dP_near
+    real(dp), intent(in), dimension(:,:) :: dP_far
     character(len=1), optional :: opt_char  ! For predicted wake
     integer :: i,j,rows,cols,nt,index_offset
 
-    rows=size(dP_array,2)
+    rows=size(dP_near,2)
     cols=size(this%waP,2)
-    nt=size(this%waP,1)
-    index_offset=nt-rows
+    nNwake=size(this%waP,1)
+    index_offset=nNwake-rows
 
     if (.not. present(opt_char)) then
       !$omp parallel do collapse(2)
       do j=1,cols
         do i=1,rows
-          call this%waP(i+index_offset,j)%vr%shiftdP(2,dP_array(:,i,j))
+          call this%waP(i+index_offset,j)%vr%shiftdP(2,dP_near(:,i,j))
         enddo
       enddo
       !$omp end parallel do
 
       !$omp parallel do
       do i=1,rows
-        call this%waP(i+index_offset,cols)%vr%shiftdP(3,dP_array(:,i,cols+1))
+        call this%waP(i+index_offset,cols)%vr%shiftdP(3,dP_near(:,i,cols+1))
       enddo
       !$omp end parallel do
+
+      rows=size(dP_far,2)
+      nFwake=size(this%waF,1)
+      index_offset=nFwake-rows
+      do i=1,rows
+        call this%waP(i+index_offset,j)%vr%shiftdP(2,dP_near(:,i,j))
+      enddo
 
       call this%wake_continuity(index_offset+1)
 
@@ -631,14 +639,14 @@ contains
       !$omp parallel do collapse(2)
       do j=1,cols
         do i=1,rows
-          call this%Pwake(i+index_offset,j)%vr%shiftdP(2,dP_array(:,i,j))
+          call this%Pwake(i+index_offset,j)%vr%shiftdP(2,dP_near(:,i,j))
         enddo
       enddo
       !$omp end parallel do
 
       !$omp parallel do
       do i=1,rows
-        call this%Pwake(i+index_offset,cols)%vr%shiftdP(3,dP_array(:,i,cols+1))
+        call this%Pwake(i+index_offset,cols)%vr%shiftdP(3,dP_near(:,i,cols+1))
       enddo
       !$omp end parallel do
 

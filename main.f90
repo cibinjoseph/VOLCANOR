@@ -245,10 +245,17 @@ program main
 
     case (0)    ! Explicit forward diff (1st order)
       do ir=1,nr
+          if (row_now(ir)<1) then
+        do ib=1,rotor(ir)%nb
+          call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_wake(:,1:rotor(ir)%nNwake,:)*dt&
+                                               rotor(ir)%blade(ib)%vind_Fwake(:,rotor(ir)%nFwake+row_now(ir):rotor(ir)%nFwake)*dt)
+        enddo
+      else
         do ib=1,rotor(ir)%nb
           call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_wake(:,row_now(ir):nt,:)*dt&
                                                rotor(ir)%blade(ib)%vind_Fwake(:,row_now(ir):nt))
         enddo
+      endif
       enddo
 
 
