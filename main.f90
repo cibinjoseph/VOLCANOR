@@ -152,6 +152,7 @@ program main
       call rotor(ir)%rot_advance(rotor(ir)%Omega_slow*dt)
     enddo
 
+    ! Assign LE of near wake
     do ir=1,nr
       if (row_near(ir)<=1) then
         call rotor(ir)%assignshed(1,'LE')  ! Store shed vortex as LE

@@ -552,8 +552,7 @@ contains
     endif
   end subroutine rot_axis
 
-  function blade_vind_bywing(this,P)  ! Induced velocity at a point P
-    ! pivot point calculated using straight line joining LE and TE of root panels
+  function blade_vind_bywing(this,P)  
   class(blade_class), intent(inout) :: this
     real(dp), intent(in), dimension(3) :: P
     real(dp), dimension(3) :: blade_vind_bywing
@@ -568,8 +567,7 @@ contains
 
   end function blade_vind_bywing
 
-  function blade_vind_bywake(this,row_near,P,opt_char)  ! Induced velocity at a point P
-    ! pivot point calculated using straight line joining LE and TE of root panels
+  function blade_vind_bywake(this,row_near,P,opt_char) 
   class(blade_class), intent(inout) :: this
     integer, intent(in) :: row_near
     real(dp), intent(in), dimension(3) :: P
@@ -1074,7 +1072,7 @@ contains
     ! Deallocate variables
     do ib=1,this%nb
       deallocate(this%blade(ib)%vind_Nwake)
-      deallocate(this%blade(ib)%waF)
+      deallocate(this%blade(ib)%vind_Fwake)
 
       select case (FDscheme_switch)
       case (0)
