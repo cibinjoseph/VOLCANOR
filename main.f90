@@ -219,12 +219,12 @@ program main
     do ir=1,nr
       if (row_near(ir)<1) then
         do ib=1,rotor(ir)%nb
-          rotor(ir)%blade(ib)%vind_wake=0._dp
+          rotor(ir)%blade(ib)%vind_Nwake=0._dp
         enddo
         ! Add zero velocity for far wake filaments here
       else
         do ib=1,rotor(ir)%nb
-          rotor(ir)%blade(ib)%vind_wake(:,row_near(ir):rotor(ir)%nNwake,:)=0._dp
+          rotor(ir)%blade(ib)%vind_Nwake(:,row_near(ir):rotor(ir)%nNwake,:)=0._dp
         enddo
       endif
     enddo
@@ -232,12 +232,12 @@ program main
     do ir=1,nr
       do ib=1,rotor(ir)%nb
         do jr=1,nr
-          rotor(ir)%blade(ib)%vind_wake(:,row_near(ir):rotor(ir)%nNwake,:)=rotor(ir)%blade(ib)%vind_wake(:,row_near(ir):rotor(ir)%nNwake,:)  &
+          rotor(ir)%blade(ib)%vind_Nwake(:,row_near(ir):rotor(ir)%nNwake,:)=rotor(ir)%blade(ib)%vind_Nwake(:,row_near(ir):rotor(ir)%nNwake,:)  &
             +  vind_onwake_byrotor(rotor(jr),rotor(ir)%blade(ib)%waP(row_near(ir):rotor(ir)%nNwake,:))
         enddo
         if (iter < init_wake_vel_nt) then
           do i=1,3
-            rotor(ir)%blade(ib)%vind_wake(i,row_near(ir):rotor(ir)%nNwake,:)=rotor(ir)%blade(ib)%vind_wake(i,row_near(ir):rotor(ir)%nNwake,:)  &
+            rotor(ir)%blade(ib)%vind_Nwake(i,row_near(ir):rotor(ir)%nNwake,:)=rotor(ir)%blade(ib)%vind_Nwake(i,row_near(ir):rotor(ir)%nNwake,:)  &
               -  rotor(ir)%init_wake_vel*rotor(ir)%shaft_axis(i)
           enddo
         endif
@@ -251,12 +251,12 @@ program main
       do ir=1,nr
         if (row_near(ir)<1) then  ! far wake has evolved
           do ib=1,rotor(ir)%nb
-            call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_wake(:,1:rotor(ir)%nNwake,:)*dt,&
+            call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_Nwake(:,1:rotor(ir)%nNwake,:)*dt,&
               rotor(ir)%blade(ib)%vind_Fwake(:,row_far(ir):rotor(ir)%nFwake)*dt)
           enddo
         else
           do ib=1,rotor(ir)%nb
-            call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_wake(:,row_near(ir):rotor(ir)%nNwake,:)*dt)
+            call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_Nwake(:,row_near(ir):rotor(ir)%nNwake,:)*dt)
           enddo
         endif
       enddo
@@ -266,20 +266,20 @@ program main
       !  do ir=1,nr
       !    do ib=1,rotor(ir)%nb
       !      rotor(ir)%blade(ib)%Pwake(row_near(ir):nt,:)=rotor(ir)%blade(ib)%waP(row_near(ir):nt,:)
-      !      call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_wake(:,row_near(ir):nt,:)*dt,'P')
+      !      call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_Nwake(:,row_near(ir):nt,:)*dt,'P')
       !    enddo
       !  enddo
 
       !  do ir=1,nr
       !    do ib=1,rotor(ir)%nb
-      !      rotor(ir)%blade(ib)%Pvind_wake(:,row_near(ir):nt,:)=0._dp
+      !      rotor(ir)%blade(ib)%Pvind_Nwake(:,row_near(ir):nt,:)=0._dp
       !      do jr=1,nr
-      !        rotor(ir)%blade(ib)%Pvind_wake(:,row_near(ir):nt,:)=rotor(ir)%blade(ib)%Pvind_wake(:,row_near(ir):nt,:)  &
+      !        rotor(ir)%blade(ib)%Pvind_Nwake(:,row_near(ir):nt,:)=rotor(ir)%blade(ib)%Pvind_Nwake(:,row_near(ir):nt,:)  &
       !          +  vind_onwake_byrotor(rotor(jr),rotor(ir)%blade(ib)%Pwake(row_near(ir):nt,:),'P')
       !      enddo
       !      if (iter < init_wake_vel_nt) then
       !        do i=1,3
-      !          rotor(ir)%blade(ib)%Pvind_wake(i,row_near(ir):nt,:)=rotor(ir)%blade(ib)%Pvind_wake(i,row_near(ir):nt,:)  &
+      !          rotor(ir)%blade(ib)%Pvind_Nwake(i,row_near(ir):nt,:)=rotor(ir)%blade(ib)%Pvind_Nwake(i,row_near(ir):nt,:)  &
       !            -  rotor(ir)%init_wake_vel*rotor(ir)%shaft_axis(i)
       !        enddo
       !      endif
@@ -288,15 +288,15 @@ program main
 
       !  do ir=1,nr
       !    do ib=1,rotor(ir)%nb
-      !      call rotor(ir)%blade(ib)%convectwake(vel_order2(rotor(ir)%blade(ib)%vind_wake(:,row_near(ir):nt,:)  &
-      !        ,  rotor(ir)%blade(ib)%Pvind_wake(:,row_near(ir):nt,:))*dt)
+      !      call rotor(ir)%blade(ib)%convectwake(vel_order2(rotor(ir)%blade(ib)%vind_Nwake(:,row_near(ir):nt,:)  &
+      !        ,  rotor(ir)%blade(ib)%Pvind_Nwake(:,row_near(ir):nt,:))*dt)
       !    enddo
       !  enddo
 
       !  !do ir=1,nr
       !  !  do ib=1,rotor(ir)%nb
-      !  !    call rotor(ir)%blade(ib)%convectwake((rotor(ir)%blade(ib)%vind_wake(:,row_near(ir):nt,:)  &
-      !  !      +  rotor(ir)%blade(ib)%Pvind_wake(:,row_near(ir):nt,:))*dt*0.5_dp)
+      !  !    call rotor(ir)%blade(ib)%convectwake((rotor(ir)%blade(ib)%vind_Nwake(:,row_near(ir):nt,:)  &
+      !  !      +  rotor(ir)%blade(ib)%Pvind_Nwake(:,row_near(ir):nt,:))*dt*0.5_dp)
       !  !  enddo
       !  !enddo
 
@@ -304,16 +304,16 @@ program main
       !  if (iter == 1) then
       !    do ir=1,nr
       !      do ib=1,rotor(ir)%nb
-      !        call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_wake(:,row_near(ir):nt,:)*dt)
-      !        rotor(ir)%blade(ib)%vind_wake1=rotor(ir)%blade(ib)%vind_wake
+      !        call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_Nwake(:,row_near(ir):nt,:)*dt)
+      !        rotor(ir)%blade(ib)%vind_Nwake1=rotor(ir)%blade(ib)%vind_Nwake
       !      enddo
       !    enddo
       !  else
       !    do ir=1,nr
       !      do ib=1,rotor(ir)%nb
-      !        rotor(ir)%blade(ib)%vind_wake_step=0.5_dp*(3._dp*rotor(ir)%blade(ib)%vind_wake-rotor(ir)%blade(ib)%vind_wake1)
-      !        call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_wake_step(:,row_near(ir):nt,:)*dt)
-      !        rotor(ir)%blade(ib)%vind_wake1=rotor(ir)%blade(ib)%vind_wake
+      !        rotor(ir)%blade(ib)%vind_Nwake_step=0.5_dp*(3._dp*rotor(ir)%blade(ib)%vind_Nwake-rotor(ir)%blade(ib)%vind_Nwake1)
+      !        call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_Nwake_step(:,row_near(ir):nt,:)*dt)
+      !        rotor(ir)%blade(ib)%vind_Nwake1=rotor(ir)%blade(ib)%vind_Nwake
       !      enddo
       !    enddo
       !  endif
@@ -323,46 +323,46 @@ program main
       !  if (iter == 1) then
       !    do ir=1,nr
       !      do ib=1,rotor(ir)%nb
-      !        call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_wake(:,row_near(ir):nt,:)*dt)
-      !        rotor(ir)%blade(ib)%vind_wake1=rotor(ir)%blade(ib)%vind_wake
+      !        call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_Nwake(:,row_near(ir):nt,:)*dt)
+      !        rotor(ir)%blade(ib)%vind_Nwake1=rotor(ir)%blade(ib)%vind_Nwake
       !      enddo
       !    enddo
       !  elseif (iter == 2) then
       !    do ir=1,nr
       !      do ib=1,rotor(ir)%nb
-      !        call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_wake(:,row_near(ir):nt,:)*dt)
-      !        rotor(ir)%blade(ib)%vind_wake2=rotor(ir)%blade(ib)%vind_wake
+      !        call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_Nwake(:,row_near(ir):nt,:)*dt)
+      !        rotor(ir)%blade(ib)%vind_Nwake2=rotor(ir)%blade(ib)%vind_Nwake
       !      enddo
       !    enddo
       !  elseif (iter == 3) then
       !    do ir=1,nr
       !      do ib=1,rotor(ir)%nb
-      !        call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_wake(:,row_near(ir):nt,:)*dt)
-      !        rotor(ir)%blade(ib)%vind_wake3=rotor(ir)%blade(ib)%vind_wake
+      !        call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_Nwake(:,row_near(ir):nt,:)*dt)
+      !        rotor(ir)%blade(ib)%vind_Nwake3=rotor(ir)%blade(ib)%vind_Nwake
       !      enddo
       !    enddo
       !  else
       !    do ir=1,nr
       !      do ib=1,rotor(ir)%nb
       !        rotor(ir)%blade(ib)%Pwake(row_near(ir):nt,:)=rotor(ir)%blade(ib)%waP(row_near(ir):nt,:)
-      !        rotor(ir)%blade(ib)%vind_wake_step =55._dp/24._dp*rotor(ir)%blade(ib)%vind_wake  &
-      !          -59._dp/24._dp*rotor(ir)%blade(ib)%vind_wake3 & 
-      !          +37._dp/24._dp*rotor(ir)%blade(ib)%vind_wake2 & 
-      !          -09._dp/24._dp*rotor(ir)%blade(ib)%vind_wake1  
-      !        call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_wake_step(:,row_near(ir):nt,:)*dt,'P')
+      !        rotor(ir)%blade(ib)%vind_Nwake_step =55._dp/24._dp*rotor(ir)%blade(ib)%vind_Nwake  &
+      !          -59._dp/24._dp*rotor(ir)%blade(ib)%vind_Nwake3 & 
+      !          +37._dp/24._dp*rotor(ir)%blade(ib)%vind_Nwake2 & 
+      !          -09._dp/24._dp*rotor(ir)%blade(ib)%vind_Nwake1  
+      !        call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_Nwake_step(:,row_near(ir):nt,:)*dt,'P')
       !      enddo
       !    enddo
 
       !    do ir=1,nr
       !      do ib=1,rotor(ir)%nb
-      !        rotor(ir)%blade(ib)%Pvind_wake(:,row_near(ir):nt,:)=0._dp
+      !        rotor(ir)%blade(ib)%Pvind_Nwake(:,row_near(ir):nt,:)=0._dp
       !        do jr=1,nr
-      !          rotor(ir)%blade(ib)%Pvind_wake(:,row_near(ir):nt,:)=rotor(ir)%blade(ib)%Pvind_wake(:,row_near(ir):nt,:)  &
+      !          rotor(ir)%blade(ib)%Pvind_Nwake(:,row_near(ir):nt,:)=rotor(ir)%blade(ib)%Pvind_Nwake(:,row_near(ir):nt,:)  &
       !            +  vind_onwake_byrotor(rotor(jr),rotor(ir)%blade(ib)%Pwake(row_near(ir):nt,:),'P')
       !        enddo
       !        if (iter < init_wake_vel_nt) then
       !          do i=1,3
-      !            rotor(ir)%blade(ib)%Pvind_wake(i,row_near(ir):nt,:)=rotor(ir)%blade(ib)%Pvind_wake(i,row_near(ir):nt,:)  &
+      !            rotor(ir)%blade(ib)%Pvind_Nwake(i,row_near(ir):nt,:)=rotor(ir)%blade(ib)%Pvind_Nwake(i,row_near(ir):nt,:)  &
       !              -  rotor(ir)%init_wake_vel*rotor(ir)%shaft_axis(i)
       !          enddo
       !        endif
@@ -371,15 +371,15 @@ program main
 
       !    do ir=1,nr
       !      do ib=1,rotor(ir)%nb
-      !        rotor(ir)%blade(ib)%vind_wake_step =09._dp/24._dp*rotor(ir)%blade(ib)%Pvind_wake  & 
-      !          +19._dp/24._dp*rotor(ir)%blade(ib)%vind_wake  & 
-      !          -05._dp/24._dp*rotor(ir)%blade(ib)%vind_wake3 &  
-      !          +01._dp/24._dp*rotor(ir)%blade(ib)%vind_wake2  
-      !        call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_wake_step(:,row_near(ir):nt,:)*dt)
+      !        rotor(ir)%blade(ib)%vind_Nwake_step =09._dp/24._dp*rotor(ir)%blade(ib)%Pvind_Nwake  & 
+      !          +19._dp/24._dp*rotor(ir)%blade(ib)%vind_Nwake  & 
+      !          -05._dp/24._dp*rotor(ir)%blade(ib)%vind_Nwake3 &  
+      !          +01._dp/24._dp*rotor(ir)%blade(ib)%vind_Nwake2  
+      !        call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_Nwake_step(:,row_near(ir):nt,:)*dt)
 
-      !        rotor(ir)%blade(ib)%vind_wake1=rotor(ir)%blade(ib)%vind_wake2
-      !        rotor(ir)%blade(ib)%vind_wake2=rotor(ir)%blade(ib)%vind_wake3
-      !        rotor(ir)%blade(ib)%vind_wake3=rotor(ir)%blade(ib)%vind_wake
+      !        rotor(ir)%blade(ib)%vind_Nwake1=rotor(ir)%blade(ib)%vind_Nwake2
+      !        rotor(ir)%blade(ib)%vind_Nwake2=rotor(ir)%blade(ib)%vind_Nwake3
+      !        rotor(ir)%blade(ib)%vind_Nwake3=rotor(ir)%blade(ib)%vind_Nwake
       !      enddo
       !    enddo
       !  endif

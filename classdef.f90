@@ -434,9 +434,9 @@ module blade_classdef
     real(dp) :: theta
     real(dp) :: psi
     real(dp) :: pivotLE
-    real(dp), allocatable, dimension(:,:,:) :: vind_wake
-    real(dp), allocatable, dimension(:,:,:) :: vind_wake1, vind_wake2, vind_wake3
-    real(dp), allocatable, dimension(:,:,:) :: Pvind_wake, vind_wake_step
+    real(dp), allocatable, dimension(:,:,:) :: vind_Nwake
+    real(dp), allocatable, dimension(:,:,:) :: vind_Nwake1, vind_Nwake2, vind_Nwake3
+    real(dp), allocatable, dimension(:,:,:) :: Pvind_Nwake, vind_Nwake_step
 
   contains
     procedure :: move => blade_move
@@ -1014,24 +1014,24 @@ contains
     do ib=1,this%nb
       select case (FDscheme_switch)
       case (0)
-        allocate(this%blade(ib)%vind_wake(3,this%nNwake,this%ns+1))
+        allocate(this%blade(ib)%vind_Nwake(3,this%nNwake,this%ns+1))
       case (1)
         allocate(this%blade(ib)%Pwake(this%nNwake,this%ns))
-        allocate(this%blade(ib)%vind_wake(3,this%nNwake,this%ns+1))
-        allocate(this%blade(ib)%vind_wake1(3,this%nNwake,this%ns+1))
-        allocate(this%blade(ib)%Pvind_wake(3,this%nNwake,this%ns+1))
+        allocate(this%blade(ib)%vind_Nwake(3,this%nNwake,this%ns+1))
+        allocate(this%blade(ib)%vind_Nwake1(3,this%nNwake,this%ns+1))
+        allocate(this%blade(ib)%Pvind_Nwake(3,this%nNwake,this%ns+1))
       case (2)
-        allocate(this%blade(ib)%vind_wake(3,this%nNwake,this%ns+1))
-        allocate(this%blade(ib)%vind_wake1(3,this%nNwake,this%ns+1))
-        allocate(this%blade(ib)%vind_wake_step(3,this%nNwake,this%ns+1))
+        allocate(this%blade(ib)%vind_Nwake(3,this%nNwake,this%ns+1))
+        allocate(this%blade(ib)%vind_Nwake1(3,this%nNwake,this%ns+1))
+        allocate(this%blade(ib)%vind_Nwake_step(3,this%nNwake,this%ns+1))
       case (3)
-        allocate(this%blade(ib)%vind_wake(3,this%nNwake,this%ns+1))
+        allocate(this%blade(ib)%vind_Nwake(3,this%nNwake,this%ns+1))
         allocate(this%blade(ib)%Pwake(this%nNwake,this%ns))
-        allocate(this%blade(ib)%vind_wake1(3,this%nNwake,this%ns+1))
-        allocate(this%blade(ib)%vind_wake2(3,this%nNwake,this%ns+1))
-        allocate(this%blade(ib)%vind_wake3(3,this%nNwake,this%ns+1))
-        allocate(this%blade(ib)%Pvind_wake(3,this%nNwake,this%ns+1))
-        allocate(this%blade(ib)%vind_wake_step(3,this%nNwake,this%ns+1))
+        allocate(this%blade(ib)%vind_Nwake1(3,this%nNwake,this%ns+1))
+        allocate(this%blade(ib)%vind_Nwake2(3,this%nNwake,this%ns+1))
+        allocate(this%blade(ib)%vind_Nwake3(3,this%nNwake,this%ns+1))
+        allocate(this%blade(ib)%Pvind_Nwake(3,this%nNwake,this%ns+1))
+        allocate(this%blade(ib)%vind_Nwake_step(3,this%nNwake,this%ns+1))
       end select
     enddo
 
@@ -1075,7 +1075,7 @@ contains
     integer :: ib
     ! Deallocate variables
     do ib=1,this%nb
-      deallocate(this%blade(ib)%vind_wake)
+      deallocate(this%blade(ib)%vind_Nwake)
       deallocate(this%blade(ib)%waF)
 
       select case (FDscheme_switch)
@@ -1083,18 +1083,18 @@ contains
         ! Nothing to deallocate
       case (1)
         deallocate(this%blade(ib)%Pwake)
-        deallocate(this%blade(ib)%vind_wake1)
-        deallocate(this%blade(ib)%Pvind_wake)
+        deallocate(this%blade(ib)%vind_Nwake1)
+        deallocate(this%blade(ib)%Pvind_Nwake)
       case (2)
-        deallocate(this%blade(ib)%vind_wake1)
-        deallocate(this%blade(ib)%vind_wake_step)
+        deallocate(this%blade(ib)%vind_Nwake1)
+        deallocate(this%blade(ib)%vind_Nwake_step)
       case (3)
         deallocate(this%blade(ib)%Pwake)
-        deallocate(this%blade(ib)%vind_wake1)
-        deallocate(this%blade(ib)%vind_wake2)
-        deallocate(this%blade(ib)%vind_wake3)
-        deallocate(this%blade(ib)%Pvind_wake)
-        deallocate(this%blade(ib)%vind_wake_step)
+        deallocate(this%blade(ib)%vind_Nwake1)
+        deallocate(this%blade(ib)%vind_Nwake2)
+        deallocate(this%blade(ib)%vind_Nwake3)
+        deallocate(this%blade(ib)%Pvind_Nwake)
+        deallocate(this%blade(ib)%vind_Nwake_step)
       end select
     enddo
 
