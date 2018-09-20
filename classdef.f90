@@ -435,6 +435,7 @@ module blade_classdef
     real(dp) :: psi
     real(dp) :: pivotLE
     real(dp), allocatable, dimension(:,:,:) :: vind_Nwake
+    real(dp), allocatable, dimension(:,:) :: vind_Fwake
     real(dp), allocatable, dimension(:,:,:) :: vind_Nwake1, vind_Nwake2, vind_Nwake3
     real(dp), allocatable, dimension(:,:,:) :: Pvind_Nwake, vind_Nwake_step
 
@@ -1006,26 +1007,23 @@ contains
     this%v_wind=-1._dp*this%v_body
     this%om_wind=-1._dp*this%om_body
 
-    ! Assign pts and dpts
-    !this%dpts=this%om_body*dt
-
     ! Allocate vars required for wake convection
     ! on the basis of finite diff scheme
     do ib=1,this%nb
+      allocate(this%blade(ib)%vind_Nwake(3,this%nNwake,this%ns+1))
+      allocate(this%blade(ib)%vind_Fwake(3,this%nFwake))
+
       select case (FDscheme_switch)
       case (0)
-        allocate(this%blade(ib)%vind_Nwake(3,this%nNwake,this%ns+1))
+        ! Do nothing
       case (1)
         allocate(this%blade(ib)%Pwake(this%nNwake,this%ns))
-        allocate(this%blade(ib)%vind_Nwake(3,this%nNwake,this%ns+1))
         allocate(this%blade(ib)%vind_Nwake1(3,this%nNwake,this%ns+1))
         allocate(this%blade(ib)%Pvind_Nwake(3,this%nNwake,this%ns+1))
       case (2)
-        allocate(this%blade(ib)%vind_Nwake(3,this%nNwake,this%ns+1))
         allocate(this%blade(ib)%vind_Nwake1(3,this%nNwake,this%ns+1))
         allocate(this%blade(ib)%vind_Nwake_step(3,this%nNwake,this%ns+1))
       case (3)
-        allocate(this%blade(ib)%vind_Nwake(3,this%nNwake,this%ns+1))
         allocate(this%blade(ib)%Pwake(this%nNwake,this%ns))
         allocate(this%blade(ib)%vind_Nwake1(3,this%nNwake,this%ns+1))
         allocate(this%blade(ib)%vind_Nwake2(3,this%nNwake,this%ns+1))
@@ -1384,11 +1382,11 @@ contains
   end subroutine rotor_shiftwake
 
   subroutine rotor_rollup(this,row_now)
-!    2    
-!    |    ^ Upstream
-!    |    |
-!    |
-!    1
+    !    2    
+    !    |    ^ Upstream
+    !    |    |
+    !    |
+    !    1
 
   class(rotor_class), intent(inout) :: this
     integer :: ib,ispan
