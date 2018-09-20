@@ -567,9 +567,9 @@ contains
 
   end function blade_vind_bywing
 
-  function blade_vind_bywake(this,row_near,P,opt_char) 
+  function blade_vind_bywake(this,row_near,row_far,P,opt_char) 
   class(blade_class), intent(inout) :: this
-    integer, intent(in) :: row_near
+    integer, intent(in) :: row_near,row_far
     real(dp), intent(in), dimension(3) :: P
     character(len=1), optional :: opt_char
     real(dp), dimension(3) :: blade_vind_bywake
@@ -582,6 +582,11 @@ contains
           blade_vind_bywake=blade_vind_bywake+this%waP(i,j)%vr%vind(P)*this%waP(i,j)%vr%gam
         enddo
       enddo
+      if (row_far>=0) then
+        do i=row_far,size(this%waF,1)
+          blade_vind_bywake=blade_vind_bywake+this%waF(i)%vf%vind(P)*this%waF(i)%vf%gam
+        enddo
+      endif
     elseif ((opt_char .eq. 'P') .or. (opt_char .eq. 'p')) then
       do j=1,size(this%waP,2)
         do i=row_near,size(this%waP,1)
