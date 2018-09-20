@@ -69,6 +69,7 @@ program main
   endif
   t=0._dp
 
+  ! Compute RHS
   do ir=1,nr
     do ib=1,rotor(ir)%nb
       do is=1,rotor(ir)%ns
@@ -152,7 +153,7 @@ program main
     enddo
 
     do ir=1,nr
-      if (row_near(ir)<1) then
+      if (row_near(ir)<=1) then
         call rotor(ir)%assignshed(1,'LE')  ! Store shed vortex as LE
       else
         call rotor(ir)%assignshed(row_near(ir),'LE')  ! Store shed vortex as LE
@@ -167,6 +168,7 @@ program main
     !    gam_sectional=calcgam(wing)
     !    call gam2file(yvec,gam_sectional,'Results/gam'//timestamp//'.curve')
 
+    ! Compute RHS
     do ir=1,nr
       rotor(ir)%RHS=0._dp
       do ib=1,rotor(ir)%nb

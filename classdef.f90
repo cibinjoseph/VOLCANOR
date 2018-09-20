@@ -600,7 +600,7 @@ contains
   subroutine convectwake(this,dP_near,dP_far,opt_char)
   class(blade_class), intent(inout) :: this
     real(dp), intent(in), dimension(:,:,:) :: dP_near
-    real(dp), intent(in), dimension(:,:) :: dP_far
+    real(dp), optional, dimension(:,:) :: dP_far
     character(len=1), optional :: opt_char  ! For predicted wake
     integer :: i,j,rows,cols,nt,index_offset
 
@@ -624,14 +624,16 @@ contains
       enddo
       !$omp end parallel do
 
-      rows=size(dP_far,2)
-      nFwake=size(this%waF,1)
-      index_offset=nFwake-rows
-      do i=1,rows
-        call this%waF(i+index_offset,j)%shiftdP(2,dP_far(:,i))
-      enddo
+      if (present(dP_far)) then
+        rows=size(dP_far,2)
+        nFwake=size(this%waF,1)
+        index_offset=nFwake-rows
+        do i=1,rows
+          call this%waF(i+index_offset,j)%shiftdP(2,dP_far(:,i))
+        enddo
+      endif
 
-      call this%wake_continuity(index_offset+1)
+      call this%wake_continuity(index_offset+1) 
 
     elseif ((opt_char .eq. 'P') .or. (opt_char .eq. 'p')) then
       ! For predicted wake convection
@@ -1381,7 +1383,13 @@ contains
     enddo
   end subroutine rotor_shiftwake
 
-  subroutine rotor_rollup(this,row_near)
+  subroutine rotor_rollup(this,row_now)
+!    2    
+!    |    ^ Upstream
+!    |    |
+!    |
+!    1
+
   class(rotor_class), intent(inout) :: this
     integer :: ib,ispan
     real(dp), dimension(3) :: centroid_LE,centroid_TE
@@ -1399,12 +1407,20 @@ contains
       centroid_LE=centroid_LE/this%ns
       centroid_TE=centroid_TE/this%ns
 
-      ! Assign to far wake tip
-      this%waF(row_near)%vf%fc(:,2)=centroid_LE
-      this%waF(row_near)%vf%fc(:,1)=centroid_TE
-
       ! Assign gam_max from last row to wake filament gamma
       gam_max=min(this%waP(this%nNwake,:)%vr%gam)
+
+      ! Assign to far wake tip
+      this%waF(row_now)%vf%fc(:,2)=centroid_LE
+      this%waF(row_now)%vf%fc(:,1)=centroid_TE
+
+      ! Ensure continuity in far wake by assigning
+      ! current centroid_TE to LE of previous far wake filament
+      ! The discontinuity would occur due to convection of 
+      ! last row of waP in convectwake()
+      if (row_now<this%nNwake) then
+        this%waF(row_now-1)%vf%fc(:,2)=centroid_TE
+      endif
     enddo
 
   end subroutine rotor_rollup
