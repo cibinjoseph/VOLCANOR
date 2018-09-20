@@ -1,3 +1,4 @@
+Initialise dP_far
 Add far wake ageing to age_wake
 Add far wake dissipation to dissipate_wake
 Test without wake tip
