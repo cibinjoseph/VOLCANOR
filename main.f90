@@ -29,8 +29,6 @@ program main
 
   ! Allocate rotor objects
   allocate(rotor(nr))
-  allocate(row_near(nr))
-  allocate(row_far(nr))
 
   ! Read rotor??.in files
   do ir=1,nr
@@ -110,8 +108,12 @@ program main
     print*,iter,nt
     write(timestamp,'(I0.5)') iter
     do ir=1,nr
-      row_near(ir)=rotor(ir)%nNwake-(iter-1)
-      row_far(ir)=rotor(ir)%row_near(ir)+rotor(ir)%nFwake
+      if (iter>rotor(ir)%nNwake) then 
+        rotor(ir)%now_near=1
+      else
+        rotor(ir)%row_near=rotor(ir)%nNwake-(iter-1)
+      enddo
+      rotor(ir)%row_far=nt-(iter-1)
     enddo
 
     select case (slowstart_switch)
@@ -397,9 +399,9 @@ program main
       if (row_near(ir)<=1) then    ! Roll up near wake to far wake
         call rotor(ir)%rollup(row_far(ir)-1)  ! Roll up wake to tip vortex
         call rotor(ir)%shiftwake()  ! Shift wake 
-        call rotor(ir)%assignshed(1,'TE')  
+        call rotor(ir)%assignshed('TE')  
       else
-        call rotor(ir)%assignshed(row_near(ir)-1,'TE')  
+        call rotor(ir)%assignshed('TE')  
       endif
     enddo
 

@@ -761,6 +761,7 @@ module rotor_classdef
     real(dp), allocatable, dimension(:,:) :: AIC,AIC_inv  ! Influence coefficient matrix
     real(dp), allocatable, dimension(:) :: gamvec,gamvec_prev,RHS
     real(dp) :: init_wake_vel, psi_start
+    integer :: row_near, row_far
   contains
     procedure :: getdata
     procedure :: init
@@ -1241,32 +1242,31 @@ contains
   ! -+- | Wake Convection Functions | -+- |
   !-----+---------------------------+-----|
 
-  ! Assigns coordinates to first row of wake from last row of blade
-  subroutine assignshed(this,row_near,edge)
+  ! Assigns coordinates to first row_near of wake from last row of blade
+  subroutine assignshed(this,edge)
   class(rotor_class), intent(inout) :: this
-    integer, intent(in) :: row_near
     character(len=2), intent(in) :: edge
     integer :: i, ib
 
     do ib=1,this%nb
-      this%blade(ib)%waP(row_near,:)%vr%gam=this%blade(ib)%wiP(this%nc,:)%vr%gam
+      this%blade(ib)%waP(this%row_near,:)%vr%gam=this%blade(ib)%wiP(this%nc,:)%vr%gam
     enddo
 
     select case (edge)
     case ('LE')    ! assign to LE
       do ib=1,this%nb
         do i=1,this%ns
-          call this%blade(ib)%waP(row_near,i)%vr%assignP(1,this%blade(ib)%wiP(this%nc,i)%vr%vf(2)%fc(:,1))
-          call this%blade(ib)%waP(row_near,i)%vr%assignP(4,this%blade(ib)%wiP(this%nc,i)%vr%vf(3)%fc(:,1))
-          call this%blade(ib)%waP(row_near,i)%vr%calclength(.TRUE.)    ! TRUE => record original length
+          call this%blade(ib)%waP(this%row_near,i)%vr%assignP(1,this%blade(ib)%wiP(this%nc,i)%vr%vf(2)%fc(:,1))
+          call this%blade(ib)%waP(this%row_near,i)%vr%assignP(4,this%blade(ib)%wiP(this%nc,i)%vr%vf(3)%fc(:,1))
+          call this%blade(ib)%waP(this%row_near,i)%vr%calclength(.TRUE.)    ! TRUE => record original length
         enddo
 
       enddo
-    case ('TE')    ! assign to TE
+    case ('TE')    ! assign to next row's TE
       do ib=1,this%nb
         do i=1,this%ns
-          call this%blade(ib)%waP(row_near,i)%vr%assignP(2,this%blade(ib)%wiP(this%nc,i)%vr%vf(2)%fc(:,1))
-          call this%blade(ib)%waP(row_near,i)%vr%assignP(3,this%blade(ib)%wiP(this%nc,i)%vr%vf(3)%fc(:,1))
+          call this%blade(ib)%waP(max(this%row_near-1,1),i)%vr%assignP(2,this%blade(ib)%wiP(this%nc,i)%vr%vf(2)%fc(:,1))
+          call this%blade(ib)%waP(max(this%row_near-1,1),i)%vr%assignP(3,this%blade(ib)%wiP(this%nc,i)%vr%vf(3)%fc(:,1))
         enddo
       enddo
     case default
