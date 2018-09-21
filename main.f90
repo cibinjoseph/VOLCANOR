@@ -108,12 +108,9 @@ program main
     print*,iter,nt
     write(timestamp,'(I0.5)') iter
     do ir=1,nr
-      if (iter>rotor(ir)%nNwake) then 
-        rotor(ir)%now_near=1
-      else
-        rotor(ir)%row_near=rotor(ir)%nNwake-(iter-1)
-      enddo
+      rotor(ir)%row_near=max(rotor(ir)%nNwake-(iter-1),1)
       rotor(ir)%row_far=nt-(iter-1)
+      if (iter<=rotor(ir)%nNwake) rotor(ir)%row_far=0    ! 0 implies roll up has not occured
     enddo
 
     select case (slowstart_switch)
@@ -156,11 +153,7 @@ program main
 
     ! Assign LE of near wake
     do ir=1,nr
-      if (row_near(ir)<=1) then
-        call rotor(ir)%assignshed(1,'LE')  ! Store shed vortex as LE
-      else
-        call rotor(ir)%assignshed(row_near(ir),'LE')  ! Store shed vortex as LE
-      endif
+      call rotor(ir)%assignshed('LE')  ! Store shed vortex as LE
     enddo
 
     !    ! Write out wing n' wake
@@ -189,7 +182,7 @@ program main
             ! Wake vel
             do jr=1,nr
               rotor(ir)%blade(ib)%wiP(ic,is)%velCP=rotor(ir)%blade(ib)%wiP(ic,is)%velCP  &
-                +rotor(jr)%vind_bywake(row_near(ir),rotor(ir)%blade(ib)%wiP(ic,is)%cp)
+                +rotor(jr)%vind_bywake(rotor(ir)%blade(ib)%wiP(ic,is)%cp)
             enddo
 
             rotor(ir)%RHS(row)=dot_product(rotor(ir)%blade(ib)%wiP(ic,is)%velCP,rotor(ir)%blade(ib)%wiP(ic,is)%ncap)
@@ -220,16 +213,11 @@ program main
 
     ! Induced vel on wake vortices
     do ir=1,nr
-      if (row_near(ir)<1) then
-        do ib=1,rotor(ir)%nb
-          rotor(ir)%blade(ib)%vind_Nwake=0._dp
-        enddo
-        ! Add zero velocity for far wake filaments here
-      else
-        do ib=1,rotor(ir)%nb
-          rotor(ir)%blade(ib)%vind_Nwake(:,row_near(ir):rotor(ir)%nNwake,:)=0._dp
-        enddo
-      endif
+        ! Initialise zero velocity for far wake filaments here   <<<<<   >>>>>>>
+
+      do ib=1,rotor(ir)%nb
+        rotor(ir)%blade(ib)%vind_Nwake(:,rotor(ir)%row_near:rotor(ir)%nNwake,:)=0._dp
+      enddo
     enddo
 
     do ir=1,nr

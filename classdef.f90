@@ -582,7 +582,7 @@ contains
           blade_vind_bywake=blade_vind_bywake+this%waP(i,j)%vr%vind(P)*this%waP(i,j)%vr%gam
         enddo
       enddo
-      if (row_far>=0) then
+      if (row_far .ne. 0) then
         do i=row_far,size(this%waF,1)
           blade_vind_bywake=blade_vind_bywake+this%waF(i)%vf%vind(P)*this%waF(i)%vf%gam
         enddo
@@ -1351,7 +1351,7 @@ contains
     enddo
   end function rotor_vind_bywing
 
-  function rotor_vind_bywake(this,row_near,P,opt_char)
+  function rotor_vind_bywake(this,P,opt_char)
   class(rotor_class), intent(inout) :: this
     real(dp), intent(in), dimension(3) :: P
     integer, intent(in) :: row_near
@@ -1362,11 +1362,11 @@ contains
     rotor_vind_bywake=0._dp
     if (.not. present(opt_char)) then
       do ib=1,this%nb
-        rotor_vind_bywake=rotor_vind_bywake+this%blade(ib)%vind_bywake(row_near,P)
+        rotor_vind_bywake=rotor_vind_bywake+this%blade(ib)%vind_bywake(this%row_near,this%row_far,P)
       enddo
     elseif ((opt_char .eq. 'P') .or. (opt_char .eq. 'p')) then
       do ib=1,this%nb
-        rotor_vind_bywake=rotor_vind_bywake+this%blade(ib)%vind_bywake(row_near,P,'P')
+        rotor_vind_bywake=rotor_vind_bywake+this%blade(ib)%vind_bywake(this%row_near,this%row_far,P,'P')
       enddo
     else 
       error stop 'ERROR: Wrong character flag for rotor_vind_bywake()'
