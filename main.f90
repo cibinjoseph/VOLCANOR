@@ -213,7 +213,7 @@ program main
 
     ! Induced vel on wake vortices
     do ir=1,nr
-        ! Initialise zero velocity for far wake filaments here   <<<<<   >>>>>>>
+      ! Initialise zero velocity for far wake filaments here   <<<<<   >>>>>>>
 
       do ib=1,rotor(ir)%nb
         rotor(ir)%blade(ib)%vind_Nwake(:,rotor(ir)%row_near:rotor(ir)%nNwake,:)=0._dp
@@ -223,12 +223,12 @@ program main
     do ir=1,nr
       do ib=1,rotor(ir)%nb
         do jr=1,nr
-          rotor(ir)%blade(ib)%vind_Nwake(:,row_near(ir):rotor(ir)%nNwake,:)=rotor(ir)%blade(ib)%vind_Nwake(:,row_near(ir):rotor(ir)%nNwake,:)  &
-            +  vind_onwake_byrotor(rotor(jr),rotor(ir)%blade(ib)%waP(row_near(ir):rotor(ir)%nNwake,:))
+          rotor(ir)%blade(ib)%vind_Nwake(:,rotor(ir)%row_near:rotor(ir)%nNwake,:)=rotor(ir)%blade(ib)%vind_Nwake(:,rotor(ir)%row_near:rotor(ir)%nNwake,:)  &
+            +  vind_onwake_byrotor(rotor(jr),rotor(ir)%blade(ib)%waP(rotor(ir)%row_near:rotor(ir)%nNwake,:))
         enddo
         if (iter < init_wake_vel_nt) then
           do i=1,3
-            rotor(ir)%blade(ib)%vind_Nwake(i,row_near(ir):rotor(ir)%nNwake,:)=rotor(ir)%blade(ib)%vind_Nwake(i,row_near(ir):rotor(ir)%nNwake,:)  &
+            rotor(ir)%blade(ib)%vind_Nwake(i,rotor(ir)%row_near:rotor(ir)%nNwake,:)=rotor(ir)%blade(ib)%vind_Nwake(i,rotor(ir)%row_near:rotor(ir)%nNwake,:)  &
               -  rotor(ir)%init_wake_vel*rotor(ir)%shaft_axis(i)
           enddo
         endif
