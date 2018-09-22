@@ -633,7 +633,7 @@ contains
         enddo
       endif
 
-      call this%wake_continuity(index_offset+1) 
+      call this%wake_continuity(row_near)
 
     elseif ((opt_char .eq. 'P') .or. (opt_char .eq. 'p')) then
       ! For predicted wake convection
@@ -652,7 +652,7 @@ contains
       enddo
       !$omp end parallel do
 
-      call this%wake_continuity(index_offset+1,'P')
+      call this%wake_continuity(row_near,'P') 
 
     else
       error stop 'ERROR: Wrong character flag for convectwake()'

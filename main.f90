@@ -240,9 +240,9 @@ program main
 
     case (0)    ! Explicit forward diff (1st order)
       do ir=1,nr
-          do ib=1,rotor(ir)%nb
-            call rotor(ir)%blade(ib)%convectwake(rotor(ir)%row_near,rotor(ir)%row_far,dt)
-          enddo
+        do ib=1,rotor(ir)%nb
+          call rotor(ir)%blade(ib)%convectwake(rotor(ir)%row_near,rotor(ir)%row_far,dt)
+        enddo
       enddo
 
 
