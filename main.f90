@@ -240,16 +240,9 @@ program main
 
     case (0)    ! Explicit forward diff (1st order)
       do ir=1,nr
-        if (row_near(ir)<1) then  ! far wake has evolved
           do ib=1,rotor(ir)%nb
-            call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_Nwake(:,1:rotor(ir)%nNwake,:)*dt,&
-              rotor(ir)%blade(ib)%vind_Fwake(:,row_far(ir):rotor(ir)%nFwake)*dt)
+            call rotor(ir)%blade(ib)%convectwake(rotor(ir)%row_near,rotor(ir)%row_far,dt)
           enddo
-        else
-          do ib=1,rotor(ir)%nb
-            call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_Nwake(:,row_near(ir):rotor(ir)%nNwake,:)*dt)
-          enddo
-        endif
       enddo
 
 

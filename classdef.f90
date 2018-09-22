@@ -601,39 +601,35 @@ contains
   end function blade_vind_bywake
 
   ! Convect wake using dP_near=vind_array*dt
-  subroutine convectwake(this,dP_near,dP_far,opt_char)
+  subroutine convectwake(this,row_near,row_far,dt,opt_char)
   class(blade_class), intent(inout) :: this
-    real(dp), intent(in), dimension(:,:,:) :: dP_near
-    real(dp), optional, dimension(:,:) :: dP_far
+    integer, intent(in) :: row_near, row_far
+    real(dp), intent(in) :: dt
     character(len=1), optional :: opt_char  ! For predicted wake
-    integer :: i,j,rows,cols,nt,index_offset
+    integer :: i,j,rows,cols,nNwake,nFwake,index_offset
 
-    rows=size(dP_near,2)
     cols=size(this%waP,2)
     nNwake=size(this%waP,1)
-    index_offset=nNwake-rows
 
     if (.not. present(opt_char)) then
       !$omp parallel do collapse(2)
       do j=1,cols
-        do i=1,rows
-          call this%waP(i+index_offset,j)%vr%shiftdP(2,dP_near(:,i,j))
+        do i=row_near,nNwake
+          call this%waP(i,j)%vr%shiftdP(2,this%vind_Nwake(:,i,j)*dt)
         enddo
       enddo
       !$omp end parallel do
 
       !$omp parallel do
-      do i=1,rows
-        call this%waP(i+index_offset,cols)%vr%shiftdP(3,dP_near(:,i,cols+1))
+      do i=row_near,nNwake
+        call this%waP(i,cols)%vr%shiftdP(3,this%vind_Nwake(:,i,cols+1)*dt)
       enddo
       !$omp end parallel do
 
-      if (present(dP_far)) then
-        rows=size(dP_far,2)
+      if (row_far .ne. 0) then
         nFwake=size(this%waF,1)
-        index_offset=nFwake-rows
-        do i=1,rows
-          call this%waF(i+index_offset)%shiftdP(1,dP_far(:,i))  ! Shift only TE
+        do i=rowfar,nFwake
+          call this%waF(i)%shiftdP(1,this%vind_Fwake(:,i)*dt)  ! Shift only TE
         enddo
       endif
 
