@@ -633,7 +633,7 @@ contains
         nFwake=size(this%waF,1)
         index_offset=nFwake-rows
         do i=1,rows
-          call this%waF(i+index_offset,j)%shiftdP(1,dP_far(:,i))  ! Shift only TE
+          call this%waF(i+index_offset)%shiftdP(1,dP_far(:,i))  ! Shift only TE
         enddo
       endif
 
