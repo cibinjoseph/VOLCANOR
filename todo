@@ -1,5 +1,6 @@
 Add far wake ageing to age_wake
 Add far wake dissipation to dissipate_wake
+Remove row_near from strain_wake()
 Test without wake tip
 Handle tip roll up for far wake
 Handle far wake in results file
