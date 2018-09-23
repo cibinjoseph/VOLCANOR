@@ -8,17 +8,15 @@ contains
   !                Induced Velocity Functions              !
   !--------------------------------------------------------!
 
-  ! Induced velocity by rotor (wing n wake) on Nwake corner points
+  ! Induced velocity by rotor (wing n wake) on Nwake corner poinNwakes
   function vind_onNwake_byrotor(rotor,Nwake,opt_char) result(vind_array)
     type(rotor_class), intent(inout) :: rotor
     type(Nwake_class), intent(in), dimension(:,:) :: Nwake
     character(len=1), optional :: opt_char
     real(dp), dimension(3,size(Nwake,1),size(Nwake,2)+1) :: vind_array
-    integer :: i,j,rows,nt,row_now
+    integer :: i,j,rows
 
     rows=size(Nwake,1)
-    nt=size(rotor%blade(1)%waP,1)
-    row_now=nt-(rows-1)
 
     if (.not. present(opt_char)) then
       ! Induced velocity due to all blades and wake
@@ -62,6 +60,41 @@ contains
     endif
 
   end function vind_onNwake_byrotor
+
+  ! Induced velocity by rotor (wing n wake) on Fwake corner points
+  function vind_onFwake_byrotor(rotor,Fwake,opt_char) result(vind_array)
+    type(rotor_class), intent(inout) :: rotor
+    type(Fwake_class), intent(in), dimension(:,:) :: Fwake
+    character(len=1), optional :: opt_char
+    real(dp), dimension(3,size(Fwake,1)) :: vind_array
+    integer :: i,rows
+
+    rows=size(Fwake,1)
+
+    if (.not. present(opt_char)) then
+      ! Induced velocity due to all blades and wake
+      !$omp parallel do
+      do i=1,rows
+        vind_array(:,i)=rotor%vind_bywing(Fwake(i)%vf%fc(:,1))  &
+          +             rotor%vind_bywake(Fwake(i)%vf%fc(:,1))
+      enddo
+      !$omp end parallel do
+
+    elseif ((opt_char .eq. 'P') .or. (opt_char .eq. 'p')) then
+
+      ! Induced velocity due to all blades and Pwake
+      !$omp parallel do
+      do i=1,rows
+        vind_array(:,i)=rotor%vind_bywing(Fwake(i)%vf%fc(:,1))  &
+          +             rotor%vind_bywake(Fwake(i)%vf%fc(:,1),'P')
+      enddo
+      !$omp end parallel do
+
+    else
+      error stop 'ERROR: Wrong character flag for vind_onwake_byrotor()'
+    endif
+
+  end function vind_onFwake_byrotor
 
   ! Calculates 2nd order accurate induced velocity on wake
   function vel_order2(v_wake_n,v_wake_np1)   ! np1 => n+1 
