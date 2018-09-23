@@ -8,15 +8,15 @@ contains
   !                Induced Velocity Functions              !
   !--------------------------------------------------------!
 
-  ! Induced velocity by rotor (wing n wake) on wake_array corner points
-  function vind_onwake_byrotor(rotor,wake_array,opt_char) result(vind_array)
+  ! Induced velocity by rotor (wing n wake) on Nwake corner points
+  function vind_onNwake_byrotor(rotor,Nwake,opt_char) result(vind_array)
     type(rotor_class), intent(inout) :: rotor
-    type(Nwake_class), intent(in), dimension(:,:) :: wake_array
+    type(Nwake_class), intent(in), dimension(:,:) :: Nwake
     character(len=1), optional :: opt_char
-    real(dp), dimension(3,size(wake_array,1),size(wake_array,2)+1) :: vind_array
+    real(dp), dimension(3,size(Nwake,1),size(Nwake,2)+1) :: vind_array
     integer :: i,j,rows,nt,row_now
 
-    rows=size(wake_array,1)
+    rows=size(Nwake,1)
     nt=size(rotor%blade(1)%waP,1)
     row_now=nt-(rows-1)
 
@@ -25,16 +25,16 @@ contains
       !$omp parallel do collapse(2) 
       do j=1,rotor%ns
         do i=1,rows
-          vind_array(:,i,j)=rotor%vind_bywing(wake_array(i,j)%vr%vf(2)%fc(:,1))  &
-            +               rotor%vind_bywake(wake_array(i,j)%vr%vf(2)%fc(:,1))
+          vind_array(:,i,j)=rotor%vind_bywing(Nwake(i,j)%vr%vf(2)%fc(:,1))  &
+            +               rotor%vind_bywake(Nwake(i,j)%vr%vf(2)%fc(:,1))
         enddo
       enddo
       !$omp end parallel do
 
       !$omp parallel do 
       do i=1,rows
-        vind_array(:,i,rotor%ns+1)=rotor%vind_bywing(wake_array(i,rotor%ns)%vr%vf(3)%fc(:,1))  &
-          +                        rotor%vind_bywake(wake_array(i,rotor%ns)%vr%vf(3)%fc(:,1))
+        vind_array(:,i,rotor%ns+1)=rotor%vind_bywing(Nwake(i,rotor%ns)%vr%vf(3)%fc(:,1))  &
+          +                        rotor%vind_bywake(Nwake(i,rotor%ns)%vr%vf(3)%fc(:,1))
       enddo
       !$omp end parallel do
 
@@ -44,16 +44,16 @@ contains
       !$omp parallel do collapse(2) 
       do j=1,rotor%ns
         do i=1,rows
-          vind_array(:,i,j)=rotor%vind_bywing(wake_array(i,j)%vr%vf(2)%fc(:,1))  &
-            +               rotor%vind_bywake(wake_array(i,j)%vr%vf(2)%fc(:,1),'P')
+          vind_array(:,i,j)=rotor%vind_bywing(Nwake(i,j)%vr%vf(2)%fc(:,1))  &
+            +               rotor%vind_bywake(Nwake(i,j)%vr%vf(2)%fc(:,1),'P')
         enddo
       enddo
       !$omp end parallel do
 
       !$omp parallel do 
       do i=1,rows
-        vind_array(:,i,rotor%ns+1)=rotor%vind_bywing(wake_array(i,rotor%ns)%vr%vf(3)%fc(:,1))  &
-          +                        rotor%vind_bywake(wake_array(i,rotor%ns)%vr%vf(3)%fc(:,1),'P')
+        vind_array(:,i,rotor%ns+1)=rotor%vind_bywing(Nwake(i,rotor%ns)%vr%vf(3)%fc(:,1))  &
+          +                        rotor%vind_bywake(Nwake(i,rotor%ns)%vr%vf(3)%fc(:,1),'P')
       enddo
       !$omp end parallel do
 
@@ -61,7 +61,7 @@ contains
       error stop 'ERROR: Wrong character flag for vind_onwake_byrotor()'
     endif
 
-  end function vind_onwake_byrotor
+  end function vind_onNwake_byrotor
 
   ! Calculates 2nd order accurate induced velocity on wake
   function vel_order2(v_wake_n,v_wake_np1)   ! np1 => n+1 
