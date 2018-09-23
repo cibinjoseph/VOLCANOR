@@ -633,7 +633,7 @@ contains
         enddo
       endif
 
-      call this%wake_continuity(row_near)
+      call this%wake_continuity(row_near,row_far)
 
     elseif ((opt_char .eq. 'P') .or. (opt_char .eq. 'p')) then
       ! For predicted wake convection
@@ -652,7 +652,7 @@ contains
       enddo
       !$omp end parallel do
 
-      call this%wake_continuity(row_near,'P') 
+      call this%wake_continuity(row_near,row_far,'P') 
 
     else
       error stop 'ERROR: Wrong character flag for convectwake()'
@@ -662,19 +662,19 @@ contains
 
   ! Maintain continuity between vortex ring elements after convection
   ! of vortex ring corners
-  subroutine wake_continuity(this,row_near,opt_char)
+  subroutine wake_continuity(this,row_near,row_far,opt_char)
   class(blade_class), intent(inout) :: this
-    integer, intent(in) :: row_near
+    integer, intent(in) :: row_near,row_far
     character(len=1), optional :: opt_char  ! For predicted wake
-    integer :: i,j,rows,cols
+    integer :: i,j,nNwake,cols
 
-    rows=size(this%waP,1)
+    nNwake=size(this%waP,1)
     cols=size(this%waP,2)
 
     if (.not. present(opt_char)) then
       !$omp parallel do collapse(2)
       do j=1,cols-1
-        do i=row_near+1,rows
+        do i=row_near+1,nNwake
           call this%waP(i,j)%vr%assignP(1,this%waP(i-1,j)%vr%vf(2)%fc(:,1))
           call this%waP(i,j)%vr%assignP(3,this%waP(i,j+1)%vr%vf(2)%fc(:,1))
           call this%waP(i,j)%vr%assignP(4,this%waP(i-1,j+1)%vr%vf(2)%fc(:,1))
@@ -689,18 +689,25 @@ contains
       !$omp end parallel do
 
       !$omp parallel do
-      do i=row_near+1,rows
+      do i=row_near+1,nNwake
         call this%waP(i,cols)%vr%assignP(1,this%waP(i-1,cols)%vr%vf(2)%fc(:,1))
         call this%waP(i,cols)%vr%assignP(4,this%waP(i-1,cols)%vr%vf(3)%fc(:,1))
       enddo
       !$omp end parallel do
+
+      if (row_far .ne. 0) then
+        nFwake=size(this%waF,1)
+        do i=row_far+1,nFwake
+          call this%waF(i)%vf%assignP(1,this%waF(i-1,j)%vf%fc(:,1))
+        enddo
+      endif
 
     elseif ((opt_char .eq. 'P') .or. (opt_char .eq. 'p')) then
       ! For predicted wake
 
       !$omp parallel do collapse(2)
       do j=1,cols-1
-        do i=row_near+1,rows
+        do i=row_near+1,nNwake
           call this%Pwake(i,j)%vr%assignP(1,this%Pwake(i-1,j)%vr%vf(2)%fc(:,1))
           call this%Pwake(i,j)%vr%assignP(3,this%Pwake(i,j+1)%vr%vf(2)%fc(:,1))
           call this%Pwake(i,j)%vr%assignP(4,this%Pwake(i-1,j+1)%vr%vf(2)%fc(:,1))
@@ -715,7 +722,7 @@ contains
       !$omp end parallel do
 
       !$omp parallel do
-      do i=row_near+1,rows
+      do i=row_near+1,nNwake
         call this%Pwake(i,cols)%vr%assignP(1,this%Pwake(i-1,cols)%vr%vf(2)%fc(:,1))
         call this%Pwake(i,cols)%vr%assignP(4,this%Pwake(i-1,cols)%vr%vf(3)%fc(:,1))
       enddo
