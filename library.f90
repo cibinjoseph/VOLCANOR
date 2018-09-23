@@ -26,7 +26,7 @@ contains
       do j=1,rotor%ns
         do i=1,rows
           vind_array(:,i,j)=rotor%vind_bywing(wake_array(i,j)%vr%vf(2)%fc(:,1))  &
-            +               rotor%vind_bywake(row_now,wake_array(i,j)%vr%vf(2)%fc(:,1))
+            +               rotor%vind_bywake(wake_array(i,j)%vr%vf(2)%fc(:,1))
         enddo
       enddo
       !$omp end parallel do
@@ -34,7 +34,7 @@ contains
       !$omp parallel do 
       do i=1,rows
         vind_array(:,i,rotor%ns+1)=rotor%vind_bywing(wake_array(i,rotor%ns)%vr%vf(3)%fc(:,1))  &
-          +                        rotor%vind_bywake(row_now,wake_array(i,rotor%ns)%vr%vf(3)%fc(:,1))
+          +                        rotor%vind_bywake(wake_array(i,rotor%ns)%vr%vf(3)%fc(:,1))
       enddo
       !$omp end parallel do
 
@@ -45,7 +45,7 @@ contains
       do j=1,rotor%ns
         do i=1,rows
           vind_array(:,i,j)=rotor%vind_bywing(wake_array(i,j)%vr%vf(2)%fc(:,1))  &
-            +               rotor%vind_bywake(row_now,wake_array(i,j)%vr%vf(2)%fc(:,1),'P')
+            +               rotor%vind_bywake(wake_array(i,j)%vr%vf(2)%fc(:,1),'P')
         enddo
       enddo
       !$omp end parallel do
@@ -53,7 +53,7 @@ contains
       !$omp parallel do 
       do i=1,rows
         vind_array(:,i,rotor%ns+1)=rotor%vind_bywing(wake_array(i,rotor%ns)%vr%vf(3)%fc(:,1))  &
-          +                        rotor%vind_bywake(row_now,wake_array(i,rotor%ns)%vr%vf(3)%fc(:,1),'P')
+          +                        rotor%vind_bywake(wake_array(i,rotor%ns)%vr%vf(3)%fc(:,1),'P')
       enddo
       !$omp end parallel do
 

@@ -3,6 +3,5 @@ Add far wake dissipation to dissipate_wake
 Test without wake tip
 Handle tip roll up for far wake
 Handle far wake in results file
-Add far wake induced velocity at P in vind_bywake for RHS computation
 Add vind to far wake in vind_onwake_byrotor 
 Add far wake convection in explicit formulation first inside convectwake()

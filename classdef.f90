@@ -435,9 +435,11 @@ module blade_classdef
     real(dp) :: psi
     real(dp) :: pivotLE
     real(dp), allocatable, dimension(:,:,:) :: vind_Nwake
-    real(dp), allocatable, dimension(:,:) :: vind_Fwake
     real(dp), allocatable, dimension(:,:,:) :: vind_Nwake1, vind_Nwake2, vind_Nwake3
     real(dp), allocatable, dimension(:,:,:) :: Pvind_Nwake, vind_Nwake_step
+    real(dp), allocatable, dimension(:,:) :: vind_Fwake
+    real(dp), allocatable, dimension(:,:) :: vind_Fwake1, vind_Fwake2, vind_Fwake3
+    real(dp), allocatable, dimension(:,:) :: Pvind_Fwake, vind_Fwake_step
 
   contains
     procedure :: move => blade_move
