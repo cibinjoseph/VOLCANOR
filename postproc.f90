@@ -3,17 +3,19 @@ module postproc
 
 contains
 
-  subroutine rotor2file(rotor,filename)
+  subroutine rotor2file(rotor,timestamp)
     type(rotor_class), intent(in) :: rotor
-    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: timestamp
     character(len=5) :: nx_char, ny_char
     real(dp), dimension(3,rotor%nc+1,rotor%ns+1) :: wing_mesh  
     real(dp), dimension(3,rotor%nNwake+1,rotor%ns+1) :: wake_mesh  
-    real(dp), dimension(3,rotor%nFwake+1) :: wake_tip
+    real(dp), dimension(3,rotor%nFwake+1) :: wake_tip   ! Optimise this by only initialising reqd size
     integer :: i,j,nx,ny,ib
 
-    open(unit=10,file=filename,position='append')
-    write(10,*) 'Title = "Panel array"'
+    open(unit=10,file='Results/Nwake'//timestamp//'.tec',position='append')
+    open(unit=11,file='Results/Fwake'//timestamp//'.tec',position='append')
+
+    write(10,*) 'Title = "Wing and Near wake"'
     write(10,*) 'VARIABLES = "X" "Y" "Z" "GAM"'
 
     do ib=1,rotor%nb
@@ -73,7 +75,6 @@ contains
       write(10,*) ((-1._dp*rotor%blade(ib)%waP(i,j)%vr%gam,i=rotor%row_near,nx),j=1,ny)
     enddo
 
-    ! Put far wake inside an other file  --------------------------------------
     ! Far wake 
     nx=rotor%nFwake
     write(nx_char,'(I5)') nx-(rotor%row_far-1)+1
@@ -85,17 +86,18 @@ contains
     wake_tip(:,nx+1)=rotor%blade(ib)%waF(nx)%vf%fc(:,1)
     !Check if necessary -$omp end parallel do
 
-    write(10,*) 'Zone I='//trim(nx_char)//' J=1   K=1   T="FarWake"'
-    write(10,*) 'DATAPACKING=BLOCK'
-    write(10,*) ((wake_mesh(1,i,j),i=rotor%row_near,nx+1),j=1,ny+1)
-    write(10,*) ((wake_mesh(2,i,j),i=rotor%row_near,nx+1),j=1,ny+1)
-    write(10,*) ((wake_mesh(3,i,j),i=rotor%row_near,nx+1),j=1,ny+1)
-    write(10,*) ((-1._dp*rotor%blade(ib)%waP(i,j)%vr%gam,i=rotor%row_near,nx),j=1,ny)
+    write(11,*) 'Title = "Far wake"'
+    write(11,*) 'VARIABLES = "X" "Y" "Z"'
+    write(11,*) 'Zone I='//trim(nx_char)//' J=1   K=1   T="FarWake"'
+    write(11,*) 'DATAPACKING=BLOCK'
+    write(11,*) (wake_tip(1,i),i=rotor%row_near,nx+1)
+    write(11,*) (wake_tip(2,i),i=rotor%row_near,nx+1)
+    write(11,*) (wake_tip(3,i),i=rotor%row_near,nx+1)
 
-    ! ---------------------------------------------------------------------------------
   enddo
 
   close(10)
+  close(11)
 end subroutine rotor2file
 
 subroutine mesh2file(wing_array,wake_array,filename)
