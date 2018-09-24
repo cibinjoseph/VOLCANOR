@@ -158,7 +158,7 @@ program main
 
     !    ! Write out wing n' wake
     do ir=1,nr
-      if (wakeplot_switch .eq. 2) call rotor2file(rotor(ir),row_near(ir),'Results/wNw'//timestamp//'.tec')
+      if (wakeplot_switch .eq. 2) call rotor2file(rotor(ir),'Results/wNw'//timestamp//'.tec')
     enddo
     !    call tip2file(wing,wake(row_near:nt,:),'Results/tip'//timestamp//'.tec')
     !    gam_sectional=calcgam(wing)
