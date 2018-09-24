@@ -586,7 +586,7 @@ contains
       enddo
       if (row_far .ne. 0) then
         do i=row_far,size(this%waF,1)
-          blade_vind_bywake=blade_vind_bywake+this%waF(i)%vf%vind(P)*this%waF(i)%vf%gam
+          blade_vind_bywake=blade_vind_bywake+this%waF(i)%vf%vind(P)*this%waF(i)%gam
         enddo
       endif
     elseif ((opt_char .eq. 'P') .or. (opt_char .eq. 'p')) then
@@ -608,7 +608,7 @@ contains
     integer, intent(in) :: row_near, row_far
     real(dp), intent(in) :: dt
     character(len=1), optional :: opt_char  ! For predicted wake
-    integer :: i,j,rows,cols,nNwake,nFwake,index_offset
+    integer :: i,j,rows,cols,nNwake,nFwake
 
     cols=size(this%waP,2)
     nNwake=size(this%waP,1)
@@ -630,7 +630,7 @@ contains
 
       if (row_far .ne. 0) then
         nFwake=size(this%waF,1)
-        do i=rowfar,nFwake
+        do i=row_far,nFwake
           call this%waF(i)%shiftdP(1,this%vind_Fwake(:,i)*dt)  ! Shift only TE
         enddo
       endif
@@ -643,14 +643,14 @@ contains
       !$omp parallel do collapse(2)
       do j=1,cols
         do i=1,rows
-          call this%Pwake(i+index_offset,j)%vr%shiftdP(2,dP_near(:,i,j))
+!          call this%Pwake(i+index_offset,j)%vr%shiftdP(2,dP_near(:,i,j))
         enddo
       enddo
       !$omp end parallel do
 
       !$omp parallel do
       do i=1,rows
-        call this%Pwake(i+index_offset,cols)%vr%shiftdP(3,dP_near(:,i,cols+1))
+!        call this%Pwake(i+index_offset,cols)%vr%shiftdP(3,dP_near(:,i,cols+1))
       enddo
       !$omp end parallel do
 
@@ -668,7 +668,7 @@ contains
   class(blade_class), intent(inout) :: this
     integer, intent(in) :: row_near,row_far
     character(len=1), optional :: opt_char  ! For predicted wake
-    integer :: i,j,nNwake,cols
+    integer :: i,j,nNwake,nFwake,cols
 
     nNwake=size(this%waP,1)
     cols=size(this%waP,2)
@@ -700,7 +700,7 @@ contains
       if (row_far .ne. 0) then
         nFwake=size(this%waF,1)
         do i=row_far+1,nFwake
-          call this%waF(i)%vf%assignP(1,this%waF(i-1,j)%vf%fc(:,1))
+          call this%waF(i)%assignP(1,this%waF(i-1,j)%vf%fc(:,1))
         enddo
       endif
 
@@ -1359,7 +1359,6 @@ contains
   function rotor_vind_bywake(this,P,opt_char)
   class(rotor_class), intent(inout) :: this
     real(dp), intent(in), dimension(3) :: P
-    integer, intent(in) :: row_near
     character(len=1), optional :: opt_char
     real(dp), dimension(3) :: rotor_vind_bywake
     integer :: ib
@@ -1389,7 +1388,7 @@ contains
     enddo
   end subroutine rotor_shiftwake
 
-  subroutine rotor_rollup(this,row_now)
+  subroutine rotor_rollup(this)
     !    2    
     !    |    ^ Upstream
     !    |    |
@@ -1397,8 +1396,11 @@ contains
     !    1
 
   class(rotor_class), intent(inout) :: this
-    integer :: ib,ispan
+    integer :: ib,ispan,row_roll
     real(dp), dimension(3) :: centroid_LE,centroid_TE
+
+    row_roll=this%row_far-1    ! Rollup the vortex filament of 'next' row
+    if (row_roll==-1) row_roll=this%nFwake
 
     centroid_LE=0._dp
     centroid_TE=0._dp
@@ -1417,15 +1419,15 @@ contains
       gam_max=min(this%waP(this%nNwake,:)%vr%gam)
 
       ! Assign to far wake tip
-      this%waF(row_now)%vf%fc(:,2)=centroid_LE
-      this%waF(row_now)%vf%fc(:,1)=centroid_TE
+      this%waF(row_roll)%vf%fc(:,2)=centroid_LE
+      this%waF(row_roll)%vf%fc(:,1)=centroid_TE
 
       ! Ensure continuity in far wake by assigning
       ! current centroid_TE to LE of previous far wake filament
       ! The discontinuity would occur due to convection of 
       ! last row of waP in convectwake()
-      if (row_now<this%nNwake) then
-        this%waF(row_now-1)%vf%fc(:,2)=centroid_TE
+      if (row_roll<this%nNwake) then
+        this%waF(row_roll-1)%vf%fc(:,2)=centroid_TE
       endif
     enddo
 
