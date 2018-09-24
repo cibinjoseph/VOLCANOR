@@ -64,7 +64,7 @@ contains
   ! Induced velocity by rotor (wing n wake) on Fwake corner points
   function vind_onFwake_byrotor(rotor,Fwake,opt_char) result(vind_array)
     type(rotor_class), intent(inout) :: rotor
-    type(Fwake_class), intent(in), dimension(:,:) :: Fwake
+    type(Fwake_class), intent(in), dimension(:) :: Fwake
     character(len=1), optional :: opt_char
     real(dp), dimension(3,size(Fwake,1)) :: vind_array
     integer :: i,rows

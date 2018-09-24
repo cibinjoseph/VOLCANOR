@@ -73,7 +73,6 @@ contains
       write(10,*) ((wake_mesh(2,i,j),i=rotor%row_near,nx+1),j=1,ny+1)
       write(10,*) ((wake_mesh(3,i,j),i=rotor%row_near,nx+1),j=1,ny+1)
       write(10,*) ((-1._dp*rotor%blade(ib)%waP(i,j)%vr%gam,i=rotor%row_near,nx),j=1,ny)
-    enddo
 
     ! Far wake 
     nx=rotor%nFwake

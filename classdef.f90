@@ -398,6 +398,10 @@ module Fwake_classdef
   type Fwake_class
     type(vf_class) :: vf
     real(dp) :: gam
+
+  contains
+    procedure :: shiftdP => Fwake_shiftdP
+    procedure :: assignP => Fwake_assignP
   end type Fwake_class
 
 contains
@@ -415,6 +419,23 @@ contains
   ! |
   ! V X along chord
 
+  subroutine Fwake_shiftdP(this,n,dshift)   ! for shifting coordinates of nth corner by dshift distance (usually for Udt convection)
+  class(Fwake_class) :: this
+    integer, intent(in) :: n
+    real(dp), intent(in), dimension(3) :: dshift
+
+    if (n/=1 .or. n/=2)  error stop 'n may only take values 1 or 2'
+    this%vf%fc(:,n)=this%vf%fc(:,n)+dshift
+  end subroutine Fwake_shiftdP
+
+  subroutine Fwake_assignP(this,n,P)
+  class(Fwake_class) :: this
+    integer, intent(in) :: n
+    real(dp), intent(in), dimension(3) :: P
+
+    if (n/=1 .or. n/=2)  error stop 'n may only take values 1 or 2'
+    this%vf%fc(:,n)=P
+  end subroutine Fwake_assignP
 end module Fwake_classdef
 
 
@@ -438,8 +459,8 @@ module blade_classdef
     real(dp), allocatable, dimension(:,:,:) :: vind_Nwake1, vind_Nwake2, vind_Nwake3
     real(dp), allocatable, dimension(:,:,:) :: Pvind_Nwake, vind_Nwake_step
     real(dp), allocatable, dimension(:,:) :: vind_Fwake
-    real(dp), allocatable, dimension(:,:) :: vind_Fwake1, vind_Fwake2, vind_Fwake3
-    real(dp), allocatable, dimension(:,:) :: Pvind_Fwake, vind_Fwake_step
+    !real(dp), allocatable, dimension(:,:) :: vind_Fwake1, vind_Fwake2, vind_Fwake3
+    !real(dp), allocatable, dimension(:,:) :: Pvind_Fwake, vind_Fwake_step
 
   contains
     procedure :: move => blade_move
@@ -643,14 +664,14 @@ contains
       !$omp parallel do collapse(2)
       do j=1,cols
         do i=1,rows
-!          call this%Pwake(i+index_offset,j)%vr%shiftdP(2,dP_near(:,i,j))
+          !          call this%Pwake(i+index_offset,j)%vr%shiftdP(2,dP_near(:,i,j))
         enddo
       enddo
       !$omp end parallel do
 
       !$omp parallel do
       do i=1,rows
-!        call this%Pwake(i+index_offset,cols)%vr%shiftdP(3,dP_near(:,i,cols+1))
+        !        call this%Pwake(i+index_offset,cols)%vr%shiftdP(3,dP_near(:,i,cols+1))
       enddo
       !$omp end parallel do
 
@@ -700,7 +721,7 @@ contains
       if (row_far .ne. 0) then
         nFwake=size(this%waF,1)
         do i=row_far+1,nFwake
-          call this%waF(i)%assignP(1,this%waF(i-1,j)%vf%fc(:,1))
+          call this%waF(i)%assignP(1,this%waF(i-1)%vf%fc(:,1))
         enddo
       endif
 
@@ -866,9 +887,8 @@ contains
 
   end subroutine getdata
 
-  subroutine init(this,nt,dt,span_spacing_switch,FDscheme_switch)
+  subroutine init(this,dt,span_spacing_switch,FDscheme_switch)
   class(rotor_class) :: this
-    integer, intent(in) :: nt
     real(dp), intent(in) :: dt
     integer, intent(in) :: span_spacing_switch, FDscheme_switch
 
@@ -1398,36 +1418,41 @@ contains
   class(rotor_class), intent(inout) :: this
     integer :: ib,ispan,row_roll
     real(dp), dimension(3) :: centroid_LE,centroid_TE
+    real(dp) :: gam_max
 
     row_roll=this%row_far-1    ! Rollup the vortex filament of 'next' row
     if (row_roll==-1) row_roll=this%nFwake
 
     centroid_LE=0._dp
     centroid_TE=0._dp
+    gam_max=this%blade(ib)%waP(this%nNwake,this%ns)%vr%gam
 
     do ib=1,this%nb
       do ispan=1,this%ns
         ! Find centroid LE
-        centroid_LE=centroid_LE+this%waP(this%nNwake,ispan)%vr%vf(4)%fc(:,1)
+        centroid_LE=centroid_LE+this%blade(ib)%waP(this%nNwake,ispan)%vr%vf(4)%fc(:,1)
         ! Find centroid TE
-        centroid_TE=centroid_TE+this%waP(this%nNwake,ispan)%vr%vf(3)%fc(:,1)
+        centroid_TE=centroid_TE+this%blade(ib)%waP(this%nNwake,ispan)%vr%vf(3)%fc(:,1)
+        ! Assign gam_max from last row to wake filament gamma
+        if (this%blade(ib)%waP(this%nNwake,ispan)%vr%gam<gam_max) then    ! '<' because of negative gamma
+          gam_max=this%blade(ib)%waP(this%nNwake,ispan)%vr%gam
+        endif
       enddo
       centroid_LE=centroid_LE/this%ns
       centroid_TE=centroid_TE/this%ns
 
-      ! Assign gam_max from last row to wake filament gamma
-      gam_max=min(this%waP(this%nNwake,:)%vr%gam)
 
       ! Assign to far wake tip
-      this%waF(row_roll)%vf%fc(:,2)=centroid_LE
-      this%waF(row_roll)%vf%fc(:,1)=centroid_TE
+      this%blade(ib)%waF(row_roll)%vf%fc(:,2)=centroid_LE
+      this%blade(ib)%waF(row_roll)%vf%fc(:,1)=centroid_TE
+      this%blade(ib)%waF(row_roll)%gam=gam_max
 
       ! Ensure continuity in far wake by assigning
       ! current centroid_TE to LE of previous far wake filament
       ! The discontinuity would occur due to convection of 
       ! last row of waP in convectwake()
       if (row_roll<this%nNwake) then
-        this%waF(row_roll-1)%vf%fc(:,2)=centroid_TE
+        this%blade(ib)%waF(row_roll-1)%vf%fc(:,2)=centroid_TE
       endif
     enddo
 

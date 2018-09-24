@@ -39,7 +39,7 @@ program main
 
   ! Rotor and wake initialization
   do ir=1,nr
-    call rotor(ir)%init(nt,dt,span_spacing_switch,FDscheme_switch)
+    call rotor(ir)%init(dt,span_spacing_switch,FDscheme_switch)
   enddo
 
   ! Rotate wing pc, vr, cp and ncap by initial pitch angle 
@@ -99,7 +99,9 @@ program main
   enddo
 
   do ir=1,nr
-    call rotor(ir)%assignshed(rotor(ir)%nNwake,'TE')  ! Store shed vortex as TE
+    rotor(ir)%row_far=0
+    rotor(ir)%row_near=rotor(ir)%nNwake+1
+    call rotor(ir)%assignshed('TE')  ! Store shed vortex as TE
   enddo
 
   ! ------- MAIN LOOP START -------
