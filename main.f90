@@ -217,7 +217,7 @@ program main
     do ir=1,nr
       do ib=1,rotor(ir)%nb
         rotor(ir)%blade(ib)%vind_Nwake(:,rotor(ir)%row_near:rotor(ir)%nNwake,:)=0._dp
-        if (rotor(ir)%row_far .ne. 0)  rotor(ir)%blade(ib)%vind_Fwake(:,rotor(ir)%row_far:rotor(ir)%nFwake,:)=0._dp
+        if (rotor(ir)%row_far .ne. 0)  rotor(ir)%blade(ib)%vind_Fwake(:,rotor(ir)%row_far:rotor(ir)%nFwake)=0._dp
       enddo
     enddo
 
@@ -228,7 +228,7 @@ program main
             +  vind_onNwake_byrotor(rotor(jr),rotor(ir)%blade(ib)%waP(rotor(ir)%row_near:rotor(ir)%nNwake,:))
           if (rotor(ir)%row_far .ne. 0) then
             rotor(ir)%blade(ib)%vind_Fwake(:,rotor(ir)%row_near:rotor(ir)%nFwake)=rotor(ir)%blade(ib)%vind_Fwake(:,rotor(ir)%row_near:rotor(ir)%nFwake)  &
-              +  vind_onFwake_byrotor(rotor(jr),rotor(ir)%blade(ib)%waF(rotor(ir)%row_far:rotor(ir)%nFwake,:))
+              +  vind_onFwake_byrotor(rotor(jr),rotor(ir)%blade(ib)%waF(rotor(ir)%row_far:rotor(ir)%nFwake))
           endif
         enddo
         if (iter < init_wake_vel_nt) then
@@ -381,10 +381,10 @@ program main
 
     end select
 
-    do ir=1,nr
-      ! Strain wake
-      if (wakestrain_switch .eq. 1) call rotor(ir)%strain_wake(row_near(ir))
-    enddo
+    !do ir=1,nr
+    !  ! Strain wake
+    !  if (wakestrain_switch .eq. 1) call rotor(ir)%strain_wake(row_near(ir))
+    !enddo
 
     do ir=1,nr
       if (rotor(ir)%row_near<=1) then    ! Last step of near wake or later steps

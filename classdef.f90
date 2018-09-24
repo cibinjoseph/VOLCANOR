@@ -806,6 +806,7 @@ module rotor_classdef
     procedure :: vind_bywing => rotor_vind_bywing
     procedure :: vind_bywake => rotor_vind_bywake
     procedure :: shiftwake => rotor_shiftwake
+    procedure :: rollup => rotor_rollup
   end type rotor_class
 
 contains
@@ -1273,10 +1274,6 @@ contains
     character(len=2), intent(in) :: edge
     integer :: i, ib
 
-    do ib=1,this%nb
-      this%blade(ib)%waP(this%row_near,:)%vr%gam=this%blade(ib)%wiP(this%nc,:)%vr%gam
-    enddo
-
     select case (edge)
     case ('LE')    ! assign to LE
       do ib=1,this%nb
@@ -1285,6 +1282,7 @@ contains
           call this%blade(ib)%waP(this%row_near,i)%vr%assignP(4,this%blade(ib)%wiP(this%nc,i)%vr%vf(3)%fc(:,1))
           call this%blade(ib)%waP(this%row_near,i)%vr%calclength(.TRUE.)    ! TRUE => record original length
         enddo
+        this%blade(ib)%waP(this%row_near,:)%vr%gam=this%blade(ib)%wiP(this%nc,:)%vr%gam
 
       enddo
     case ('TE')    ! assign to next row's TE
@@ -1402,7 +1400,7 @@ contains
     integer :: ib,i
 
     do ib=1,this%nb
-      do i=this%nNwake,1,-1
+      do i=this%nNwake,2,-1
         this%blade(ib)%waP(i,:)=this%blade(ib)%waP(i-1,:)
       enddo
     enddo
@@ -1425,9 +1423,9 @@ contains
 
     centroid_LE=0._dp
     centroid_TE=0._dp
-    gam_max=this%blade(ib)%waP(this%nNwake,this%ns)%vr%gam
 
     do ib=1,this%nb
+      gam_max=this%blade(ib)%waP(this%nNwake,this%ns)%vr%gam
       do ispan=1,this%ns
         ! Find centroid LE
         centroid_LE=centroid_LE+this%blade(ib)%waP(this%nNwake,ispan)%vr%vf(4)%fc(:,1)
