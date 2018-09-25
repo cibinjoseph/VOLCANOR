@@ -1,6 +1,6 @@
  NO. OF TIMESTEPS [nt]    TIMESTEP (sec) [dt]    NO. OF ROTORS [nr]
 -----------------------------------------------------------------------
-      800                       0.002                  1
+      6                       0.002                  1
 =======================================================================
 
    DENSITY [kg/m3] 
@@ -20,7 +20,7 @@
  SLOW START TO AVOID LARGE STARTING VORTEX: [0]Off [1]linear [2]tanh [3]extended tanh
   slowstart_switch       slowstart_nt
 -----------------------------------------------------------------------
-       1                      50
+       0                      0
 
  PLOT WAKE: [0]Off [1]Last timestep only [2]All timestep wakes
   wakeplot_switch
@@ -30,7 +30,7 @@
  WAKE CONVECTION FINITE-DIFFERENCE SCHEME: [0]FT1 [1]PC2 [2]AB2 [3]AB4
   FDscheme_switch
 -----------------------------------------------------------------------
-       2
+       0
 
  IGNORE WAKE WAKE INTERACTION: [0]Off [1..]timesteps
   wake_ignore_nt  *** NOT IMPLEMENTED ***
@@ -40,4 +40,4 @@
  INITIAL WAKE VELOCITY: [0]Off [1..]timesteps
   init_wake_vel_nt
 -----------------------------------------------------------------------
-      50
+      0
