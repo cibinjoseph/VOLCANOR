@@ -12,8 +12,10 @@ contains
     real(dp), dimension(3,rotor%nFwake+1) :: wake_tip   ! Optimise this by only initialising reqd size
     integer :: i,j,nx,ny,ib
 
+    if (rotor%row_far .ne. 0) error stop "ERROR: plot only after far wake is created"
+
     open(unit=10,file='Results/Nwake'//timestamp//'.tec',position='append')
-    if (rotor%row_far .ne. 0) open(unit=11,file='Results/Fwake'//timestamp//'.tec',position='append')
+    open(unit=11,file='Results/Fwake'//timestamp//'.tec',position='append')
 
     write(10,*) 'Title = "Wing and Near wake"'
     write(10,*) 'VARIABLES = "X" "Y" "Z" "GAM"'
@@ -75,7 +77,6 @@ contains
       write(10,*) ((-1._dp*rotor%blade(ib)%waP(i,j)%vr%gam,i=rotor%row_near,nx),j=1,ny)
 
       ! Far wake 
-      if (rotor%row_far .ne. 0) then
         nx=rotor%nFwake
         write(nx_char,'(I5)') nx-(rotor%row_far-1)+1
 
@@ -93,7 +94,6 @@ contains
         write(11,*) (wake_tip(1,i),i=rotor%row_far,nx+1)
         write(11,*) (wake_tip(2,i),i=rotor%row_far,nx+1)
         write(11,*) (wake_tip(3,i),i=rotor%row_far,nx+1)
-      endif
 
     enddo
 
