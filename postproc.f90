@@ -12,7 +12,7 @@ contains
     real(dp), dimension(3,rotor%nFwake+1) :: wake_tip   ! Optimise this by only initialising reqd size
     integer :: i,j,nx,ny,ib
 
-    if (rotor%row_far .ne. 0) error stop "ERROR: plot only after far wake is created"
+    if (rotor%row_far .eq. 0) error stop "ERROR: plot only after far wake is created"
 
     open(unit=10,file='Results/Nwake'//timestamp//'.tec',position='append')
     open(unit=11,file='Results/Fwake'//timestamp//'.tec',position='append')
