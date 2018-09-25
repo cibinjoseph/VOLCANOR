@@ -77,28 +77,28 @@ contains
       write(10,*) ((-1._dp*rotor%blade(ib)%waP(i,j)%vr%gam,i=rotor%row_near,nx),j=1,ny)
 
       ! Far wake 
-        nx=rotor%nFwake
-        write(nx_char,'(I5)') nx-(rotor%row_far-1)+1
+      nx=rotor%nFwake
+      write(nx_char,'(I5)') nx-(rotor%row_far-1)+1
 
-        !Check if necessary - $omp parallel do collapse(2)
-        do i=rotor%row_far,nx
-          wake_tip(:,i)=rotor%blade(ib)%waF(i)%vf%fc(:,2)
-        enddo
-        wake_tip(:,nx+1)=rotor%blade(ib)%waF(rotor%nFwake)%vf%fc(:,1)
-        !Check if necessary -$omp end parallel do
+      !Check if necessary - $omp parallel do collapse(2)
+      do i=rotor%row_far,nx
+        wake_tip(:,i)=rotor%blade(ib)%waF(i)%vf%fc(:,2)
+      enddo
+      wake_tip(:,nx+1)=rotor%blade(ib)%waF(rotor%nFwake)%vf%fc(:,1)
+      !Check if necessary -$omp end parallel do
 
-        write(11,*) 'Title = "Far wake"'
-        write(11,*) 'VARIABLES = "X" "Y" "Z"'
-        write(11,*) 'Zone I='//trim(nx_char)//' J=1   K=1   T="FarWake"'
-        write(11,*) 'DATAPACKING=BLOCK'
-        write(11,*) (wake_tip(1,i),i=rotor%row_far,nx+1)
-        write(11,*) (wake_tip(2,i),i=rotor%row_far,nx+1)
-        write(11,*) (wake_tip(3,i),i=rotor%row_far,nx+1)
+      write(11,*) 'Title = "Far wake"'
+      write(11,*) 'VARIABLES = "X" "Y" "Z"'
+      write(11,*) 'Zone I='//trim(nx_char)//' J=1   K=1   T="FarWake"'
+      write(11,*) 'DATAPACKING=BLOCK'
+      write(11,*) (wake_tip(1,i),i=rotor%row_far,nx+1)
+      write(11,*) (wake_tip(2,i),i=rotor%row_far,nx+1)
+      write(11,*) (wake_tip(3,i),i=rotor%row_far,nx+1)
 
     enddo
 
     close(10)
-    if (rotor%row_far .ne. 0) close(11)
+    close(11)
   end subroutine rotor2file
 
   subroutine mesh2file(wing_array,wake_array,filename)
