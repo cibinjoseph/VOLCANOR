@@ -424,7 +424,7 @@ contains
     integer, intent(in) :: n
     real(dp), intent(in), dimension(3) :: dshift
 
-    if (n/=1 .or. n/=2)  error stop 'n may only take values 1 or 2'
+    if (n/=1 .and. n/=2)  error stop 'n may only take values 1 or 2 in Fwake_shiftdP()'
     this%vf%fc(:,n)=this%vf%fc(:,n)+dshift
   end subroutine Fwake_shiftdP
 
@@ -433,7 +433,7 @@ contains
     integer, intent(in) :: n
     real(dp), intent(in), dimension(3) :: P
 
-    if (n/=1 .or. n/=2)  error stop 'n may only take values 1 or 2'
+    if (n/=1 .and. n/=2)  error stop 'n may only take values 1 or 2 in Fwake_assignP()'
     this%vf%fc(:,n)=P
   end subroutine Fwake_assignP
 end module Fwake_classdef
