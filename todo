@@ -2,5 +2,5 @@ Add far wake ageing to age_wake
 Add far wake dissipation to dissipate_wake
 Remove row_near from strain_wake()
 Test without wake tip
-Handle far wake in results file
 Add vind to far wake in vind_onwake_byrotor 
+Correct plotit.py
