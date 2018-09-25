@@ -1450,7 +1450,7 @@ contains
       ! The discontinuity would occur due to convection of 
       ! last row of waP in convectwake()
       if (row_roll<this%nFwake) then
-        this%blade(ib)%waF(row_roll-1)%vf%fc(:,2)=centroid_TE
+        this%blade(ib)%waF(row_roll+1)%vf%fc(:,2)=centroid_TE
       endif
     enddo
 

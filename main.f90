@@ -387,8 +387,8 @@ program main
     !enddo
 
     do ir=1,nr
-      if (rotor(ir)%row_near<=1) then    ! Last step of near wake or later steps
-        call rotor(ir)%rollup()    ! Roll up wake to tip vortex for next far wake panel
+      if (rotor(ir)%row_near<=1 .and. rotor(ir)%row_far/=1) then    ! Last step of near wake or later steps
+        call rotor(ir)%rollup()    ! Rollup wake for next far wake panel
         call rotor(ir)%shiftwake()    ! Shift wake 
         call rotor(ir)%assignshed('TE')  ! Store shed vortex as TE for next near wake panel
       else
