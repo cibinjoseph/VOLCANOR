@@ -1,3 +1,6 @@
-OpenDatabase("Results/wNw*.tec database")
+OpenDatabase("Results/Fwake*.tec database")
+AddPlot("Mesh", "mesh", 1, 1)
+DrawPlots()
+OpenDatabase("Results/Nwake*.tec database")
 AddPlot("Mesh", "mesh", 1, 1)
 DrawPlots()
