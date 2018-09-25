@@ -83,7 +83,7 @@ contains
         do i=rotor%row_far,nx
           wake_tip(:,i)=rotor%blade(ib)%waF(i)%vf%fc(:,2)
         enddo
-        wake_tip(:,nx+1)=rotor%blade(ib)%waF(nx)%vf%fc(:,1)
+        wake_tip(:,nx+1)=rotor%blade(ib)%waF(rotor%nFwake)%vf%fc(:,1)
         !Check if necessary -$omp end parallel do
 
         write(11,*) 'Title = "Far wake"'
