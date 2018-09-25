@@ -826,6 +826,7 @@ contains
     read(12,*) this%nb
     call skiplines(12,3)
     read(12,*) this%ns,this%nc,this%nNwake
+    if (this%nNwake<=2)  error stop 'ERROR: Atleast 2 near wake rows mandatory'
     call skiplines(12,4)
     read(12,*) this%hub_coords(1),this%hub_coords(2),this%hub_coords(3)
     call skiplines(12,3)
@@ -869,6 +870,7 @@ contains
     call degtorad(this%theta_twist)
     call degtorad(this%psi_start)
     this%nFwake=nt-this%nNwake
+    if (this%nFwake<2) error stop 'ERROR: Atleast 1 far wake rows mandatory'
     this%spanwise_core=this%spanwise_core*this%chord
     this%streamwise_core_vec=this%streamwise_core_vec*this%chord
 
