@@ -162,6 +162,8 @@ program main
     do ir=1,nr
       if ((wakeplot_switch .eq. 2) .and.(rotor(ir)%row_far .ne. 0) ) call rotor2file(rotor(ir),timestamp)
     enddo
+    print*,rotor(1)%waP
+
     !    call tip2file(wing,wake(row_near:nt,:),'Results/tip'//timestamp//'.tec')
     !    gam_sectional=calcgam(wing)
     !    call gam2file(yvec,gam_sectional,'Results/gam'//timestamp//'.curve')
@@ -387,7 +389,7 @@ program main
     !enddo
 
     do ir=1,nr
-      if (rotor(ir)%row_near<=1 .and. rotor(ir)%row_far/=1) then    ! Last step of near wake or later steps
+      if (rotor(ir)%row_near=1 .and. rotor(ir)%row_far/=1) then  ! Last step of near wake or later steps
         call rotor(ir)%rollup()    ! Rollup wake for next far wake panel
         call rotor(ir)%shiftwake()    ! Shift wake 
         call rotor(ir)%assignshed('TE')  ! Store shed vortex as TE for next near wake panel
