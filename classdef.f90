@@ -1416,12 +1416,12 @@ contains
     !    1
 
   class(rotor_class), intent(inout) :: this
-    integer :: ib,ispan,row_roll
+    integer :: ib,ispan,row_far_next
     real(dp), dimension(3) :: centroid_LE,centroid_TE
     real(dp) :: gam_max
 
-    row_roll=this%row_far-1    ! Rollup the vortex filament of 'next' row
-    if (row_roll==-1) row_roll=this%nFwake
+    row_far_next=this%row_far-1    ! Rollup the vortex filament of 'next' row
+    if (row_far_next==-1) row_far_next=this%nFwake
 
     centroid_LE=0._dp
     centroid_TE=0._dp
@@ -1443,16 +1443,16 @@ contains
 
 
       ! Assign to far wake tip
-      this%blade(ib)%waF(row_roll)%vf%fc(:,2)=centroid_LE
-      this%blade(ib)%waF(row_roll)%vf%fc(:,1)=centroid_TE
-      this%blade(ib)%waF(row_roll)%gam=gam_max
+      this%blade(ib)%waF(row_far_next)%vf%fc(:,2)=centroid_LE
+      this%blade(ib)%waF(row_far_next)%vf%fc(:,1)=centroid_TE
+      this%blade(ib)%waF(row_far_next)%gam=gam_max
 
       ! Ensure continuity in far wake by assigning
       ! current centroid_TE to LE of previous far wake filament
       ! The discontinuity would occur due to convection of 
       ! last row of waP in convectwake()
-      if (row_roll<this%nFwake) then
-        this%blade(ib)%waF(row_roll+1)%vf%fc(:,2)=centroid_TE
+      if (row_far_next<this%nFwake) then
+        this%blade(ib)%waF(row_far_next+1)%vf%fc(:,2)=centroid_TE
       endif
     enddo
 
