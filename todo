@@ -1,7 +1,4 @@
 Add far wake ageing to age_wake
 Add far wake dissipation to dissipate_wake
 Remove row_near from strain_wake()
-Test without wake tip
-Add vind to far wake in vind_onwake_byrotor 
 Compute centroid for only outer 3/4 or 1/2 of wake
-Correct plotit.py
