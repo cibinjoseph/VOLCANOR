@@ -721,7 +721,7 @@ contains
       if (row_far .ne. 0) then
         nFwake=size(this%waF,1)
         do i=row_far+1,nFwake
-          call this%waF(i)%assignP(1,this%waF(i-1)%vf%fc(:,1))
+          call this%waF(i)%assignP(2,this%waF(i-1)%vf%fc(:,1))
         enddo
       endif
 
