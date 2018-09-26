@@ -787,6 +787,7 @@ module rotor_classdef
     real(dp), allocatable, dimension(:,:) :: AIC,AIC_inv  ! Influence coefficient matrix
     real(dp), allocatable, dimension(:) :: gamvec,gamvec_prev,RHS
     real(dp) :: init_wake_vel, psi_start
+    integer :: rollup_start, rollup_end
     integer :: row_near, row_far
   contains
     procedure :: getdata
@@ -820,6 +821,7 @@ contains
     character(len=*), intent(in) :: filename
     integer, intent(in) :: nt  ! nt passed for allocting wake panels
     integer :: i,ib
+    real(dp) :: rollup_start_radius, rollup_end_radius
 
     open(unit=12,file=filename)
     call skiplines(12,2)
@@ -859,6 +861,8 @@ contains
       error stop 'ERROR: Wrong input for streamwise_core_switch in rotorXX.in'
     endif
     call skiplines(12,4)
+    read(12,*) rollup_start_radius, rollup_end_radius
+    call skiplines(12,3)
     read(12,*) this%init_wake_vel, this%psi_start
     close(12)
 
@@ -873,6 +877,8 @@ contains
     if (this%nFwake<2) error stop 'ERROR: Atleast 1 far wake rows mandatory'
     this%spanwise_core=this%spanwise_core*this%chord
     this%streamwise_core_vec=this%streamwise_core_vec*this%chord
+    this%rollup_start=ceiling(rollup_start_radius*this%ns)
+    this%rollup_end=floor(rollup_end_radius*this%ns)
 
     ! Allocate rotor object variables
     allocate(this%blade(this%nb))
@@ -1428,7 +1434,7 @@ contains
 
     do ib=1,this%nb
       gam_max=this%blade(ib)%waP(this%nNwake,this%ns)%vr%gam
-      do ispan=1,this%ns
+      do ispan=this%rollup_start,this%rollup_end
         ! Find centroid LE
         centroid_LE=centroid_LE+this%blade(ib)%waP(this%nNwake,ispan)%vr%vf(4)%fc(:,1)
         ! Find centroid TE
@@ -1438,8 +1444,8 @@ contains
           gam_max=this%blade(ib)%waP(this%nNwake,ispan)%vr%gam
         endif
       enddo
-      centroid_LE=centroid_LE/this%ns
-      centroid_TE=centroid_TE/this%ns
+      centroid_LE=centroid_LE/(this%rollup_end-this%rollup_start+1)
+      centroid_TE=centroid_TE/(this%rollup_end-this%rollup_start+1)
 
 
       ! Assign to far wake tip
