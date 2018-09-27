@@ -451,7 +451,7 @@ module blade_classdef
     type(wingpanel_class), allocatable, dimension(:,:) :: wiP
     type(Nwake_class), allocatable, dimension(:,:) :: waP
     type(Fwake_class), allocatable, dimension(:) :: waF
-    type(Nwake_class), allocatable, dimension(:,:) :: Pwake
+    type(Nwake_class), allocatable, dimension(:,:) :: waP_predicted
     real(dp) :: theta
     real(dp) :: psi
     real(dp) :: pivotLE
@@ -613,7 +613,7 @@ contains
     elseif ((opt_char .eq. 'P') .or. (opt_char .eq. 'p')) then
       do j=1,size(this%waP,2)
         do i=row_near,size(this%waP,1)
-          blade_vind_bywake=blade_vind_bywake+this%Pwake(i,j)%vr%vind(P)*this%Pwake(i,j)%vr%gam
+          blade_vind_bywake=blade_vind_bywake+this%waP_predicted(i,j)%vr%vind(P)*this%waP_predicted(i,j)%vr%gam
         enddo
       enddo
     else
@@ -664,14 +664,14 @@ contains
       !$omp parallel do collapse(2)
       do j=1,cols
         do i=1,rows
-          !          call this%Pwake(i+index_offset,j)%vr%shiftdP(2,dP_near(:,i,j))
+          !          call this%waP_predicted(i+index_offset,j)%vr%shiftdP(2,dP_near(:,i,j))
         enddo
       enddo
       !$omp end parallel do
 
       !$omp parallel do
       do i=1,rows
-        !        call this%Pwake(i+index_offset,cols)%vr%shiftdP(3,dP_near(:,i,cols+1))
+        !        call this%waP_predicted(i+index_offset,cols)%vr%shiftdP(3,dP_near(:,i,cols+1))
       enddo
       !$omp end parallel do
 
@@ -731,23 +731,23 @@ contains
       !$omp parallel do collapse(2)
       do j=1,cols-1
         do i=row_near+1,nNwake
-          call this%Pwake(i,j)%vr%assignP(1,this%Pwake(i-1,j)%vr%vf(2)%fc(:,1))
-          call this%Pwake(i,j)%vr%assignP(3,this%Pwake(i,j+1)%vr%vf(2)%fc(:,1))
-          call this%Pwake(i,j)%vr%assignP(4,this%Pwake(i-1,j+1)%vr%vf(2)%fc(:,1))
+          call this%waP_predicted(i,j)%vr%assignP(1,this%waP_predicted(i-1,j)%vr%vf(2)%fc(:,1))
+          call this%waP_predicted(i,j)%vr%assignP(3,this%waP_predicted(i,j+1)%vr%vf(2)%fc(:,1))
+          call this%waP_predicted(i,j)%vr%assignP(4,this%waP_predicted(i-1,j+1)%vr%vf(2)%fc(:,1))
         enddo
       enddo
       !$omp end parallel do
 
       !$omp parallel do
       do j=1,cols-1
-        call this%Pwake(row_near,j)%vr%assignP(3,this%Pwake(row_near,j+1)%vr%vf(2)%fc(:,1))
+        call this%waP_predicted(row_near,j)%vr%assignP(3,this%waP_predicted(row_near,j+1)%vr%vf(2)%fc(:,1))
       enddo
       !$omp end parallel do
 
       !$omp parallel do
       do i=row_near+1,nNwake
-        call this%Pwake(i,cols)%vr%assignP(1,this%Pwake(i-1,cols)%vr%vf(2)%fc(:,1))
-        call this%Pwake(i,cols)%vr%assignP(4,this%Pwake(i-1,cols)%vr%vf(3)%fc(:,1))
+        call this%waP_predicted(i,cols)%vr%assignP(1,this%waP_predicted(i-1,cols)%vr%vf(2)%fc(:,1))
+        call this%waP_predicted(i,cols)%vr%assignP(4,this%waP_predicted(i-1,cols)%vr%vf(3)%fc(:,1))
       enddo
       !$omp end parallel do
 
@@ -1055,14 +1055,14 @@ contains
       case (0)
         ! Do nothing
       case (1)
-        allocate(this%blade(ib)%Pwake(this%nNwake,this%ns))
+        allocate(this%blade(ib)%waP_predicted(this%nNwake,this%ns))
         allocate(this%blade(ib)%vind_Nwake1(3,this%nNwake,this%ns+1))
         allocate(this%blade(ib)%Pvind_Nwake(3,this%nNwake,this%ns+1))
       case (2)
         allocate(this%blade(ib)%vind_Nwake1(3,this%nNwake,this%ns+1))
         allocate(this%blade(ib)%vind_Nwake_step(3,this%nNwake,this%ns+1))
       case (3)
-        allocate(this%blade(ib)%Pwake(this%nNwake,this%ns))
+        allocate(this%blade(ib)%waP_predicted(this%nNwake,this%ns))
         allocate(this%blade(ib)%vind_Nwake1(3,this%nNwake,this%ns+1))
         allocate(this%blade(ib)%vind_Nwake2(3,this%nNwake,this%ns+1))
         allocate(this%blade(ib)%vind_Nwake3(3,this%nNwake,this%ns+1))
@@ -1118,14 +1118,14 @@ contains
       case (0)
         ! Nothing to deallocate
       case (1)
-        deallocate(this%blade(ib)%Pwake)
+        deallocate(this%blade(ib)%waP_predicted)
         deallocate(this%blade(ib)%vind_Nwake1)
         deallocate(this%blade(ib)%Pvind_Nwake)
       case (2)
         deallocate(this%blade(ib)%vind_Nwake1)
         deallocate(this%blade(ib)%vind_Nwake_step)
       case (3)
-        deallocate(this%blade(ib)%Pwake)
+        deallocate(this%blade(ib)%waP_predicted)
         deallocate(this%blade(ib)%vind_Nwake1)
         deallocate(this%blade(ib)%vind_Nwake2)
         deallocate(this%blade(ib)%vind_Nwake3)
