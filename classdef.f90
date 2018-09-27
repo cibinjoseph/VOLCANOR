@@ -452,15 +452,16 @@ module blade_classdef
     type(Nwake_class), allocatable, dimension(:,:) :: waP
     type(Fwake_class), allocatable, dimension(:) :: waF
     type(Nwake_class), allocatable, dimension(:,:) :: waP_predicted
+    type(Nwake_class), allocatable, dimension(:) :: waF_predicted
     real(dp) :: theta
     real(dp) :: psi
     real(dp) :: pivotLE
     real(dp), allocatable, dimension(:,:,:) :: vind_Nwake
     real(dp), allocatable, dimension(:,:,:) :: vind_Nwake1, vind_Nwake2, vind_Nwake3
-    real(dp), allocatable, dimension(:,:,:) :: Pvind_Nwake, vind_Nwake_step
+    real(dp), allocatable, dimension(:,:,:) :: vind_Nwake_predicted, vind_Nwake_step
     real(dp), allocatable, dimension(:,:) :: vind_Fwake
-    !real(dp), allocatable, dimension(:,:) :: vind_Fwake1, vind_Fwake2, vind_Fwake3
-    !real(dp), allocatable, dimension(:,:) :: Pvind_Fwake, vind_Fwake_step
+    real(dp), allocatable, dimension(:,:) :: vind_Fwake1, vind_Fwake2, vind_Fwake3
+    real(dp), allocatable, dimension(:,:) :: vind_Fwake_predicted, vind_Fwake_step
 
   contains
     procedure :: move => blade_move
@@ -624,17 +625,18 @@ contains
   end function blade_vind_bywake
 
   ! Convect wake using dP_near=vind_array*dt
-  subroutine convectwake(this,row_near,row_far,dt,opt_char)
+  subroutine convectwake(this,row_near,row_far,dt,wake_type,vind_Nwake,vind_Fwake)
   class(blade_class), intent(inout) :: this
     integer, intent(in) :: row_near, row_far
     real(dp), intent(in) :: dt
-    character(len=1), optional :: opt_char  ! For predicted wake
+    character(len=1), intent(in) :: wake_type  ! For predicted wake 
     integer :: i,j,rows,cols,nNwake,nFwake
 
     cols=size(this%waP,2)
     nNwake=size(this%waP,1)
 
-    if (.not. present(opt_char)) then
+    select case (wake_type) 
+    case ('C')    ! [C]urrent wake
       !$omp parallel do collapse(2)
       do j=1,cols
         do i=row_near,nNwake
@@ -656,45 +658,48 @@ contains
         enddo
       endif
 
-      call this%wake_continuity(row_near,row_far)
 
-    elseif ((opt_char .eq. 'P') .or. (opt_char .eq. 'p')) then
-      ! For predicted wake convection
-
+    case ('P')    ! [P]redicted wake
       !$omp parallel do collapse(2)
       do j=1,cols
         do i=1,rows
-          !          call this%waP_predicted(i+index_offset,j)%vr%shiftdP(2,dP_near(:,i,j))
+          call this%waP_predicted(i,j)%vr%shiftdP(2,this%vind_Nwake(:,i,j)*dt)
         enddo
       enddo
       !$omp end parallel do
 
       !$omp parallel do
       do i=1,rows
-        !        call this%waP_predicted(i+index_offset,cols)%vr%shiftdP(3,dP_near(:,i,cols+1))
+        call this%waP_predicted(i,cols)%vr%shiftdP(3,this%vind_Nwake(:,i,cols+1)*dt)
       enddo
       !$omp end parallel do
 
-      call this%wake_continuity(row_near,row_far,'P') 
+      if (row_far .ne. 0) then
+        nFwake=size(this%waF,1)
+        do i=row_far,nFwake
+          call this%waF_predicted(i)%shiftdP(1,this%vind_Fwake(:,i)*dt)  ! Shift only TE
+        enddo
+      endif
 
-    else
-      error stop 'ERROR: Wrong character flag for convectwake()'
-    endif
+    end select
+
+    call this%wake_continuity(row_near,row_far,wake_type) 
 
   end subroutine convectwake
 
   ! Maintain continuity between vortex ring elements after convection
   ! of vortex ring corners
-  subroutine wake_continuity(this,row_near,row_far,opt_char)
+  subroutine wake_continuity(this,row_near,row_far,wake_type)
   class(blade_class), intent(inout) :: this
     integer, intent(in) :: row_near,row_far
-    character(len=1), optional :: opt_char  ! For predicted wake
+    character(len=1), intent(in) :: wake_type  ! For predicted wake
     integer :: i,j,nNwake,nFwake,cols
 
     nNwake=size(this%waP,1)
     cols=size(this%waP,2)
 
-    if (.not. present(opt_char)) then
+    select case (wake_type)
+    case ('C')
       !$omp parallel do collapse(2)
       do j=1,cols-1
         do i=row_near+1,nNwake
@@ -725,7 +730,7 @@ contains
         enddo
       endif
 
-    elseif ((opt_char .eq. 'P') .or. (opt_char .eq. 'p')) then
+    case ('P')
       ! For predicted wake
 
       !$omp parallel do collapse(2)
@@ -751,9 +756,9 @@ contains
       enddo
       !$omp end parallel do
 
-    else
+    case default
       error stop 'ERROR: Wrong character flag for convectwake()'
-    endif
+    end select
 
   end subroutine wake_continuity
 
@@ -1057,7 +1062,7 @@ contains
       case (1)
         allocate(this%blade(ib)%waP_predicted(this%nNwake,this%ns))
         allocate(this%blade(ib)%vind_Nwake1(3,this%nNwake,this%ns+1))
-        allocate(this%blade(ib)%Pvind_Nwake(3,this%nNwake,this%ns+1))
+        allocate(this%blade(ib)%vind_Nwake_predicted(3,this%nNwake,this%ns+1))
       case (2)
         allocate(this%blade(ib)%vind_Nwake1(3,this%nNwake,this%ns+1))
         allocate(this%blade(ib)%vind_Nwake_step(3,this%nNwake,this%ns+1))
@@ -1066,7 +1071,7 @@ contains
         allocate(this%blade(ib)%vind_Nwake1(3,this%nNwake,this%ns+1))
         allocate(this%blade(ib)%vind_Nwake2(3,this%nNwake,this%ns+1))
         allocate(this%blade(ib)%vind_Nwake3(3,this%nNwake,this%ns+1))
-        allocate(this%blade(ib)%Pvind_Nwake(3,this%nNwake,this%ns+1))
+        allocate(this%blade(ib)%vind_Nwake_predicted(3,this%nNwake,this%ns+1))
         allocate(this%blade(ib)%vind_Nwake_step(3,this%nNwake,this%ns+1))
       end select
     enddo
@@ -1120,7 +1125,7 @@ contains
       case (1)
         deallocate(this%blade(ib)%waP_predicted)
         deallocate(this%blade(ib)%vind_Nwake1)
-        deallocate(this%blade(ib)%Pvind_Nwake)
+        deallocate(this%blade(ib)%vind_Nwake_predicted)
       case (2)
         deallocate(this%blade(ib)%vind_Nwake1)
         deallocate(this%blade(ib)%vind_Nwake_step)
@@ -1129,7 +1134,7 @@ contains
         deallocate(this%blade(ib)%vind_Nwake1)
         deallocate(this%blade(ib)%vind_Nwake2)
         deallocate(this%blade(ib)%vind_Nwake3)
-        deallocate(this%blade(ib)%Pvind_Nwake)
+        deallocate(this%blade(ib)%vind_Nwake_predicted)
         deallocate(this%blade(ib)%vind_Nwake_step)
       end select
     enddo
