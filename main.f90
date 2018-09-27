@@ -100,7 +100,7 @@ program main
 
   do ir=1,nr
     rotor(ir)%row_far=0
-    rotor(ir)%row_near=rotor(ir)%nNwake+1
+    rotor(ir)%row_near=rotor(ir)%nNwake+1  ! Since assignshed TE assigns to row_near-1 panel
     call rotor(ir)%assignshed('TE')  ! Store shed vortex as TE
   enddo
 
@@ -228,7 +228,7 @@ program main
           rotor(ir)%blade(ib)%vind_Nwake(:,rotor(ir)%row_near:rotor(ir)%nNwake,:)=rotor(ir)%blade(ib)%vind_Nwake(:,rotor(ir)%row_near:rotor(ir)%nNwake,:)  &
             +  vind_onNwake_byrotor(rotor(jr),rotor(ir)%blade(ib)%waP(rotor(ir)%row_near:rotor(ir)%nNwake,:))
           if (rotor(ir)%row_far .ne. 0) then
-            rotor(ir)%blade(ib)%vind_Fwake(:,rotor(ir)%row_near:rotor(ir)%nFwake)=rotor(ir)%blade(ib)%vind_Fwake(:,rotor(ir)%row_near:rotor(ir)%nFwake)  &
+            rotor(ir)%blade(ib)%vind_Fwake(:,rotor(ir)%row_far:rotor(ir)%nFwake)=rotor(ir)%blade(ib)%vind_Fwake(:,rotor(ir)%row_far:rotor(ir)%nFwake)  &
               +  vind_onFwake_byrotor(rotor(jr),rotor(ir)%blade(ib)%waF(rotor(ir)%row_far:rotor(ir)%nFwake))
           endif
         enddo
