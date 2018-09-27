@@ -1,4 +1,3 @@
 Add far wake ageing to age_wake
 Add far wake dissipation to dissipate_wake
 Remove row_near from strain_wake()
-Compute centroid for only outer 3/4 or 1/2 of wake
