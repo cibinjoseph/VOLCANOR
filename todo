@@ -1,4 +1,4 @@
 Add far wake ageing to age_wake
 Add far wake dissipation to dissipate_wake
 Remove row_near from strain_wake()
-Check code why propgation of instability in wake
+Correct other schemes
