@@ -96,20 +96,31 @@ contains
 
   end function vind_onFwake_byrotor
 
-  ! Calculates 2nd order accurate induced velocity on wake
-  function vel_order2(v_wake_n,v_wake_np1)   ! np1 => n+1 
+  ! Calculates 2nd order accurate induced velocity on near wake
+  function vel_order2_Nwake(v_wake_n,v_wake_np1)   ! np1 => n+1 
     real(dp), intent(in), dimension(:,:,:) :: v_wake_n, v_wake_np1
-    real(dp), dimension(3,size(v_wake_n,2),size(v_wake_n,3)) :: vel_order2
+    real(dp), dimension(3,size(v_wake_n,2),size(v_wake_n,3)) :: vel_order2_Nwake
     integer :: i,j
     do j=1,size(v_wake_n,3)
-      vel_order2(:,1,j)=(v_wake_np1(:,1,j)+v_wake_n(:,1,j))*0.5_dp
+      vel_order2_Nwake(:,1,j)=(v_wake_np1(:,1,j)+v_wake_n(:,1,j))*0.5_dp
       do i=2,size(v_wake_n,2)-1
-        vel_order2(:,i,j)=(v_wake_np1(:,i,j)+v_wake_np1(:,i-1,j)+v_wake_n(:,i+1,j)+v_wake_n(:,i,j))*0.25_dp
+        vel_order2_Nwake(:,i,j)=(v_wake_np1(:,i,j)+v_wake_np1(:,i-1,j)+v_wake_n(:,i+1,j)+v_wake_n(:,i,j))*0.25_dp
       enddo
-      vel_order2(:,size(v_wake_n,2),j)=(v_wake_np1(:,size(v_wake_n,2),j)+v_wake_n(:,size(v_wake_n,2),j))*0.5_dp
+      vel_order2_Nwake(:,size(v_wake_n,2),j)=(v_wake_np1(:,size(v_wake_n,2),j)+v_wake_n(:,size(v_wake_n,2),j))*0.5_dp
     enddo
+  end function vel_order2_Nwake
 
-  end function vel_order2
+  ! Calculates 2nd order accurate induced velocity on far wake
+  function vel_order2_Fwake(v_wake_n,v_wake_np1)   ! np1 => n+1 
+    real(dp), intent(in), dimension(:,:) :: v_wake_n, v_wake_np1
+    real(dp), dimension(3,size(v_wake_n,2)) :: vel_order2_Fwake
+    integer :: i
+      vel_order2_Fwake(:,1)=(v_wake_np1(:,1)+v_wake_n(:,1))*0.5_dp
+      do i=2,size(v_wake_n,2)-1
+        vel_order2_Fwake(:,i)=(v_wake_np1(:,i)+v_wake_np1(:,i-1)+v_wake_n(:,i+1)+v_wake_n(:,i))*0.25_dp
+      enddo
+      vel_order2_Fwake(:,size(v_wake_n,2))=(v_wake_np1(:,size(v_wake_n,2))+v_wake_n(:,size(v_wake_n,2)))*0.5_dp
+  end function vel_order2_Fwake
 
   !--------------------------------------------------------!
   !               Force Computation Functions              !

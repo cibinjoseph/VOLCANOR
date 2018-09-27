@@ -263,8 +263,10 @@ program main
         do ib=1,rotor(ir)%nb
           rotor(ir)%blade(ib)%waP_predicted(rotor(ir)%row_near:rotor(ir)%nNwake,:)=  &
             rotor(ir)%blade(ib)%waP(rotor(ir)%row_near:rotor(ir)%nNwake,:)
-          if (rotor(ir)%row_far .ne. 0) rotor(ir)%blade(ib)%waF_predicted(rotor(ir)%row_far:rotor(ir)%nFwake)=  &
-            rotor(ir)%blade(ib)%waF(rotor(ir)%row_far:rotor(ir)%nFwake)
+          if (rotor(ir)%row_far .ne. 0) then
+            rotor(ir)%blade(ib)%waF_predicted(rotor(ir)%row_far:rotor(ir)%nFwake)=  &
+              rotor(ir)%blade(ib)%waF(rotor(ir)%row_far:rotor(ir)%nFwake)
+          endif
           call rotor(ir)%blade(ib)%convectwake(rotor(ir)%row_near,rotor(ir)%row_far,dt,'P')
         enddo
       enddo
@@ -292,134 +294,140 @@ program main
                   -  rotor(ir)%init_wake_vel*rotor(ir)%shaft_axis(i)
               enddo
             endif
-          enddo
+          endif
         enddo
-
-        do ir=1,nr
-          do ib=1,rotor(ir)%nb
-            call rotor(ir)%blade(ib)%convectwake(vel_order2(rotor(ir)%blade(ib)%vind_Nwake(:,rotor(ir)%row_near:nt,:)  &
-              ,  rotor(ir)%blade(ib)%vind_Nwake_predicted(:,rotor(ir)%row_near:nt,:))*dt)
-          enddo
-        enddo
-
-        !do ir=1,nr
-        !  do ib=1,rotor(ir)%nb
-        !    call rotor(ir)%blade(ib)%convectwake((rotor(ir)%blade(ib)%vind_Nwake(:,rotor(ir)%row_near:nt,:)  &
-        !      +  rotor(ir)%blade(ib)%vind_Nwake_predicted(:,rotor(ir)%row_near:nt,:))*dt*0.5_dp)
-        !  enddo
-        !enddo
-
-        !case (2)    ! Adam-Bashforth (2nd order)
-        !  if (iter == 1) then
-        !    do ir=1,nr
-        !      do ib=1,rotor(ir)%nb
-        !        call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_Nwake(:,rotor(ir)%row_near:nt,:)*dt)
-        !        rotor(ir)%blade(ib)%vind_Nwake1=rotor(ir)%blade(ib)%vind_Nwake
-        !      enddo
-        !    enddo
-        !  else
-        !    do ir=1,nr
-        !      do ib=1,rotor(ir)%nb
-        !        rotor(ir)%blade(ib)%vind_Nwake_step=0.5_dp*(3._dp*rotor(ir)%blade(ib)%vind_Nwake-rotor(ir)%blade(ib)%vind_Nwake1)
-        !        call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_Nwake_step(:,rotor(ir)%row_near:nt,:)*dt)
-        !        rotor(ir)%blade(ib)%vind_Nwake1=rotor(ir)%blade(ib)%vind_Nwake
-        !      enddo
-        !    enddo
-        !  endif
-
-
-        !case (3)    ! Predictor-Corrector Adam-Bashforth (4th order)
-        !  if (iter == 1) then
-        !    do ir=1,nr
-        !      do ib=1,rotor(ir)%nb
-        !        call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_Nwake(:,rotor(ir)%row_near:nt,:)*dt)
-        !        rotor(ir)%blade(ib)%vind_Nwake1=rotor(ir)%blade(ib)%vind_Nwake
-        !      enddo
-        !    enddo
-        !  elseif (iter == 2) then
-        !    do ir=1,nr
-        !      do ib=1,rotor(ir)%nb
-        !        call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_Nwake(:,rotor(ir)%row_near:nt,:)*dt)
-        !        rotor(ir)%blade(ib)%vind_Nwake2=rotor(ir)%blade(ib)%vind_Nwake
-        !      enddo
-        !    enddo
-        !  elseif (iter == 3) then
-        !    do ir=1,nr
-        !      do ib=1,rotor(ir)%nb
-        !        call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_Nwake(:,rotor(ir)%row_near:nt,:)*dt)
-        !        rotor(ir)%blade(ib)%vind_Nwake3=rotor(ir)%blade(ib)%vind_Nwake
-        !      enddo
-        !    enddo
-        !  else
-        !    do ir=1,nr
-        !      do ib=1,rotor(ir)%nb
-        !        rotor(ir)%blade(ib)%waP_predicted(rotor(ir)%row_near:nt,:)=rotor(ir)%blade(ib)%waP(rotor(ir)%row_near:nt,:)
-        !        rotor(ir)%blade(ib)%vind_Nwake_step =55._dp/24._dp*rotor(ir)%blade(ib)%vind_Nwake  &
-        !          -59._dp/24._dp*rotor(ir)%blade(ib)%vind_Nwake3 & 
-        !          +37._dp/24._dp*rotor(ir)%blade(ib)%vind_Nwake2 & 
-        !          -09._dp/24._dp*rotor(ir)%blade(ib)%vind_Nwake1  
-        !        call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_Nwake_step(:,rotor(ir)%row_near:nt,:)*dt,'P')
-        !      enddo
-        !    enddo
-
-        !    do ir=1,nr
-        !      do ib=1,rotor(ir)%nb
-        !        rotor(ir)%blade(ib)%vind_Nwake_predicted(:,rotor(ir)%row_near:nt,:)=0._dp
-        !        do jr=1,nr
-        !          rotor(ir)%blade(ib)%vind_Nwake_predicted(:,rotor(ir)%row_near:nt,:)=rotor(ir)%blade(ib)%vind_Nwake_predicted(:,rotor(ir)%row_near:nt,:)  &
-        !            +  vind_onwake_byrotor(rotor(jr),rotor(ir)%blade(ib)%waP_predicted(rotor(ir)%row_near:nt,:),'P')
-        !        enddo
-        !        if (iter < init_wake_vel_nt) then
-        !          do i=1,3
-        !            rotor(ir)%blade(ib)%vind_Nwake_predicted(i,rotor(ir)%row_near:nt,:)=rotor(ir)%blade(ib)%vind_Nwake_predicted(i,rotor(ir)%row_near:nt,:)  &
-        !              -  rotor(ir)%init_wake_vel*rotor(ir)%shaft_axis(i)
-        !          enddo
-        !        endif
-        !      enddo
-        !    enddo
-
-        !    do ir=1,nr
-        !      do ib=1,rotor(ir)%nb
-        !        rotor(ir)%blade(ib)%vind_Nwake_step =09._dp/24._dp*rotor(ir)%blade(ib)%vind_Nwake_predicted  & 
-        !          +19._dp/24._dp*rotor(ir)%blade(ib)%vind_Nwake  & 
-        !          -05._dp/24._dp*rotor(ir)%blade(ib)%vind_Nwake3 &  
-        !          +01._dp/24._dp*rotor(ir)%blade(ib)%vind_Nwake2  
-        !        call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_Nwake_step(:,rotor(ir)%row_near:nt,:)*dt)
-
-        !        rotor(ir)%blade(ib)%vind_Nwake1=rotor(ir)%blade(ib)%vind_Nwake2
-        !        rotor(ir)%blade(ib)%vind_Nwake2=rotor(ir)%blade(ib)%vind_Nwake3
-        !        rotor(ir)%blade(ib)%vind_Nwake3=rotor(ir)%blade(ib)%vind_Nwake
-        !      enddo
-        !    enddo
-        !  endif
-
-      end select
-
-      !do ir=1,nr
-      !  ! Strain wake
-      !  if (wakestrain_switch .eq. 1) call rotor(ir)%strain_wake(rotor(ir)%row_near)
-      !enddo
-
-      do ir=1,nr
-        if ((rotor(ir)%row_near .eq. 1) .and. (rotor(ir)%row_far/=1)) then  ! Last step of near wake or later steps
-          call rotor(ir)%rollup()    ! Rollup wake for next far wake panel
-          call rotor(ir)%shiftwake()    ! Shift wake 
-          call rotor(ir)%assignshed('TE')  ! Store shed vortex as TE for next near wake panel
-        else
-          call rotor(ir)%assignshed('TE')  
-        endif
       enddo
 
-    enddo
+      do ir=1,nr
+        do ib=1,rotor(ir)%nb
+          rotor(ir)%blade(ib)%vind_Nwake(:,rotor(ir)%row_near:rotor(ir)%nNwake,:)=vel_order2_Nwake(  &
+            rotor(ir)%blade(ib)%vind_Nwake(:,rotor(ir)%row_near:rotor(ir)%nNwake,:),rotor(ir)%blade(ib)%vind_Nwake_predicted(:,rotor(ir)%row_near:rotor(ir)%nNwake,:))
+          if (rotor(ir)%row_far .ne. 0) then
+            rotor(ir)%blade(ib)%vind_Fwake(:,rotor(ir)%row_far :rotor(ir)%nFwake  )=vel_order2_Fwake(  &
+              rotor(ir)%blade(ib)%vind_Fwake(:,rotor(ir)%row_far :rotor(ir)%nFwake  ),rotor(ir)%blade(ib)%vind_Fwake_predicted(:,rotor(ir)%row_far :rotor(ir)%nFwake  ))
+          endif
+          call rotor(ir)%blade(ib)%convectwake(rotor(ir)%row_near,rotor(ir)%row_far,dt,'C')
+        enddo
+      enddo
 
-    !  ! Postprocesing
-    !  call lift2file(lift,'Results/lift.curve',(/dt,om_body(3),span,vwind(1)/))
-    !  call drag2file(drag,'Results/drag.curve',(/dt,om_body(3),span,vwind(1)/))
-    !
-    !  if (wakeplot_switch .eq. 1) call mesh2file(wing,wake(rotor(ir)%row_near:nt,:),'Results/wNw'//timestamp//'.tec')
+      !do ir=1,nr
+      !  do ib=1,rotor(ir)%nb
+      !    call rotor(ir)%blade(ib)%convectwake((rotor(ir)%blade(ib)%vind_Nwake(:,rotor(ir)%row_near:nt,:)  &
+      !      +  rotor(ir)%blade(ib)%vind_Nwake_predicted(:,rotor(ir)%row_near:nt,:))*dt*0.5_dp)
+      !  enddo
+      !enddo
+
+      !case (2)    ! Adam-Bashforth (2nd order)
+      !  if (iter == 1) then
+      !    do ir=1,nr
+      !      do ib=1,rotor(ir)%nb
+      !        call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_Nwake(:,rotor(ir)%row_near:nt,:)*dt)
+      !        rotor(ir)%blade(ib)%vind_Nwake1=rotor(ir)%blade(ib)%vind_Nwake
+      !      enddo
+      !    enddo
+      !  else
+      !    do ir=1,nr
+      !      do ib=1,rotor(ir)%nb
+      !        rotor(ir)%blade(ib)%vind_Nwake_step=0.5_dp*(3._dp*rotor(ir)%blade(ib)%vind_Nwake-rotor(ir)%blade(ib)%vind_Nwake1)
+      !        call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_Nwake_step(:,rotor(ir)%row_near:nt,:)*dt)
+      !        rotor(ir)%blade(ib)%vind_Nwake1=rotor(ir)%blade(ib)%vind_Nwake
+      !      enddo
+      !    enddo
+      !  endif
+
+
+      !case (3)    ! Predictor-Corrector Adam-Bashforth (4th order)
+      !  if (iter == 1) then
+      !    do ir=1,nr
+      !      do ib=1,rotor(ir)%nb
+      !        call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_Nwake(:,rotor(ir)%row_near:nt,:)*dt)
+      !        rotor(ir)%blade(ib)%vind_Nwake1=rotor(ir)%blade(ib)%vind_Nwake
+      !      enddo
+      !    enddo
+      !  elseif (iter == 2) then
+      !    do ir=1,nr
+      !      do ib=1,rotor(ir)%nb
+      !        call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_Nwake(:,rotor(ir)%row_near:nt,:)*dt)
+      !        rotor(ir)%blade(ib)%vind_Nwake2=rotor(ir)%blade(ib)%vind_Nwake
+      !      enddo
+      !    enddo
+      !  elseif (iter == 3) then
+      !    do ir=1,nr
+      !      do ib=1,rotor(ir)%nb
+      !        call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_Nwake(:,rotor(ir)%row_near:nt,:)*dt)
+      !        rotor(ir)%blade(ib)%vind_Nwake3=rotor(ir)%blade(ib)%vind_Nwake
+      !      enddo
+      !    enddo
+      !  else
+      !    do ir=1,nr
+      !      do ib=1,rotor(ir)%nb
+      !        rotor(ir)%blade(ib)%waP_predicted(rotor(ir)%row_near:nt,:)=rotor(ir)%blade(ib)%waP(rotor(ir)%row_near:nt,:)
+      !        rotor(ir)%blade(ib)%vind_Nwake_step =55._dp/24._dp*rotor(ir)%blade(ib)%vind_Nwake  &
+      !          -59._dp/24._dp*rotor(ir)%blade(ib)%vind_Nwake3 & 
+      !          +37._dp/24._dp*rotor(ir)%blade(ib)%vind_Nwake2 & 
+      !          -09._dp/24._dp*rotor(ir)%blade(ib)%vind_Nwake1  
+      !        call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_Nwake_step(:,rotor(ir)%row_near:nt,:)*dt,'P')
+      !      enddo
+      !    enddo
+
+      !    do ir=1,nr
+      !      do ib=1,rotor(ir)%nb
+      !        rotor(ir)%blade(ib)%vind_Nwake_predicted(:,rotor(ir)%row_near:nt,:)=0._dp
+      !        do jr=1,nr
+      !          rotor(ir)%blade(ib)%vind_Nwake_predicted(:,rotor(ir)%row_near:nt,:)=rotor(ir)%blade(ib)%vind_Nwake_predicted(:,rotor(ir)%row_near:nt,:)  &
+      !            +  vind_onwake_byrotor(rotor(jr),rotor(ir)%blade(ib)%waP_predicted(rotor(ir)%row_near:nt,:),'P')
+      !        enddo
+      !        if (iter < init_wake_vel_nt) then
+      !          do i=1,3
+      !            rotor(ir)%blade(ib)%vind_Nwake_predicted(i,rotor(ir)%row_near:nt,:)=rotor(ir)%blade(ib)%vind_Nwake_predicted(i,rotor(ir)%row_near:nt,:)  &
+      !              -  rotor(ir)%init_wake_vel*rotor(ir)%shaft_axis(i)
+      !          enddo
+      !        endif
+      !      enddo
+      !    enddo
+
+      !    do ir=1,nr
+      !      do ib=1,rotor(ir)%nb
+      !        rotor(ir)%blade(ib)%vind_Nwake_step =09._dp/24._dp*rotor(ir)%blade(ib)%vind_Nwake_predicted  & 
+      !          +19._dp/24._dp*rotor(ir)%blade(ib)%vind_Nwake  & 
+      !          -05._dp/24._dp*rotor(ir)%blade(ib)%vind_Nwake3 &  
+      !          +01._dp/24._dp*rotor(ir)%blade(ib)%vind_Nwake2  
+      !        call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_Nwake_step(:,rotor(ir)%row_near:nt,:)*dt)
+
+      !        rotor(ir)%blade(ib)%vind_Nwake1=rotor(ir)%blade(ib)%vind_Nwake2
+      !        rotor(ir)%blade(ib)%vind_Nwake2=rotor(ir)%blade(ib)%vind_Nwake3
+      !        rotor(ir)%blade(ib)%vind_Nwake3=rotor(ir)%blade(ib)%vind_Nwake
+      !      enddo
+      !    enddo
+      !  endif
+
+    end select
+
+    !do ir=1,nr
+    !  ! Strain wake
+    !  if (wakestrain_switch .eq. 1) call rotor(ir)%strain_wake(rotor(ir)%row_near)
+    !enddo
 
     do ir=1,nr
-      call rotor(ir)%deinit(FDscheme_switch)
+      if ((rotor(ir)%row_near .eq. 1) .and. (rotor(ir)%row_far/=1)) then  ! Last step of near wake or later steps
+        call rotor(ir)%rollup()    ! Rollup wake for next far wake panel
+        call rotor(ir)%shiftwake()    ! Shift wake 
+        call rotor(ir)%assignshed('TE')  ! Store shed vortex as TE for next near wake panel
+      else
+        call rotor(ir)%assignshed('TE')  
+      endif
     enddo
 
-  end program main
+  enddo
+
+  !  ! Postprocesing
+  !  call lift2file(lift,'Results/lift.curve',(/dt,om_body(3),span,vwind(1)/))
+  !  call drag2file(drag,'Results/drag.curve',(/dt,om_body(3),span,vwind(1)/))
+  !
+  !  if (wakeplot_switch .eq. 1) call mesh2file(wing,wake(rotor(ir)%row_near:nt,:),'Results/wNw'//timestamp//'.tec')
+
+  do ir=1,nr
+    call rotor(ir)%deinit(FDscheme_switch)
+  enddo
+
+end program main

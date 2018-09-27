@@ -452,7 +452,7 @@ module blade_classdef
     type(Nwake_class), allocatable, dimension(:,:) :: waP
     type(Fwake_class), allocatable, dimension(:) :: waF
     type(Nwake_class), allocatable, dimension(:,:) :: waP_predicted
-    type(Nwake_class), allocatable, dimension(:) :: waF_predicted
+    type(Fwake_class), allocatable, dimension(:) :: waF_predicted
     real(dp) :: theta
     real(dp) :: psi
     real(dp) :: pivotLE
@@ -625,12 +625,12 @@ contains
   end function blade_vind_bywake
 
   ! Convect wake using dP_near=vind_array*dt
-  subroutine convectwake(this,row_near,row_far,dt,wake_type,vind_Nwake,vind_Fwake)
+  subroutine convectwake(this,row_near,row_far,dt,wake_type)
   class(blade_class), intent(inout) :: this
     integer, intent(in) :: row_near, row_far
     real(dp), intent(in) :: dt
     character(len=1), intent(in) :: wake_type  ! For predicted wake 
-    integer :: i,j,rows,cols,nNwake,nFwake
+    integer :: i,j,cols,nNwake,nFwake
 
     cols=size(this%waP,2)
     nNwake=size(this%waP,1)
@@ -662,14 +662,14 @@ contains
     case ('P')    ! [P]redicted wake
       !$omp parallel do collapse(2)
       do j=1,cols
-        do i=1,rows
+        do i=1,row_near,nNwake
           call this%waP_predicted(i,j)%vr%shiftdP(2,this%vind_Nwake(:,i,j)*dt)
         enddo
       enddo
       !$omp end parallel do
 
       !$omp parallel do
-      do i=1,rows
+      do i=1,row_near,nNwake
         call this%waP_predicted(i,cols)%vr%shiftdP(3,this%vind_Nwake(:,i,cols+1)*dt)
       enddo
       !$omp end parallel do
@@ -1061,11 +1061,16 @@ contains
         ! Do nothing
       case (1)
         allocate(this%blade(ib)%waP_predicted(this%nNwake,this%ns))
-        allocate(this%blade(ib)%vind_Nwake1(3,this%nNwake,this%ns+1))
         allocate(this%blade(ib)%vind_Nwake_predicted(3,this%nNwake,this%ns+1))
+
+        allocate(this%blade(ib)%waF_predicted(this%nFwake))
+        allocate(this%blade(ib)%vind_Fwake_predicted(3,this%nFwake))
       case (2)
         allocate(this%blade(ib)%vind_Nwake1(3,this%nNwake,this%ns+1))
         allocate(this%blade(ib)%vind_Nwake_step(3,this%nNwake,this%ns+1))
+
+        allocate(this%blade(ib)%vind_Fwake1(3,this%nFwake))
+        allocate(this%blade(ib)%vind_Fwake_step(3,this%nFwake))
       case (3)
         allocate(this%blade(ib)%waP_predicted(this%nNwake,this%ns))
         allocate(this%blade(ib)%vind_Nwake1(3,this%nNwake,this%ns+1))
@@ -1073,6 +1078,13 @@ contains
         allocate(this%blade(ib)%vind_Nwake3(3,this%nNwake,this%ns+1))
         allocate(this%blade(ib)%vind_Nwake_predicted(3,this%nNwake,this%ns+1))
         allocate(this%blade(ib)%vind_Nwake_step(3,this%nNwake,this%ns+1))
+
+        allocate(this%blade(ib)%waF_predicted(this%nFwake))
+        allocate(this%blade(ib)%vind_Fwake1(3,this%nFwake))
+        allocate(this%blade(ib)%vind_Fwake2(3,this%nFwake))
+        allocate(this%blade(ib)%vind_Fwake3(3,this%nFwake))
+        allocate(this%blade(ib)%vind_Fwake_predicted(3,this%nFwake))
+        allocate(this%blade(ib)%vind_Fwake_step(3,this%nFwake))
       end select
     enddo
 
