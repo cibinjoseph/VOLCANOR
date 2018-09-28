@@ -300,22 +300,19 @@ program main
 
       do ir=1,nr
         do ib=1,rotor(ir)%nb
-      !    rotor(ir)%blade(ib)%vind_Nwake(:,rotor(ir)%row_near:rotor(ir)%nNwake,:)=vel_order2_Nwake(  &
-      !      rotor(ir)%blade(ib)%vind_Nwake(:,rotor(ir)%row_near:rotor(ir)%nNwake,:),rotor(ir)%blade(ib)%vind_Nwake_predicted(:,rotor(ir)%row_near:rotor(ir)%nNwake,:))
-      !    if (rotor(ir)%row_far .ne. 0) then
-      !      rotor(ir)%blade(ib)%vind_Fwake(:,rotor(ir)%row_far :rotor(ir)%nFwake  )=vel_order2_Fwake(  &
-      !        rotor(ir)%blade(ib)%vind_Fwake(:,rotor(ir)%row_far :rotor(ir)%nFwake  ),rotor(ir)%blade(ib)%vind_Fwake_predicted(:,rotor(ir)%row_far :rotor(ir)%nFwake  ))
-      !    endif
+          rotor(ir)%blade(ib)%vind_Nwake(:,rotor(ir)%row_near:rotor(ir)%nNwake,:)=vel_order2_Nwake(  &
+            rotor(ir)%blade(ib)%vind_Nwake(:,rotor(ir)%row_near:rotor(ir)%nNwake,:),rotor(ir)%blade(ib)%vind_Nwake_predicted(:,rotor(ir)%row_near:rotor(ir)%nNwake,:))
+          !rotor(ir)%blade(ib)%vind_Nwake(:,rotor(ir)%row_near:rotor(ir)%nNwake,:)=0.5_dp*(  &
+          !  rotor(ir)%blade(ib)%vind_Nwake(:,rotor(ir)%row_near:rotor(ir)%nNwake,:)+rotor(ir)%blade(ib)%vind_Nwake_predicted(:,rotor(ir)%row_near:rotor(ir)%nNwake,:))
+          if (rotor(ir)%row_far .ne. 0) then
+            rotor(ir)%blade(ib)%vind_Fwake(:,rotor(ir)%row_far :rotor(ir)%nFwake  )=vel_order2_Fwake(  &
+              rotor(ir)%blade(ib)%vind_Fwake(:,rotor(ir)%row_far :rotor(ir)%nFwake  ),rotor(ir)%blade(ib)%vind_Fwake_predicted(:,rotor(ir)%row_far :rotor(ir)%nFwake  ))
+            !rotor(ir)%blade(ib)%vind_Fwake(:,rotor(ir)%row_far :rotor(ir)%nFwake  )=0.5_dp*(  &
+            !  rotor(ir)%blade(ib)%vind_Fwake(:,rotor(ir)%row_far :rotor(ir)%nFwake  )+rotor(ir)%blade(ib)%vind_Fwake_predicted(:,rotor(ir)%row_far :rotor(ir)%nFwake  ))
+          endif
           call rotor(ir)%blade(ib)%convectwake(rotor(ir)%row_near,rotor(ir)%row_far,dt,'C')
         enddo
       enddo
-
-      !do ir=1,nr
-      !  do ib=1,rotor(ir)%nb
-      !    call rotor(ir)%blade(ib)%convectwake((rotor(ir)%blade(ib)%vind_Nwake(:,rotor(ir)%row_near:nt,:)  &
-      !      +  rotor(ir)%blade(ib)%vind_Nwake_predicted(:,rotor(ir)%row_near:nt,:))*dt*0.5_dp)
-      !  enddo
-      !enddo
 
       !case (2)    ! Adam-Bashforth (2nd order)
       !  if (iter == 1) then

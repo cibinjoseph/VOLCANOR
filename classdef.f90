@@ -1097,6 +1097,7 @@ contains
       enddo
 
       this%blade(ib)%waP%vr%gam=0._dp
+      this%blade(ib)%waF%gam=0._dp
 
       ! Assign core_radius to tip vortices
       do j=1,this%ns

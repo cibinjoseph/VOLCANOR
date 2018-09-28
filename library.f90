@@ -56,7 +56,7 @@ contains
       !$omp end parallel do
 
     else
-      error stop 'ERROR: Wrong character flag for vind_onwake_byrotor()'
+      error stop 'ERROR: Wrong character flag for vind_onNwake_byrotor()'
     endif
 
   end function vind_onNwake_byrotor
@@ -91,7 +91,7 @@ contains
       !$omp end parallel do
 
     else
-      error stop 'ERROR: Wrong character flag for vind_onwake_byrotor()'
+      error stop 'ERROR: Wrong character flag for vind_onFwake_byrotor()'
     endif
 
   end function vind_onFwake_byrotor
