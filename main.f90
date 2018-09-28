@@ -274,7 +274,7 @@ program main
       do ir=1,nr
         do ib=1,rotor(ir)%nb
           rotor(ir)%blade(ib)%vind_Nwake_predicted(:,rotor(ir)%row_near:rotor(ir)%nNwake,:)=0._dp
-          if (rotor(ir)%row_far .ne. 0)  rotor(ir)%blade(ib)%vind_Fwake_predicted(:,rotor(ir)%row_near:rotor(ir)%nFwake)=0._dp
+          if (rotor(ir)%row_far .ne. 0)  rotor(ir)%blade(ib)%vind_Fwake_predicted(:,rotor(ir)%row_far:rotor(ir)%nFwake)=0._dp
           do jr=1,nr
             rotor(ir)%blade(ib)%vind_Nwake_predicted(:,rotor(ir)%row_near:rotor(ir)%nNwake,:)=rotor(ir)%blade(ib)%vind_Nwake_predicted(:,rotor(ir)%row_near:rotor(ir)%nNwake,:)  &
               +  vind_onNwake_byrotor(rotor(jr),rotor(ir)%blade(ib)%waP_predicted(rotor(ir)%row_near:rotor(ir)%nNwake,:),'P')
@@ -300,12 +300,12 @@ program main
 
       do ir=1,nr
         do ib=1,rotor(ir)%nb
-          rotor(ir)%blade(ib)%vind_Nwake(:,rotor(ir)%row_near:rotor(ir)%nNwake,:)=vel_order2_Nwake(  &
-            rotor(ir)%blade(ib)%vind_Nwake(:,rotor(ir)%row_near:rotor(ir)%nNwake,:),rotor(ir)%blade(ib)%vind_Nwake_predicted(:,rotor(ir)%row_near:rotor(ir)%nNwake,:))
-          if (rotor(ir)%row_far .ne. 0) then
-            rotor(ir)%blade(ib)%vind_Fwake(:,rotor(ir)%row_far :rotor(ir)%nFwake  )=vel_order2_Fwake(  &
-              rotor(ir)%blade(ib)%vind_Fwake(:,rotor(ir)%row_far :rotor(ir)%nFwake  ),rotor(ir)%blade(ib)%vind_Fwake_predicted(:,rotor(ir)%row_far :rotor(ir)%nFwake  ))
-          endif
+      !    rotor(ir)%blade(ib)%vind_Nwake(:,rotor(ir)%row_near:rotor(ir)%nNwake,:)=vel_order2_Nwake(  &
+      !      rotor(ir)%blade(ib)%vind_Nwake(:,rotor(ir)%row_near:rotor(ir)%nNwake,:),rotor(ir)%blade(ib)%vind_Nwake_predicted(:,rotor(ir)%row_near:rotor(ir)%nNwake,:))
+      !    if (rotor(ir)%row_far .ne. 0) then
+      !      rotor(ir)%blade(ib)%vind_Fwake(:,rotor(ir)%row_far :rotor(ir)%nFwake  )=vel_order2_Fwake(  &
+      !        rotor(ir)%blade(ib)%vind_Fwake(:,rotor(ir)%row_far :rotor(ir)%nFwake  ),rotor(ir)%blade(ib)%vind_Fwake_predicted(:,rotor(ir)%row_far :rotor(ir)%nFwake  ))
+      !    endif
           call rotor(ir)%blade(ib)%convectwake(rotor(ir)%row_near,rotor(ir)%row_far,dt,'C')
         enddo
       enddo

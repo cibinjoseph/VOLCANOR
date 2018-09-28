@@ -1136,11 +1136,16 @@ contains
         ! Nothing to deallocate
       case (1)
         deallocate(this%blade(ib)%waP_predicted)
-        deallocate(this%blade(ib)%vind_Nwake1)
         deallocate(this%blade(ib)%vind_Nwake_predicted)
+
+        deallocate(this%blade(ib)%waF_predicted)
+        deallocate(this%blade(ib)%vind_Fwake_predicted)
       case (2)
         deallocate(this%blade(ib)%vind_Nwake1)
         deallocate(this%blade(ib)%vind_Nwake_step)
+
+        deallocate(this%blade(ib)%vind_Fwake1)
+        deallocate(this%blade(ib)%vind_Fwake_step)
       case (3)
         deallocate(this%blade(ib)%waP_predicted)
         deallocate(this%blade(ib)%vind_Nwake1)
@@ -1148,6 +1153,13 @@ contains
         deallocate(this%blade(ib)%vind_Nwake3)
         deallocate(this%blade(ib)%vind_Nwake_predicted)
         deallocate(this%blade(ib)%vind_Nwake_step)
+
+        deallocate(this%blade(ib)%waF_predicted)
+        deallocate(this%blade(ib)%vind_Fwake1)
+        deallocate(this%blade(ib)%vind_Fwake2)
+        deallocate(this%blade(ib)%vind_Fwake3)
+        deallocate(this%blade(ib)%vind_Fwake_predicted)
+        deallocate(this%blade(ib)%vind_Fwake_step)
       end select
     enddo
 
