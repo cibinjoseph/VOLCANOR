@@ -2,4 +2,4 @@ Add far wake ageing to age_wake
 Add far wake dissipation to dissipate_wake
 Remove row_near from strain_wake()
 Correct other schemes
-Add Fwake step to 'P' in vind_onFwake_byrotor
+Correct instability in PC2 scheme
