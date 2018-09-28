@@ -239,7 +239,7 @@ program main
           enddo
           if (rotor(ir)%row_far .ne. 0) then
             do i=1,3
-              rotor(ir)%blade(ib)%vind_Fwake(i,rotor(ir)%row_near:rotor(ir)%nFwake)=rotor(ir)%blade(ib)%vind_Fwake(i,rotor(ir)%row_near:rotor(ir)%nFwake)  &
+              rotor(ir)%blade(ib)%vind_Fwake(i,rotor(ir)%row_far:rotor(ir)%nFwake)=rotor(ir)%blade(ib)%vind_Fwake(i,rotor(ir)%row_far:rotor(ir)%nFwake)  &
                 -  rotor(ir)%init_wake_vel*rotor(ir)%shaft_axis(i)
             enddo
           endif
@@ -290,7 +290,7 @@ program main
             enddo
             if (rotor(ir)%row_far .ne. 0) then
               do i=1,3
-                rotor(ir)%blade(ib)%vind_Fwake_predicted(i,rotor(ir)%row_near:rotor(ir)%nFwake)=rotor(ir)%blade(ib)%vind_Fwake_predicted(i,rotor(ir)%row_near:rotor(ir)%nFwake)  &
+                rotor(ir)%blade(ib)%vind_Fwake_predicted(i,rotor(ir)%row_far:rotor(ir)%nFwake)=rotor(ir)%blade(ib)%vind_Fwake_predicted(i,rotor(ir)%row_far:rotor(ir)%nFwake)  &
                   -  rotor(ir)%init_wake_vel*rotor(ir)%shaft_axis(i)
               enddo
             endif
