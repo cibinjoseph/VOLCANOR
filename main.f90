@@ -154,7 +154,7 @@ program main
     do ir=1,nr
       if (wakeplot_switch .eq. 2) call rotor2file(rotor(ir),row_now,'Results/wNw'//timestamp//'.tec')
     enddo
-    !    call tip2file(wing,wake(row_now:nt,:),'Results/tip'//timestamp//'.tec')
+        !call tip2file(rotor(ir)%blade(1)%wiP,rotor(ir)%blade(1)%waP(row_now:nt,:),'Results/tip'//timestamp//'.tec')
     !    gam_sectional=calcgam(wing)
     !    call gam2file(yvec,gam_sectional,'Results/gam'//timestamp//'.curve')
 
