@@ -2,4 +2,6 @@ Add far wake ageing to age_wake
 Add far wake dissipation to dissipate_wake
 Remove row_near from strain_wake()
 Correct other schemes
-Correct instability in PC2 scheme
+Correct instability in PC2 scheme - check with VLM_Wing2.0 tip
+check leapfrogging in vortex rings - dependance on discretization
+does discretization give rise to instability? cause for Kelvin waves?
