@@ -6,7 +6,7 @@ iflagsprof=-traceback -O3 -implicitnone -r8 -g -debug inline-debug-info -paralle
 
 #### GFORTRAN ####
 gfc=gfortran-7 
-gflags=-O2 -ffree-form -fimplicit-none -fopenmp #-fmax-stack-var-size=4096
+gflags=-O2 -ffree-form -fimplicit-none -fopenmp -ffree-line-length-none #-fmax-stack-var-size=4096
 gflagsdbg=-fbacktrace -O0 -ffree-form -Wall -Wextra -Wimplicit-interface -Wunused-parameter -Wline-truncation -Wcharacter-truncation -Wsurprising -Waliasing -fimplicit-none -fcheck=all -g -ffpe-trap=invalid,zero,overflow,underflow
 
 objpath=./obj
