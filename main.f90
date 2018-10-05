@@ -136,15 +136,15 @@ program main
       error stop "Assign correct slowstart_switch"
     end select
 
-    !if (tip_diss_switch .eq. 1) then
-    !  do ir=1,nr
-    !    ! Age vortex filaments
-    !    call rotor(ir)%age_wake(rotor(ir)%row_near,dt)
+    if (tip_diss_switch .eq. 1) then
+      do ir=1,nr
+        ! Age vortex filaments
+        call rotor(ir)%age_wake(dt)
 
-    !    ! Wake tip dissipation
-    !    call rotor(ir)%dissipate_tip(rotor(ir)%row_near)
-    !  enddo
-    !endif
+        ! Wake tip dissipation
+        call rotor(ir)%dissipate_tip()
+      enddo
+    endif
 
     ! Wing motion 
     do ir=1,nr

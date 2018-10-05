@@ -1346,44 +1346,34 @@ contains
   ! -+- | Wake Dissipation Functions | -+- |
   !-----+----------------------------+-----|
 
-  subroutine age_wake(this,row_near,dt)
+  subroutine age_wake(this,dt)
   class(rotor_class), intent(inout) :: this
-    integer, intent(in) :: row_near
     real(dp),intent(in) :: dt
-    integer :: i, ib, row_last
-    row_last=size(this%blade(1)%waP,1)
+    integer :: ib
     do ib=1,this%nb
-      !$omp parallel do
-      do i=1,4
-        this%blade(ib)%waP(row_near:row_last,:)%vr%vf(i)%age=this%blade(ib)%waP(row_near:row_last,:)%vr%vf(i)%age+dt
-      enddo
-      !$omp end parallel do
+      !do i=1,4
+      !  this%blade(ib)%waP(this%row_near:this%nNwake,:)%vr%vf(i)%age=this%blade(ib)%waP(this%row_near:this%nNwake,:)%vr%vf(i)%age+dt
+      !enddo
+      if (this%row_far .ne. 0) then
+        !$omp parallel do
+        this%blade(ib)%waF(this%row_far:this%nFwake)%vf%age=this%blade(ib)%waF(this%row_far:this%nFwake)%vf%age+dt
+        !$omp end parallel do
+      endif
     enddo
   end subroutine age_wake
 
-  subroutine dissipate_tip(this,row_near)
+  subroutine dissipate_tip(this)
   class(rotor_class), intent(inout) :: this
-    real(dp) :: oseen_param, turb_visc, kin_visc, new_radius
-    integer, intent(in) :: row_near
-    integer :: row_last
-    integer :: ii,tip,ib
+    real(dp) :: oseen_param, turb_visc, kin_visc
+    integer :: i,ib
     oseen_param= 1.2564_dp
     kin_visc   = 0.0000181_dp
     turb_visc  = 500._dp
 
-    row_last=size(this%blade(1)%waP,1)
-    tip=this%ns
     do ib=1,this%nb
-      do ii=row_near,row_last
-        ! Root vortex core
-        new_radius=sqrt(this%blade(ib)%waP(ii,1)%vr%vf(1)%r_vc**2._dp &
-          +4._dp*oseen_param*turb_visc*kin_visc*this%blade(ib)%waP(ii,1)%vr%vf(1)%age)
-        this%blade(ib)%waP(ii,1)%vr%vf(1)%r_vc=new_radius
-
-        ! Tip vortex core
-        new_radius=sqrt(this%blade(ib)%waP(ii,tip)%vr%vf(3)%r_vc**2._dp &
-          +4._dp*oseen_param*turb_visc*kin_visc*this%blade(ib)%waP(ii,tip)%vr%vf(3)%age)
-        this%blade(ib)%waP(ii,tip)%vr%vf(3)%r_vc=new_radius
+      do i=this%row_near,this%nFwake
+        this%blade(ib)%waF(i)%vf%r_vc=sqrt(this%blade(ib)%waF(i)%vf%r_vc**2._dp &
+          +4._dp*oseen_param*turb_visc*kin_visc*this%blade(ib)%waF(i)%vf%age)
       enddo
     enddo
   end subroutine dissipate_tip
