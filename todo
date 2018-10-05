@@ -1,3 +1,4 @@
 Correct other schemes
-check leapfrogging in vortex rings - dependance on discretization
-does discretization give rise to instability? cause for Kelvin waves?
+Check leapfrogging in vortex rings - dependance on discretization
+Does discretization give rise to instability? cause for Kelvin waves?
+Include convection using vind_step
