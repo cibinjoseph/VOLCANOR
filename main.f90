@@ -314,23 +314,32 @@ program main
         enddo
       enddo
 
-      !case (2)    ! Adam-Bashforth (2nd order)
-      !  if (iter == 1) then
-      !    do ir=1,nr
-      !      do ib=1,rotor(ir)%nb
-      !        call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_Nwake(:,rotor(ir)%row_near:nt,:)*dt)
-      !        rotor(ir)%blade(ib)%vind_Nwake1=rotor(ir)%blade(ib)%vind_Nwake
-      !      enddo
-      !    enddo
-      !  else
-      !    do ir=1,nr
-      !      do ib=1,rotor(ir)%nb
-      !        rotor(ir)%blade(ib)%vind_Nwake_step=0.5_dp*(3._dp*rotor(ir)%blade(ib)%vind_Nwake-rotor(ir)%blade(ib)%vind_Nwake1)
-      !        call rotor(ir)%blade(ib)%convectwake(rotor(ir)%blade(ib)%vind_Nwake_step(:,rotor(ir)%row_near:nt,:)*dt)
-      !        rotor(ir)%blade(ib)%vind_Nwake1=rotor(ir)%blade(ib)%vind_Nwake
-      !      enddo
-      !    enddo
-      !  endif
+    case (2)    ! Adam-Bashforth (2nd order)
+      if (iter == 1) then
+        do ir=1,nr
+          do ib=1,rotor(ir)%nb
+            call rotor(ir)%blade(ib)%convectwake(rotor(ir)%row_near,rotor(ir)%row_far,dt,'C')
+            rotor(ir)%blade(ib)%vind_Nwake1=rotor(ir)%blade(ib)%vind_Nwake
+            if (rotor(ir)%row_far .ne. 0) then
+              rotor(ir)%blade(ib)%vind_Fwake1=rotor(ir)%blade(ib)%vind_Fwake
+            endif
+          enddo
+        enddo
+      else
+        do ir=1,nr
+          do ib=1,rotor(ir)%nb
+            rotor(ir)%blade(ib)%vind_Nwake_step=0.5_dp*(3._dp*rotor(ir)%blade(ib)%vind_Nwake-rotor(ir)%blade(ib)%vind_Nwake1)
+            if (rotor(ir)%row_far .ne. 0) then
+              rotor(ir)%blade(ib)%vind_Fwake_step=0.5_dp*(3._dp*rotor(ir)%blade(ib)%vind_Fwake-rotor(ir)%blade(ib)%vind_Fwake1)
+            endif
+            rotor(ir)%blade(ib)%vind_Nwake1=rotor(ir)%blade(ib)%vind_Nwake
+            rotor(ir)%blade(ib)%vind_Nwake=rotor(ir)%blade(ib)%vind_Nwake_step
+            rotor(ir)%blade(ib)%vind_Fwake1=rotor(ir)%blade(ib)%vind_Fwake
+            rotor(ir)%blade(ib)%vind_Fwake=rotor(ir)%blade(ib)%vind_Fwake_step
+            call rotor(ir)%blade(ib)%convectwake(rotor(ir)%row_near,rotor(ir)%row_far,dt,'C')
+          enddo
+        enddo
+      endif
 
 
       !case (3)    ! Predictor-Corrector Adam-Bashforth (4th order)
