@@ -429,8 +429,10 @@ program main
   !  ! Postprocesing
   !  call lift2file(lift,'Results/lift.curve',(/dt,om_body(3),span,vwind(1)/))
   !  call drag2file(drag,'Results/drag.curve',(/dt,om_body(3),span,vwind(1)/))
-  !
-  !  if (wakeplot_switch .eq. 1) call mesh2file(wing,wake(rotor(ir)%row_near:nt,:),'Results/wNw'//timestamp//'.tec')
+   
+  do ir=1,nr
+    if (wakeplot_switch .eq. 1) call rotor2file(rotor(ir),timestamp)
+  enddo
 
   do ir=1,nr
     call rotor(ir)%deinit(FDscheme_switch)
