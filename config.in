@@ -15,7 +15,7 @@
  WAKE TIP DISSIPATION: [0]Off [1]On      Wake strain: [0]Off [1]On
  tip_diss_switch                           wakestrain_switch
 -----------------------------------------------------------------------
-       1                                            0
+       0                                            0
 
  SLOW START TO AVOID LARGE STARTING VORTEX: [0]Off [1]linear [2]tanh [3]extended tanh
   slowstart_switch       slowstart_nt
