@@ -138,11 +138,13 @@ program main
 
     if (tip_diss_switch .eq. 1) then
       do ir=1,nr
-        ! Age vortex filaments
-        call rotor(ir)%age_wake(dt)
+        if (rotor(ir)%row_far .ne. 0) then
+          ! Age vortex filaments
+          call rotor(ir)%age_wake(dt)
 
-        ! Wake tip dissipation
-        call rotor(ir)%dissipate_tip()
+          ! Wake tip dissipation
+          call rotor(ir)%dissipate_tip()
+        endif
       enddo
     endif
 
@@ -409,10 +411,12 @@ program main
 
     end select
 
-    !do ir=1,nr
-    !  ! Strain wake
-    !  if (wakestrain_switch .eq. 1) call rotor(ir)%strain_wake(rotor(ir)%row_near)
-    !enddo
+    ! Strain wake
+    if (wakestrain_switch .eq. 1) then
+      do ir=1,nr
+        if (rotor(ir)%row_far .ne. 0)  call rotor(ir)%strain_wake()
+      enddo
+    endif
 
     do ir=1,nr
       if ((rotor(ir)%row_near .eq. 1) .and. (rotor(ir)%row_far/=1)) then  ! Last step of near wake or later steps
@@ -429,10 +433,12 @@ program main
   !  ! Postprocesing
   !  call lift2file(lift,'Results/lift.curve',(/dt,om_body(3),span,vwind(1)/))
   !  call drag2file(drag,'Results/drag.curve',(/dt,om_body(3),span,vwind(1)/))
-   
-  do ir=1,nr
-    if (wakeplot_switch .eq. 1) call rotor2file(rotor(ir),timestamp)
-  enddo
+
+  if (wakeplot_switch .eq. 1) then
+    do ir=1,nr
+      call rotor2file(rotor(ir),timestamp)
+    enddo
+  endif
 
   do ir=1,nr
     call rotor(ir)%deinit(FDscheme_switch)

@@ -1378,19 +1378,16 @@ contains
     enddo
   end subroutine dissipate_tip
 
-  subroutine strain_wake(this,row_near)
+  subroutine strain_wake(this)
   class(rotor_class), intent(inout) :: this
-    integer, intent(in) :: row_near
-    integer :: i,j,ib
+    integer :: i,ib
 
     do ib=1,this%nb
-      !$omp parallel do collapse(2)
-      do j=1,this%ns
-        do i=row_near,size(this%blade(1)%waP)
-          call this%blade(ib)%waP(i,j)%vr%calclength(.FALSE.)    ! Update current length
-          call this%blade(ib)%waP(i,j)%vr%strain()
+      !$omp parallel do 
+        do i=this%row_far,this%nFwake
+          call this%blade(ib)%waF(i)%vf%calclength(.FALSE.)    ! Update current length
+          call this%blade(ib)%waF(i)%vf%strain()
         enddo
-      enddo
       !$omp end parallel do
     enddo
   end subroutine strain_wake
@@ -1477,6 +1474,7 @@ contains
       this%blade(ib)%waF(row_far_next)%vf%fc(:,2)=centroid_LE
       this%blade(ib)%waF(row_far_next)%vf%fc(:,1)=centroid_TE
       this%blade(ib)%waF(row_far_next)%gam=gam_max
+      this%blade(ib)%waF(row_far_next)%calclength(.TRUE.)    ! TRUE => record original length
 
       ! Ensure continuity in far wake by assigning
       ! current centroid_TE to LE of previous far wake filament
