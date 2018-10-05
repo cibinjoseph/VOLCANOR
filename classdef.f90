@@ -617,6 +617,11 @@ contains
           blade_vind_bywake=blade_vind_bywake+this%waP_predicted(i,j)%vr%vind(P)*this%waP_predicted(i,j)%vr%gam
         enddo
       enddo
+      if (row_far .ne. 0) then
+        do i=row_far,size(this%waF,1)
+          blade_vind_bywake=blade_vind_bywake+this%waF_predicted(i)%vf%vind(P)*this%waF_predicted(i)%gam
+        enddo
+      endif
     else
       error stop 'ERROR: Wrong character flag for blade_vind_bywake()'
     endif
