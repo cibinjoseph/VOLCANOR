@@ -371,18 +371,20 @@ program main
         do ir=1,nr
           do ib=1,rotor(ir)%nb
             rotor(ir)%blade(ib)%waP_predicted(rotor(ir)%row_near:rotor(ir)%nNwake,:)=rotor(ir)%blade(ib)%waP(rotor(ir)%row_near:rotor(ir)%nNwake,:)
-            rotor(ir)%blade(ib)%vind_Nwake_step = 55._dp/24._dp*rotor(ir)%blade(ib)%vind_Nwake  &
+            rotor(ir)%blade(ib)%vind_Nwake_step=rotor(ir)%blade(ib)%vind_Nwake  ! Store Nwake to Nwake_step for later use
+            rotor(ir)%blade(ib)%vind_Nwake = 55._dp/24._dp*rotor(ir)%blade(ib)%vind_Nwake  &  ! Overwrite Nwake
               -59._dp/24._dp*rotor(ir)%blade(ib)%vind_Nwake3 & 
               +37._dp/24._dp*rotor(ir)%blade(ib)%vind_Nwake2 & 
               -09._dp/24._dp*rotor(ir)%blade(ib)%vind_Nwake1  
             if (rotor(ir)%row_far .ne. 0) then
               rotor(ir)%blade(ib)%waF_predicted(rotor(ir)%row_far:rotor(ir)%nFwake)=rotor(ir)%blade(ib)%waF(rotor(ir)%row_far:rotor(ir)%nFwake)
-              rotor(ir)%blade(ib)%vind_Fwake_step = 55._dp/24._dp*rotor(ir)%blade(ib)%vind_Fwake  &
+              rotor(ir)%blade(ib)%vind_Fwake_step=rotor(ir)%blade(ib)%vind_Fwake  ! Store Fwake to Fwake_step for later use
+              rotor(ir)%blade(ib)%vind_Fwake = 55._dp/24._dp*rotor(ir)%blade(ib)%vind_Fwake  &  ! Overwrite Fwake
                 -59._dp/24._dp*rotor(ir)%blade(ib)%vind_Fwake3 & 
                 +37._dp/24._dp*rotor(ir)%blade(ib)%vind_Fwake2 & 
                 -09._dp/24._dp*rotor(ir)%blade(ib)%vind_Fwake1  
             endif
-            call rotor(ir)%blade(ib)%convectwake(rotor(ir)%row_near,rotor(ir)%row_far,dt,'P')  ! Use vind_step
+            call rotor(ir)%blade(ib)%convectwake(rotor(ir)%row_near,rotor(ir)%row_far,dt,'P')
           enddo
         enddo
 
@@ -396,6 +398,7 @@ program main
               if (rotor(ir)%row_far .ne. 0) then
                 rotor(ir)%blade(ib)%vind_Fwake_predicted(:,rotor(ir)%row_far:rotor(ir)%nFwake)=rotor(ir)%blade(ib)%vind_Fwake_predicted(:,rotor(ir)%row_far:rotor(ir)%nFwake)  &
                   +  vind_onFwake_byrotor(rotor(jr),rotor(ir)%blade(ib)%waF_predicted(rotor(ir)%row_far:rotor(ir)%nFwake),'P')
+              endif
               enddo
               if (iter < init_wake_vel_nt) then
                 do i=1,3
@@ -414,25 +417,25 @@ program main
 
           do ir=1,nr
             do ib=1,rotor(ir)%nb
-              rotor(ir)%blade(ib)%vind_Nwake_step =09._dp/24._dp*rotor(ir)%blade(ib)%vind_Nwake_predicted  & 
-                +19._dp/24._dp*rotor(ir)%blade(ib)%vind_Nwake  & 
+              rotor(ir)%blade(ib)%vind_Nwake = 09._dp/24._dp*rotor(ir)%blade(ib)%vind_Nwake_predicted  & 
+                +19._dp/24._dp*rotor(ir)%blade(ib)%vind_Nwake_step  & 
                 -05._dp/24._dp*rotor(ir)%blade(ib)%vind_Nwake3 &  
                 +01._dp/24._dp*rotor(ir)%blade(ib)%vind_Nwake2  
               if (rotor(ir)%row_far .ne. 0) then
-                rotor(ir)%blade(ib)%vind_Fwake_step =09._dp/24._dp*rotor(ir)%blade(ib)%vind_Fwake_predicted  & 
-                  +19._dp/24._dp*rotor(ir)%blade(ib)%vind_Fwake  & 
+                rotor(ir)%blade(ib)%vind_Fwake = 09._dp/24._dp*rotor(ir)%blade(ib)%vind_Fwake_predicted  & 
+                  +19._dp/24._dp*rotor(ir)%blade(ib)%vind_Fwake_step  & 
                   -05._dp/24._dp*rotor(ir)%blade(ib)%vind_Fwake3 &  
                   +01._dp/24._dp*rotor(ir)%blade(ib)%vind_Fwake2  
               endif
-              call rotor(ir)%blade(ib)%convectwake(rotor(ir)%row_near,rotor(ir)%row_far,dt,'C')  ! Use vind_step
+              call rotor(ir)%blade(ib)%convectwake(rotor(ir)%row_near,rotor(ir)%row_far,dt,'C') 
 
               rotor(ir)%blade(ib)%vind_Nwake1=rotor(ir)%blade(ib)%vind_Nwake2
               rotor(ir)%blade(ib)%vind_Nwake2=rotor(ir)%blade(ib)%vind_Nwake3
-              rotor(ir)%blade(ib)%vind_Nwake3=rotor(ir)%blade(ib)%vind_Nwake
+              rotor(ir)%blade(ib)%vind_Nwake3=rotor(ir)%blade(ib)%vind_Nwake_step
 
               rotor(ir)%blade(ib)%vind_Fwake1=rotor(ir)%blade(ib)%vind_Fwake2
               rotor(ir)%blade(ib)%vind_Fwake2=rotor(ir)%blade(ib)%vind_Fwake3
-              rotor(ir)%blade(ib)%vind_Fwake3=rotor(ir)%blade(ib)%vind_Fwake
+              rotor(ir)%blade(ib)%vind_Fwake3=rotor(ir)%blade(ib)%vind_Fwake_step
             enddo
           enddo
         endif
