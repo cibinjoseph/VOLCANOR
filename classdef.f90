@@ -1384,10 +1384,10 @@ contains
 
     do ib=1,this%nb
       !$omp parallel do 
-        do i=this%row_far,this%nFwake
-          call this%blade(ib)%waF(i)%vf%calclength(.FALSE.)    ! Update current length
-          call this%blade(ib)%waF(i)%vf%strain()
-        enddo
+      do i=this%row_far,this%nFwake
+        call this%blade(ib)%waF(i)%vf%calclength(.FALSE.)    ! Update current length
+        call this%blade(ib)%waF(i)%vf%strain()
+      enddo
       !$omp end parallel do
     enddo
   end subroutine strain_wake
@@ -1474,7 +1474,7 @@ contains
       this%blade(ib)%waF(row_far_next)%vf%fc(:,2)=centroid_LE
       this%blade(ib)%waF(row_far_next)%vf%fc(:,1)=centroid_TE
       this%blade(ib)%waF(row_far_next)%gam=gam_max
-      this%blade(ib)%waF(row_far_next)%calclength(.TRUE.)    ! TRUE => record original length
+      call this%blade(ib)%waF(row_far_next)%vf%calclength(.TRUE.)    ! TRUE => record original length
 
       ! Ensure continuity in far wake by assigning
       ! current centroid_TE to LE of previous far wake filament
