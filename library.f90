@@ -115,11 +115,13 @@ contains
     real(dp), intent(in), dimension(:,:) :: v_wake_n, v_wake_np1
     real(dp), dimension(3,size(v_wake_n,2)) :: vel_order2_Fwake
     integer :: i
-      vel_order2_Fwake(:,1)=(v_wake_np1(:,1)+v_wake_n(:,1))*0.5_dp
-      do i=2,size(v_wake_n,2)-1
-        vel_order2_Fwake(:,i)=(v_wake_np1(:,i)+v_wake_np1(:,i-1)+v_wake_n(:,i+1)+v_wake_n(:,i))*0.25_dp
-      enddo
-      vel_order2_Fwake(:,size(v_wake_n,2))=(v_wake_np1(:,size(v_wake_n,2))+v_wake_n(:,size(v_wake_n,2)))*0.5_dp
+    vel_order2_Fwake(:,1)=(v_wake_np1(:,1)+v_wake_n(:,1))*0.5_dp
+    !$omp parallel do
+    do i=2,size(v_wake_n,2)-1
+      vel_order2_Fwake(:,i)=(v_wake_np1(:,i)+v_wake_np1(:,i-1)+v_wake_n(:,i+1)+v_wake_n(:,i))*0.25_dp
+    enddo
+    !$omp end parallel do
+    vel_order2_Fwake(:,size(v_wake_n,2))=(v_wake_np1(:,size(v_wake_n,2))+v_wake_n(:,size(v_wake_n,2)))*0.5_dp
   end function vel_order2_Fwake
 
   !--------------------------------------------------------!
