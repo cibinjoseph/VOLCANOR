@@ -658,9 +658,11 @@ contains
 
       if (row_far .ne. 0) then
         nFwake=size(this%waF,1)
+        !$omp parallel do
         do i=row_far,nFwake
           call this%waF(i)%shiftdP(1,this%vind_Fwake(:,i)*dt)  ! Shift only TE
         enddo
+        !$omp end parallel do
       endif
 
 
@@ -681,9 +683,11 @@ contains
 
       if (row_far .ne. 0) then
         nFwake=size(this%waF,1)
+      !$omp parallel do
         do i=row_far,nFwake
           call this%waF_predicted(i)%shiftdP(1,this%vind_Fwake(:,i)*dt)  ! Shift only TE
         enddo
+      !$omp end parallel do
       endif
 
     end select
@@ -730,9 +734,11 @@ contains
 
       if (row_far .ne. 0) then
         nFwake=size(this%waF,1)
+      !$omp parallel do
         do i=row_far+1,nFwake
           call this%waF(i)%assignP(2,this%waF(i-1)%vf%fc(:,1))
         enddo
+      !$omp end parallel do
       endif
 
     case ('P')
@@ -760,6 +766,15 @@ contains
         call this%waP_predicted(i,cols)%vr%assignP(4,this%waP_predicted(i-1,cols)%vr%vf(3)%fc(:,1))
       enddo
       !$omp end parallel do
+
+      if (row_far .ne. 0) then
+        nFwake=size(this%waF,1)
+      !$omp parallel do
+        do i=row_far+1,nFwake
+          call this%waF_predicted(i)%assignP(2,this%waF_predicted(i-1)%vf%fc(:,1))
+        enddo
+      !$omp end parallel do
+      endif
 
     case default
       error stop 'ERROR: Wrong character flag for convectwake()'
@@ -1351,13 +1366,8 @@ contains
     real(dp),intent(in) :: dt
     integer :: ib
     do ib=1,this%nb
-      !do i=1,4
-      !  this%blade(ib)%waP(this%row_near:this%nNwake,:)%vr%vf(i)%age=this%blade(ib)%waP(this%row_near:this%nNwake,:)%vr%vf(i)%age+dt
-      !enddo
       if (this%row_far .ne. 0) then
-        !$omp parallel do
         this%blade(ib)%waF(this%row_far:this%nFwake)%vf%age=this%blade(ib)%waF(this%row_far:this%nFwake)%vf%age+dt
-        !$omp end parallel do
       endif
     enddo
   end subroutine age_wake
