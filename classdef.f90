@@ -766,14 +766,14 @@ contains
       enddo
       !$omp end parallel do
 
-      !if (row_far .ne. 0) then
-      !  nFwake=size(this%waF,1)
-      !!$omp parallel do
-      !  do i=row_far+1,nFwake
-      !    call this%waF_predicted(i)%assignP(2,this%waF_predicted(i-1)%vf%fc(:,1))
-      !  enddo
-      !!$omp end parallel do
-      !endif
+      if (row_far .ne. 0) then
+        nFwake=size(this%waF,1)
+      !$omp parallel do
+        do i=row_far+1,nFwake
+          call this%waF_predicted(i)%assignP(2,this%waF_predicted(i-1)%vf%fc(:,1))
+        enddo
+      !$omp end parallel do
+      endif
 
     case default
       error stop 'ERROR: Wrong character flag for convectwake()'
