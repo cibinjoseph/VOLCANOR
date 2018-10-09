@@ -261,6 +261,7 @@ program main
 
 
     case (1)    ! Predictor-Corrector (2nd order)
+      ! Compute predicted wake
       do ir=1,nr
         do ib=1,rotor(ir)%nb
           rotor(ir)%blade(ib)%waP_predicted(rotor(ir)%row_near:rotor(ir)%nNwake,:)=  &
@@ -273,6 +274,7 @@ program main
         enddo
       enddo
 
+      ! Compute velocity on predicted wake
       do ir=1,nr
         do ib=1,rotor(ir)%nb
           rotor(ir)%blade(ib)%vind_Nwake_predicted(:,rotor(ir)%row_near:rotor(ir)%nNwake,:)=0._dp
@@ -300,6 +302,7 @@ program main
         enddo
       enddo
 
+      ! Compute averaged velocity and convect wake
       do ir=1,nr
         do ib=1,rotor(ir)%nb
           rotor(ir)%blade(ib)%vind_Nwake(:,rotor(ir)%row_near:rotor(ir)%nNwake,:)=vel_order2_Nwake(  &
@@ -315,6 +318,7 @@ program main
           call rotor(ir)%blade(ib)%convectwake(rotor(ir)%row_near,rotor(ir)%row_far,dt,'C')
         enddo
       enddo
+
 
     case (2)    ! Adam-Bashforth (2nd order)
       if (iter == 1) then
