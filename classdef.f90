@@ -682,11 +682,11 @@ contains
 
       if (row_far .ne. 0) then
         nFwake=size(this%waF,1)
-      !$omp parallel do
+        !$omp parallel do
         do i=row_far,nFwake
           call this%waF_predicted(i)%shiftdP(1,this%vind_Fwake(:,i)*dt)  ! Shift only TE
         enddo
-      !$omp end parallel do
+        !$omp end parallel do
       endif
 
     end select
@@ -733,11 +733,11 @@ contains
 
       if (row_far .ne. 0) then
         nFwake=size(this%waF,1)
-      !$omp parallel do
+        !$omp parallel do
         do i=row_far+1,nFwake
           call this%waF(i)%assignP(2,this%waF(i-1)%vf%fc(:,1))
         enddo
-      !$omp end parallel do
+        !$omp end parallel do
       endif
 
     case ('P')
@@ -768,11 +768,11 @@ contains
 
       if (row_far .ne. 0) then
         nFwake=size(this%waF,1)
-      !$omp parallel do
+        !$omp parallel do
         do i=row_far+1,nFwake
           call this%waF_predicted(i)%assignP(2,this%waF_predicted(i-1)%vf%fc(:,1))
         enddo
-      !$omp end parallel do
+        !$omp end parallel do
       endif
 
     case default
