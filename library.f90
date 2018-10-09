@@ -8,7 +8,7 @@ contains
   !                Induced Velocity Functions              !
   !--------------------------------------------------------!
 
-  ! Induced velocity by rotor (wing n wake) on Nwake corner poinNwakes
+  ! Induced velocity by rotor (wing n wake) on Nwake corner points
   function vind_onNwake_byrotor(rotor,Nwake,opt_char) result(vind_array)
     type(rotor_class), intent(inout) :: rotor
     type(Nwake_class), intent(in), dimension(:,:) :: Nwake

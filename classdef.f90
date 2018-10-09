@@ -626,7 +626,6 @@ contains
       error stop 'ERROR: Wrong character flag for blade_vind_bywake()'
     endif
 
-
   end function blade_vind_bywake
 
   ! Convect wake using dP_near=vind_array*dt
