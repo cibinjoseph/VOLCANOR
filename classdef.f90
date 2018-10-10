@@ -597,14 +597,18 @@ contains
     real(dp), intent(in), dimension(3) :: P
     character(len=1), optional :: opt_char
     real(dp), dimension(3) :: blade_vind_bywake
-    integer :: i,j
+    integer :: i,j,nFwake
 
+    nFwake=size(this%waP,1)
     blade_vind_bywake=0._dp
     if (.not. present(opt_char)) then
       do j=1,size(this%waP,2)
-        do i=row_near,size(this%waP,1)
+        do i=row_near,nFwake
           blade_vind_bywake=blade_vind_bywake+this%waP(i,j)%vr%vind(P)*this%waP(i,j)%vr%gam
         enddo
+      enddo
+      do j=1,size(this%waP,2)
+        blade_vind_bywake=blade_vind_bywake-this%waP(nFwake,j)%vr%vf(2)%vind(P)*this%waP(nFwake,j)%vr%gam
       enddo
       if (row_far .ne. 0) then
         do i=row_far,size(this%waF,1)
