@@ -30,7 +30,7 @@
  WAKE CONVECTION FINITE-DIFFERENCE SCHEME: [0]FT1 [1]PC2 [2]AB2 [3]AB4
   FDscheme_switch
 -----------------------------------------------------------------------
-       3
+       2
 
  IGNORE WAKE WAKE INTERACTION: [0]Off [1..]timesteps
   wake_ignore_nt  *** NOT IMPLEMENTED ***
