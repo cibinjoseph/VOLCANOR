@@ -1,6 +1,6 @@
  NO. OF TIMESTEPS [nt]    TIMESTEP (sec) [dt]    NO. OF ROTORS [nr]
 -----------------------------------------------------------------------
-      1000                       0.002                  1
+      5000                       0.0008                  1
 =======================================================================
 
    DENSITY [kg/m3] 
@@ -15,7 +15,7 @@
  WAKE TIP DISSIPATION: [0]Off [1]On      Wake strain: [0]Off [1]On
  tip_diss_switch                           wakestrain_switch
 -----------------------------------------------------------------------
-       0                                            0
+       1                                            0
 
  SLOW START TO AVOID LARGE STARTING VORTEX: [0]Off [1]linear [2]tanh [3]extended tanh
   slowstart_switch       slowstart_nt
@@ -30,7 +30,7 @@
  WAKE CONVECTION FINITE-DIFFERENCE SCHEME: [0]FT1 [1]PC2 [2]AB2 [3]AB4
   FDscheme_switch
 -----------------------------------------------------------------------
-       0
+       2
 
  IGNORE WAKE WAKE INTERACTION: [0]Off [1..]timesteps
   wake_ignore_nt  *** NOT IMPLEMENTED ***
