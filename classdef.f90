@@ -607,9 +607,12 @@ contains
           blade_vind_bywake=blade_vind_bywake+this%waP(i,j)%vr%vind(P)*this%waP(i,j)%vr%gam
         enddo
       enddo
+
+      ! Last row of Fwake is made of horseshoe vortices
       do j=1,size(this%waP,2)
         blade_vind_bywake=blade_vind_bywake-this%waP(nFwake,j)%vr%vf(2)%vind(P)*this%waP(nFwake,j)%vr%gam
       enddo
+
       if (row_far .ne. 0) then
         do i=row_far,size(this%waF,1)
           blade_vind_bywake=blade_vind_bywake+this%waF(i)%vf%vind(P)*this%waF(i)%gam
@@ -617,10 +620,16 @@ contains
       endif
     elseif ((opt_char .eq. 'P') .or. (opt_char .eq. 'p')) then
       do j=1,size(this%waP,2)
-        do i=row_near,size(this%waP,1)
+        do i=row_near,nFwake
           blade_vind_bywake=blade_vind_bywake+this%waP_predicted(i,j)%vr%vind(P)*this%waP_predicted(i,j)%vr%gam
         enddo
       enddo
+
+      ! Last row of Fwake is made of horseshoe vortices
+      do j=1,size(this%waP,2)
+        blade_vind_bywake=blade_vind_bywake-this%waP_predicted(nFwake,j)%vr%vf(2)%vind(P)*this%waP_predicted(nFwake,j)%vr%gam
+      enddo
+
       if (row_far .ne. 0) then
         do i=row_far,size(this%waF,1)
           blade_vind_bywake=blade_vind_bywake+this%waF_predicted(i)%vf%vind(P)*this%waF_predicted(i)%gam
