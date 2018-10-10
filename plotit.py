@@ -55,8 +55,9 @@ elif args.drag == True:
         print(' ...Program Exit')
 
 else:
-    print('Error: Wrong input arguments')
-    raise ValueError
+    #print('Error: Wrong input arguments')
+    #raise ValueError
+    filename = 'plot_wake.py'  # Assume -w flag by dfault
 
 
 try:
