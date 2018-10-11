@@ -1473,11 +1473,11 @@ contains
     row_far_next=this%row_far-1    ! Rollup the vortex filament of 'next' row
     if (row_far_next==-1) row_far_next=this%nFwake
 
-    centroid_LE=0._dp
-    centroid_TE=0._dp
-
     do ib=1,this%nb
       gam_max=this%blade(ib)%waP(this%nNwake,this%ns)%vr%gam
+      centroid_LE=0._dp
+      centroid_TE=0._dp
+
       do ispan=this%rollup_start,this%rollup_end
         ! Find centroid LE
         centroid_LE=centroid_LE+this%blade(ib)%waP(this%nNwake,ispan)%vr%vf(4)%fc(:,1)
