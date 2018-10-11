@@ -22,10 +22,10 @@
 -----------------------------------------------------------------------
        0                      0
 
- PLOT WAKE: [0]Off [1]Last timestep only [2]All timestep wakes
+ PLOT WAKE: [0]Off [n]Every nth iteration
   wakeplot_switch
 -----------------------------------------------------------------------
-       2
+       1
 
  WAKE CONVECTION FINITE-DIFFERENCE SCHEME: [0]FT1 [1]PC2 [2]AB2 [3]AB4
   FDscheme_switch
