@@ -61,7 +61,7 @@ else:
 
 
 try:
-    call(['visit','-s','{}/{}'.format(src_plot_dir,filename)])
+    call(['visit','-np','4','-s','{}/{}'.format(src_plot_dir,filename)])
     try:
         os.remove('visitlog.py')
     except OSError:
