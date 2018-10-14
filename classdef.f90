@@ -1390,7 +1390,7 @@ contains
     integer :: i,ib
     oseen_param= 1.2564_dp
     kin_visc   = 0.0000181_dp
-    turb_visc  = 500._dp
+    turb_visc  = 800._dp
 
     do ib=1,this%nb
       do i=this%row_near,this%nFwake
