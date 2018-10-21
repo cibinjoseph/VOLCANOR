@@ -519,7 +519,7 @@ contains
   end subroutine blade_rot_pts
 
   subroutine rot_pitch(this,theta)  !pitch about pivotLE from LE
-    ! pivot point calculated using straight line joining LE and TE of root panels
+    ! pivot point calculated using straight line joining LE of first panel and TE of last panel
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: theta
     real(dp), dimension(3) :: axis  
