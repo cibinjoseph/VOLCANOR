@@ -124,6 +124,19 @@ contains
     vel_order2_Fwake(:,size(v_wake_n,2))=(v_wake_np1(:,size(v_wake_n,2))+v_wake_n(:,size(v_wake_n,2)))*0.5_dp
   end function vel_order2_Fwake
 
+  ! Prints status message (or SUCCESS if left blank)
+  subroutine print_status(status_message)
+    character(len=*), optional :: status_message
+    character(len=30) :: status_print    ! Adjust for spacing
+
+    if (.not.present(status_message)) then 
+      write(*,'(A)')'...   SUCCESS'
+    else
+      status_print=status_message
+      write(*,'(A)',advance='no') status_print
+    endif
+  end subroutine print_status
+
   !--------------------------------------------------------!
   !               Force Computation Functions              !
   !--------------------------------------------------------!
