@@ -46,7 +46,7 @@ program main
   do ir=1,nr
     do ib=1,rotor(ir)%nb
       rotor(ir)%blade(ib)%theta=rotor(ir)%gettheta(rotor(ir)%psi_start,ib)
-      call rotor(ir)%blade(ib)%rot_pitch(rotor(ir)%blade(ib)%theta)
+      call rotor(ir)%blade(ib)%rot_pitch(sign(1._dp,rotor(ir)%Omega)*rotor(ir)%blade(ib)%theta)
     enddo
   enddo
 

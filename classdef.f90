@@ -945,7 +945,11 @@ contains
     real(dp) :: xshiftLE,xshiftTE,v_shed
 
     ! Blade initialization
-    xvec=linspace(-this%chord,0._dp,this%nc+1)
+    if (this%Omega .ge. 0) then
+      xvec=linspace(-this%chord,0._dp,this%nc+1)
+    else
+      xvec=linspace(this%chord,0._dp,this%nc+1)
+    endif
     select case (span_spacing_switch)
     case (1)
       yvec=linspace(this%root_cut*this%radius,this%radius,this%ns+1)
@@ -990,7 +994,7 @@ contains
 
       ! Shed last row of vortices
       if (abs(norm2(this%v_wind)) < eps) then
-        v_shed=0.02_dp*this%chord/(dt*this%nc)
+        v_shed=sign(1._dp,this%Omega)*0.02_dp*this%chord/(dt*this%nc)
       else
         v_shed=0.2_dp*norm2(this%v_wind)
       endif
@@ -1077,6 +1081,9 @@ contains
       blade_offset=2._dp*pi/this%nb*(ib-1)
       call this%blade(ib)%rot_axis(blade_offset,this%shaft_axis,this%hub_coords)
     enddo
+
+    ! Rotate rotor by phi,theta,psi about CG
+    call this%rot_pts(this%pts,this%CG_coords,1)
 
     ! Assign wind velocities
     this%v_wind=-1._dp*this%v_body
