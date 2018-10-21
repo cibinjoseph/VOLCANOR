@@ -5,3 +5,4 @@ Check handling of multiple rotors
 Check performance using VTune Amplifier and Advisor
 Get grid based data from wake results
 Make counter rotation possible
+Define shaft axis first then roll whole rotor incl. shaft using pts
