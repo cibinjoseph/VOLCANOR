@@ -89,7 +89,7 @@ program main
 
           ! pqr vel
           rotor(ir)%RHS(row)=rotor(ir)%RHS(row)+dot_product(cross3(rotor(ir)%om_wind-rotor(ir)%Omega_slow*rotor(ir)%shaft_axis  &
-            ,rotor(ir)%blade(ib)%wiP(ic,is)%cp),rotor(ir)%blade(ib)%wiP(ic,is)%ncap)
+            ,rotor(ir)%blade(ib)%wiP(ic,is)%cp-rotor(ir)%hub_coords),rotor(ir)%blade(ib)%wiP(ic,is)%ncap)
         enddo
       enddo
     enddo
@@ -191,7 +191,7 @@ program main
 
             ! Rotational vel
             rotor(ir)%blade(ib)%wiP(ic,is)%velCP=rotor(ir)%blade(ib)%wiP(ic,is)%velCP  &
-              +cross3(rotor(ir)%om_wind-rotor(ir)%Omega_slow*rotor(ir)%shaft_axis,rotor(ir)%blade(ib)%wiP(ic,is)%cp)
+              +cross3(rotor(ir)%om_wind-rotor(ir)%Omega_slow*rotor(ir)%shaft_axis,rotor(ir)%blade(ib)%wiP(ic,is)%cp-rotor(ir)%hub_coords)
 
             ! Wake vel
             do jr=1,nr
