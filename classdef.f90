@@ -1491,8 +1491,14 @@ contains
         ! Find centroid TE
         centroid_TE=centroid_TE+this%blade(ib)%waP(this%nNwake,ispan)%vr%vf(3)%fc(:,1)
         ! Assign gam_max from last row to wake filament gamma
-        if (this%blade(ib)%waP(this%nNwake,ispan)%vr%gam<gam_max) then    ! '<' because of negative gamma
-          gam_max=this%blade(ib)%waP(this%nNwake,ispan)%vr%gam
+        if (sign(1._dp,this%Omega) > eps) then    ! positive Omega or zero Omega
+          if (this%blade(ib)%waP(this%nNwake,ispan)%vr%gam<gam_max) then    ! '<' because of negative gamma
+            gam_max=this%blade(ib)%waP(this%nNwake,ispan)%vr%gam
+          endif
+        else    ! negative Omega 
+          if (this%blade(ib)%waP(this%nNwake,ispan)%vr%gam>gam_max) then    ! '>' because of positive gamma
+            gam_max=this%blade(ib)%waP(this%nNwake,ispan)%vr%gam
+          endif
         endif
       enddo
       centroid_LE=centroid_LE/(this%rollup_end-this%rollup_start+1)
