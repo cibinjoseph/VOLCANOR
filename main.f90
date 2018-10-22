@@ -4,8 +4,10 @@ program main
 
   ! Variable Initialization
   include "init_file.f90"
+  print*
 
   ! Read config.in file
+  call print_status('Reading file '//'config.in')
   open(unit=11,file='config.in')
   call skiplines(11,2)
   read(11,*) nt,dt,nr
@@ -26,6 +28,7 @@ program main
   call skiplines(11,4)
   read(11,*) init_wake_vel_nt
   close(11)
+  call print_status()    ! SUCCESS
 
   ! Allocate rotor objects
   allocate(rotor(nr))
@@ -34,7 +37,9 @@ program main
   do ir=1,nr
     write(rotor_char,'(I0.2)') ir
     rotorfile='rotor'//rotor_char//'.in'
+    call print_status('Reading file '//rotorfile)
     call rotor(ir)%getdata(rotorfile,nt)
+    call print_status()    ! SUCCESS
   enddo
 
   ! Rotor and wake initialization
@@ -46,16 +51,19 @@ program main
   do ir=1,nr
     do ib=1,rotor(ir)%nb
       rotor(ir)%blade(ib)%theta=rotor(ir)%gettheta(rotor(ir)%psi_start,ib)
-      call rotor(ir)%blade(ib)%rot_pitch(rotor(ir)%blade(ib)%theta)
+      call rotor(ir)%blade(ib)%rot_pitch(sign(1._dp,rotor(ir)%Omega)*rotor(ir)%blade(ib)%theta)
     enddo
   enddo
 
   ! Compute AIC and AIC_inv matrices for rotors
+  call print_status('Computing AIC matrices')
   do ir=1,nr
     call rotor(ir)%calcAIC()
   enddo
+  call print_status()    ! SUCCESS
 
   ! Initial Solution
+  call print_status('Computing initial solution')
   if (slowstart_switch .ne. 0) then
     do ir=1,nr
       rotor(ir)%Omega_slow=0._dp
@@ -88,6 +96,7 @@ program main
     rotor(ir)%RHS=-1._dp*rotor(ir)%RHS
     rotor(ir)%gamvec=matmul(rotor(ir)%AIC_inv,rotor(ir)%RHS)
   enddo
+  call print_status()    ! SUCCESS
 
   do ir=1,nr
     rotor(ir)%gamvec_prev=rotor(ir)%gamvec
