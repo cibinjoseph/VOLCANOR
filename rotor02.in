@@ -9,7 +9,7 @@ Spanwise panels,ns     Chordwise panels,nc   Near wake panels,nNwake
 
 X-hub_coords     Y-hub_coords     Z-hub_coords    [all in m]
 ---------------------------------------------------------------
-    45.0              0.0              0.0
+    15.0              0.0              1.0
 
 X-CG_coords      Y-CG_coords      Z-CG_coords     [all in m]
 ---------------------------------------------------------------
