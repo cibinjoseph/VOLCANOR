@@ -27,7 +27,7 @@ Radius[m]        root_cut[r/R]       chord[m]
 
  Omega[rad/s]   X-shaft_axis     Y-shaft_axis     Z-shaft_axis 
 ---------------------------------------------------------------
-  62.83             0.0              0.0              1.0
+  -62.83             0.0              0.0              1.0
 
  theta0[deg]    thetaC[deg]    thetaS[deg]    theta_twist[deg]
 ---------------------------------------------------------------
