@@ -101,6 +101,63 @@ contains
     close(11)
   end subroutine rotor2file
 
+  subroutine filaments2file(rotor,timestamp)
+    type(rotor_class), intent(in), dimension(:) :: rotor
+    character(len=*), intent(in) :: timestamp
+
+    integer :: nfil_wing, nfil_Nwake, nfil_Fwake
+    integer :: ir, ib, irow, icol
+    type(vf_class), allocatable, dimension(:) :: fil_wing, fil_Nwake, fil_Fwake
+
+    nfil_wing=0
+    nfil_Nwake=0
+    nfil_Fwake=0
+
+    nr=size(rotor)
+
+    ! Compute number of each filaments
+    do ir=1,nr
+      nfil_wing=nfil_wing+rotor(ir)%nb*(2*rotor(ir)%nc*(1+rotor(ir)%ns)+rotor(ir)%ns)
+      nfil_Nwake=nfil_Nwake+rotor(ir)%nb*(2*rotor(ir)%nNwake*(1+rotor(ir)%ns)+rotor(ir)%ns) 
+      nfil_Fwake=nfil_Fwake+(rotor(ir)%nFwake-rotor(ir)%row_far+1)*rotor(ir)%nb
+    enddo
+
+    ! Allocate filaments
+    allocate(fil_wing(nfil_wing))
+    allocate(fil_Nwake(nfil_Nwake))
+    allocate(fil_Fwake(nfil_Fwake))
+
+    ! Extract filament properties
+    ! from wing
+    ! from Nwake
+    ! from Fwake
+    indx=1;
+    do ir=1,nr
+      do ib=1,rotor(ir)%nb
+        do irow=rotor(ir)%row_far,rotor(ir)%nFwake
+          fil_Fwake(indx)=rotor(ir)%blade(ib)%waF(irow)
+        enddo
+        indx=indx+1
+      enddo
+    enddo
+
+    ! Write to filamentsXXXXX.dat binary file
+    open(unit=10,file='Results/filaments'//timestamp//'.dat',form='unformatted')
+    write(10) nfil_wing
+    write(10) nfil_Nwake
+    write(10) nfil_Fwake
+    write(10) fil_wing%fc, fil_Nwake%fc, fil_Fwake%fc
+    write(10) fil_wing%gam, fil_Nwake%gam, fil_Fwake%gam
+    write(10) fil_wing%r_vc, fil_Nwake%r_vc, fil_Fwake%r_vc
+    close(10)
+
+    ! Deallocate filaments
+    deallocate(fil_wing)
+    deallocate(fil_Nwake)
+    deallocate(fil_Fwake)
+
+  end subroutine filaments2file
+
   subroutine mesh2file(wing_array,wake_array,filename)
     type(wingpanel_class), intent(in), dimension(:,:) :: wing_array
     type(Nwake_class), intent(in), dimension(:,:) :: wake_array
