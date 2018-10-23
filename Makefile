@@ -76,6 +76,11 @@ run_prof:
 	make lib_prof
 	@$(ifc) -I$(objpath) $(iflagsprof) main.f90 $(objpath)/*.o -o main.out
 
+gridgen:
+	reset
+	@$(ifc) -I$(objpath) $(iflags) gridgen.f90 $(objpath)/*.o -o gridgen.out
+	@./gridgen.out
+	
 trial:
 	reset
 	make lib
