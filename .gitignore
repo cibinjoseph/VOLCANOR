@@ -14,3 +14,4 @@ dummy*
 *.dat
 octave-workspace
 *.zip
+*.tar.gz
