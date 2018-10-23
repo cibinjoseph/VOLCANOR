@@ -87,11 +87,11 @@ program main
 
           ! Rotational vel
           rotor(ir)%RHS(row)=rotor(ir)%RHS(row)+dot_product(cross3(rotor(ir)%om_wind  &
-            ,rotor(ir)%blade(ib)%wiP(ic,is)%cp-rotor(ir)%CG_coords),rotor(ir)%blade(ib)%wiP(ic,is)%ncap)
+            ,rotor(ir)%blade(ib)%wiP(ic,is)%CP-rotor(ir)%CG_coords),rotor(ir)%blade(ib)%wiP(ic,is)%ncap)
 
           ! Omega vel
           rotor(ir)%RHS(row)=rotor(ir)%RHS(row)+dot_product(cross3(-rotor(ir)%Omega_slow*rotor(ir)%shaft_axis  &
-            ,rotor(ir)%blade(ib)%wiP(ic,is)%cp-rotor(ir)%hub_coords),rotor(ir)%blade(ib)%wiP(ic,is)%ncap)
+            ,rotor(ir)%blade(ib)%wiP(ic,is)%CP-rotor(ir)%hub_coords),rotor(ir)%blade(ib)%wiP(ic,is)%ncap)
 
           ! Pitch vel
           !rotor(ir)%blade%(ib)%wing(ic,is)%vel_pitch=rotor(ir)%thetadot_pitch(0._dp,ib)*rotor(ir)%blade(ib)%wiP(ic,is)%r_hinge
@@ -197,16 +197,16 @@ program main
 
             ! Rotational vel
             rotor(ir)%blade(ib)%wiP(ic,is)%velCP=rotor(ir)%blade(ib)%wiP(ic,is)%velCP  &
-              +cross3(rotor(ir)%om_wind,rotor(ir)%blade(ib)%wiP(ic,is)%cp-rotor(ir)%CG_coords)
+              +cross3(rotor(ir)%om_wind,rotor(ir)%blade(ib)%wiP(ic,is)%CP-rotor(ir)%CG_coords)
 
             ! Omega vel
             rotor(ir)%blade(ib)%wiP(ic,is)%velCP=rotor(ir)%blade(ib)%wiP(ic,is)%velCP  &
-              +cross3(-rotor(ir)%Omega_slow*rotor(ir)%shaft_axis,rotor(ir)%blade(ib)%wiP(ic,is)%cp-rotor(ir)%hub_coords)
+              +cross3(-rotor(ir)%Omega_slow*rotor(ir)%shaft_axis,rotor(ir)%blade(ib)%wiP(ic,is)%CP-rotor(ir)%hub_coords)
 
             ! Wake vel
             do jr=1,nr
               rotor(ir)%blade(ib)%wiP(ic,is)%velCP=rotor(ir)%blade(ib)%wiP(ic,is)%velCP  &
-                +rotor(jr)%vind_bywake(rotor(ir)%blade(ib)%wiP(ic,is)%cp)
+                +rotor(jr)%vind_bywake(rotor(ir)%blade(ib)%wiP(ic,is)%CP)
             enddo
 
             rotor(ir)%RHS(row)=dot_product(rotor(ir)%blade(ib)%wiP(ic,is)%velCP,rotor(ir)%blade(ib)%wiP(ic,is)%ncap)

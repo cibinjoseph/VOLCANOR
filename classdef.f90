@@ -271,9 +271,9 @@ contains
   subroutine wingpanel_class_calcCP(this)
   class(wingpanel_class) :: this
 
-    this%cp(1)=this%pc(1,1)+(this%pc(1,2)-this%pc(1,1))*0.75_dp
-    this%cp(2)=this%pc(2,1)+(this%pc(2,4)-this%pc(2,1))*0.50_dp
-    this%cp(3)=0._dp
+    this%CP(1)=this%pc(1,1)+(this%pc(1,2)-this%pc(1,1))*0.75_dp
+    this%CP(2)=this%pc(2,1)+(this%pc(2,4)-this%pc(2,1))*0.50_dp
+    this%CP(3)=0._dp
   end subroutine wingpanel_class_calcCP
 
   subroutine wingpanel_class_calcN(this)
@@ -291,7 +291,7 @@ contains
       this%pc(:,i)=matmul(Tmat,this%pc(:,i))
     enddo
     call this%vr%rot(Tmat)
-    this%cp=matmul(Tmat,this%cp)
+    this%CP=matmul(Tmat,this%CP)
     this%ncap=matmul(Tmat,this%ncap)
   end subroutine wingpanel_class_rot
 
@@ -300,7 +300,7 @@ contains
     real(dp), intent(in), dimension(3) :: dshift
     integer :: i
 
-    this%cp=this%cp+dshift
+    this%CP=this%CP+dshift
     do i=1,4
       this%pc(:,i)=this%pc(:,i)+dshift
       call this%vr%shiftdP(i,dshift)
@@ -1009,7 +1009,7 @@ contains
           call this%blade(ib)%wiP(i,j)%calcCP()
           call this%blade(ib)%wiP(i,j)%calcN()
           this%blade(ib)%wiP(i,j)%r_hinge=length3d((this%blade(ib)%wiP(1,j)%pc(:,1)  &
-            +                                           this%blade(ib)%wiP(1,j)%pc(:,4))*0.5_dp,this%blade(ib)%wiP(i,j)%cp)
+            +                                           this%blade(ib)%wiP(1,j)%pc(:,4))*0.5_dp,this%blade(ib)%wiP(i,j)%CP)
           call this%blade(ib)%wiP(i,j)%calc_area()
         enddo
       enddo

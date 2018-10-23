@@ -209,7 +209,7 @@ contains
     write(ny_char,'(I5)') ny
     do j=1,ny
       do i=1,nx
-        wing_mesh(:,i,j)=wing_array(i,j)%cp
+        wing_mesh(:,i,j)=wing_array(i,j)%CP
       enddo
     enddo
     open(unit=11,file='Results/wingCP.tec',position='append')

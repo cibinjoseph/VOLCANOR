@@ -252,7 +252,7 @@ contains
   !  gam_prev=reshape(gamvec_prev,(/rows,cols/))
   !  do j=1,cols
   !    do i=2,rows
-  !      !vel_drag=dot_product((vind_panelgeo(wake_array,wg(i,j)%cp))+vind_chordvortex(wg,wg(i,j)%cp),&
+  !      !vel_drag=dot_product((vind_panelgeo(wake_array,wg(i,j)%CP))+vind_chordvortex(wg,wg(i,j)%CP),&
   !      !  (/0._dp,0._dp,1._dp/))
   !      vel_drag=dot_product((wg(i,j)%velCP-wg(i,j)%velCPm)+vind_chordvortex(wg,wg(i,j)%CP),&
   !        matmul(wg(i,j)%orthproj(),wg(i,j)%ncap))
@@ -264,7 +264,7 @@ contains
 
   !  ! i=1
   !  do j=2,cols
-  !    !vel_drag=dot_product((vind_panelgeo(wake_array,wg(1,j)%cp))+vind_chordvortex(wg,wg(1,j)%cp),&
+  !    !vel_drag=dot_product((vind_panelgeo(wake_array,wg(1,j)%CP))+vind_chordvortex(wg,wg(1,j)%CP),&
   !    !  (/0._dp,0._dp,1._dp/))
   !    vel_drag=dot_product((wg(1,j)%velCP-wg(1,j)%velCPm)+vind_chordvortex(wg,wg(1,j)%CP),&
   !      matmul(wg(1,j)%orthproj(),wg(1,j)%ncap))
