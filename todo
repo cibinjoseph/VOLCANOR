@@ -4,4 +4,3 @@ Does discretization give rise to instability? cause for Kelvin waves?
 Check handling of multiple rotors
 Check performance using VTune Amplifier and Advisor
 Get grid based data from wake results
-Add pqr velocity about CG_ccords similar to omega about hub_coords
