@@ -127,7 +127,7 @@ contains
   ! Prints status message (or SUCCESS if left blank)
   subroutine print_status(status_message)
     character(len=*), optional :: status_message
-    character(len=30) :: status_print    ! Adjust for spacing
+    character(len=34) :: status_print    ! Adjust for spacing
 
     if (.not.present(status_message)) then 
       write(*,'(A)')'...   SUCCESS'
