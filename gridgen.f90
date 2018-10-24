@@ -5,11 +5,16 @@ program gridgen
   real(dp), dimension(3) :: Cmin, Cmax    ! Coordinates of corners
   integer :: filerange_start, filerange_step, filerange_end
 
-  integer :: ix,iy,iz,icrd
+  integer :: ix,iy,iz,icrd,ifil
   real(dp), allocatable, dimension(:) :: xvec,yvec,zvec
-  real(dp), allocatable, dimension(:,:,:,:) :: grid, grid_centre
+  real(dp), allocatable, dimension(:,:,:,:) :: grid, grid_centre, vel
   character(len=5) :: nx_char,ny_char,nz_char
   character(len=5) :: timestamp
+
+  integer :: nvr_wing, nvr_Nwake, nvf_Fwake
+  type(vr_class), allocatable, dimension(:) :: vr_wing, vr_Nwake
+  type(vf_class), allocatable, dimension(:) :: vf_Fwake
+  real(dp), allocatable, dimension(:) :: gam_Fwake
 
   ! Read gridconfig.in file
   call print_status('Reading file '//'gridconfig.in')
@@ -33,9 +38,21 @@ program gridgen
 
   ! Read from filaments file
   write(timestamp,'(I0.5)') filerange_start
-  open(unit=12,file='Results/filaments'//timestamp//'.dat')
+  call print_status('Reading file '//'filaments'//timestamp//'.dat')
+  open(unit=12,file='Results/filaments'//timestamp//'.dat',form='unformatted')
+  read(12) nvr_wing
+  read(12) nvr_Nwake
+  read(12) nvf_Fwake
 
+  allocate(vr_wing(nvr_wing))
+  allocate(vr_Nwake(nvr_Nwake))
+  allocate(vf_Fwake(nvf_Fwake))
+  allocate(gam_Fwake(nvf_Fwake))
+
+  read(12) vr_wing, vr_Nwake
+  read(12) vf_Fwake, gam_Fwake
   close(12)
+  call print_status()    ! SUCCESS
 
   ! Allocate grid coordinates
   allocate(grid(3,nx,ny,nz))
@@ -72,6 +89,28 @@ program gridgen
   enddo
   grid_centre=grid_centre*0.125_dp
 
+  ! Find induced velocities
+  ! at cell centre
+  vel=0._dp
+  do iz=1,nz-1
+    do iy=1,ny-1
+      do ix=1,nx-1
+        ! from wing
+        do ifil=1,nvr_wing
+          vel(:,ix,iy,iz)=vel(:,ix,iy,iz)+vr_wing(ifil)%vind(grid_centre(:,ix,iy,iz))
+        enddo
+        ! from Nwake
+        do ifil=1,nvr_Nwake
+          vel(:,ix,iy,iz)=vel(:,ix,iy,iz)+vr_Nwake(ifil)%vind(grid_centre(:,ix,iy,iz))
+        enddo
+        ! from Fwake
+        do ifil=1,nvf_Fwake
+          vel(:,ix,iy,iz)=vel(:,ix,iy,iz)+vf_Fwake(ifil)%vind(grid_centre(:,ix,iy,iz))*gam_Fwake(ifil)
+        enddo
+      enddo
+    enddo
+  enddo
+
   ! Write to file
   call print_status('Writing to grid file')
   write(timestamp,'(I0.5)') filerange_start
@@ -90,5 +129,10 @@ program gridgen
   write(13,*) (((grid_centre(3,ix,iy,iz),ix=1,nx-1),iy=1,ny-1),iz=1,nz-1)
   close(13)
   call print_status()
+
+  deallocate(vr_wing)
+  deallocate(vr_Nwake)
+  deallocate(vf_Fwake)
+  deallocate(gam_Fwake)
 
 end program gridgen
