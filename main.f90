@@ -20,7 +20,7 @@ program main
   call skiplines(11,4)
   read(11,*) slowstart_switch, slowstart_nt
   call skiplines(11,4)
-  read(11,*) wakeplot_switch 
+  read(11,*) wakeplot_switch, gridplot_switch
   call skiplines(11,4)
   read(11,*) FDscheme_switch
   call skiplines(11,4)
@@ -179,7 +179,7 @@ program main
     do ir=1,nr
       if ((mod(iter,wakeplot_switch) .eq. 0) .and.(rotor(ir)%row_far .ne. 0) ) call rotor2file(rotor(ir),timestamp)
     enddo
-    if ((mod(iter,gridplot_switch) .eq. 0) .and.(rotor(ir)%row_far .ne. 0) ) call filaments2file(rotor,timestamp)
+    if ((mod(iter,gridplot_switch) .eq. 0) .and. (minval(rotor%row_far) .ne. 0)) call filaments2file(rotor,timestamp)
 
     !    call tip2file(wing,wake(row_near:nt,:),'Results/tip'//timestamp//'.tec')
     !    gam_sectional=calcgam(wing)
