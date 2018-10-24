@@ -488,6 +488,8 @@ program main
   !  call lift2file(lift,'Results/lift.curve',(/dt,om_body(3),span,vwind(1)/))
   !  call drag2file(drag,'Results/drag.curve',(/dt,om_body(3),span,vwind(1)/))
 
+  call filaments2file(rotor,timestamp)
+
   if (wakeplot_switch .eq. 1) then
     do ir=1,nr
       call rotor2file(rotor(ir),timestamp)

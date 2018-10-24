@@ -105,8 +105,8 @@ contains
     type(rotor_class), intent(in), dimension(:) :: rotor
     character(len=*), intent(in) :: timestamp
 
-    integer :: nvr_wing, nvr_Nwake, nvf_Fwake
-    integer :: ir, ib, irow, icol
+    integer :: nr, nvr_wing, nvr_Nwake, nvf_Fwake
+    integer :: ir, ib, irow, icol, indx
     type(vr_class), allocatable, dimension(:) :: vr_wing, vr_Nwake
     type(vf_class), allocatable, dimension(:) :: vf_Fwake
     real(dp), allocatable, dimension(:) :: gam_Fwake
@@ -118,7 +118,7 @@ contains
     nr=size(rotor)
 
     do ir=1,nr
-      if (rotor(ir) .eq. 0) error stop 'ERROR: Use filaments2file() only after development of far wake'
+      if (rotor(ir)%row_far .eq. 0) error stop 'ERROR: Use filaments2file() only after development of far wake'
     enddo
 
     ! Compute number of each filaments
@@ -141,7 +141,7 @@ contains
       do ib=1,rotor(ir)%nb
         do icol=1,rotor(ir)%ns
           do irow=1,rotor(ir)%nc
-            vr_wing(indx)=rotor(ir)%blade(ib)%wiP%(irow,icol)%vr
+            vr_wing(indx)=rotor(ir)%blade(ib)%wiP(irow,icol)%vr
           enddo
         enddo
         indx=indx+1
@@ -154,7 +154,7 @@ contains
       do ib=1,rotor(ir)%nb
         do icol=1,rotor(ir)%ns
           do irow=1,rotor(ir)%nNwake
-            vr_Nwake(indx)=rotor(ir)%blade(ib)%waP%(irow,icol)%vr
+            vr_Nwake(indx)=rotor(ir)%blade(ib)%waP(irow,icol)%vr
           enddo
         enddo
         indx=indx+1
