@@ -21,7 +21,7 @@ integer :: i,is,ic,row,iter,ir,jr,ib
 integer :: span_spacing_switch
 integer :: tip_diss_switch, wakestrain_switch
 integer :: slowstart_switch, slowstart_nt
-integer :: wakeplot_switch
+integer :: wakeplot_switch, gridplot_switch
 integer :: FDscheme_switch
 integer :: wake_ignore_nt
 integer :: init_wake_vel_nt

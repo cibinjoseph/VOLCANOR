@@ -175,10 +175,11 @@ program main
       call rotor(ir)%assignshed('LE')  ! Store shed vortex as LE
     enddo
 
-    !    ! Write out wing n' wake
+    ! Write out wing n' wake
     do ir=1,nr
       if ((mod(iter,wakeplot_switch) .eq. 0) .and.(rotor(ir)%row_far .ne. 0) ) call rotor2file(rotor(ir),timestamp)
     enddo
+    if ((mod(iter,gridplot_switch) .eq. 0) .and.(rotor(ir)%row_far .ne. 0) ) call filaments2file(rotor,timestamp)
 
     !    call tip2file(wing,wake(row_near:nt,:),'Results/tip'//timestamp//'.tec')
     !    gam_sectional=calcgam(wing)
@@ -488,7 +489,7 @@ program main
   !  call lift2file(lift,'Results/lift.curve',(/dt,om_body(3),span,vwind(1)/))
   !  call drag2file(drag,'Results/drag.curve',(/dt,om_body(3),span,vwind(1)/))
 
-  call filaments2file(rotor,timestamp)
+  !call filaments2file(rotor,timestamp)
 
   if (wakeplot_switch .eq. 1) then
     do ir=1,nr
