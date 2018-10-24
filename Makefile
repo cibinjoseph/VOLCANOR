@@ -76,6 +76,11 @@ run_prof:
 	make lib_prof
 	@$(ifc) -I$(objpath) $(iflagsprof) main.f90 $(objpath)/*.o -o main.out
 
+gridgen_dbg:
+	reset
+	@$(ifc) -I$(objpath) $(iflagsdbg) gridgen.f90 $(objpath)/*.o -o gridgen.out
+	@./gridgen.out
+	
 gridgen:
 	reset
 	@$(ifc) -I$(objpath) $(iflags) gridgen.f90 $(objpath)/*.o -o gridgen.out
@@ -141,4 +146,5 @@ clean:
 fileclean:
 	-rm $(resultspath)/*.tec
 	-rm $(resultspath)/*.curve
+	-rm $(resultspath)/*.dat
 
