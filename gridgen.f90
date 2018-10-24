@@ -5,7 +5,7 @@ program gridgen
   real(dp), dimension(3) :: Cmin, Cmax    ! Coordinates of corners
   integer :: filerange_start, filerange_step, filerange_end
 
-  integer :: ix,iy,iz,icrd,ifil
+  integer :: ix,iy,iz,ifil
   real(dp), allocatable, dimension(:) :: xvec,yvec,zvec
   real(dp), allocatable, dimension(:,:,:,:) :: grid, grid_centre, vel
   character(len=5) :: nx_char,ny_char,nz_char
@@ -57,6 +57,7 @@ program gridgen
   ! Allocate grid coordinates
   allocate(grid(3,nx,ny,nz))
   allocate(grid_centre(3,nx-1,ny-1,nz-1))
+  allocate(vel(3,nx-1,ny-1,nz-1))
   allocate(xvec(nx))
   allocate(yvec(ny))
   allocate(zvec(nz))
@@ -90,6 +91,7 @@ program gridgen
   grid_centre=grid_centre*0.125_dp
 
   ! Find induced velocities
+  call print_status('Computing velocities')
   ! at cell centre
   vel=0._dp
   do iz=1,nz-1
@@ -110,11 +112,12 @@ program gridgen
       enddo
     enddo
   enddo
+  call print_status()
 
   ! Write to file
   call print_status('Writing to grid file')
   write(timestamp,'(I0.5)') filerange_start
-  open(unit=13,file='Results/grid'//timestamp//'.dat')
+  open(unit=13,file='Results/grid'//timestamp//'.tec')
 
   write(13,*) 'TITLE = "Grid"'
   write(13,*) 'VARIABLES = "X" "Y" "Z" "U-vel" "V-vel" "W-vel"'
@@ -124,9 +127,9 @@ program gridgen
   write(13,*) (((grid(1,ix,iy,iz),ix=1,nx),iy=1,ny),iz=1,nz) 
   write(13,*) (((grid(2,ix,iy,iz),ix=1,nx),iy=1,ny),iz=1,nz) 
   write(13,*) (((grid(3,ix,iy,iz),ix=1,nx),iy=1,ny),iz=1,nz) 
-  write(13,*) (((grid_centre(1,ix,iy,iz),ix=1,nx-1),iy=1,ny-1),iz=1,nz-1)
-  write(13,*) (((grid_centre(2,ix,iy,iz),ix=1,nx-1),iy=1,ny-1),iz=1,nz-1)
-  write(13,*) (((grid_centre(3,ix,iy,iz),ix=1,nx-1),iy=1,ny-1),iz=1,nz-1)
+  write(13,*) (((vel(1,ix,iy,iz),ix=1,nx-1),iy=1,ny-1),iz=1,nz-1)
+  write(13,*) (((vel(2,ix,iy,iz),ix=1,nx-1),iy=1,ny-1),iz=1,nz-1)
+  write(13,*) (((vel(3,ix,iy,iz),ix=1,nx-1),iy=1,ny-1),iz=1,nz-1)
   close(13)
   call print_status()
 
@@ -134,5 +137,12 @@ program gridgen
   deallocate(vr_Nwake)
   deallocate(vf_Fwake)
   deallocate(gam_Fwake)
+
+  deallocate(grid)
+  deallocate(grid_centre)
+  deallocate(vel)
+  deallocate(xvec)
+  deallocate(yvec)
+  deallocate(zvec)
 
 end program gridgen
