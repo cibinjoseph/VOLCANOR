@@ -4,17 +4,3 @@ Does discretization give rise to instability? cause for Kelvin waves?
 Check handling of multiple rotors
 Check performance using VTune Amplifier and Advisor
 include provision for negative gamma due to negative pitch in rollup
-
-Get grid based data from wake results
-X - create an input file gridconfig.in
-X - read gridconfig.in
-  - read specific NwakeXXXXX.tec and FwakeXXXXX.tec files
-    - extract I J K values
-  - calculate induced velocity using existing arrays
-
-Create a simple binary file containing filaments, core radius and gamma value
-filamentsXXXXX.dat
-nwing
-nNwake
-nFWake
-coordinates,core,gam
