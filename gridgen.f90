@@ -99,11 +99,11 @@ program gridgen
       do ix=1,nx-1
         ! from wing
         do ifil=1,nvr_wing
-          vel(:,ix,iy,iz)=vel(:,ix,iy,iz)+vr_wing(ifil)%vind(grid_centre(:,ix,iy,iz))
+          vel(:,ix,iy,iz)=vel(:,ix,iy,iz)+vr_wing(ifil)%vind(grid_centre(:,ix,iy,iz))*vr_wing(ifil)%gam
         enddo
         ! from Nwake
         do ifil=1,nvr_Nwake
-          vel(:,ix,iy,iz)=vel(:,ix,iy,iz)+vr_Nwake(ifil)%vind(grid_centre(:,ix,iy,iz))
+          vel(:,ix,iy,iz)=vel(:,ix,iy,iz)+vr_Nwake(ifil)%vind(grid_centre(:,ix,iy,iz))*vr_Nwake(ifil)%gam
         enddo
         ! from Fwake
         do ifil=1,nvf_Fwake
