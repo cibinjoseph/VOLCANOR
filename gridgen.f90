@@ -71,6 +71,7 @@ program gridgen
   zvec=linspace(Cmin(3),Cmax(3),nz)
 
   ! Create grid
+  call print_status('Creating cartesian grid')
   do iz=1,nz
     do iy=1,ny
       do ix=1,nx
@@ -89,11 +90,13 @@ program gridgen
     enddo
   enddo
   grid_centre=grid_centre*0.125_dp
+  call print_status()    ! SUCCESS
 
   ! Find induced velocities
   call print_status('Computing velocities')
   ! at cell centre
   vel=0._dp
+  !$omp parallel do collapse(3)
   do iz=1,nz-1
     do iy=1,ny-1
       do ix=1,nx-1
@@ -112,6 +115,7 @@ program gridgen
       enddo
     enddo
   enddo
+  !$omp end parallel do
   call print_status()
 
   ! Write to file
