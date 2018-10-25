@@ -1,6 +1,6 @@
  NO. OF TIMESTEPS [nt]    TIMESTEP (sec) [dt]    NO. OF ROTORS [nr]
 -----------------------------------------------------------------------
-      5000                       0.0002                  2
+      5000                       0.0008                  1
 =======================================================================
 
    DENSITY [kg/m3] 
@@ -25,7 +25,7 @@
  PLOT WAKE: [0]Off [n]Every nth iteration
   wakeplot_switch         gridplot_switch
 -----------------------------------------------------------------------
-       1                       1000
+       1000                       1000
 
  WAKE CONVECTION FINITE-DIFFERENCE SCHEME: [0]FT1 [1]PC2 [2]AB2 [3]AB4
   FDscheme_switch
