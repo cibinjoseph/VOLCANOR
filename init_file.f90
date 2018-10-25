@@ -8,7 +8,7 @@ real(dp) :: dt
 
 ! Other Variables
 real(dp) :: t
-real(dp) :: density
+real(dp) :: density,turb_visc
 !real(dp), dimension(nt) :: lift, drag
 character(len=5) :: timestamp
 character(len=2) :: rotor_char

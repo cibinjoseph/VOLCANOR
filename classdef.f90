@@ -1391,13 +1391,13 @@ contains
     enddo
   end subroutine age_wake
 
-  subroutine dissipate_tip(this)
+  subroutine dissipate_tip(this,turb_visc)
   class(rotor_class), intent(inout) :: this
-    real(dp) :: oseen_param, turb_visc, kin_visc
+    real(dp), intent(in) :: turb_visc
+    real(dp) :: oseen_param, kin_visc
     integer :: i,ib
     oseen_param= 1.2564_dp
     kin_visc   = 0.0000181_dp
-    turb_visc  = 800._dp
 
     do ib=1,this%nb
       do i=this%row_near,this%nFwake

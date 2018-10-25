@@ -12,7 +12,7 @@ program main
   call skiplines(11,2)
   read(11,*) nt,dt,nr
   call skiplines(11,4)
-  read(11,*) density
+  read(11,*) density, turb_visc
   call skiplines(11,4)
   read(11,*) span_spacing_switch
   call skiplines(11,4)
@@ -158,7 +158,7 @@ program main
           call rotor(ir)%age_wake(dt)
 
           ! Wake tip dissipation
-          call rotor(ir)%dissipate_tip()
+          call rotor(ir)%dissipate_tip(turb_visc)
         endif
       enddo
     endif
