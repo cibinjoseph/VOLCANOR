@@ -326,10 +326,11 @@ contains
     real(dp), dimension(3) :: tau_c
     tau_c=this%pc(:,2)-this%pc(:,1)
     tau_c=tau_c/norm2(tau_c)
-    this%alpha=0.5_dp*pi
-    if (dot_product(this%velCPm,tau_c)>eps) then
-      this%alpha=atan((dot_product(this%velCPm,this%ncap)+this%vel_pitch)/dot_product(this%velCPm,tau_c))
-    endif
+    !this%alpha=0.5_dp*pi
+    !if (dot_product(this%velCPm,tau_c)>eps) then
+    !  this%alpha=atan((dot_product(this%velCPm,this%ncap)+this%vel_pitch)/dot_product(this%velCPm,tau_c))
+    !endif
+    this%alpha=acos(dot_product(this%velCP,tau_c)/norm2(this%velCP))
   end subroutine calc_alpha
 
   ! Calculates the orthogonal projection operator
@@ -1565,6 +1566,8 @@ contains
       enddo
       dyn_pressure=0.5_dp*density*this%chord*((this%radius*this%Omega_slow)**2._dp)
       this%blade(ib)%wiP%dLift=dyn_pressure*this%blade(ib)%wiP%dLift*2._dp*pi
+      print*,this%blade(ib)%wiP%alpha*(180./pi)
+      read*
       this%blade(ib)%thrust=dyn_pressure*this%blade(ib)%thrust*2._dp*pi
       this%thrust=this%thrust+this%blade(ib)%thrust
     enddo
