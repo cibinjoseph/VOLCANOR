@@ -121,7 +121,7 @@ program gridgen
   ! Write to file
   call print_status('Writing to grid file')
   write(timestamp,'(I0.5)') filerange_start
-  open(unit=13,file='Results/grid'//timestamp//'.tec')
+  open(unit=13,file='Results/grid'//timestamp//'.plt')
 
   write(13,*) 'TITLE = "Grid"'
   write(13,*) 'VARIABLES = "X" "Y" "Z" "U-vel" "V-vel" "W-vel"'

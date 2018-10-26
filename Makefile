@@ -144,7 +144,7 @@ clean:
 	-rm visitlog.py 
 
 fileclean:
-	-rm $(resultspath)/*.tec
+	-rm $(resultspath)/*.plt
 	-rm $(resultspath)/*.curve
 	-rm $(resultspath)/*.dat
 

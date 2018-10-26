@@ -181,7 +181,7 @@ program main
     enddo
     if ((mod(iter,gridplot_switch) .eq. 0) .and. (minval(rotor%row_far) .ne. 0)) call filaments2file(rotor,timestamp)
 
-    !    call tip2file(wing,wake(row_near:nt,:),'Results/tip'//timestamp//'.tec')
+    !    call tip2file(wing,wake(row_near:nt,:),'Results/tip'//timestamp//'.plt')
     !    gam_sectional=calcgam(wing)
     !    call gam2file(yvec,gam_sectional,'Results/gam'//timestamp//'.curve')
 

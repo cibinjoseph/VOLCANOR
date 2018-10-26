@@ -14,8 +14,8 @@ contains
 
     if (rotor%row_far .eq. 0) error stop "ERROR: plot only after far wake is created"
 
-    open(unit=10,file='Results/Nwake'//timestamp//'.tec',position='append')
-    open(unit=11,file='Results/Fwake'//timestamp//'.tec',position='append')
+    open(unit=10,file='Results/Nwake'//timestamp//'.plt',position='append')
+    open(unit=11,file='Results/Fwake'//timestamp//'.plt',position='append')
 
     write(10,*) 'Title = "Wing and Near wake"'
     write(10,*) 'VARIABLES = "X" "Y" "Z" "GAM"'
@@ -285,7 +285,7 @@ contains
     enddo
     wing_mesh(:,nx+1,ny+1)=wing_array(nx,ny)%pc(:,3)
 
-    open(unit=10,file='Results/wingPC.tec',position='append')
+    open(unit=10,file='Results/wingPC.plt',position='append')
     write(10,*) 'Title = "Panel Vertices"'
     write(10,*) 'VARIABLES = "X" "Y" "Z"'
     write(10,*) 'Zone I='//trim(nx_char)//' J='//trim(ny_char)//' K=1  T="Panel Vertices"'
@@ -302,7 +302,7 @@ contains
         wing_mesh(:,i,j)=wing_array(i,j)%CP
       enddo
     enddo
-    open(unit=11,file='Results/wingCP.tec',position='append')
+    open(unit=11,file='Results/wingCP.plt',position='append')
     write(11,*) 'Title = "Coll. points"'
     write(11,*) 'VARIABLES = "X" "Y" "Z"'
     write(11,*) 'Zone I='//trim(nx_char)//' J='//trim(ny_char)//' K=1  T="Coll. points"'
@@ -327,7 +327,7 @@ contains
     enddo
     wing_mesh(:,nx+1,ny+1)=wing_array(nx,ny)%vr%vf(3)%fc(:,1)
 
-    open(unit=12,file='Results/wingVR.tec',position='append')
+    open(unit=12,file='Results/wingVR.plt',position='append')
     write(12,*) 'Title = "Vortex Rings"'
     write(12,*) 'VARIABLES = "X" "Y" "Z"'
     write(12,*) 'Zone I='//trim(nx_char)//' J='//trim(ny_char)//' K=1  T="Vortex Rings"'
