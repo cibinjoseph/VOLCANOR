@@ -417,9 +417,8 @@ contains
 
     do ib=1,rotor%nb
       write(blade_number_char,'(I0.2)') ib
-      open(unit=10,file='Results/r'//rotor_number_char//'bl'//blade_number_char//'lift'//timestamp//'.curve')
-      write(10,*) 'TITLE = "Blade lift"'
-      write(10,*) 'VARIABLES = "R" "Lift"'
+      open(unit=10,file='Results/R'//rotor_number_char//'Bl'//blade_number_char//'L'//timestamp//'.curve')
+      write(10,*) '# Blade lift'
       do ispan=1,rotor%ns
         write(10,*) rotor%blade(ib)%wiP(1,ispan)%CP,rotor%blade(ib)%wiP(1,ispan)%dLift
       enddo
