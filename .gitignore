@@ -15,3 +15,4 @@ dummy*
 octave-workspace
 *.zip
 *.tar.gz
+*.phy
