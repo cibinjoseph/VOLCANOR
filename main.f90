@@ -177,9 +177,13 @@ program main
 
     ! Write out wing n' wake
     do ir=1,nr
-      if ((mod(iter,wakeplot_switch) .eq. 0) .and.(rotor(ir)%row_far .ne. 0) ) call rotor2file(rotor(ir),timestamp)
+      if (wakeplot_switch .ne. 0) then
+        if ((mod(iter,wakeplot_switch) .eq. 0) .and.(rotor(ir)%row_far .ne. 0) ) call rotor2file(rotor(ir),timestamp)
+      endif
     enddo
-    if ((mod(iter,gridplot_switch) .eq. 0) .and. (minval(rotor%row_far) .ne. 0)) call filaments2file(rotor,timestamp)
+    if (gridplot_switch .ne. 0) then
+      if ((mod(iter,gridplot_switch) .eq. 0) .and. (minval(rotor%row_far) .ne. 0)) call filaments2file(rotor,timestamp)
+    endif
 
     !    call tip2file(wing,wake(row_near:nt,:),'Results/tip'//timestamp//'.plt')
     !    gam_sectional=calcgam(wing)
@@ -237,9 +241,11 @@ program main
     enddo
     !    drag(iter)=calcdrag(wing,gamvec_prev,dt)
 
-    do ir=1,nr
-      if (mod(iter,forceplot_switch) .eq. 0) call thrust2file(rotor(ir),ir,timestamp)
-    enddo
+    if (forceplot_switch .ne 0) then
+      do ir=1,nr
+        if (mod(iter,forceplot_switch) .eq. 0) call thrust2file(rotor(ir),ir,timestamp)
+      enddo
+    endif
 
     ! Induced vel on wake vortices
     do ir=1,nr
