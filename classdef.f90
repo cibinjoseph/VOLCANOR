@@ -225,6 +225,7 @@ module wingpanel_classdef
     real(dp) :: vel_pitch             ! pitch velocity
     real(dp) :: dLift, dDrag          ! magnitudes of panel lift and drag
     real(dp) :: delP                  ! Pressure difference at panel
+    real(dp) :: mean_chord, mean_span ! Panel mean dimensions
     real(dp) :: panel_area            ! Panel area for computing lift
     real(dp) :: r_hinge               ! dist to point about which pitching occurs (LE of wing)
     real(dp) :: alpha                 ! local angle of attack
@@ -236,6 +237,7 @@ module wingpanel_classdef
     procedure :: shiftdP => wingpanel_class_shiftdP
     procedure :: calc_alpha
     procedure :: calc_area
+    procedure :: calc_mean_dimensions
     procedure :: orthproj
     procedure :: isCPinsidecore
   end type wingpanel_class
@@ -312,6 +314,12 @@ contains
   class(wingpanel_class) :: this
     this%panel_area=0.5_dp*norm2(cross3(this%pc(:,3)-this%pc(:,1),this%pc(:,4)-this%pc(:,2)))
   end subroutine calc_area
+
+  subroutine calc_mean_dimensions(this)
+  class(wingpanel_class) :: this
+    this%mean_span =0.5_dp*(norm2(this%pc(:,4)-this%pc(:,1))+norm2(this%pc(:,3)-this%pc(:,2)))
+    this%mean_chord=0.5_dp*(norm2(this%pc(:,2)-this%pc(:,1))+norm2(this%pc(:,3)-this%pc(:,4)))
+  end subroutine calc_mean_dimensions
 
   subroutine calc_alpha(this)
   class(wingpanel_class) :: this
@@ -454,6 +462,7 @@ module blade_classdef
     type(Nwake_class), allocatable, dimension(:,:) :: waP_predicted
     type(Fwake_class), allocatable, dimension(:) :: waF_predicted
     real(dp) :: theta
+    real(dp) :: thrust
     real(dp) :: psi
     real(dp) :: pivotLE
     real(dp), allocatable, dimension(:,:,:) :: vind_Nwake
@@ -810,6 +819,7 @@ module rotor_classdef
     real(dp), dimension(3) :: shaft_axis
     real(dp), dimension(3) :: hub_coords, CG_coords
     real(dp) :: radius, chord, root_cut
+    real(dp) :: CT, thrust
     real(dp), dimension(3) :: control_pitch  ! theta0,thetaC,thetaS
     real(dp) :: theta_twist
     real(dp) :: pivotLE  ! pivot location from LE [x/c]
@@ -845,6 +855,8 @@ module rotor_classdef
     procedure :: vind_bywake => rotor_vind_bywake
     procedure :: shiftwake => rotor_shiftwake
     procedure :: rollup => rotor_rollup
+    procedure :: calc_alpha => rotor_calc_alpha
+    procedure :: calc_thrust
   end type rotor_class
 
 contains
@@ -1011,6 +1023,7 @@ contains
           this%blade(ib)%wiP(i,j)%r_hinge=length3d((this%blade(ib)%wiP(1,j)%pc(:,1)  &
             +                                           this%blade(ib)%wiP(1,j)%pc(:,4))*0.5_dp,this%blade(ib)%wiP(i,j)%CP)
           call this%blade(ib)%wiP(i,j)%calc_area()
+          call this%blade(ib)%wiP(i,j)%calc_mean_dimensions()
         enddo
       enddo
 
@@ -1519,6 +1532,42 @@ contains
         this%blade(ib)%waF(row_far_next+1)%vf%fc(:,2)=centroid_TE
       endif
     enddo
-
   end subroutine rotor_rollup
+
+  subroutine rotor_calc_alpha(this)
+  class(rotor_class), intent(inout) :: this
+    integer :: irow, icol, ib
+
+    do ib=1,this%nb
+      do icol=1,this%ns
+        do irow=1,this%nc
+          call this%blade(ib)%wiP(irow,icol)%calc_alpha()
+        enddo
+      enddo
+    enddo
+  end subroutine rotor_calc_alpha
+
+  subroutine calc_thrust(this,density)
+  class(rotor_class), intent(inout) :: this
+    real(dp), intent(in) :: density
+    real(dp) :: dyn_pressure
+    integer :: icol, ib
+
+    call this%calc_alpha()
+
+    ! VERY VAGUE & SPECIFIC COMPUTATION, USE ELEMENTAL GAMMA NEXT TIME
+    this%thrust=0._dp
+    do ib=1,this%nb
+      this%blade(ib)%thrust=0._dp
+      do icol=1,this%ns
+        this%blade(ib)%wiP(1,icol)%dLift=this%blade(ib)%wiP(1,icol)%mean_span*this%blade(ib)%wiP(1,icol)%alpha
+        this%blade(ib)%thrust=this%blade(ib)%thrust+this%blade(ib)%wiP(1,icol)%dLift
+      enddo
+      dyn_pressure=0.5_dp*density*this%chord*((this%radius*this%Omega_slow)**2._dp)
+      this%blade(ib)%wiP%dLift=dyn_pressure*this%blade(ib)%wiP%dLift*2._dp*pi
+      this%blade(ib)%thrust=dyn_pressure*this%blade(ib)%thrust*2._dp*pi
+      this%thrust=this%thrust+this%blade(ib)%thrust
+    enddo
+  end subroutine calc_thrust
+
 end module rotor_classdef

@@ -20,7 +20,7 @@ program main
   call skiplines(11,4)
   read(11,*) slowstart_switch, slowstart_nt
   call skiplines(11,4)
-  read(11,*) wakeplot_switch, gridplot_switch
+  read(11,*) wakeplot_switch, gridplot_switch, forceplot_switch
   call skiplines(11,4)
   read(11,*) FDscheme_switch
   call skiplines(11,4)
@@ -231,10 +231,15 @@ program main
       call rotor(ir)%map_gam()
     enddo
 
-    !    ! Forces computation
-    !    call calc_wingalpha(wing)
-    !    lift(iter)=calclift(wing,gamvec_prev,dt)
+    ! Forces computation
+    do ir=1,nr
+      call rotor(ir)%calc_thrust(density)
+    enddo
     !    drag(iter)=calcdrag(wing,gamvec_prev,dt)
+
+    do ir=1,nr
+      if (mod(iter,forceplot_switch) .eq. 0) call thrust2file(rotor(ir),ir,timestamp)
+    enddo
 
     ! Induced vel on wake vortices
     do ir=1,nr
@@ -485,11 +490,12 @@ program main
 
   enddo
 
-  !  ! Postprocesing
-  !  call lift2file(lift,'Results/lift.curve',(/dt,om_body(3),span,vwind(1)/))
-  !  call drag2file(drag,'Results/drag.curve',(/dt,om_body(3),span,vwind(1)/))
+  ! Postprocesing
+  !do ir=1,nr
+  !  call thrust2file(rotor(ir),ir,timestamp)
+  !enddo
 
-  !call filaments2file(rotor,timestamp)
+  !  call drag2file(drag,'Results/drag.curve',(/dt,om_body(3),span,vwind(1)/))
 
   if (wakeplot_switch .eq. 1) then
     do ir=1,nr

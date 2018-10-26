@@ -404,6 +404,34 @@ contains
     close(10)
   end subroutine tip2file
 
+  subroutine thrust2file(rotor,rotor_number,timestamp)
+    type(rotor_class), intent(in) :: rotor
+    character(len=*), intent(in) :: timestamp
+    integer, intent(in) :: rotor_number
+    character(len=3) :: rotor_number_char
+    character(len=2) :: blade_number_char
+    integer :: ib, ispan
+
+    open(unit=11,file='Results/r'//rotor_number_char//'thrust'//timestamp//'.txt')
+    write(rotor_number_char,'(I0.3)') rotor_number
+
+    do ib=1,rotor%nb
+      write(blade_number_char,'(I0.2)') ib
+      open(unit=10,file='Results/r'//rotor_number_char//'bl'//blade_number_char//'lift'//timestamp//'.curve')
+      write(10,*) 'TITLE = "Blade lift"'
+      write(10,*) 'VARIABLES = "R" "Lift"'
+      do ispan=1,rotor%ns
+        write(10,*) rotor%blade(ib)%wiP(1,ispan)%CP,rotor%blade(ib)%wiP(1,ispan)%dLift
+      enddo
+      close(10)
+
+      write(11,*) 'Blade'//blade_number_char//' ',rotor%blade(ib)%thrust
+    enddo
+
+    write(11,*) 'Net thrust ',rotor%thrust
+    close(11)
+  end subroutine thrust2file
+
   subroutine gam2file(yvec,gam_sectional,filename)
     real(dp), intent(in), dimension(:) :: yvec
     real(dp), intent(in), dimension(:) :: gam_sectional
@@ -453,5 +481,6 @@ contains
     enddo
     close(10)
   end subroutine drag2file
+
 end module postproc
 
