@@ -147,4 +147,5 @@ fileclean:
 	-rm $(resultspath)/*.plt
 	-rm $(resultspath)/*.curve
 	-rm $(resultspath)/*.dat
+	-rm $(resultspath)/*.txt
 
