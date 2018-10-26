@@ -241,7 +241,7 @@ program main
     enddo
     !    drag(iter)=calcdrag(wing,gamvec_prev,dt)
 
-    if (forceplot_switch .ne 0) then
+    if (forceplot_switch .ne. 0) then
       do ir=1,nr
         if (mod(iter,forceplot_switch) .eq. 0) call thrust2file(rotor(ir),ir,timestamp)
       enddo
