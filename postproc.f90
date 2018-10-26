@@ -420,7 +420,7 @@ contains
       open(unit=10,file='Results/R'//rotor_number_char//'Bl'//blade_number_char//'L'//timestamp//'.curve')
       write(10,*) '# Blade lift'
       do ispan=1,rotor%ns
-        write(10,*) rotor%blade(ib)%wiP(1,ispan)%CP,rotor%blade(ib)%wiP(1,ispan)%dLift
+        write(10,*) norm2(rotor%hub_coords-rotor%blade(ib)%wiP(1,ispan)%CP),rotor%blade(ib)%wiP(1,ispan)%dLift
       enddo
       close(10)
 
