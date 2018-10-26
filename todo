@@ -3,4 +3,5 @@ Check leapfrogging in vortex rings - dependance on discretization
 Does discretization give rise to instability? cause for Kelvin waves?
 Check handling of multiple rotors
 Check performance using VTune Amplifier and Advisor
-include provision for negative gamma due to negative pitch in rollup
+Include provision for negative gamma due to negative pitch in rollup
+Check CT and inflow distribution against BEMT
