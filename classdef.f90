@@ -1490,13 +1490,13 @@ contains
   class(rotor_class), intent(inout) :: this
     integer :: ib,ispan,row_far_next
     real(dp), dimension(3) :: centroid_LE,centroid_TE
-    real(dp) :: gam_max
+    real(dp) :: gam_rollup
 
     row_far_next=this%row_far-1    ! Rollup the vortex filament of 'next' row
     if (row_far_next==-1) row_far_next=this%nFwake
 
     do ib=1,this%nb
-      gam_max=this%blade(ib)%waP(this%nNwake,this%ns)%vr%gam
+      gam_rollup=this%blade(ib)%waP(this%nNwake,this%ns)%vr%gam
       centroid_LE=0._dp
       centroid_TE=0._dp
 
@@ -1505,14 +1505,14 @@ contains
         centroid_LE=centroid_LE+this%blade(ib)%waP(this%nNwake,ispan)%vr%vf(4)%fc(:,1)
         ! Find centroid TE
         centroid_TE=centroid_TE+this%blade(ib)%waP(this%nNwake,ispan)%vr%vf(3)%fc(:,1)
-        ! Assign gam_max from last row to wake filament gamma
-        if (sign(1._dp,this%Omega) > eps) then    ! positive Omega or zero Omega
-          if (this%blade(ib)%waP(this%nNwake,ispan)%vr%gam<gam_max) then    ! '<' because of negative gamma
-            gam_max=this%blade(ib)%waP(this%nNwake,ispan)%vr%gam
+        ! Assign gam_rollup from last row to wake filament gamma
+        if (sign(1._dp,this%Omega*this%control_pitch(1)) > eps) then    ! +ve Omega or zero Omega with +ve pitch
+          if (this%blade(ib)%waP(this%nNwake,ispan)%vr%gam<gam_rollup) then    ! '<' because of negative gamma
+            gam_rollup=this%blade(ib)%waP(this%nNwake,ispan)%vr%gam
           endif
-        else    ! negative Omega 
-          if (this%blade(ib)%waP(this%nNwake,ispan)%vr%gam>gam_max) then    ! '>' because of positive gamma
-            gam_max=this%blade(ib)%waP(this%nNwake,ispan)%vr%gam
+        else    ! one of Omega or pitch is negative
+          if (this%blade(ib)%waP(this%nNwake,ispan)%vr%gam>gam_rollup) then    ! '>' because of positive gamma
+            gam_rollup=this%blade(ib)%waP(this%nNwake,ispan)%vr%gam
           endif
         endif
       enddo
@@ -1523,7 +1523,7 @@ contains
       ! Assign to far wake tip
       this%blade(ib)%waF(row_far_next)%vf%fc(:,2)=centroid_LE
       this%blade(ib)%waF(row_far_next)%vf%fc(:,1)=centroid_TE
-      this%blade(ib)%waF(row_far_next)%gam=gam_max
+      this%blade(ib)%waF(row_far_next)%gam=gam_rollup
       call this%blade(ib)%waF(row_far_next)%vf%calclength(.TRUE.)    ! TRUE => record original length
 
       ! Ensure continuity in far wake by assigning

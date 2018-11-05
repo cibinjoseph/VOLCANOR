@@ -1,7 +1,5 @@
 Max circulation at non max lift in forward flight?
 Check leapfrogging in vortex rings - dependance on discretization
 Does discretization give rise to instability? cause for Kelvin waves?
-Check handling of multiple rotors
 Check performance using VTune Amplifier and Advisor
-Include provision for negative gamma due to negative pitch in rollup
 Check CT and inflow distribution against BEMT
