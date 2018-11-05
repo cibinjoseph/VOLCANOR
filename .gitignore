@@ -1,4 +1,3 @@
-note
 Results/*
 obj/*.o
 obj/*.mod
@@ -13,3 +12,7 @@ dummy*
 *.tec
 *.curve
 *.dat
+octave-workspace
+*.zip
+*.tar.gz
+*.phy

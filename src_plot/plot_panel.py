@@ -1,9 +1,9 @@
 #Plot wing PC
-OpenDatabase("Results/wingPC.tec")
+OpenDatabase("Results/wingPC.plt")
 AddPlot("Mesh", "mesh", 1, 1)
 
 #Plot wing PC
-OpenDatabase("Results/wingVR.tec")
+OpenDatabase("Results/wingVR.plt")
 AddPlot("Mesh", "mesh", 1, 1)
 MeshAtts = MeshAttributes()
 MeshAtts.meshColor = (255, 0, 0, 255)  # Red color
@@ -12,7 +12,7 @@ MeshAtts.lineStyle = MeshAtts.DOTDASH  # SOLID, DASH, DOT, DOTDASH
 SetPlotOptions(MeshAtts)
 
 #Plot wing PC
-OpenDatabase("Results/wingCP.tec")
+OpenDatabase("Results/wingCP.plt")
 ScatterAtts = ScatterAttributes()
 ScatterAtts.var1Role = ScatterAtts.Coordinate0  # Coordinate0, Coordinate1, Coordinate2, Color, None
 ScatterAtts.var1 = "X"

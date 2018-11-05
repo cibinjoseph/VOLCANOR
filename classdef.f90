@@ -225,6 +225,7 @@ module wingpanel_classdef
     real(dp) :: vel_pitch             ! pitch velocity
     real(dp) :: dLift, dDrag          ! magnitudes of panel lift and drag
     real(dp) :: delP                  ! Pressure difference at panel
+    real(dp) :: mean_chord, mean_span ! Panel mean dimensions
     real(dp) :: panel_area            ! Panel area for computing lift
     real(dp) :: r_hinge               ! dist to point about which pitching occurs (LE of wing)
     real(dp) :: alpha                 ! local angle of attack
@@ -236,6 +237,7 @@ module wingpanel_classdef
     procedure :: shiftdP => wingpanel_class_shiftdP
     procedure :: calc_alpha
     procedure :: calc_area
+    procedure :: calc_mean_dimensions
     procedure :: orthproj
     procedure :: isCPinsidecore
   end type wingpanel_class
@@ -271,9 +273,9 @@ contains
   subroutine wingpanel_class_calcCP(this)
   class(wingpanel_class) :: this
 
-    this%cp(1)=this%pc(1,1)+(this%pc(1,2)-this%pc(1,1))*0.75_dp
-    this%cp(2)=this%pc(2,1)+(this%pc(2,4)-this%pc(2,1))*0.50_dp
-    this%cp(3)=0._dp
+    this%CP(1)=this%pc(1,1)+(this%pc(1,2)-this%pc(1,1))*0.75_dp
+    this%CP(2)=this%pc(2,1)+(this%pc(2,4)-this%pc(2,1))*0.50_dp
+    this%CP(3)=0._dp
   end subroutine wingpanel_class_calcCP
 
   subroutine wingpanel_class_calcN(this)
@@ -291,7 +293,7 @@ contains
       this%pc(:,i)=matmul(Tmat,this%pc(:,i))
     enddo
     call this%vr%rot(Tmat)
-    this%cp=matmul(Tmat,this%cp)
+    this%CP=matmul(Tmat,this%CP)
     this%ncap=matmul(Tmat,this%ncap)
   end subroutine wingpanel_class_rot
 
@@ -300,7 +302,7 @@ contains
     real(dp), intent(in), dimension(3) :: dshift
     integer :: i
 
-    this%cp=this%cp+dshift
+    this%CP=this%CP+dshift
     do i=1,4
       this%pc(:,i)=this%pc(:,i)+dshift
       call this%vr%shiftdP(i,dshift)
@@ -313,15 +315,23 @@ contains
     this%panel_area=0.5_dp*norm2(cross3(this%pc(:,3)-this%pc(:,1),this%pc(:,4)-this%pc(:,2)))
   end subroutine calc_area
 
+  subroutine calc_mean_dimensions(this)
+  class(wingpanel_class) :: this
+    this%mean_span =0.5_dp*(norm2(this%pc(:,4)-this%pc(:,1))+norm2(this%pc(:,3)-this%pc(:,2)))
+    this%mean_chord=0.5_dp*(norm2(this%pc(:,2)-this%pc(:,1))+norm2(this%pc(:,3)-this%pc(:,4)))
+  end subroutine calc_mean_dimensions
+
   subroutine calc_alpha(this)
   class(wingpanel_class) :: this
     real(dp), dimension(3) :: tau_c
     tau_c=this%pc(:,2)-this%pc(:,1)
     tau_c=tau_c/norm2(tau_c)
-    this%alpha=0.5_dp*pi
-    if (dot_product(this%velCPm,tau_c)>eps) then
-      this%alpha=atan((dot_product(this%velCPm,this%ncap)+this%vel_pitch)/dot_product(this%velCPm,tau_c))
-    endif
+    !this%alpha=0.5_dp*pi
+    !if (dot_product(this%velCPm,tau_c)>eps) then
+    !  this%alpha=atan((dot_product(this%velCPm,this%ncap)+this%vel_pitch)/dot_product(this%velCPm,tau_c))
+    !endif
+    this%alpha=acos(dot_product(this%velCP,tau_c)/norm2(this%velCP))
+    ! THIS IS WRONG - velCP here does not contain wing induced velocity!!!
   end subroutine calc_alpha
 
   ! Calculates the orthogonal projection operator
@@ -364,12 +374,12 @@ end module wingpanel_classdef
 !------+-------------------+------|
 ! ++++ | MODULE DEFINITION | ++++ |
 !------+-------------------+------|
-module wakepanel_classdef
+module Nwake_classdef
   use vr_classdef
   implicit none
-  type wakepanel_class
+  type Nwake_class
     type(vr_class) :: vr
-  end type wakepanel_class
+  end type Nwake_class
 
 contains
 
@@ -386,7 +396,57 @@ contains
   ! |
   ! V X along chord
 
-end module wakepanel_classdef
+end module Nwake_classdef
+
+
+!------+-------------------+------|
+! ++++ | MODULE DEFINITION | ++++ |
+!------+-------------------+------|
+module Fwake_classdef
+  use vf_classdef
+  implicit none
+  type Fwake_class
+    type(vf_class) :: vf
+    real(dp) :: gam
+
+  contains
+    procedure :: shiftdP => Fwake_shiftdP
+    procedure :: assignP => Fwake_assignP
+  end type Fwake_class
+
+contains
+
+  ! VF coordinates
+  ! o---------> Y along span
+  ! |
+  ! |   1 
+  ! |   | 
+  ! |   | 
+  ! |   |1
+  ! |   | 
+  ! |   | 
+  ! |   2 
+  ! |
+  ! V X along chord
+
+  subroutine Fwake_shiftdP(this,n,dshift)   ! for shifting coordinates of nth corner by dshift distance (usually for Udt convection)
+  class(Fwake_class) :: this
+    integer, intent(in) :: n
+    real(dp), intent(in), dimension(3) :: dshift
+
+    if (n/=1 .and. n/=2)  error stop 'n may only take values 1 or 2 in Fwake_shiftdP()'
+    this%vf%fc(:,n)=this%vf%fc(:,n)+dshift
+  end subroutine Fwake_shiftdP
+
+  subroutine Fwake_assignP(this,n,P)
+  class(Fwake_class) :: this
+    integer, intent(in) :: n
+    real(dp), intent(in), dimension(3) :: P
+
+    if (n/=1 .and. n/=2)  error stop 'n may only take values 1 or 2 in Fwake_assignP()'
+    this%vf%fc(:,n)=P
+  end subroutine Fwake_assignP
+end module Fwake_classdef
 
 
 !------+-------------------+------|
@@ -394,18 +454,25 @@ end module wakepanel_classdef
 !------+-------------------+------|
 module blade_classdef
   use wingpanel_classdef
-  use wakepanel_classdef
+  use Nwake_classdef
+  use Fwake_classdef
   implicit none
   type blade_class
     type(wingpanel_class), allocatable, dimension(:,:) :: wiP
-    type(wakepanel_class), allocatable, dimension(:,:) :: waP
-    type(wakepanel_class), allocatable, dimension(:,:) :: Pwake
+    type(Nwake_class), allocatable, dimension(:,:) :: waP
+    type(Fwake_class), allocatable, dimension(:) :: waF
+    type(Nwake_class), allocatable, dimension(:,:) :: waP_predicted
+    type(Fwake_class), allocatable, dimension(:) :: waF_predicted
     real(dp) :: theta
+    real(dp) :: thrust
     real(dp) :: psi
     real(dp) :: pivotLE
-    real(dp), allocatable, dimension(:,:,:) :: vind_wake
-    real(dp), allocatable, dimension(:,:,:) :: vind_wake1, vind_wake2, vind_wake3
-    real(dp), allocatable, dimension(:,:,:) :: Pvind_wake, vind_wake_step
+    real(dp), allocatable, dimension(:,:,:) :: vind_Nwake
+    real(dp), allocatable, dimension(:,:,:) :: vind_Nwake1, vind_Nwake2, vind_Nwake3
+    real(dp), allocatable, dimension(:,:,:) :: vind_Nwake_predicted, vind_Nwake_step
+    real(dp), allocatable, dimension(:,:) :: vind_Fwake
+    real(dp), allocatable, dimension(:,:) :: vind_Fwake1, vind_Fwake2, vind_Fwake3
+    real(dp), allocatable, dimension(:,:) :: vind_Fwake_predicted, vind_Fwake_step
 
   contains
     procedure :: move => blade_move
@@ -463,7 +530,7 @@ contains
   end subroutine blade_rot_pts
 
   subroutine rot_pitch(this,theta)  !pitch about pivotLE from LE
-    ! pivot point calculated using straight line joining LE and TE of root panels
+    ! pivot point calculated using straight line joining LE of first panel and TE of last panel
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: theta
     real(dp), dimension(3) :: axis  
@@ -520,8 +587,7 @@ contains
     endif
   end subroutine rot_axis
 
-  function blade_vind_bywing(this,P)  ! Induced velocity at a point P
-    ! pivot point calculated using straight line joining LE and TE of root panels
+  function blade_vind_bywing(this,P)  
   class(blade_class), intent(inout) :: this
     real(dp), intent(in), dimension(3) :: P
     real(dp), dimension(3) :: blade_vind_bywing
@@ -536,104 +602,139 @@ contains
 
   end function blade_vind_bywing
 
-  function blade_vind_bywake(this,row_now,P,opt_char)  ! Induced velocity at a point P
-    ! pivot point calculated using straight line joining LE and TE of root panels
+  function blade_vind_bywake(this,row_near,row_far,P,opt_char) 
   class(blade_class), intent(inout) :: this
-    integer, intent(in) :: row_now
+    integer, intent(in) :: row_near,row_far
     real(dp), intent(in), dimension(3) :: P
     character(len=1), optional :: opt_char
     real(dp), dimension(3) :: blade_vind_bywake
-    integer :: i,j
+    integer :: i,j,nFwake
 
+    nFwake=size(this%waP,1)
     blade_vind_bywake=0._dp
     if (.not. present(opt_char)) then
       do j=1,size(this%waP,2)
-        do i=row_now,size(this%waP,1)
+        do i=row_near,nFwake
           blade_vind_bywake=blade_vind_bywake+this%waP(i,j)%vr%vind(P)*this%waP(i,j)%vr%gam
         enddo
       enddo
+
+      ! Last row of Fwake is made of horseshoe vortices
+      do j=1,size(this%waP,2)
+        blade_vind_bywake=blade_vind_bywake-this%waP(nFwake,j)%vr%vf(2)%vind(P)*this%waP(nFwake,j)%vr%gam
+      enddo
+
+      if (row_far .ne. 0) then
+        do i=row_far,size(this%waF,1)
+          blade_vind_bywake=blade_vind_bywake+this%waF(i)%vf%vind(P)*this%waF(i)%gam
+        enddo
+      endif
     elseif ((opt_char .eq. 'P') .or. (opt_char .eq. 'p')) then
       do j=1,size(this%waP,2)
-        do i=row_now,size(this%waP,1)
-          blade_vind_bywake=blade_vind_bywake+this%Pwake(i,j)%vr%vind(P)*this%Pwake(i,j)%vr%gam
+        do i=row_near,nFwake
+          blade_vind_bywake=blade_vind_bywake+this%waP_predicted(i,j)%vr%vind(P)*this%waP_predicted(i,j)%vr%gam
         enddo
       enddo
+
+      ! Last row of Fwake is made of horseshoe vortices
+      do j=1,size(this%waP,2)
+        blade_vind_bywake=blade_vind_bywake-this%waP_predicted(nFwake,j)%vr%vf(2)%vind(P)*this%waP_predicted(nFwake,j)%vr%gam
+      enddo
+
+      if (row_far .ne. 0) then
+        do i=row_far,size(this%waF,1)
+          blade_vind_bywake=blade_vind_bywake+this%waF_predicted(i)%vf%vind(P)*this%waF_predicted(i)%gam
+        enddo
+      endif
     else
       error stop 'ERROR: Wrong character flag for blade_vind_bywake()'
     endif
 
-
   end function blade_vind_bywake
 
-  ! Convect wake using dP_array=vind_array*dt
-  subroutine convectwake(this,dP_array,opt_char)
+  ! Convect wake using dP_near=vind_array*dt
+  subroutine convectwake(this,row_near,row_far,dt,wake_type)
   class(blade_class), intent(inout) :: this
-    real(dp), intent(in), dimension(:,:,:) :: dP_array
-    character(len=1), optional :: opt_char  ! For predicted wake
-    integer :: i,j,rows,cols,nt,index_offset
+    integer, intent(in) :: row_near, row_far
+    real(dp), intent(in) :: dt
+    character(len=1), intent(in) :: wake_type  ! For predicted wake 
+    integer :: i,j,cols,nNwake,nFwake
 
-    rows=size(dP_array,2)
     cols=size(this%waP,2)
-    nt=size(this%waP,1)
-    index_offset=nt-rows
+    nNwake=size(this%waP,1)
 
-    if (.not. present(opt_char)) then
+    select case (wake_type) 
+    case ('C')    ! [C]urrent wake
       !$omp parallel do collapse(2)
       do j=1,cols
-        do i=1,rows
-          call this%waP(i+index_offset,j)%vr%shiftdP(2,dP_array(:,i,j))
+        do i=row_near,nNwake
+          call this%waP(i,j)%vr%shiftdP(2,this%vind_Nwake(:,i,j)*dt)
         enddo
       enddo
       !$omp end parallel do
 
       !$omp parallel do
-      do i=1,rows
-        call this%waP(i+index_offset,cols)%vr%shiftdP(3,dP_array(:,i,cols+1))
+      do i=row_near,nNwake
+        call this%waP(i,cols)%vr%shiftdP(3,this%vind_Nwake(:,i,cols+1)*dt)
       enddo
       !$omp end parallel do
 
-      call this%wake_continuity(index_offset+1)
+      if (row_far .ne. 0) then
+        nFwake=size(this%waF,1)
+        !$omp parallel do
+        do i=row_far,nFwake
+          call this%waF(i)%shiftdP(1,this%vind_Fwake(:,i)*dt)  ! Shift only TE
+        enddo
+        !$omp end parallel do
+      endif
 
-    elseif ((opt_char .eq. 'P') .or. (opt_char .eq. 'p')) then
-      ! For predicted wake convection
 
+    case ('P')    ! [P]redicted wake
       !$omp parallel do collapse(2)
       do j=1,cols
-        do i=1,rows
-          call this%Pwake(i+index_offset,j)%vr%shiftdP(2,dP_array(:,i,j))
+        do i=1,row_near,nNwake
+          call this%waP_predicted(i,j)%vr%shiftdP(2,this%vind_Nwake(:,i,j)*dt)
         enddo
       enddo
       !$omp end parallel do
 
       !$omp parallel do
-      do i=1,rows
-        call this%Pwake(i+index_offset,cols)%vr%shiftdP(3,dP_array(:,i,cols+1))
+      do i=1,row_near,nNwake
+        call this%waP_predicted(i,cols)%vr%shiftdP(3,this%vind_Nwake(:,i,cols+1)*dt)
       enddo
       !$omp end parallel do
 
-      call this%wake_continuity(index_offset+1,'P')
+      if (row_far .ne. 0) then
+        nFwake=size(this%waF,1)
+        !$omp parallel do
+        do i=row_far,nFwake
+          call this%waF_predicted(i)%shiftdP(1,this%vind_Fwake(:,i)*dt)  ! Shift only TE
+        enddo
+        !$omp end parallel do
+      endif
 
-    else
-      error stop 'ERROR: Wrong character flag for convectwake()'
-    endif
+    end select
+
+    call this%wake_continuity(row_near,row_far,wake_type) 
 
   end subroutine convectwake
 
   ! Maintain continuity between vortex ring elements after convection
   ! of vortex ring corners
-  subroutine wake_continuity(this,row_now,opt_char)
+  subroutine wake_continuity(this,row_near,row_far,wake_type)
   class(blade_class), intent(inout) :: this
-    integer, intent(in) :: row_now
-    character(len=1), optional :: opt_char  ! For predicted wake
-    integer :: i,j,rows,cols
+    integer, intent(in) :: row_near,row_far
+    character(len=1), intent(in) :: wake_type  ! For predicted wake
+    integer :: i,j,nNwake,nFwake,cols
 
-    rows=size(this%waP,1)
+    nNwake=size(this%waP,1)
     cols=size(this%waP,2)
 
-    if (.not. present(opt_char)) then
+    select case (wake_type)
+    case ('C')
       !$omp parallel do collapse(2)
       do j=1,cols-1
-        do i=row_now+1,rows
+        do i=row_near+1,nNwake
           call this%waP(i,j)%vr%assignP(1,this%waP(i-1,j)%vr%vf(2)%fc(:,1))
           call this%waP(i,j)%vr%assignP(3,this%waP(i,j+1)%vr%vf(2)%fc(:,1))
           call this%waP(i,j)%vr%assignP(4,this%waP(i-1,j+1)%vr%vf(2)%fc(:,1))
@@ -643,46 +744,64 @@ contains
 
       !$omp parallel do
       do j=1,cols-1
-        call this%waP(row_now,j)%vr%assignP(3,this%waP(row_now,j+1)%vr%vf(2)%fc(:,1))
+        call this%waP(row_near,j)%vr%assignP(3,this%waP(row_near,j+1)%vr%vf(2)%fc(:,1))
       enddo
       !$omp end parallel do
 
       !$omp parallel do
-      do i=row_now+1,rows
+      do i=row_near+1,nNwake
         call this%waP(i,cols)%vr%assignP(1,this%waP(i-1,cols)%vr%vf(2)%fc(:,1))
         call this%waP(i,cols)%vr%assignP(4,this%waP(i-1,cols)%vr%vf(3)%fc(:,1))
       enddo
       !$omp end parallel do
 
-    elseif ((opt_char .eq. 'P') .or. (opt_char .eq. 'p')) then
+      if (row_far .ne. 0) then
+        nFwake=size(this%waF,1)
+        !$omp parallel do
+        do i=row_far+1,nFwake
+          call this%waF(i)%assignP(2,this%waF(i-1)%vf%fc(:,1))
+        enddo
+        !$omp end parallel do
+      endif
+
+    case ('P')
       ! For predicted wake
 
       !$omp parallel do collapse(2)
       do j=1,cols-1
-        do i=row_now+1,rows
-          call this%Pwake(i,j)%vr%assignP(1,this%Pwake(i-1,j)%vr%vf(2)%fc(:,1))
-          call this%Pwake(i,j)%vr%assignP(3,this%Pwake(i,j+1)%vr%vf(2)%fc(:,1))
-          call this%Pwake(i,j)%vr%assignP(4,this%Pwake(i-1,j+1)%vr%vf(2)%fc(:,1))
+        do i=row_near+1,nNwake
+          call this%waP_predicted(i,j)%vr%assignP(1,this%waP_predicted(i-1,j)%vr%vf(2)%fc(:,1))
+          call this%waP_predicted(i,j)%vr%assignP(3,this%waP_predicted(i,j+1)%vr%vf(2)%fc(:,1))
+          call this%waP_predicted(i,j)%vr%assignP(4,this%waP_predicted(i-1,j+1)%vr%vf(2)%fc(:,1))
         enddo
       enddo
       !$omp end parallel do
 
       !$omp parallel do
       do j=1,cols-1
-        call this%Pwake(row_now,j)%vr%assignP(3,this%Pwake(row_now,j+1)%vr%vf(2)%fc(:,1))
+        call this%waP_predicted(row_near,j)%vr%assignP(3,this%waP_predicted(row_near,j+1)%vr%vf(2)%fc(:,1))
       enddo
       !$omp end parallel do
 
       !$omp parallel do
-      do i=row_now+1,rows
-        call this%Pwake(i,cols)%vr%assignP(1,this%Pwake(i-1,cols)%vr%vf(2)%fc(:,1))
-        call this%Pwake(i,cols)%vr%assignP(4,this%Pwake(i-1,cols)%vr%vf(3)%fc(:,1))
+      do i=row_near+1,nNwake
+        call this%waP_predicted(i,cols)%vr%assignP(1,this%waP_predicted(i-1,cols)%vr%vf(2)%fc(:,1))
+        call this%waP_predicted(i,cols)%vr%assignP(4,this%waP_predicted(i-1,cols)%vr%vf(3)%fc(:,1))
       enddo
       !$omp end parallel do
 
-    else
+      if (row_far .ne. 0) then
+        nFwake=size(this%waF,1)
+        !$omp parallel do
+        do i=row_far+1,nFwake
+          call this%waF_predicted(i)%assignP(2,this%waF_predicted(i-1)%vf%fc(:,1))
+        enddo
+        !$omp end parallel do
+      endif
+
+    case default
       error stop 'ERROR: Wrong character flag for convectwake()'
-    endif
+    end select
 
   end subroutine wake_continuity
 
@@ -696,12 +815,13 @@ module rotor_classdef
   use blade_classdef
   implicit none
   type rotor_class
-    integer :: nb,ns,nc
+    integer :: nb,ns,nc,nNwake,nFwake
     type(blade_class), allocatable, dimension(:) :: blade
     real(dp) :: Omega, Omega_slow
     real(dp), dimension(3) :: shaft_axis
     real(dp), dimension(3) :: hub_coords, CG_coords
     real(dp) :: radius, chord, root_cut
+    real(dp) :: CT, thrust
     real(dp), dimension(3) :: control_pitch  ! theta0,thetaC,thetaS
     real(dp) :: theta_twist
     real(dp) :: pivotLE  ! pivot location from LE [x/c]
@@ -716,6 +836,8 @@ module rotor_classdef
     real(dp), allocatable, dimension(:,:) :: AIC,AIC_inv  ! Influence coefficient matrix
     real(dp), allocatable, dimension(:) :: gamvec,gamvec_prev,RHS
     real(dp) :: init_wake_vel, psi_start
+    integer :: rollup_start, rollup_end
+    integer :: row_near, row_far
   contains
     procedure :: getdata
     procedure :: init
@@ -733,6 +855,10 @@ module rotor_classdef
     procedure :: calcAIC
     procedure :: vind_bywing => rotor_vind_bywing
     procedure :: vind_bywake => rotor_vind_bywake
+    procedure :: shiftwake => rotor_shiftwake
+    procedure :: rollup => rotor_rollup
+    procedure :: calc_alpha => rotor_calc_alpha
+    procedure :: calc_thrust
   end type rotor_class
 
 contains
@@ -746,12 +872,14 @@ contains
     character(len=*), intent(in) :: filename
     integer, intent(in) :: nt  ! nt passed for allocting wake panels
     integer :: i,ib
+    real(dp) :: rollup_start_radius, rollup_end_radius
 
     open(unit=12,file=filename)
     call skiplines(12,2)
     read(12,*) this%nb
     call skiplines(12,3)
-    read(12,*) this%ns,this%nc
+    read(12,*) this%ns,this%nc,this%nNwake
+    if (this%nNwake<2)  error stop 'ERROR: Atleast 2 near wake rows mandatory'
     call skiplines(12,4)
     read(12,*) this%hub_coords(1),this%hub_coords(2),this%hub_coords(3)
     call skiplines(12,3)
@@ -784,6 +912,8 @@ contains
       error stop 'ERROR: Wrong input for streamwise_core_switch in rotorXX.in'
     endif
     call skiplines(12,4)
+    read(12,*) rollup_start_radius, rollup_end_radius
+    call skiplines(12,3)
     read(12,*) this%init_wake_vel, this%psi_start
     close(12)
 
@@ -794,8 +924,12 @@ contains
     enddo
     call degtorad(this%theta_twist)
     call degtorad(this%psi_start)
+    this%nFwake=nt-this%nNwake
+    if (this%nFwake<2) error stop 'ERROR: Atleast 1 far wake rows mandatory'
     this%spanwise_core=this%spanwise_core*this%chord
     this%streamwise_core_vec=this%streamwise_core_vec*this%chord
+    this%rollup_start=ceiling(rollup_start_radius*this%ns)
+    this%rollup_end=floor(rollup_end_radius*this%ns)
 
     ! Allocate rotor object variables
     allocate(this%blade(this%nb))
@@ -807,14 +941,14 @@ contains
     ! Allocate blade object variables
     do ib=1,this%nb
       allocate(this%blade(ib)%wiP(this%nc,this%ns))
-      allocate(this%blade(ib)%waP(nt,this%ns))
+      allocate(this%blade(ib)%waP(this%nNwake,this%ns))
+      allocate(this%blade(ib)%waF(this%nFwake))
     enddo
 
   end subroutine getdata
 
-  subroutine init(this,nt,dt,span_spacing_switch,FDscheme_switch)
+  subroutine init(this,dt,span_spacing_switch,FDscheme_switch)
   class(rotor_class) :: this
-    integer, intent(in) :: nt
     real(dp), intent(in) :: dt
     integer, intent(in) :: span_spacing_switch, FDscheme_switch
 
@@ -825,7 +959,11 @@ contains
     real(dp) :: xshiftLE,xshiftTE,v_shed
 
     ! Blade initialization
-    xvec=linspace(-this%chord,0._dp,this%nc+1)
+    if (this%Omega .ge. 0) then
+      xvec=linspace(-this%chord,0._dp,this%nc+1)
+    else
+      xvec=linspace(this%chord,0._dp,this%nc+1)
+    endif
     select case (span_spacing_switch)
     case (1)
       yvec=linspace(this%root_cut*this%radius,this%radius,this%ns+1)
@@ -870,7 +1008,7 @@ contains
 
       ! Shed last row of vortices
       if (abs(norm2(this%v_wind)) < eps) then
-        v_shed=0.02_dp*this%chord/(dt*this%nc)
+        v_shed=sign(1._dp,this%Omega)*0.02_dp*this%chord/(dt*this%nc)
       else
         v_shed=0.2_dp*norm2(this%v_wind)
       endif
@@ -885,8 +1023,9 @@ contains
           call this%blade(ib)%wiP(i,j)%calcCP()
           call this%blade(ib)%wiP(i,j)%calcN()
           this%blade(ib)%wiP(i,j)%r_hinge=length3d((this%blade(ib)%wiP(1,j)%pc(:,1)  &
-            +                                           this%blade(ib)%wiP(1,j)%pc(:,4))*0.5_dp,this%blade(ib)%wiP(i,j)%cp)
+            +                                           this%blade(ib)%wiP(1,j)%pc(:,4))*0.5_dp,this%blade(ib)%wiP(i,j)%CP)
           call this%blade(ib)%wiP(i,j)%calc_area()
+          call this%blade(ib)%wiP(i,j)%calc_mean_dimensions()
         enddo
       enddo
 
@@ -899,6 +1038,8 @@ contains
         this%blade(ib)%wiP%vr%vf(i)%age = 0._dp
         this%blade(ib)%waP%vr%vf(i)%age = 0._dp
       enddo
+
+      this%blade(ib)%waF%vf%age = 0._dp
 
       ! Initialize spanwise vortex core radius
       do i=2,4,2
@@ -956,36 +1097,48 @@ contains
       call this%blade(ib)%rot_axis(blade_offset,this%shaft_axis,this%hub_coords)
     enddo
 
+    ! Rotate rotor by phi,theta,psi about CG
+    call this%rot_pts(this%pts,this%CG_coords,1)
+
     ! Assign wind velocities
     this%v_wind=-1._dp*this%v_body
     this%om_wind=-1._dp*this%om_body
 
-    ! Assign pts and dpts
-    !this%dpts=this%om_body*dt
-
     ! Allocate vars required for wake convection
     ! on the basis of finite diff scheme
     do ib=1,this%nb
+      allocate(this%blade(ib)%vind_Nwake(3,this%nNwake,this%ns+1))
+      allocate(this%blade(ib)%vind_Fwake(3,this%nFwake))
+
       select case (FDscheme_switch)
       case (0)
-        allocate(this%blade(ib)%vind_wake(3,nt,this%ns+1))
+        ! Do nothing
       case (1)
-        allocate(this%blade(ib)%Pwake(nt,this%ns))
-        allocate(this%blade(ib)%vind_wake(3,nt,this%ns+1))
-        allocate(this%blade(ib)%vind_wake1(3,nt,this%ns+1))
-        allocate(this%blade(ib)%Pvind_wake(3,nt,this%ns+1))
+        allocate(this%blade(ib)%waP_predicted(this%nNwake,this%ns))
+        allocate(this%blade(ib)%vind_Nwake_predicted(3,this%nNwake,this%ns+1))
+
+        allocate(this%blade(ib)%waF_predicted(this%nFwake))
+        allocate(this%blade(ib)%vind_Fwake_predicted(3,this%nFwake))
       case (2)
-        allocate(this%blade(ib)%vind_wake(3,nt,this%ns+1))
-        allocate(this%blade(ib)%vind_wake1(3,nt,this%ns+1))
-        allocate(this%blade(ib)%vind_wake_step(3,nt,this%ns+1))
+        allocate(this%blade(ib)%vind_Nwake1(3,this%nNwake,this%ns+1))
+        allocate(this%blade(ib)%vind_Nwake_step(3,this%nNwake,this%ns+1))
+
+        allocate(this%blade(ib)%vind_Fwake1(3,this%nFwake))
+        allocate(this%blade(ib)%vind_Fwake_step(3,this%nFwake))
       case (3)
-        allocate(this%blade(ib)%vind_wake(3,nt,this%ns+1))
-        allocate(this%blade(ib)%Pwake(nt,this%ns))
-        allocate(this%blade(ib)%vind_wake1(3,nt,this%ns+1))
-        allocate(this%blade(ib)%vind_wake2(3,nt,this%ns+1))
-        allocate(this%blade(ib)%vind_wake3(3,nt,this%ns+1))
-        allocate(this%blade(ib)%Pvind_wake(3,nt,this%ns+1))
-        allocate(this%blade(ib)%vind_wake_step(3,nt,this%ns+1))
+        allocate(this%blade(ib)%waP_predicted(this%nNwake,this%ns))
+        allocate(this%blade(ib)%vind_Nwake1(3,this%nNwake,this%ns+1))
+        allocate(this%blade(ib)%vind_Nwake2(3,this%nNwake,this%ns+1))
+        allocate(this%blade(ib)%vind_Nwake3(3,this%nNwake,this%ns+1))
+        allocate(this%blade(ib)%vind_Nwake_predicted(3,this%nNwake,this%ns+1))
+        allocate(this%blade(ib)%vind_Nwake_step(3,this%nNwake,this%ns+1))
+
+        allocate(this%blade(ib)%waF_predicted(this%nFwake))
+        allocate(this%blade(ib)%vind_Fwake1(3,this%nFwake))
+        allocate(this%blade(ib)%vind_Fwake2(3,this%nFwake))
+        allocate(this%blade(ib)%vind_Fwake3(3,this%nFwake))
+        allocate(this%blade(ib)%vind_Fwake_predicted(3,this%nFwake))
+        allocate(this%blade(ib)%vind_Fwake_step(3,this%nFwake))
       end select
     enddo
 
@@ -998,21 +1151,27 @@ contains
       enddo
 
       this%blade(ib)%waP%vr%gam=0._dp
+      this%blade(ib)%waF%gam=0._dp
 
       ! Assign core_radius to tip vortices
       do j=1,this%ns
-        do i=1,nt
+        do i=1,this%nNwake
           this%blade(ib)%waP(i,j)%vr%vf(1)%r_vc0 = this%streamwise_core_vec(j)
           this%blade(ib)%waP(i,j)%vr%vf(1)%r_vc  = this%streamwise_core_vec(j)
         enddo
       enddo
 
       do j=1,this%ns
-        do i=1,nt
+        do i=1,this%nNwake
           this%blade(ib)%waP(i,j)%vr%vf(3)%r_vc0 = this%streamwise_core_vec(j+1)
           this%blade(ib)%waP(i,j)%vr%vf(3)%r_vc  = this%streamwise_core_vec(j+1)
         enddo
       enddo
+
+      !do i=1,this%nFwake
+      this%blade(ib)%waF%vf%r_vc0 = this%streamwise_core_vec(this%ns+1)
+      this%blade(ib)%waF%vf%r_vc  = this%streamwise_core_vec(this%ns+1)
+      !enddo
 
     enddo
 
@@ -1024,26 +1183,38 @@ contains
     integer :: ib
     ! Deallocate variables
     do ib=1,this%nb
+      deallocate(this%blade(ib)%vind_Nwake)
+      deallocate(this%blade(ib)%vind_Fwake)
+
       select case (FDscheme_switch)
       case (0)
-        deallocate(this%blade(ib)%vind_wake)
+        ! Nothing to deallocate
       case (1)
-        deallocate(this%blade(ib)%Pwake)
-        deallocate(this%blade(ib)%vind_wake)
-        deallocate(this%blade(ib)%vind_wake1)
-        deallocate(this%blade(ib)%Pvind_wake)
+        deallocate(this%blade(ib)%waP_predicted)
+        deallocate(this%blade(ib)%vind_Nwake_predicted)
+
+        deallocate(this%blade(ib)%waF_predicted)
+        deallocate(this%blade(ib)%vind_Fwake_predicted)
       case (2)
-        deallocate(this%blade(ib)%vind_wake)
-        deallocate(this%blade(ib)%vind_wake1)
-        deallocate(this%blade(ib)%vind_wake_step)
+        deallocate(this%blade(ib)%vind_Nwake1)
+        deallocate(this%blade(ib)%vind_Nwake_step)
+
+        deallocate(this%blade(ib)%vind_Fwake1)
+        deallocate(this%blade(ib)%vind_Fwake_step)
       case (3)
-        deallocate(this%blade(ib)%Pwake)
-        deallocate(this%blade(ib)%vind_wake)
-        deallocate(this%blade(ib)%vind_wake1)
-        deallocate(this%blade(ib)%vind_wake2)
-        deallocate(this%blade(ib)%vind_wake3)
-        deallocate(this%blade(ib)%Pvind_wake)
-        deallocate(this%blade(ib)%vind_wake_step)
+        deallocate(this%blade(ib)%waP_predicted)
+        deallocate(this%blade(ib)%vind_Nwake1)
+        deallocate(this%blade(ib)%vind_Nwake2)
+        deallocate(this%blade(ib)%vind_Nwake3)
+        deallocate(this%blade(ib)%vind_Nwake_predicted)
+        deallocate(this%blade(ib)%vind_Nwake_step)
+
+        deallocate(this%blade(ib)%waF_predicted)
+        deallocate(this%blade(ib)%vind_Fwake1)
+        deallocate(this%blade(ib)%vind_Fwake2)
+        deallocate(this%blade(ib)%vind_Fwake3)
+        deallocate(this%blade(ib)%vind_Fwake_predicted)
+        deallocate(this%blade(ib)%vind_Fwake_step)
       end select
     enddo
 
@@ -1189,32 +1360,28 @@ contains
   ! -+- | Wake Convection Functions | -+- |
   !-----+---------------------------+-----|
 
-  ! Assigns coordinates to first row of wake from last row of blade
-  subroutine assignshed(this,row_now,edge)
+  ! Assigns coordinates to first row_near of wake from last row of blade
+  subroutine assignshed(this,edge)
   class(rotor_class), intent(inout) :: this
-    integer, intent(in) :: row_now
     character(len=2), intent(in) :: edge
     integer :: i, ib
-
-    do ib=1,this%nb
-      this%blade(ib)%waP(row_now,:)%vr%gam=this%blade(ib)%wiP(this%nc,:)%vr%gam
-    enddo
 
     select case (edge)
     case ('LE')    ! assign to LE
       do ib=1,this%nb
         do i=1,this%ns
-          call this%blade(ib)%waP(row_now,i)%vr%assignP(1,this%blade(ib)%wiP(this%nc,i)%vr%vf(2)%fc(:,1))
-          call this%blade(ib)%waP(row_now,i)%vr%assignP(4,this%blade(ib)%wiP(this%nc,i)%vr%vf(3)%fc(:,1))
-          call this%blade(ib)%waP(row_now,i)%vr%calclength(.TRUE.)    ! TRUE => record original length
+          call this%blade(ib)%waP(this%row_near,i)%vr%assignP(1,this%blade(ib)%wiP(this%nc,i)%vr%vf(2)%fc(:,1))
+          call this%blade(ib)%waP(this%row_near,i)%vr%assignP(4,this%blade(ib)%wiP(this%nc,i)%vr%vf(3)%fc(:,1))
+          call this%blade(ib)%waP(this%row_near,i)%vr%calclength(.TRUE.)    ! TRUE => record original length
         enddo
+        this%blade(ib)%waP(this%row_near,:)%vr%gam=this%blade(ib)%wiP(this%nc,:)%vr%gam
 
       enddo
-    case ('TE')    ! assign to TE
+    case ('TE')    ! assign to next row's TE
       do ib=1,this%nb
         do i=1,this%ns
-          call this%blade(ib)%waP(row_now,i)%vr%assignP(2,this%blade(ib)%wiP(this%nc,i)%vr%vf(2)%fc(:,1))
-          call this%blade(ib)%waP(row_now,i)%vr%assignP(3,this%blade(ib)%wiP(this%nc,i)%vr%vf(3)%fc(:,1))
+          call this%blade(ib)%waP(max(this%row_near-1,1),i)%vr%assignP(2,this%blade(ib)%wiP(this%nc,i)%vr%vf(2)%fc(:,1))
+          call this%blade(ib)%waP(max(this%row_near-1,1),i)%vr%assignP(3,this%blade(ib)%wiP(this%nc,i)%vr%vf(3)%fc(:,1))
         enddo
       enddo
     case default
@@ -1228,60 +1395,42 @@ contains
   ! -+- | Wake Dissipation Functions | -+- |
   !-----+----------------------------+-----|
 
-  subroutine age_wake(this,row_now,dt)
+  subroutine age_wake(this,dt)
   class(rotor_class), intent(inout) :: this
-    integer, intent(in) :: row_now
     real(dp),intent(in) :: dt
-    integer :: i, ib, row_last
-    row_last=size(this%blade(1)%waP,1)
+    integer :: ib
     do ib=1,this%nb
-      !$omp parallel do
-      do i=1,4
-        this%blade(ib)%waP(row_now:row_last,:)%vr%vf(i)%age=this%blade(ib)%waP(row_now:row_last,:)%vr%vf(i)%age+dt
-      enddo
-      !$omp end parallel do
+      if (this%row_far .ne. 0) then
+        this%blade(ib)%waF(this%row_far:this%nFwake)%vf%age=this%blade(ib)%waF(this%row_far:this%nFwake)%vf%age+dt
+      endif
     enddo
   end subroutine age_wake
 
-  subroutine dissipate_tip(this,row_now)
+  subroutine dissipate_tip(this,turb_visc)
   class(rotor_class), intent(inout) :: this
-    real(dp) :: oseen_param, turb_visc, kin_visc, new_radius
-    integer, intent(in) :: row_now
-    integer :: row_last
-    integer :: ii,tip,ib
+    real(dp), intent(in) :: turb_visc
+    real(dp) :: oseen_param, kin_visc
+    integer :: i,ib
     oseen_param= 1.2564_dp
     kin_visc   = 0.0000181_dp
-    turb_visc  = 500._dp
 
-    row_last=size(this%blade(1)%waP,1)
-    tip=this%ns
     do ib=1,this%nb
-      do ii=row_now,row_last
-        ! Root vortex core
-        new_radius=sqrt(this%blade(ib)%waP(ii,1)%vr%vf(1)%r_vc**2._dp &
-          +4._dp*oseen_param*turb_visc*kin_visc*this%blade(ib)%waP(ii,1)%vr%vf(1)%age)
-        this%blade(ib)%waP(ii,1)%vr%vf(1)%r_vc=new_radius
-
-        ! Tip vortex core
-        new_radius=sqrt(this%blade(ib)%waP(ii,tip)%vr%vf(3)%r_vc**2._dp &
-          +4._dp*oseen_param*turb_visc*kin_visc*this%blade(ib)%waP(ii,tip)%vr%vf(3)%age)
-        this%blade(ib)%waP(ii,tip)%vr%vf(3)%r_vc=new_radius
+      do i=this%row_near,this%nFwake
+        this%blade(ib)%waF(i)%vf%r_vc=sqrt(this%blade(ib)%waF(i)%vf%r_vc**2._dp &
+          +4._dp*oseen_param*turb_visc*kin_visc*this%blade(ib)%waF(i)%vf%age)
       enddo
     enddo
   end subroutine dissipate_tip
 
-  subroutine strain_wake(this,row_now)
+  subroutine strain_wake(this)
   class(rotor_class), intent(inout) :: this
-    integer, intent(in) :: row_now
-    integer :: i,j,ib
+    integer :: i,ib
 
     do ib=1,this%nb
-      !$omp parallel do collapse(2)
-      do j=1,this%ns
-        do i=row_now,size(this%blade(1)%waP)
-          call this%blade(ib)%waP(i,j)%vr%calclength(.FALSE.)    ! Update current length
-          call this%blade(ib)%waP(i,j)%vr%strain()
-        enddo
+      !$omp parallel do 
+      do i=this%row_far,this%nFwake
+        call this%blade(ib)%waF(i)%vf%calclength(.FALSE.)    ! Update current length
+        call this%blade(ib)%waF(i)%vf%strain()
       enddo
       !$omp end parallel do
     enddo
@@ -1299,10 +1448,9 @@ contains
     enddo
   end function rotor_vind_bywing
 
-  function rotor_vind_bywake(this,row_now,P,opt_char)
+  function rotor_vind_bywake(this,P,opt_char)
   class(rotor_class), intent(inout) :: this
     real(dp), intent(in), dimension(3) :: P
-    integer, intent(in) :: row_now
     character(len=1), optional :: opt_char
     real(dp), dimension(3) :: rotor_vind_bywake
     integer :: ib
@@ -1310,14 +1458,120 @@ contains
     rotor_vind_bywake=0._dp
     if (.not. present(opt_char)) then
       do ib=1,this%nb
-        rotor_vind_bywake=rotor_vind_bywake+this%blade(ib)%vind_bywake(row_now,P)
+        rotor_vind_bywake=rotor_vind_bywake+this%blade(ib)%vind_bywake(this%row_near,this%row_far,P)
       enddo
     elseif ((opt_char .eq. 'P') .or. (opt_char .eq. 'p')) then
       do ib=1,this%nb
-        rotor_vind_bywake=rotor_vind_bywake+this%blade(ib)%vind_bywake(row_now,P,'P')
+        rotor_vind_bywake=rotor_vind_bywake+this%blade(ib)%vind_bywake(this%row_near,this%row_far,P,'P')
       enddo
     else 
       error stop 'ERROR: Wrong character flag for rotor_vind_bywake()'
     endif
   end function rotor_vind_bywake
+
+  subroutine rotor_shiftwake(this)
+  class(rotor_class), intent(inout) :: this
+    integer :: ib,i
+
+    do ib=1,this%nb
+      do i=this%nNwake,2,-1
+        this%blade(ib)%waP(i,:)=this%blade(ib)%waP(i-1,:)
+      enddo
+    enddo
+  end subroutine rotor_shiftwake
+
+  subroutine rotor_rollup(this)
+    !    2    
+    !    |    ^ Upstream
+    !    |    |
+    !    |
+    !    1
+
+  class(rotor_class), intent(inout) :: this
+    integer :: ib,ispan,row_far_next
+    real(dp), dimension(3) :: centroid_LE,centroid_TE
+    real(dp) :: gam_max
+
+    row_far_next=this%row_far-1    ! Rollup the vortex filament of 'next' row
+    if (row_far_next==-1) row_far_next=this%nFwake
+
+    do ib=1,this%nb
+      gam_max=this%blade(ib)%waP(this%nNwake,this%ns)%vr%gam
+      centroid_LE=0._dp
+      centroid_TE=0._dp
+
+      do ispan=this%rollup_start,this%rollup_end
+        ! Find centroid LE
+        centroid_LE=centroid_LE+this%blade(ib)%waP(this%nNwake,ispan)%vr%vf(4)%fc(:,1)
+        ! Find centroid TE
+        centroid_TE=centroid_TE+this%blade(ib)%waP(this%nNwake,ispan)%vr%vf(3)%fc(:,1)
+        ! Assign gam_max from last row to wake filament gamma
+        if (sign(1._dp,this%Omega) > eps) then    ! positive Omega or zero Omega
+          if (this%blade(ib)%waP(this%nNwake,ispan)%vr%gam<gam_max) then    ! '<' because of negative gamma
+            gam_max=this%blade(ib)%waP(this%nNwake,ispan)%vr%gam
+          endif
+        else    ! negative Omega 
+          if (this%blade(ib)%waP(this%nNwake,ispan)%vr%gam>gam_max) then    ! '>' because of positive gamma
+            gam_max=this%blade(ib)%waP(this%nNwake,ispan)%vr%gam
+          endif
+        endif
+      enddo
+      centroid_LE=centroid_LE/(this%rollup_end-this%rollup_start+1)
+      centroid_TE=centroid_TE/(this%rollup_end-this%rollup_start+1)
+
+
+      ! Assign to far wake tip
+      this%blade(ib)%waF(row_far_next)%vf%fc(:,2)=centroid_LE
+      this%blade(ib)%waF(row_far_next)%vf%fc(:,1)=centroid_TE
+      this%blade(ib)%waF(row_far_next)%gam=gam_max
+      call this%blade(ib)%waF(row_far_next)%vf%calclength(.TRUE.)    ! TRUE => record original length
+
+      ! Ensure continuity in far wake by assigning
+      ! current centroid_TE to LE of previous far wake filament
+      ! The discontinuity would occur due to convection of 
+      ! last row of waP in convectwake()
+      if (row_far_next<this%nFwake) then
+        this%blade(ib)%waF(row_far_next+1)%vf%fc(:,2)=centroid_TE
+      endif
+    enddo
+  end subroutine rotor_rollup
+
+  subroutine rotor_calc_alpha(this)
+  class(rotor_class), intent(inout) :: this
+    integer :: irow, icol, ib
+
+    do ib=1,this%nb
+      do icol=1,this%ns
+        do irow=1,this%nc
+          call this%blade(ib)%wiP(irow,icol)%calc_alpha()
+        enddo
+      enddo
+    enddo
+  end subroutine rotor_calc_alpha
+
+  subroutine calc_thrust(this,density)
+  class(rotor_class), intent(inout) :: this
+    real(dp), intent(in) :: density
+    real(dp) :: dyn_pressure
+    integer :: icol, ib
+
+    call this%calc_alpha()
+
+    ! VERY VAGUE & SPECIFIC COMPUTATION, USE ELEMENTAL GAMMA NEXT TIME
+    this%thrust=0._dp
+    do ib=1,this%nb
+      this%blade(ib)%thrust=0._dp
+      do icol=1,this%ns
+        this%blade(ib)%wiP(1,icol)%dLift=this%blade(ib)%wiP(1,icol)%mean_span*this%blade(ib)%wiP(1,icol)%alpha
+        this%blade(ib)%thrust=this%blade(ib)%thrust+this%blade(ib)%wiP(1,icol)%dLift
+      enddo
+      dyn_pressure=0.5_dp*density*this%chord*((this%radius*this%Omega_slow)**2._dp)
+      this%blade(ib)%wiP%dLift=dyn_pressure*this%blade(ib)%wiP%dLift*2._dp*pi
+      !print*,this%blade(ib)%wiP%alpha*(180./pi)
+      !read*
+      this%blade(ib)%thrust=dyn_pressure*this%blade(ib)%thrust*2._dp*pi
+      this%thrust=this%thrust+this%blade(ib)%thrust
+    enddo
+  end subroutine calc_thrust
+
 end module rotor_classdef

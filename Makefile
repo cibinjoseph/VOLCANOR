@@ -6,7 +6,7 @@ iflagsprof=-traceback -O3 -implicitnone -r8 -g -debug inline-debug-info -paralle
 
 #### GFORTRAN ####
 gfc=gfortran-7 
-gflags=-O2 -ffree-form -fimplicit-none -fopenmp #-fmax-stack-var-size=4096
+gflags=-O2 -ffree-form -fimplicit-none -fopenmp -ffree-line-length-none #-fmax-stack-var-size=4096
 gflagsdbg=-fbacktrace -O0 -ffree-form -Wall -Wextra -Wimplicit-interface -Wunused-parameter -Wline-truncation -Wcharacter-truncation -Wsurprising -Waliasing -fimplicit-none -fcheck=all -g -ffpe-trap=invalid,zero,overflow,underflow
 
 objpath=./obj
@@ -76,6 +76,16 @@ run_prof:
 	make lib_prof
 	@$(ifc) -I$(objpath) $(iflagsprof) main.f90 $(objpath)/*.o -o main.out
 
+gridgen_dbg:
+	reset
+	@$(ifc) -I$(objpath) $(iflagsdbg) gridgen.f90 $(objpath)/*.o -o gridgen.out
+	@./gridgen.out
+	
+gridgen:
+	reset
+	@$(ifc) -I$(objpath) $(iflags) gridgen.f90 $(objpath)/*.o -o gridgen.out
+	@./gridgen.out
+	
 trial:
 	reset
 	make lib
@@ -134,6 +144,8 @@ clean:
 	-rm visitlog.py 
 
 fileclean:
-	-rm $(resultspath)/*.tec
+	-rm $(resultspath)/*.plt
 	-rm $(resultspath)/*.curve
+	-rm $(resultspath)/*.dat
+	-rm $(resultspath)/*.txt
 
