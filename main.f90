@@ -231,17 +231,17 @@ program main
       call rotor(ir)%map_gam()
     enddo
 
+    ! if (forceplot_switch .ne. 0) then
     ! Forces computation
-    do ir=1,nr
-      call rotor(ir)%calc_thrust(density)
-    enddo
+    ! do ir=1,nr
+    !   call rotor(ir)%calc_thrust(density)
+    ! enddo
     !    drag(iter)=calcdrag(wing,gamvec_prev,dt)
 
-    if (forceplot_switch .ne. 0) then
-      do ir=1,nr
-        if (mod(iter,forceplot_switch) .eq. 0) call thrust2file(rotor(ir),ir,timestamp)
-      enddo
-    endif
+    !   do ir=1,nr
+    !     if (mod(iter,forceplot_switch) .eq. 0) call thrust2file(rotor(ir),ir,timestamp)
+    !   enddo
+    ! endif
 
     ! Induced vel on wake vortices
     do ir=1,nr
