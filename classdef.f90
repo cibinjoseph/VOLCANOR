@@ -236,6 +236,7 @@ module wingpanel_classdef
     procedure :: assignP => wingpanel_class_assignP
     procedure :: calcCP => wingpanel_class_calcCP
     procedure :: calcN => wingpanel_class_calcN
+    procedure :: calcTau => wingpanel_class_calcTau
     procedure :: rot => wingpanel_class_rot
     procedure :: shiftdP => wingpanel_class_shiftdP
     procedure :: calc_alpha
