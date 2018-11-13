@@ -221,6 +221,7 @@ module wingpanel_classdef
     real(dp), dimension(3,4) :: pc    ! panel coords
     real(dp), dimension(3) :: cp      ! coll point coords
     real(dp), dimension(3) :: ncap    ! unit normal vector
+    real(dp), dimension(3) :: taucap  ! unit tangential vector
     real(dp), dimension(3) :: velCP   ! local velocity at CP
     real(dp), dimension(3) :: velCPm  ! rel. inertial velocity at CP (due to motion)
     !real(dp), dimension(3) :: dForce  ! panel Force vector in inertial frame
@@ -286,6 +287,12 @@ contains
     this%ncap=this%ncap/norm2(this%ncap)
   end subroutine wingpanel_class_calcN
 
+  subroutine wingpanel_class_calcTau(this)
+  class(wingpanel_class) :: this
+    this%taucap=0.5_dp*((this%pc(:,2)+this%pc(:,3))-(this%pc(:,1)+this%pc(:,4)))
+    this%taucap=this%taucap/norm2(this%taucap)
+  end subroutine wingpanel_class_calcTau
+
   subroutine wingpanel_class_rot(this,Tmat)
   class(wingpanel_class) :: this
     real(dp), dimension(3,3) :: Tmat
@@ -297,6 +304,7 @@ contains
     call this%vr%rot(Tmat)
     this%CP=matmul(Tmat,this%CP)
     this%ncap=matmul(Tmat,this%ncap)
+    this%taucap=matmul(Tmat,this%taucap)
   end subroutine wingpanel_class_rot
 
   subroutine wingpanel_class_shiftdP(this,dshift)
@@ -1026,8 +1034,9 @@ contains
         do i=1,this%nc
           call this%blade(ib)%wiP(i,j)%calcCP()
           call this%blade(ib)%wiP(i,j)%calcN()
+          call this%blade(ib)%wiP(i,j)%calcTau()
           this%blade(ib)%wiP(i,j)%r_hinge=length3d((this%blade(ib)%wiP(1,j)%pc(:,1)  &
-            +                                           this%blade(ib)%wiP(1,j)%pc(:,4))*0.5_dp,this%blade(ib)%wiP(i,j)%CP)
+            + this%blade(ib)%wiP(1,j)%pc(:,4))*0.5_dp,this%blade(ib)%wiP(i,j)%CP)
           call this%blade(ib)%wiP(i,j)%calc_area()
           call this%blade(ib)%wiP(i,j)%calc_mean_dimensions()
         enddo
