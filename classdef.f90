@@ -82,11 +82,13 @@ end module vf_classdef
 ! ++++ | MODULE DEFINITION | ++++ |
 !------+-------------------+------|
 module vr_classdef
+
   use vf_classdef
   implicit none
   type vr_class
     type(vf_class), dimension(4) :: vf
     real(dp) :: gam
+    real(dp) :: gam_prev
   contains
     procedure :: vind => vrclass_vind
     procedure :: assignP => vrclass_assignP
@@ -858,8 +860,9 @@ module rotor_classdef
     procedure :: vind_bywake => rotor_vind_bywake
     procedure :: shiftwake => rotor_shiftwake
     procedure :: rollup => rotor_rollup
+    procedure :: record_gam_prev
     !procedure :: calc_alpha => rotor_calc_alpha
-    procedure :: calc_force => rotor_calc_force
+    !procedure :: calc_force => rotor_calc_force
   end type rotor_class
 
 contains
@@ -1537,17 +1540,30 @@ contains
     enddo
   end subroutine rotor_rollup
 
-  subroutine rotor_calc_force(this,density)
-    class(rotor_class), intent(inout) :: this
-      real(dp), intent(in) :: density
-      integer :: ib
+  subroutine record_gam_prev(this)
+  class(rotor_class), intent(inout) :: this
+    integer :: ib,ic,is
 
-      this%force=0._dp
-      do ib=1,this%nb
-        call this%blade(ib)%calc_force(density)
-        this%force=this%force+this%blade(ib)%force
+    do ib=1,this%nb
+      do is=1,this%ns
+        do ic=1,this%nc
+          this%blade(ib)%wiP%vr%gam_prev=this%blade(ib)%wiP%vr%gam
+        enddo
       enddo
-  end subroutine rotor_calc_force
+    enddo
+  end subroutine record_gam_prev
+
+  !subroutine rotor_calc_force(this,density)
+  !class(rotor_class), intent(inout) :: this
+  !  real(dp), intent(in) :: density
+  !  integer :: ib
+
+  !  this%force=0._dp
+  !  do ib=1,this%nb
+  !    call this%blade(ib)%calc_force(density)
+  !    this%force=this%force+this%blade(ib)%force
+  !  enddo
+  !end subroutine rotor_calc_force
 
   ! subroutine rotor_calc_alpha(this)
   ! class(rotor_class), intent(inout) :: this
