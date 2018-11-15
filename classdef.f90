@@ -221,7 +221,8 @@ module wingpanel_classdef
     real(dp), dimension(3,4) :: pc    ! panel coords
     real(dp), dimension(3) :: cp      ! coll point coords
     real(dp), dimension(3) :: ncap    ! unit normal vector
-    real(dp), dimension(3) :: taucap  ! unit tangential vector
+    real(dp), dimension(3) :: taucap_chord ! unit tangential vector along chord
+    real(dp), dimension(3) :: taucap_span  ! unit tangential vector along span
     real(dp), dimension(3) :: velCP   ! local velocity at CP
     real(dp), dimension(3) :: velCPm  ! rel. inertial velocity at CP (due to motion)
     !real(dp), dimension(3) :: dForce  ! panel Force vector in inertial frame
@@ -290,8 +291,10 @@ contains
 
   subroutine wingpanel_class_calcTau(this)
   class(wingpanel_class) :: this
-    this%taucap=0.5_dp*((this%pc(:,2)+this%pc(:,3))-(this%pc(:,1)+this%pc(:,4)))
-    this%taucap=this%taucap/norm2(this%taucap)
+    this%taucap_chord=0.5_dp*((this%pc(:,2)+this%pc(:,3))-(this%pc(:,1)+this%pc(:,4)))
+    this%taucap_span=0.5_dp*((this%pc(:,3)+this%pc(:,4))-(this%pc(:,2)+this%pc(:,1)))
+    this%taucap_chord=this%taucap_chord/norm2(this%taucap_chord)
+    this%taucap_span=this%taucap_span/norm2(this%taucap_span)
   end subroutine wingpanel_class_calcTau
 
   subroutine wingpanel_class_rot(this,Tmat)
@@ -305,7 +308,8 @@ contains
     call this%vr%rot(Tmat)
     this%CP=matmul(Tmat,this%CP)
     this%ncap=matmul(Tmat,this%ncap)
-    this%taucap=matmul(Tmat,this%taucap)
+    this%taucap_chord=matmul(Tmat,this%taucap_chord)
+    this%taucap_span=matmul(Tmat,this%taucap_span)
   end subroutine wingpanel_class_rot
 
   subroutine wingpanel_class_shiftdP(this,dshift)
@@ -821,16 +825,21 @@ contains
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: density
     integer :: ispan, ichord, rows, cols
-    real(dp), dimension(size(this%wiP,1),size(this%wiP,2)) :: vel_tang
+    real(dp), dimension(size(this%wiP,1),size(this%wiP,2)) :: vel_tang_chord, vel_tang_span
 
     rows=1,size(this%wiP,1)
     cols=1,size(this%wiP,2)
 
+    ! Compute tangential velocity
     do ispan=1,cols
       do ichord=1,rows
+        vel_tang_chord(ichord,ispan)=dot_product(velCP,taucap_chord)
+        vel_tang_span(ichord,ispan)=dot_product(velCP,taucap_span)
       enddo
     enddo
 
+    ! Compute panel circulation
+    
   end subroutine blade_calc_force
 
 end module blade_classdef
