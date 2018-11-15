@@ -239,7 +239,7 @@ module wingpanel_classdef
     procedure :: calcTau => wingpanel_class_calcTau
     procedure :: rot => wingpanel_class_rot
     procedure :: shiftdP => wingpanel_class_shiftdP
-    procedure :: calc_alpha
+    !procedure :: calc_alpha
     procedure :: calc_area
     procedure :: calc_mean_dimensions
     !procedure :: orthproj
@@ -332,18 +332,18 @@ contains
     this%mean_chord=0.5_dp*(norm2(this%pc(:,2)-this%pc(:,1))+norm2(this%pc(:,3)-this%pc(:,4)))
   end subroutine calc_mean_dimensions
 
-  subroutine calc_alpha(this)
-  class(wingpanel_class) :: this
-    real(dp), dimension(3) :: tau_c
-    tau_c=this%pc(:,2)-this%pc(:,1)
-    tau_c=tau_c/norm2(tau_c)
-    !this%alpha=0.5_dp*pi
-    !if (dot_product(this%velCPm,tau_c)>eps) then
-    !  this%alpha=atan((dot_product(this%velCPm,this%ncap)+this%vel_pitch)/dot_product(this%velCPm,tau_c))
-    !endif
-    this%alpha=acos(dot_product(this%velCP,tau_c)/norm2(this%velCP))
-    ! THIS IS WRONG - velCP here does not contain wing induced velocity!!!
-  end subroutine calc_alpha
+  ! subroutine calc_alpha(this)
+  ! class(wingpanel_class) :: this
+  !   real(dp), dimension(3) :: tau_c
+  !   tau_c=this%pc(:,2)-this%pc(:,1)
+  !   tau_c=tau_c/norm2(tau_c)
+  !   !this%alpha=0.5_dp*pi
+  !   !if (dot_product(this%velCPm,tau_c)>eps) then
+  !   !  this%alpha=atan((dot_product(this%velCPm,this%ncap)+this%vel_pitch)/dot_product(this%velCPm,tau_c))
+  !   !endif
+  !   this%alpha=acos(dot_product(this%velCP,tau_c)/norm2(this%velCP))
+  !   ! THIS IS WRONG - velCP here does not contain wing induced velocity!!!
+  ! end subroutine calc_alpha
 
   !! Calculates the orthogonal projection operator
   !function orthproj(this)
