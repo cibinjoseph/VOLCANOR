@@ -494,6 +494,7 @@ module blade_classdef
     procedure :: vind_bywake => blade_vind_bywake
     procedure :: convectwake
     procedure :: wake_continuity
+    procedure :: calc_force => blade_calc_force
   end type blade_class
 contains
 
@@ -815,6 +816,22 @@ contains
     end select
 
   end subroutine wake_continuity
+
+  subroutine blade_calc_force(density)
+  class(blade_class), intent(inout) :: this
+    real(dp), intent(in) :: density
+    integer :: ispan, ichord, rows, cols
+    real(dp), dimension(size(this%wiP,1),size(this%wiP,2)) :: vel_tang
+
+    rows=1,size(this%wiP,1)
+    cols=1,size(this%wiP,2)
+
+    do ispan=1,cols
+      do ichord=1,rows
+      enddo
+    enddo
+
+  end subroutine blade_calc_force
 
 end module blade_classdef
 
@@ -1562,17 +1579,17 @@ contains
     enddo
   end subroutine record_gam_prev
 
-  !subroutine rotor_calc_force(this,density)
-  !class(rotor_class), intent(inout) :: this
-  !  real(dp), intent(in) :: density
-  !  integer :: ib
+  subroutine rotor_calc_force(this,density)
+  class(rotor_class), intent(inout) :: this
+    real(dp), intent(in) :: density
+    integer :: ib
 
-  !  this%force=0._dp
-  !  do ib=1,this%nb
-  !    call this%blade(ib)%calc_force(density)
-  !    this%force=this%force+this%blade(ib)%force
-  !  enddo
-  !end subroutine rotor_calc_force
+    this%force=0._dp
+    do ib=1,this%nb
+      call this%blade(ib)%calc_force(density)
+      this%force=this%force+this%blade(ib)%force
+    enddo
+  end subroutine rotor_calc_force
 
   ! subroutine rotor_calc_alpha(this)
   ! class(rotor_class), intent(inout) :: this
