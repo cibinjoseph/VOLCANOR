@@ -846,7 +846,7 @@ module rotor_classdef
     real(dp) :: spanwise_core
     real(dp), allocatable, dimension(:) :: streamwise_core_vec
     real(dp), allocatable, dimension(:,:) :: AIC,AIC_inv  ! Influence coefficient matrix
-    real(dp), allocatable, dimension(:) :: gamvec,gamvec_prev,RHS
+    real(dp), allocatable, dimension(:) :: gamvec,RHS
     real(dp) :: init_wake_vel, psi_start
     integer :: rollup_start, rollup_end
     integer :: row_near, row_far
@@ -949,7 +949,6 @@ contains
     allocate(this%AIC(this%nc*this%ns*this%nb,this%nc*this%ns*this%nb))
     allocate(this%AIC_inv(this%nc*this%ns*this%nb,this%nc*this%ns*this%nb))
     allocate(this%gamvec(this%nc*this%ns*this%nb))
-    allocate(this%gamvec_prev(this%nc*this%ns*this%nb))
     allocate(this%RHS(this%nc*this%ns*this%nb))
     ! Allocate blade object variables
     do ib=1,this%nb

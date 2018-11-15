@@ -104,10 +104,6 @@ program main
   enddo
   call print_status()    ! SUCCESS
 
-  do ir=1,nr
-    rotor(ir)%gamvec_prev=rotor(ir)%gamvec
-  enddo
-
   ! Map gamvec to wing gam for each blade in rotor
   do ir=1,nr
     call rotor(ir)%map_gam()
@@ -222,7 +218,7 @@ program main
     enddo
 
     do ir=1,nr
-      rotor(ir)%gamvec_prev=rotor(ir)%gamvec    ! For calculating dGam/dT
+      call rotor(ir)%record_gam_prev()    ! For calculating dGam/dT
       rotor(ir)%gamvec=matmul(rotor(ir)%AIC_inv,rotor(ir)%RHS)
     enddo
 
