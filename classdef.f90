@@ -479,7 +479,7 @@ module blade_classdef
     type(Nwake_class), allocatable, dimension(:,:) :: waP_predicted
     type(Fwake_class), allocatable, dimension(:) :: waF_predicted
     real(dp) :: theta
-    real(dp), dimension(3) :: force
+    real(dp), dimension(3) :: Force
     real(dp) :: psi
     real(dp) :: pivotLE
     real(dp), allocatable, dimension(:,:,:) :: vind_Nwake
@@ -830,6 +830,8 @@ contains
     rows=size(this%wiP,1)
     cols=size(this%wiP,2)
 
+    this%Force=0._dp
+
     ! Compute tangential velocity and panel circulation
     do ic=1,rows
       vel_tang_chord(ic,1)=dot_product(this%wiP(ic,1)%velCP,this%wiP(ic,1)%taucap_chord)
@@ -856,6 +858,7 @@ contains
           + (this%wiP(ic,is)%vr%gam-this%wiP(ic,is)%vr%gam_prev)/dt
         this%wiP(ic,is)%delP=density*this%wiP(ic,is)%delP
         this%wiP(ic,is)%normalForce=this%wiP(ic,is)%delP*this%wiP(ic,is)%ncap
+        this%Force=this%Force+this%wiP(ic,is)%normalForce
       enddo
     enddo
 
@@ -878,7 +881,7 @@ module rotor_classdef
     real(dp), dimension(3) :: hub_coords, CG_coords
     real(dp) :: radius, chord, root_cut
     real(dp) :: CT
-    real(dp), dimension(3) :: force
+    real(dp), dimension(3) :: FOrce
     real(dp), dimension(3) :: control_pitch  ! theta0,thetaC,thetaS
     real(dp) :: theta_twist
     real(dp) :: pivotLE  ! pivot location from LE [x/c]
@@ -916,7 +919,7 @@ module rotor_classdef
     procedure :: rollup => rotor_rollup
     procedure :: record_gam_prev
     !procedure :: calc_alpha => rotor_calc_alpha
-    !procedure :: calc_force => rotor_calc_force
+    procedure :: calc_force => rotor_calc_force
   end type rotor_class
 
 contains
@@ -1612,10 +1615,10 @@ contains
     real(dp), intent(in) :: density, dt
     integer :: ib
 
-    this%force=0._dp
+    this%Force=0._dp
     do ib=1,this%nb
       call this%blade(ib)%calc_force(density,dt)
-      this%force=this%force+this%blade(ib)%force
+      this%Force=this%Force+this%blade(ib)%Force
     enddo
   end subroutine rotor_calc_force
 
