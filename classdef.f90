@@ -211,7 +211,7 @@ end module vr_classdef
 
 
 !------+-------------------+------|
-! ++++ | MODULE DEFINITION | ++++ |
+! ++++ | MODULE       DEFINITION | ++++ |
 !------+-------------------+------|
 module wingpanel_classdef
   use vr_classdef
@@ -821,25 +821,43 @@ contains
 
   end subroutine wake_continuity
 
-  subroutine blade_calc_force(density)
+  subroutine blade_calc_force(this,density,dt)
   class(blade_class), intent(inout) :: this
-    real(dp), intent(in) :: density
-    integer :: ispan, ichord, rows, cols
-    real(dp), dimension(size(this%wiP,1),size(this%wiP,2)) :: vel_tang_chord, vel_tang_span
+    real(dp), intent(in) :: density, dt
+    integer :: is, ic, rows, cols
+    real(dp), dimension(size(this%wiP,1),size(this%wiP,2)) :: vel_tang_chord, vel_tang_span 
+    real(dp), dimension(size(this%wiP,1),size(this%wiP,2)) :: gam_elem_chord, gam_elem_span
+    rows=size(this%wiP,1)
+    cols=size(this%wiP,2)
 
-    rows=1,size(this%wiP,1)
-    cols=1,size(this%wiP,2)
+    ! Compute tangential velocity and panel circulation
+    do ic=1,rows
+      vel_tang_chord(ic,1)=dot_product(this%wiP(ic,1)%velCP,this%wiP(ic,1)%taucap_chord)
+      vel_tang_span(ic,1)=dot_product(this%wiP(ic,1)%velCP,this%wiP(ic,1)%taucap_span)
+      gam_elem_chord(ic,1)=this%wiP(ic,1)%vr%gam
+    enddo
 
-    ! Compute tangential velocity
-    do ispan=1,cols
-      do ichord=1,rows
-        vel_tang_chord(ichord,ispan)=dot_product(velCP,taucap_chord)
-        vel_tang_span(ichord,ispan)=dot_product(velCP,taucap_span)
+    do is=2,cols
+      vel_tang_chord(1,is)=dot_product(this%wiP(1,is)%velCP,this%wiP(1,is)%taucap_chord)
+      vel_tang_span(1,is)=dot_product(this%wiP(1,is)%velCP,this%wiP(1,is)%taucap_span)
+      gam_elem_chord(1,is)=this%wiP(1,is)%vr%gam
+      do ic=2,rows
+        vel_tang_chord(ic,is)=dot_product(this%wiP(ic,is)%velCP,this%wiP(ic,is)%taucap_chord)
+        vel_tang_span(ic,is)=dot_product(this%wiP(ic,is)%velCP,this%wiP(ic,is)%taucap_span)
+        gam_elem_chord(ic,is)=this%wiP(ic,is)%vr%gam-this%wiP(ic-1,is)%vr%gam
+        gam_elem_span(ic,is)=this%wiP(ic,is)%vr%gam-this%wiP(ic,is-1)%vr%gam
       enddo
     enddo
 
-    ! Compute panel circulation
-    
+    do is=1,cols
+      do ic=2,rows
+        this%wiP(ic,is)%delP=vel_tang_chord(ic,is)*gam_elem_chord(ic,is)/this%wiP(ic,is)%mean_chord &
+          + vel_tang_span(ic,is)*gam_elem_span(ic,is)/this%wiP(ic,is)%mean_span &
+          + (this%wiP(ic,is)%vr%gam-this%wiP(ic,is)%vr%gam_prev)/dt
+        this%wiP(ic,is)%delP=density*this%wiP(ic,is)%delP
+      enddo
+    enddo
+
   end subroutine blade_calc_force
 
 end module blade_classdef
@@ -1588,14 +1606,14 @@ contains
     enddo
   end subroutine record_gam_prev
 
-  subroutine rotor_calc_force(this,density)
+  subroutine rotor_calc_force(this,density,dt)
   class(rotor_class), intent(inout) :: this
-    real(dp), intent(in) :: density
+    real(dp), intent(in) :: density, dt
     integer :: ib
 
     this%force=0._dp
     do ib=1,this%nb
-      call this%blade(ib)%calc_force(density)
+      call this%blade(ib)%calc_force(density,dt)
       this%force=this%force+this%blade(ib)%force
     enddo
   end subroutine rotor_calc_force
