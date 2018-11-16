@@ -211,7 +211,7 @@ end module vr_classdef
 
 
 !------+-------------------+------|
-! ++++ | MODULE       DEFINITION | ++++ |
+! ++++ | MODULE DEFINITION | ++++ |
 !------+-------------------+------|
 module wingpanel_classdef
   use vr_classdef
@@ -225,9 +225,9 @@ module wingpanel_classdef
     real(dp), dimension(3) :: taucap_span  ! unit tangential vector along span
     real(dp), dimension(3) :: velCP   ! local velocity at CP
     real(dp), dimension(3) :: velCPm  ! rel. inertial velocity at CP (due to motion)
-    !real(dp), dimension(3) :: dForce  ! panel Force vector in inertial frame
+    real(dp), dimension(3) :: normalForce  ! panel normalForce vector in inertial frame
     real(dp) :: vel_pitch             ! pitch velocity
-    real(dp) :: dLift, dDrag          ! magnitudes of panel lift and drag
+    !real(dp) :: dLift, dDrag          ! magnitudes of panel lift and drag
     real(dp) :: delP                  ! Pressure difference at panel
     real(dp) :: mean_chord, mean_span ! Panel mean dimensions
     real(dp) :: panel_area            ! Panel area for computing lift
@@ -855,6 +855,7 @@ contains
           + vel_tang_span(ic,is)*gam_elem_span(ic,is)/this%wiP(ic,is)%mean_span &
           + (this%wiP(ic,is)%vr%gam-this%wiP(ic,is)%vr%gam_prev)/dt
         this%wiP(ic,is)%delP=density*this%wiP(ic,is)%delP
+        this%wiP(ic,is)%normalForce=this%wiP(ic,is)%delP*this%wiP(ic,is)%ncap
       enddo
     enddo
 
