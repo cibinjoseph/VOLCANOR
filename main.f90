@@ -177,7 +177,7 @@ program main
         if ((mod(iter,wakeplot_switch) .eq. 0) .and.(rotor(ir)%row_far .ne. 0) ) call rotor2file(rotor(ir),timestamp)
       endif
     enddo
-        !call tip2file(rotor(ir)%blade(1)%wiP,rotor(ir)%blade(1)%waP(row_now:nt,:),'Results/tip'//timestamp//'.tec')
+    !call tip2file(rotor(ir)%blade(1)%wiP,rotor(ir)%blade(1)%waP(row_now:nt,:),'Results/tip'//timestamp//'.tec')
     !    gam_sectional=calcgam(wing)
     !    call gam2file(yvec,gam_sectional,'Results/gam'//timestamp//'.curve')
 
@@ -227,17 +227,15 @@ program main
       call rotor(ir)%map_gam()
     enddo
 
-    ! if (forceplot_switch .ne. 0) then
     ! Forces computation
-    ! do ir=1,nr
-    !   call rotor(ir)%calc_thrust(density)
-    ! enddo
-    !    drag(iter)=calcdrag(wing,gamvec_prev,dt)
-
-    !   do ir=1,nr
-    !     if (mod(iter,forceplot_switch) .eq. 0) call thrust2file(rotor(ir),ir,timestamp)
-    !   enddo
-    ! endif
+    if (forceplot_switch .ne. 0) then
+      if (mod(iter,forceplot_switch) .eq. 0) then 
+        do ir=1,nr
+          call rotor(ir)%calc_force(density,dt)
+          call rotorforce2file(rotor(ir),ir,timestamp)
+        enddo
+      endif
+    endif
 
     ! Induced vel on wake vortices
     do ir=1,nr

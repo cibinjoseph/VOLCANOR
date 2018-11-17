@@ -404,6 +404,31 @@ contains
     close(10)
   end subroutine tip2file
 
+  subroutine rotorforce2file(rotor,rotor_number,timestamp)
+    type(rotor_class), intent(in) :: rotor
+    character(len=*), intent(in) :: timestamp
+    integer, intent(in) :: rotor_number
+    character(len=3) :: rotor_number_char
+
+    open(unit=11,file='Results/r'//rotor_number_char//'force'//timestamp//'.txt')
+    write(rotor_number_char,'(I0.3)') rotor_number
+
+    ! do ib=1,rotor%nb
+    !   write(blade_number_char,'(I0.2)') ib
+    !   open(unit=10,file='Results/R'//rotor_number_char//'Bl'//blade_number_char//'L'//timestamp//'.curve')
+    !   write(10,*) '# Blade lift'
+    !   do ispan=1,rotor%ns
+    !     write(10,*) norm2(rotor%hub_coords-rotor%blade(ib)%wiP(1,ispan)%CP),rotor%blade(ib)%wiP(1,ispan)%dLift
+    !   enddo
+    !   close(10)
+
+    !   write(11,*) 'Blade'//blade_number_char//' ',rotor%blade(ib)%thrust
+    ! enddo
+
+    write(11,*) dot_product(rotor%Force,(/0._dp,0._dp,1._dp/))
+    close(11)
+  end subroutine rotorforce2file
+
   ! subroutine thrust2file(rotor,rotor_number,timestamp)
   !   type(rotor_class), intent(in) :: rotor
   !   character(len=*), intent(in) :: timestamp
