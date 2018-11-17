@@ -232,6 +232,7 @@ program main
       if (mod(iter,forceplot_switch) .eq. 0) then 
         do ir=1,nr
           call rotor(ir)%calc_force(density,dt)
+          print*,rotor(ir)%blade(1)%Force
           call rotorforce2file(rotor(ir),ir,timestamp)
         enddo
       endif
