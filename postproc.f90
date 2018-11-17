@@ -410,8 +410,9 @@ contains
     integer, intent(in) :: rotor_number
     character(len=3) :: rotor_number_char
 
-    open(unit=11,file='Results/r'//rotor_number_char//'force'//timestamp//'.txt')
+  
     write(rotor_number_char,'(I0.3)') rotor_number
+    open(unit=11,file='Results/r'//rotor_number_char//'force'//timestamp//'.txt')
 
     ! do ib=1,rotor%nb
     !   write(blade_number_char,'(I0.2)') ib

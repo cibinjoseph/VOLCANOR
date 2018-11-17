@@ -849,8 +849,6 @@ contains
         gam_elem_chord(ic,is)=this%wiP(ic,is)%vr%gam-this%wiP(ic-1,is)%vr%gam
         gam_elem_span(ic,is)=this%wiP(ic,is)%vr%gam-this%wiP(ic,is-1)%vr%gam
       enddo
-      !print*,gam_elem_span
-      !read*
     enddo
 
     do is=1,cols
@@ -858,10 +856,6 @@ contains
         this%wiP(ic,is)%delP=vel_tang_chord(ic,is)*gam_elem_chord(ic,is)/this%wiP(ic,is)%mean_chord &
           + vel_tang_span(ic,is)*gam_elem_span(ic,is)/this%wiP(ic,is)%mean_span &
           + (this%wiP(ic,is)%vr%gam-this%wiP(ic,is)%vr%gam_prev)/dt
-      !print*,vel_tang_chord
-      !read*
-        !print*,this%wiP(ic,is)%delP
-        !read*
         this%wiP(ic,is)%delP=density*this%wiP(ic,is)%delP
         this%wiP(ic,is)%normalForce=this%wiP(ic,is)%delP*this%wiP(ic,is)%ncap
         this%Force=this%Force+this%wiP(ic,is)%normalForce
