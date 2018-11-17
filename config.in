@@ -25,7 +25,7 @@
  PLOT WAKE: [0]Off [n]Every nth iteration
   wakeplot_switch         gridplot_switch      forceplot_switch
 -----------------------------------------------------------------------
-       1                       0               0
+       1                       0               1
 
  WAKE CONVECTION FINITE-DIFFERENCE SCHEME: [0]FT1 [1]PC2 [2]AB2 [3]AB4
   FDscheme_switch
