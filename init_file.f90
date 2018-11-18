@@ -1,6 +1,5 @@
 ! Contains variable declarations
 type(rotor_class), allocatable, dimension(:) :: rotor
-!real(dp), dimension(ns) :: gam_sectional
 
 ! Kinematics
 integer :: nt,nr
@@ -9,7 +8,6 @@ real(dp) :: dt
 ! Other Variables
 real(dp) :: t
 real(dp) :: density,turb_visc
-!real(dp), dimension(nt) :: lift, drag
 character(len=5) :: timestamp
 character(len=2) :: rotor_char
 character(len=10) :: rotorfile
