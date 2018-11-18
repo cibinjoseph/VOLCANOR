@@ -258,12 +258,12 @@ program main
         if (iter < initWakeVelNt) then
           do i=1,3
             rotor(ir)%blade(ib)%velNwake(i,rotor(ir)%rowNear:rotor(ir)%nNwake,:)=rotor(ir)%blade(ib)%velNwake(i,rotor(ir)%rowNear:rotor(ir)%nNwake,:)  &
-              -  rotor(ir)%init_wake_vel*rotor(ir)%shaftAxis(i)
+              -  rotor(ir)%initWakeVel*rotor(ir)%shaftAxis(i)
           enddo
           if (rotor(ir)%rowFar .ne. 0) then
             do i=1,3
               rotor(ir)%blade(ib)%velFwake(i,rotor(ir)%rowFar:rotor(ir)%nFwake)=rotor(ir)%blade(ib)%velFwake(i,rotor(ir)%rowFar:rotor(ir)%nFwake)  &
-                -  rotor(ir)%init_wake_vel*rotor(ir)%shaftAxis(i)
+                -  rotor(ir)%initWakeVel*rotor(ir)%shaftAxis(i)
             enddo
           endif
         endif
@@ -311,12 +311,12 @@ program main
           if (iter < initWakeVelNt) then
             do i=1,3
               rotor(ir)%blade(ib)%velNwakePredicted(i,rotor(ir)%rowNear:rotor(ir)%nNwake,:)=rotor(ir)%blade(ib)%velNwakePredicted(i,rotor(ir)%rowNear:rotor(ir)%nNwake,:)  &
-                -  rotor(ir)%init_wake_vel*rotor(ir)%shaftAxis(i)
+                -  rotor(ir)%initWakeVel*rotor(ir)%shaftAxis(i)
             enddo
             if (rotor(ir)%rowFar .ne. 0) then
               do i=1,3
                 rotor(ir)%blade(ib)%velFwakePredicted(i,rotor(ir)%rowFar:rotor(ir)%nFwake)=rotor(ir)%blade(ib)%velFwakePredicted(i,rotor(ir)%rowFar:rotor(ir)%nFwake)  &
-                  -  rotor(ir)%init_wake_vel*rotor(ir)%shaftAxis(i)
+                  -  rotor(ir)%initWakeVel*rotor(ir)%shaftAxis(i)
               enddo
             endif
           endif
@@ -428,12 +428,12 @@ program main
             if (iter < initWakeVelNt) then
               do i=1,3
                 rotor(ir)%blade(ib)%velNwakePredicted(i,rotor(ir)%rowNear:rotor(ir)%nNwake,:)=rotor(ir)%blade(ib)%velNwakePredicted(i,rotor(ir)%rowNear:rotor(ir)%nNwake,:)  &
-                  -  rotor(ir)%init_wake_vel*rotor(ir)%shaftAxis(i)
+                  -  rotor(ir)%initWakeVel*rotor(ir)%shaftAxis(i)
               enddo
               if (rotor(ir)%rowFar .ne. 0) then
                 do i=1,3
                   rotor(ir)%blade(ib)%velFwakePredicted(i,rotor(ir)%rowFar:rotor(ir)%nFwake)=rotor(ir)%blade(ib)%velFwakePredicted(i,rotor(ir)%rowFar:rotor(ir)%nFwake)  &
-                    -  rotor(ir)%init_wake_vel*rotor(ir)%shaftAxis(i)
+                    -  rotor(ir)%initWakeVel*rotor(ir)%shaftAxis(i)
                 enddo
               endif
             endif
