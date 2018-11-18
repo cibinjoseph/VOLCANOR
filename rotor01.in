@@ -7,11 +7,11 @@ Spanwise panels,ns     Chordwise panels,nc   Near wake panels,nNwake
        13                      1                   4
 ===============================================================
 
-X-hub_coords     Y-hub_coords     Z-hub_coords    [all in m]
+X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
 ---------------------------------------------------------------
     0.0              0.0              0.0
 
-X-CG_coords      Y-CG_coords      Z-CG_coords     [all in m]
+X-cgCoords      Y-cgCoords      Z-cgCoords     [all in m]
 ---------------------------------------------------------------
     0.0              0.0              0.0
 
@@ -25,11 +25,11 @@ Radius[m]        root_cut[r/R]       chord[m]
     8.0              0.1               1.0
 ===============================================================
 
- Omega[rad/s]   X-shaft_axis     Y-shaft_axis     Z-shaft_axis 
+ Omega[rad/s]   X-shaftAxis     Y-shaftAxis     Z-shaftAxis 
 ---------------------------------------------------------------
   62.83             0.0              0.0              1.0
 
- theta0[deg]    thetaC[deg]    thetaS[deg]    theta_twist[deg]
+ theta0[deg]    thetaC[deg]    thetaS[deg]    thetaTwist[deg]
 ---------------------------------------------------------------
     5.0            0.0              0.0           0.0
 ===============================================================
@@ -39,7 +39,7 @@ u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]
 0.0         0.0        0.0       0.0        0.0         0.0
 ===============================================================
 
-pivot point from LE[x/chord]    flap_hinge from centre[r/R]
+pivot point from LE[x/chord]    flapHinge from centre[r/R]
 ----------------------------------------------------------------
         0.00                            0.0
 ===============================================================
@@ -58,7 +58,7 @@ Spanwise start[r/R]  &  end[r/R] for centroid of tip vorticity
 ----------------------------------------------------------------
            0.75             1.0 
 
-init_wake_vel[m/s]     psi_start[deg]
+initWakeVel[m/s]     psiStart[deg]
 ----------------------------------------------------------------
      25.0                   0.0
 

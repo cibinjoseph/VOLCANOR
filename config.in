@@ -8,36 +8,36 @@
       1.2                     500.0
 
  SPAN DISCRETIZATION : [1]linear [2]cosine [3]halfsine
- span_spacing_switch
+ spanSpacingSwitch
 -----------------------------------------------------------------------
        1
 
  WAKE TIP DISSIPATION: [0]Off [1]On      Wake strain: [0]Off [1]On
- tip_diss_switch                           wakestrain_switch
+ tipDissipationSwitch                           wakeStrainSwitch
 -----------------------------------------------------------------------
        1                                            0
 
  SLOW START TO AVOID LARGE STARTING VORTEX: [0]Off [1]linear [2]tanh [3]extended tanh
-  slowstart_switch       slowstart_nt
+  slowStartSwitch       slowStartNt
 -----------------------------------------------------------------------
        0                      0
 
  PLOT WAKE: [0]Off [n]Every nth iteration
-  wakeplot_switch         gridplot_switch      forceplot_switch
+  wakePlotSwitch         gridPlotSwitch      forcePlotSwitch
 -----------------------------------------------------------------------
        1                       0               1
 
  WAKE CONVECTION FINITE-DIFFERENCE SCHEME: [0]FT1 [1]PC2 [2]AB2 [3]AB4
-  FDscheme_switch
+  fdSchemeSwitch
 -----------------------------------------------------------------------
        2
 
  IGNORE WAKE WAKE INTERACTION: [0]Off [1..]timesteps
-  wake_ignore_nt  *** NOT IMPLEMENTED ***
+  wakeIgnoreNt  *** NOT IMPLEMENTED ***
 -----------------------------------------------------------------------
        0
 
  INITIAL WAKE VELOCITY: [0]Off [1..]timesteps
-  init_wake_vel_nt
+  initWakeVelNt
 -----------------------------------------------------------------------
        0

@@ -6,7 +6,7 @@ program gridgen
   integer :: filerange_start, filerange_step, filerange_end
 
   integer :: ix,iy,iz,ifil
-  real(dp), allocatable, dimension(:) :: xvec,yvec,zvec
+  real(dp), allocatable, dimension(:) :: xVec,yVec,zvec
   real(dp), allocatable, dimension(:,:,:,:) :: grid, grid_centre, vel
   character(len=5) :: nx_char,ny_char,nz_char
   character(len=5) :: timestamp
@@ -58,16 +58,16 @@ program gridgen
   allocate(grid(3,nx,ny,nz))
   allocate(grid_centre(3,nx-1,ny-1,nz-1))
   allocate(vel(3,nx-1,ny-1,nz-1))
-  allocate(xvec(nx))
-  allocate(yvec(ny))
+  allocate(xVec(nx))
+  allocate(yVec(ny))
   allocate(zvec(nz))
 
   write(nx_char,'(I5)') nx
   write(ny_char,'(I5)') ny
   write(nz_char,'(I5)') nz
 
-  xvec=linspace(Cmin(1),Cmax(1),nx)
-  yvec=linspace(Cmin(2),Cmax(2),ny)
+  xVec=linspace(Cmin(1),Cmax(1),nx)
+  yVec=linspace(Cmin(2),Cmax(2),ny)
   zvec=linspace(Cmin(3),Cmax(3),nz)
 
   ! Create grid
@@ -75,7 +75,7 @@ program gridgen
   do iz=1,nz
     do iy=1,ny
       do ix=1,nx
-        grid(:,ix,iy,iz)=(/xvec(ix),yvec(iy),zvec(iz)/)
+        grid(:,ix,iy,iz)=(/xVec(ix),yVec(iy),zvec(iz)/)
       enddo
     enddo
   enddo
@@ -145,8 +145,8 @@ program gridgen
   deallocate(grid)
   deallocate(grid_centre)
   deallocate(vel)
-  deallocate(xvec)
-  deallocate(yvec)
+  deallocate(xVec)
+  deallocate(yVec)
   deallocate(zvec)
 
 end program gridgen
