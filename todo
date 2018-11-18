@@ -1,8 +1,7 @@
 Max circulation at non max lift in forward flight?
 Check leapfrogging in vortex rings - dependance on discretization
-Does discretization give rise to instability? cause for Kelvin waves?
+Does discretization give rise to instability? cause for Kelvin waves or Crow instability?
 Check performance using VTune Amplifier and Advisor
 Check CT and inflow distribution against BEMT
 Split Nwake and Fwake computations to separate loops to avoid if conditions
 Try slowstart to prevent starting vortex instability
-Get CT or CFz out of code
