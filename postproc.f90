@@ -404,24 +404,24 @@ contains
     close(10)
   end subroutine tip2file
 
-  subroutine rotorforce2file(rotor,rotor_number,timestamp,direction_vector)
+  subroutine rotorforce2file(rotor,rotor_number,timestamp,directionVector)
     type(rotor_class), intent(in) :: rotor
     character(len=*), intent(in) :: timestamp
     integer, intent(in) :: rotor_number
-    real(dp), intent(in), dimension(3) :: direction_vector
+    real(dp), intent(in), dimension(3) :: directionVector
     character(len=3) :: rotor_number_char
-    real(dp) :: rForce
-    real(dp), dimension(rotor%nb) :: bForce
+    real(dp) :: rotorForce
+    real(dp), dimension(rotor%nb) :: bladeForce
     integer :: ib
 
-    rForce = dot_product(rotor%Force,direction_vector)
+    rotorForce = dot_product(rotor%Force,directionVector)
     do ib=1,rotor%nb
-      bForce(ib) = dot_product(rotor%blade(ib)%Force,direction_vector)
+      bladeForce(ib) = dot_product(rotor%blade(ib)%Force,directionVector)
     enddo
 
     write(rotor_number_char,'(I0.3)') rotor_number
     open(unit=11,file='Results/r'//rotor_number_char//'force'//timestamp//'.txt')
-    write(11,*) rForce,(bForce(ib),ib=1,rotor%nb)
+    write(11,*) rotorForce/rotor%nonDimForceDenominator, rotorForce, (bladeForce(ib),ib=1,rotor%nb)
     close(11)
   end subroutine rotorforce2file
 

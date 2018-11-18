@@ -44,7 +44,7 @@ program main
 
   ! Rotor and wake initialization
   do ir=1,nr
-    call rotor(ir)%init(dt,spanSpacingSwitch,fdSchemeSwitch)
+    call rotor(ir)%init(density,dt,spanSpacingSwitch,fdSchemeSwitch)
   enddo
 
   ! Rotate wing pc, vr, cp and nCap by initial pitch angle 

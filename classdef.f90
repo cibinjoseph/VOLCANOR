@@ -897,6 +897,7 @@ module rotor_classdef
     real(dp) :: initWakeVel, psiStart
     integer :: rollupStart, rollupEnd
     integer :: rowNear, rowFar
+    real(dp) :: nonDimForceDenominator
   contains
     procedure :: getdata
     procedure :: init
@@ -1006,9 +1007,9 @@ contains
 
   end subroutine getdata
 
-  subroutine init(this,dt,spanSpacingSwitch,fdSchemeSwitch)
+  subroutine init(this,density,dt,spanSpacingSwitch,fdSchemeSwitch)
   class(rotor_class) :: this
-    real(dp), intent(in) :: dt
+    real(dp), intent(in) :: density, dt
     integer, intent(in) :: spanSpacingSwitch, fdSchemeSwitch
 
     real(dp), dimension(this%nc+1) :: xVec
@@ -1159,6 +1160,9 @@ contains
 
     ! Rotate rotor by phi,theta,psi about CG
     call this%rot_pts(this%pts,this%cgCoords,1)
+
+    ! Compute denominators for non-dimensionalisation
+    this%nonDimForceDenominator = 0.5_dp*density*(pi*this%radius**2._dp)*(this%radius*this%omega)**2._dp
 
     ! Assign wind velocities
     this%velWind=-1._dp*this%velBody
