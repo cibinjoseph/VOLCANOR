@@ -12,7 +12,7 @@ contains
     real(dp), dimension(3,rotor%nFwake+1) :: wake_tip   ! Optimise this by only initialising reqd size
     integer :: i,j,nx,ny,ib
 
-    if (rotor%row_far .eq. 0) error stop "ERROR: plot only after far wake is created"
+    if (rotor%rowFar .eq. 0) error stop "ERROR: plot only after far wake is created"
 
     open(unit=10,file='Results/Nwake'//timestamp//'.plt',position='append')
     open(unit=11,file='Results/Fwake'//timestamp//'.plt',position='append')
@@ -50,17 +50,17 @@ contains
       ! Near wake 
       nx=rotor%nNwake
       ny=rotor%ns
-      write(nx_char,'(I5)') nx-(rotor%row_near-1)+1
+      write(nx_char,'(I5)') nx-(rotor%rowNear-1)+1
       write(ny_char,'(I5)') ny+1
 
       !Check if necessary - $omp parallel do collapse(2)
       do j=1,ny
-        do i=rotor%row_near,nx
+        do i=rotor%rowNear,nx
           wake_mesh(:,i,j)=rotor%blade(ib)%waP(i,j)%vr%vf(1)%fc(:,1)
         enddo
       enddo
       !Check if necessary -$omp end parallel do
-      do i=rotor%row_near,nx
+      do i=rotor%rowNear,nx
         wake_mesh(:,i,ny+1)=rotor%blade(ib)%waP(i,ny)%vr%vf(4)%fc(:,1)
       enddo
       do j=1,ny
@@ -71,17 +71,17 @@ contains
       write(10,*) 'Zone I='//trim(nx_char)//' J='//trim(ny_char)//' K=1  T="NearWake"'
       write(10,*) 'DATAPACKING=BLOCK'
       write(10,*) 'VARLOCATION=([4]=CELLCENTERED)'!,[5]=CELLCENTERED)'
-      write(10,*) ((wake_mesh(1,i,j),i=rotor%row_near,nx+1),j=1,ny+1)
-      write(10,*) ((wake_mesh(2,i,j),i=rotor%row_near,nx+1),j=1,ny+1)
-      write(10,*) ((wake_mesh(3,i,j),i=rotor%row_near,nx+1),j=1,ny+1)
-      write(10,*) ((-1._dp*rotor%blade(ib)%waP(i,j)%vr%gam,i=rotor%row_near,nx),j=1,ny)
+      write(10,*) ((wake_mesh(1,i,j),i=rotor%rowNear,nx+1),j=1,ny+1)
+      write(10,*) ((wake_mesh(2,i,j),i=rotor%rowNear,nx+1),j=1,ny+1)
+      write(10,*) ((wake_mesh(3,i,j),i=rotor%rowNear,nx+1),j=1,ny+1)
+      write(10,*) ((-1._dp*rotor%blade(ib)%waP(i,j)%vr%gam,i=rotor%rowNear,nx),j=1,ny)
 
       ! Far wake 
       nx=rotor%nFwake
-      write(nx_char,'(I5)') nx-(rotor%row_far-1)+1
+      write(nx_char,'(I5)') nx-(rotor%rowFar-1)+1
 
       !Check if necessary - $omp parallel do collapse(2)
-      do i=rotor%row_far,nx
+      do i=rotor%rowFar,nx
         wake_tip(:,i)=rotor%blade(ib)%waF(i)%vf%fc(:,2)
       enddo
       wake_tip(:,nx+1)=rotor%blade(ib)%waF(rotor%nFwake)%vf%fc(:,1)
@@ -91,9 +91,9 @@ contains
       write(11,*) 'VARIABLES = "X" "Y" "Z"'
       write(11,*) 'Zone I='//trim(nx_char)//' J=1   K=1   T="FarWake"'
       write(11,*) 'DATAPACKING=BLOCK'
-      write(11,*) (wake_tip(1,i),i=rotor%row_far,nx+1)
-      write(11,*) (wake_tip(2,i),i=rotor%row_far,nx+1)
-      write(11,*) (wake_tip(3,i),i=rotor%row_far,nx+1)
+      write(11,*) (wake_tip(1,i),i=rotor%rowFar,nx+1)
+      write(11,*) (wake_tip(2,i),i=rotor%rowFar,nx+1)
+      write(11,*) (wake_tip(3,i),i=rotor%rowFar,nx+1)
 
     enddo
 
@@ -118,14 +118,14 @@ contains
     nr=size(rotor)
 
     do ir=1,nr
-      if (rotor(ir)%row_far .eq. 0) error stop 'ERROR: Use filaments2file() only after development of far wake'
+      if (rotor(ir)%rowFar .eq. 0) error stop 'ERROR: Use filaments2file() only after development of far wake'
     enddo
 
     ! Compute number of each filaments
     do ir=1,nr
       nvr_wing=nvr_wing+rotor(ir)%nb*(rotor(ir)%nc*rotor(ir)%ns)
       nvr_Nwake=nvr_Nwake+rotor(ir)%nb*(rotor(ir)%nNwake*rotor(ir)%ns)
-      nvf_Fwake=nvf_Fwake+(rotor(ir)%nFwake-rotor(ir)%row_far+1)*rotor(ir)%nb
+      nvf_Fwake=nvf_Fwake+(rotor(ir)%nFwake-rotor(ir)%rowFar+1)*rotor(ir)%nb
     enddo
 
     ! Allocate filaments
@@ -166,7 +166,7 @@ contains
     indx=1;
     do ir=1,nr
       do ib=1,rotor(ir)%nb
-        do irow=rotor(ir)%row_far,rotor(ir)%nFwake
+        do irow=rotor(ir)%rowFar,rotor(ir)%nFwake
           vf_Fwake(indx)=rotor(ir)%blade(ib)%waF(irow)%vf
           gam_Fwake(indx)=rotor(ir)%blade(ib)%waF(irow)%gam
         enddo
@@ -420,7 +420,7 @@ contains
   !     open(unit=10,file='Results/R'//rotor_number_char//'Bl'//blade_number_char//'L'//timestamp//'.curve')
   !     write(10,*) '# Blade lift'
   !     do ispan=1,rotor%ns
-  !       write(10,*) norm2(rotor%hub_coords-rotor%blade(ib)%wiP(1,ispan)%CP),rotor%blade(ib)%wiP(1,ispan)%dLift
+  !       write(10,*) norm2(rotor%hubCoords-rotor%blade(ib)%wiP(1,ispan)%CP),rotor%blade(ib)%wiP(1,ispan)%dLift
   !     enddo
   !     close(10)
 
@@ -431,23 +431,23 @@ contains
   !   close(11)
   ! end subroutine thrust2file
 
-  subroutine gam2file(yvec,gam_sectional,filename)
-    real(dp), intent(in), dimension(:) :: yvec
+  subroutine gam2file(yVec,gam_sectional,filename)
+    real(dp), intent(in), dimension(:) :: yVec
     real(dp), intent(in), dimension(:) :: gam_sectional
     character(len=*), intent(in) :: filename
-    real(dp), dimension(size(yvec)-1) :: yvec_file
+    real(dp), dimension(size(yVec)-1) :: yVec_file
     integer :: i,ny
 
     ny=size(gam_sectional)
 
     open(unit=10,file=filename,position='append')
     do i=1,ny
-      yvec_file(i)=(yvec(i)+yvec(i+1))*0.5_dp
+      yVec_file(i)=(yVec(i)+yVec(i+1))*0.5_dp
     enddo
 
     write(10,*) '# Gamma'
     do i=1,ny
-      write(10,*) yvec_file(i), -1._dp*gam_sectional(i)
+      write(10,*) yVec_file(i), -1._dp*gam_sectional(i)
     enddo
     close(10)
 
