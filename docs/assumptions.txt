@@ -4,5 +4,8 @@ Positive pitch and positive omega produces negative circulation and vice versa u
 Panels have subdivisions along chord and not inclined to it 
 - calclift() for tangent vector
 
-Only one row of chordwise panels present
-- calcthrust() for dL=rho*v*dgamma
+Max number of rotors is 999
+- rotor_number_char
+
+Max number of blades for a rotor is 99
+- blade_number_char

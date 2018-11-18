@@ -1635,29 +1635,4 @@ contains
   !   enddo
   ! end subroutine rotor_calc_alpha
 
-  ! subroutine calc_thrust(this,density)
-  ! class(rotor_class), intent(inout) :: this
-  !   real(dp), intent(in) :: density
-  !   real(dp) :: dyn_pressure
-  !   integer :: icol, ib
-
-  !   call this%calc_alpha()
-
-  !   ! VERY VAGUE & SPECIFIC COMPUTATION, USE ELEMENTAL GAMMA NEXT TIME
-  !   this%thrust=0._dp
-  !   do ib=1,this%nb
-  !     this%blade(ib)%thrust=0._dp
-  !     do icol=1,this%ns
-  !       this%blade(ib)%wiP(1,icol)%dLift=this%blade(ib)%wiP(1,icol)%mean_span*this%blade(ib)%wiP(1,icol)%alpha
-  !       this%blade(ib)%thrust=this%blade(ib)%thrust+this%blade(ib)%wiP(1,icol)%dLift
-  !     enddo
-  !     dyn_pressure=0.5_dp*density*this%chord*((this%radius*this%Omega_slow)**2._dp)
-  !     this%blade(ib)%wiP%dLift=dyn_pressure*this%blade(ib)%wiP%dLift*2._dp*pi
-  !     !print*,this%blade(ib)%wiP%alpha*(180./pi)
-  !     !read*
-  !     this%blade(ib)%thrust=dyn_pressure*this%blade(ib)%thrust*2._dp*pi
-  !     this%thrust=this%thrust+this%blade(ib)%thrust
-  !   enddo
-  ! end subroutine calc_thrust
-
 end module rotor_classdef
