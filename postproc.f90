@@ -404,29 +404,24 @@ contains
     close(10)
   end subroutine tip2file
 
-  subroutine rotorforce2file(rotor,rotor_number,timestamp)
+  subroutine rotorforce2file(rotor,rotor_number,timestamp,direction_vector)
     type(rotor_class), intent(in) :: rotor
     character(len=*), intent(in) :: timestamp
     integer, intent(in) :: rotor_number
+    real(dp), intent(in), dimension(3) :: direction_vector
     character(len=3) :: rotor_number_char
+    real(dp) :: rForce
+    real(dp), dimension(rotor%nb) :: bForce
+    integer :: ib
 
-  
+    rForce = dot_product(rotor%Force,direction_vector)
+    do ib=1,rotor%nb
+      bForce(ib) = dot_product(rotor%blade(ib)%Force,direction_vector)
+    enddo
+
     write(rotor_number_char,'(I0.3)') rotor_number
     open(unit=11,file='Results/r'//rotor_number_char//'force'//timestamp//'.txt')
-
-    ! do ib=1,rotor%nb
-    !   write(blade_number_char,'(I0.2)') ib
-    !   open(unit=10,file='Results/R'//rotor_number_char//'Bl'//blade_number_char//'L'//timestamp//'.curve')
-    !   write(10,*) '# Blade lift'
-    !   do ispan=1,rotor%ns
-    !     write(10,*) norm2(rotor%hub_coords-rotor%blade(ib)%wiP(1,ispan)%CP),rotor%blade(ib)%wiP(1,ispan)%dLift
-    !   enddo
-    !   close(10)
-
-    !   write(11,*) 'Blade'//blade_number_char//' ',rotor%blade(ib)%thrust
-    ! enddo
-
-    write(11,*) dot_product(rotor%Force,(/0._dp,0._dp,1._dp/))
+    write(11,*) rForce,(bForce(ib),ib=1,rotor%nb)
     close(11)
   end subroutine rotorforce2file
 
