@@ -2,19 +2,19 @@ program gridgen
   use library
 
   integer :: nx,ny,nz
-  real(dp), dimension(3) :: Cmin, Cmax    ! Coordinates of corners
-  integer :: filerange_start, filerange_step, filerange_end
+  real(dp), dimension(3) :: cMin, cMax    ! Coordinates of corners
+  integer :: fileRangeStart, fileRangeStep, fileRangeEnd
 
   integer :: ix,iy,iz,ifil
-  real(dp), allocatable, dimension(:) :: xVec,yVec,zvec
-  real(dp), allocatable, dimension(:,:,:,:) :: grid, grid_centre, vel
+  real(dp), allocatable, dimension(:) :: xVec,yVec,zVec
+  real(dp), allocatable, dimension(:,:,:,:) :: grid, gridCentre, velCentre
   character(len=5) :: nx_char,ny_char,nz_char
   character(len=5) :: timestamp
 
-  integer :: nvr_wing, nvr_Nwake, nvf_Fwake
-  type(vr_class), allocatable, dimension(:) :: vr_wing, vr_Nwake
-  type(vf_class), allocatable, dimension(:) :: vf_Fwake
-  real(dp), allocatable, dimension(:) :: gam_Fwake
+  integer :: nVrWing, nVrNwake, nVfFwake
+  type(vr_class), allocatable, dimension(:) :: vrWing, vrNwake
+  type(vf_class), allocatable, dimension(:) :: vfFwake
+  real(dp), allocatable, dimension(:) :: gamFwake
 
   ! Read gridconfig.in file
   call print_status('Reading file '//'gridconfig.in')
@@ -22,60 +22,60 @@ program gridgen
   call skiplines(11,3)
   read(11,*) nx,ny,nz
   call skiplines(11,4)
-  read(11,*) Cmin(1),Cmin(2),Cmin(3)
+  read(11,*) cMin(1),cMin(2),cMin(3)
   call skiplines(11,3)
-  read(11,*) Cmax(1),Cmax(2),Cmax(3)
+  read(11,*) cMax(1),cMax(2),cMax(3)
   call skiplines(11,5)
-  read(11,*) filerange_start, filerange_step, filerange_end
+  read(11,*) fileRangeStart, fileRangeStep, fileRangeEnd
   close(11)
 
-  ! Sanity check for Cmin and Cmax values
-  if (Cmin(1)>Cmax(1) .or. Cmin(2)>Cmax(2) .or. Cmin(3)>Cmax(3)) then
+  ! Sanity check for cMin and cMax values
+  if (cMin(1)>cMax(1) .or. cMin(2)>cMax(2) .or. cMin(3)>cMax(3)) then
     error stop 'ERROR: All XYZmin values should be greater than XYZmax values'
   endif
 
   call print_status()    ! SUCCESS
 
   ! Read from filaments file
-  write(timestamp,'(I0.5)') filerange_start
+  write(timestamp,'(I0.5)') fileRangeStart
   call print_status('Reading file '//'filaments'//timestamp//'.dat')
   open(unit=12,file='Results/filaments'//timestamp//'.dat',form='unformatted')
-  read(12) nvr_wing
-  read(12) nvr_Nwake
-  read(12) nvf_Fwake
+  read(12) nVrWing
+  read(12) nVrNwake
+  read(12) nVfFwake
 
-  allocate(vr_wing(nvr_wing))
-  allocate(vr_Nwake(nvr_Nwake))
-  allocate(vf_Fwake(nvf_Fwake))
-  allocate(gam_Fwake(nvf_Fwake))
+  allocate(vrWing(nVrWing))
+  allocate(vrNwake(nVrNwake))
+  allocate(vfFwake(nVfFwake))
+  allocate(gamFwake(nVfFwake))
 
-  read(12) vr_wing, vr_Nwake
-  read(12) vf_Fwake, gam_Fwake
+  read(12) vrWing, vrNwake
+  read(12) vfFwake, gamFwake
   close(12)
   call print_status()    ! SUCCESS
 
   ! Allocate grid coordinates
   allocate(grid(3,nx,ny,nz))
-  allocate(grid_centre(3,nx-1,ny-1,nz-1))
-  allocate(vel(3,nx-1,ny-1,nz-1))
+  allocate(gridCentre(3,nx-1,ny-1,nz-1))
+  allocate(velCentre(3,nx-1,ny-1,nz-1))
   allocate(xVec(nx))
   allocate(yVec(ny))
-  allocate(zvec(nz))
+  allocate(zVec(nz))
 
   write(nx_char,'(I5)') nx
   write(ny_char,'(I5)') ny
   write(nz_char,'(I5)') nz
 
-  xVec=linspace(Cmin(1),Cmax(1),nx)
-  yVec=linspace(Cmin(2),Cmax(2),ny)
-  zvec=linspace(Cmin(3),Cmax(3),nz)
+  xVec=linspace(cMin(1),cMax(1),nx)
+  yVec=linspace(cMin(2),cMax(2),ny)
+  zVec=linspace(cMin(3),cMax(3),nz)
 
   ! Create grid
   call print_status('Creating cartesian grid')
   do iz=1,nz
     do iy=1,ny
       do ix=1,nx
-        grid(:,ix,iy,iz)=(/xVec(ix),yVec(iy),zvec(iz)/)
+        grid(:,ix,iy,iz)=(/xVec(ix),yVec(iy),zVec(iz)/)
       enddo
     enddo
   enddo
@@ -84,33 +84,33 @@ program gridgen
   do iz=1,nz-1
     do iy=1,ny-1
       do ix=1,nx-1
-        grid_centre(:,ix,iy,iz)=grid(:,ix,iy,iz)+grid(:,ix+1,iy,iz)+grid(:,ix+1,iy+1,iz)+grid(:,ix+1,iy+1,iz+1)  &
+        gridCentre(:,ix,iy,iz)=grid(:,ix,iy,iz)+grid(:,ix+1,iy,iz)+grid(:,ix+1,iy+1,iz)+grid(:,ix+1,iy+1,iz+1)  &
           + grid(:,ix,iy+1,iz)+grid(:,ix,iy+1,iz+1)+grid(:,ix,iy,iz+1)+grid(:,ix+1,iy,iz+1)
       enddo
     enddo
   enddo
-  grid_centre=grid_centre*0.125_dp
+  gridCentre=gridCentre*0.125_dp
   call print_status()    ! SUCCESS
 
   ! Find induced velocities
   call print_status('Computing velocities')
   ! at cell centre
-  vel=0._dp
+  velCentre=0._dp
   !$omp parallel do collapse(3)
   do iz=1,nz-1
     do iy=1,ny-1
       do ix=1,nx-1
         ! from wing
-        do ifil=1,nvr_wing
-          vel(:,ix,iy,iz)=vel(:,ix,iy,iz)+vr_wing(ifil)%vind(grid_centre(:,ix,iy,iz))*vr_wing(ifil)%gam
+        do ifil=1,nVrWing
+          velCentre(:,ix,iy,iz)=velCentre(:,ix,iy,iz)+vrWing(ifil)%vind(gridCentre(:,ix,iy,iz))*vrWing(ifil)%gam
         enddo
         ! from Nwake
-        do ifil=1,nvr_Nwake
-          vel(:,ix,iy,iz)=vel(:,ix,iy,iz)+vr_Nwake(ifil)%vind(grid_centre(:,ix,iy,iz))*vr_Nwake(ifil)%gam
+        do ifil=1,nVrNwake
+          velCentre(:,ix,iy,iz)=velCentre(:,ix,iy,iz)+vrNwake(ifil)%vind(gridCentre(:,ix,iy,iz))*vrNwake(ifil)%gam
         enddo
         ! from Fwake
-        do ifil=1,nvf_Fwake
-          vel(:,ix,iy,iz)=vel(:,ix,iy,iz)+vf_Fwake(ifil)%vind(grid_centre(:,ix,iy,iz))*gam_Fwake(ifil)
+        do ifil=1,nVfFwake
+          velCentre(:,ix,iy,iz)=velCentre(:,ix,iy,iz)+vfFwake(ifil)%vind(gridCentre(:,ix,iy,iz))*gamFwake(ifil)
         enddo
       enddo
     enddo
@@ -120,7 +120,7 @@ program gridgen
 
   ! Write to file
   call print_status('Writing to grid file')
-  write(timestamp,'(I0.5)') filerange_start
+  write(timestamp,'(I0.5)') fileRangeStart
   open(unit=13,file='Results/grid'//timestamp//'.plt')
 
   write(13,*) 'TITLE = "Grid"'
@@ -131,22 +131,22 @@ program gridgen
   write(13,*) (((grid(1,ix,iy,iz),ix=1,nx),iy=1,ny),iz=1,nz) 
   write(13,*) (((grid(2,ix,iy,iz),ix=1,nx),iy=1,ny),iz=1,nz) 
   write(13,*) (((grid(3,ix,iy,iz),ix=1,nx),iy=1,ny),iz=1,nz) 
-  write(13,*) (((vel(1,ix,iy,iz),ix=1,nx-1),iy=1,ny-1),iz=1,nz-1)
-  write(13,*) (((vel(2,ix,iy,iz),ix=1,nx-1),iy=1,ny-1),iz=1,nz-1)
-  write(13,*) (((vel(3,ix,iy,iz),ix=1,nx-1),iy=1,ny-1),iz=1,nz-1)
+  write(13,*) (((velCentre(1,ix,iy,iz),ix=1,nx-1),iy=1,ny-1),iz=1,nz-1)
+  write(13,*) (((velCentre(2,ix,iy,iz),ix=1,nx-1),iy=1,ny-1),iz=1,nz-1)
+  write(13,*) (((velCentre(3,ix,iy,iz),ix=1,nx-1),iy=1,ny-1),iz=1,nz-1)
   close(13)
   call print_status()
 
-  deallocate(vr_wing)
-  deallocate(vr_Nwake)
-  deallocate(vf_Fwake)
-  deallocate(gam_Fwake)
+  deallocate(vrWing)
+  deallocate(vrNwake)
+  deallocate(vfFwake)
+  deallocate(gamFwake)
 
   deallocate(grid)
-  deallocate(grid_centre)
-  deallocate(vel)
+  deallocate(gridCentre)
+  deallocate(velCentre)
   deallocate(xVec)
   deallocate(yVec)
-  deallocate(zvec)
+  deallocate(zVec)
 
 end program gridgen
