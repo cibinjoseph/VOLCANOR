@@ -237,6 +237,13 @@ program main
       endif
     endif
 
+    ! Grid plot computation
+    if (gridPlotSwitch .ne. 0) then
+      if (mod(iter,gridPlotSwitch) .eq. 0) then 
+        call filaments2file(rotor,timestamp)
+      endif
+    endif
+
     ! Induced vel on wake vortices
     do ir=1,nr
       do ib=1,rotor(ir)%nb
