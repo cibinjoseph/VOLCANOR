@@ -119,8 +119,8 @@ program gridgen
     call print_status()
 
     ! Write to file
-    call print_status('Writing to grid file')
-    write(timestamp,'(I0.5)') fileRangeStart
+    call print_status('Writing file '//'grid'//timestamp//'.plt')
+    write(timestamp,'(I0.5)') fileRange
     open(unit=13,file='Results/grid'//timestamp//'.plt')
 
     write(13,*) 'TITLE = "Grid"'
