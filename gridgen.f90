@@ -3,7 +3,7 @@ program gridgen
 
   integer :: nx,ny,nz
   real(dp), dimension(3) :: cMin, cMax    ! Coordinates of corners
-  integer :: fileRangeStart, fileRangeStep, fileRangeEnd
+  integer :: fileRange, fileRangeStart, fileRangeStep, fileRangeEnd
 
   integer :: ix,iy,iz,ifil
   real(dp), allocatable, dimension(:) :: xVec,yVec,zVec
@@ -34,24 +34,6 @@ program gridgen
     error stop 'ERROR: All XYZmin values should be greater than XYZmax values'
   endif
 
-  call print_status()    ! SUCCESS
-
-  ! Read from filaments file
-  write(timestamp,'(I0.5)') fileRangeStart
-  call print_status('Reading file '//'filaments'//timestamp//'.dat')
-  open(unit=12,file='Results/filaments'//timestamp//'.dat',form='unformatted')
-  read(12) nVrWing
-  read(12) nVrNwake
-  read(12) nVfFwake
-
-  allocate(vrWing(nVrWing))
-  allocate(vrNwake(nVrNwake))
-  allocate(vfFwake(nVfFwake))
-  allocate(gamFwake(nVfFwake))
-
-  read(12) vrWing, vrNwake
-  read(12) vfFwake, gamFwake
-  close(12)
   call print_status()    ! SUCCESS
 
   ! Allocate grid coordinates
@@ -92,55 +74,74 @@ program gridgen
   gridCentre=gridCentre*0.125_dp
   call print_status()    ! SUCCESS
 
-  ! Find induced velocities
-  call print_status('Computing velocities')
-  ! at cell centre
-  !velCentre=0._dp
-  !$omp parallel do collapse(3)
-  do iz=1,nz-1
-    do iy=1,ny-1
-      do ix=1,nx-1
-        ! from wing
-        do ifil=1,nVrWing
-          velCentre(:,ix,iy,iz)=vrWing(ifil)%vind(gridCentre(:,ix,iy,iz))*vrWing(ifil)%gam
-        enddo
-        ! from Nwake
-        do ifil=1,nVrNwake
-          velCentre(:,ix,iy,iz)=velCentre(:,ix,iy,iz)+vrNwake(ifil)%vind(gridCentre(:,ix,iy,iz))*vrNwake(ifil)%gam
-        enddo
-        ! from Fwake
-        do ifil=1,nVfFwake
-          velCentre(:,ix,iy,iz)=velCentre(:,ix,iy,iz)+vfFwake(ifil)%vind(gridCentre(:,ix,iy,iz))*gamFwake(ifil)
+  ! Iterate through filaments files
+  do fileRange = fileRangeStart, fileRangeEnd, fileRangeStep
+    ! Read from filaments file
+    write(timestamp,'(I0.5)') fileRange
+    call print_status('Reading file '//'filaments'//timestamp//'.dat')
+    open(unit=12,file='Results/filaments'//timestamp//'.dat',form='unformatted')
+    read(12) nVrWing
+    read(12) nVrNwake
+    read(12) nVfFwake
+
+    allocate(vrWing(nVrWing))
+    allocate(vrNwake(nVrNwake))
+    allocate(vfFwake(nVfFwake))
+    allocate(gamFwake(nVfFwake))
+
+    read(12) vrWing, vrNwake
+    read(12) vfFwake, gamFwake
+    close(12)
+    call print_status()    ! SUCCESS
+
+    ! Find induced velocities at cell centre
+    call print_status('Computing velocities')
+    !$omp parallel do collapse(3)
+    do iz=1,nz-1
+      do iy=1,ny-1
+        do ix=1,nx-1
+          ! from wing
+          do ifil=1,nVrWing
+            velCentre(:,ix,iy,iz)=vrWing(ifil)%vind(gridCentre(:,ix,iy,iz))*vrWing(ifil)%gam
+          enddo
+          ! from Nwake
+          do ifil=1,nVrNwake
+            velCentre(:,ix,iy,iz)=velCentre(:,ix,iy,iz)+vrNwake(ifil)%vind(gridCentre(:,ix,iy,iz))*vrNwake(ifil)%gam
+          enddo
+          ! from Fwake
+          do ifil=1,nVfFwake
+            velCentre(:,ix,iy,iz)=velCentre(:,ix,iy,iz)+vfFwake(ifil)%vind(gridCentre(:,ix,iy,iz))*gamFwake(ifil)
+          enddo
         enddo
       enddo
     enddo
+    !$omp end parallel do
+    call print_status()
+
+    ! Write to file
+    call print_status('Writing to grid file')
+    write(timestamp,'(I0.5)') fileRangeStart
+    open(unit=13,file='Results/grid'//timestamp//'.plt')
+
+    write(13,*) 'TITLE = "Grid"'
+    write(13,*) 'VARIABLES = "X" "Y" "Z" "U" "V" "W"'
+    write(13,*) 'ZONE I='//trim(nx_char)//' J='//trim(ny_char)//' K='//trim(nz_char)//' T="Data"'
+    write(13,*) 'DATAPACKING=BLOCK'
+    write(13,*) 'VARLOCATION=([4]=CELLCENTERED,[5]=CELLCENTERED,[6]=CELLCENTERED)'
+    write(13,*) (((grid(1,ix,iy,iz),ix=1,nx),iy=1,ny),iz=1,nz) 
+    write(13,*) (((grid(2,ix,iy,iz),ix=1,nx),iy=1,ny),iz=1,nz) 
+    write(13,*) (((grid(3,ix,iy,iz),ix=1,nx),iy=1,ny),iz=1,nz) 
+    write(13,*) (((velCentre(1,ix,iy,iz),ix=1,nx-1),iy=1,ny-1),iz=1,nz-1)
+    write(13,*) (((velCentre(2,ix,iy,iz),ix=1,nx-1),iy=1,ny-1),iz=1,nz-1)
+    write(13,*) (((velCentre(3,ix,iy,iz),ix=1,nx-1),iy=1,ny-1),iz=1,nz-1)
+    close(13)
+    call print_status()
+
+    deallocate(vrWing)
+    deallocate(vrNwake)
+    deallocate(vfFwake)
+    deallocate(gamFwake)
   enddo
-  !$omp end parallel do
-  call print_status()
-
-  ! Write to file
-  call print_status('Writing to grid file')
-  write(timestamp,'(I0.5)') fileRangeStart
-  open(unit=13,file='Results/grid'//timestamp//'.plt')
-
-  write(13,*) 'TITLE = "Grid"'
-  write(13,*) 'VARIABLES = "X" "Y" "Z" "U-vel" "V-vel" "W-vel"'
-  write(13,*) 'ZONE I='//trim(nx_char)//' J='//trim(ny_char)//' K='//trim(nz_char)//' T="Data"'
-  write(13,*) 'DATAPACKING=BLOCK'
-  write(13,*) 'VARLOCATION=([4]=CELLCENTERED,[5]=CELLCENTERED,[6]=CELLCENTERED)'
-  write(13,*) (((grid(1,ix,iy,iz),ix=1,nx),iy=1,ny),iz=1,nz) 
-  write(13,*) (((grid(2,ix,iy,iz),ix=1,nx),iy=1,ny),iz=1,nz) 
-  write(13,*) (((grid(3,ix,iy,iz),ix=1,nx),iy=1,ny),iz=1,nz) 
-  write(13,*) (((velCentre(1,ix,iy,iz),ix=1,nx-1),iy=1,ny-1),iz=1,nz-1)
-  write(13,*) (((velCentre(2,ix,iy,iz),ix=1,nx-1),iy=1,ny-1),iz=1,nz-1)
-  write(13,*) (((velCentre(3,ix,iy,iz),ix=1,nx-1),iy=1,ny-1),iz=1,nz-1)
-  close(13)
-  call print_status()
-
-  deallocate(vrWing)
-  deallocate(vrNwake)
-  deallocate(vfFwake)
-  deallocate(gamFwake)
 
   deallocate(grid)
   deallocate(gridCentre)
@@ -148,5 +149,6 @@ program gridgen
   deallocate(xVec)
   deallocate(yVec)
   deallocate(zVec)
+
 
 end program gridgen
