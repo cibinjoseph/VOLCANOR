@@ -114,7 +114,7 @@ contains
     nvrWing=0
     nvrNwake=0
     nvfFwake=0
-        
+
     nr=size(rotor)
 
     do ir=1,nr
@@ -142,9 +142,9 @@ contains
         do icol=1,rotor(ir)%ns
           do irow=1,rotor(ir)%nc
             vrWing(indx)=rotor(ir)%blade(ib)%wiP(irow,icol)%vr
+            indx=indx+1
           enddo
         enddo
-        indx=indx+1
       enddo
     enddo
 
@@ -155,9 +155,9 @@ contains
         do icol=1,rotor(ir)%ns
           do irow=1,rotor(ir)%nNwake
             vrNwake(indx)=rotor(ir)%blade(ib)%waP(irow,icol)%vr
+            indx=indx+1
           enddo
         enddo
-        indx=indx+1
       enddo
     enddo
 
@@ -169,8 +169,8 @@ contains
         do irow=rotor(ir)%rowFar,rotor(ir)%nFwake
           vfFwake(indx)=rotor(ir)%blade(ib)%waF(irow)%vf
           gamFwake(indx)=rotor(ir)%blade(ib)%waF(irow)%gam
+          indx=indx+1
         enddo
-        indx=indx+1
       enddo
     enddo
 
