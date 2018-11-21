@@ -136,7 +136,7 @@ contains
 
     ! Extract filament properties
     ! from wing
-    indx=1;
+    indx=1
     do ir=1,nr
       do ib=1,rotor(ir)%nb
         do icol=1,rotor(ir)%ns
@@ -149,7 +149,7 @@ contains
     enddo
 
     ! from Nwake
-    indx=1;
+    indx=1
     do ir=1,nr
       do ib=1,rotor(ir)%nb
         do icol=1,rotor(ir)%ns
@@ -163,7 +163,7 @@ contains
 
 
     ! from Fwake
-    indx=1;
+    indx=1
     do ir=1,nr
       do ib=1,rotor(ir)%nb
         do irow=rotor(ir)%rowFar,rotor(ir)%nFwake
