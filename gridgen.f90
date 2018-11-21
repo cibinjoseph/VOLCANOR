@@ -95,14 +95,14 @@ program gridgen
   ! Find induced velocities
   call print_status('Computing velocities')
   ! at cell centre
-  velCentre=0._dp
+  !velCentre=0._dp
   !$omp parallel do collapse(3)
   do iz=1,nz-1
     do iy=1,ny-1
       do ix=1,nx-1
         ! from wing
         do ifil=1,nVrWing
-          velCentre(:,ix,iy,iz)=velCentre(:,ix,iy,iz)+vrWing(ifil)%vind(gridCentre(:,ix,iy,iz))*vrWing(ifil)%gam
+          velCentre(:,ix,iy,iz)=vrWing(ifil)%vind(gridCentre(:,ix,iy,iz))*vrWing(ifil)%gam
         enddo
         ! from Nwake
         do ifil=1,nVrNwake
