@@ -493,11 +493,6 @@ program main
 
   enddo
 
-  ! Postprocesing
-  !do ir=1,nr
-  !  call thrust2file(rotor(ir),ir,timestamp)
-  !enddo
-
   !  call drag2file(drag,'Results/drag.curve',(/dt,omegaBody(3),span,vwind(1)/))
 
   if (wakePlotSwitch .eq. 1) then
