@@ -420,9 +420,11 @@ contains
     enddo
 
     write(rotorNumberChar,'(I0.3)') rotorNumber
-    open(unit=11,file='Results/r'//rotorNumberChar//'force'//timestamp//'.txt')
-    write(11,*) rotorForce/rotor%nonDimForceDenominator, rotorForce, (bladeForce(ib),ib=1,rotor%nb)
+    open(unit=11,file='Results/r'//rotorNumberChar//'force.txt',action='write',position='append')
+    ! timestamp(in s)  CT  rotorThrust  bladeThrust1 bladeThrust2...
+    write(11,100) timestamp,rotorForce/rotor%nonDimForceDenominator, rotorForce, (bladeForce(ib),ib=1,rotor%nb)
     close(11)
+    100 format(A,15(E15.7))
   end subroutine force2file
 
   ! subroutine thrust2file(rotor,rotorNumber,timestamp)
