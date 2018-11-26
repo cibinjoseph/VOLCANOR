@@ -1,5 +1,5 @@
 program trial
-  character(len=50) :: word
-  word='A great color is '//achar(27)//'[32m green '//achar(27)//'[0m.'
-  print*,word
+  open(61,file='data.txt',action='write',position='append')
+  write(61,*) 'hey'
+  close(61)
 end program trial
