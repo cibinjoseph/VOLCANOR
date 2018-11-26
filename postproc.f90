@@ -409,7 +409,7 @@ contains
     character(len=*), intent(in) :: timestamp
     integer, intent(in) :: rotorNumber
     real(dp), intent(in), dimension(3) :: directionVector
-    character(len=3) :: rotorNumberChar
+    character(len=2) :: rotorNumberChar
     real(dp) :: rotorForce
     real(dp), dimension(rotor%nb) :: bladeForce
     integer :: ib
@@ -419,7 +419,7 @@ contains
       bladeForce(ib) = dot_product(rotor%blade(ib)%Force,directionVector)
     enddo
 
-    write(rotorNumberChar,'(I0.3)') rotorNumber
+    write(rotorNumberChar,'(I0.2)') rotorNumber
     open(unit=11,file='Results/r'//rotorNumberChar//'force.txt',action='write',position='append')
     ! timestamp(in s)  CT  rotorThrust  bladeThrust1 bladeThrust2...
     write(11,100) timestamp,rotorForce/rotor%nonDimForceDenominator, rotorForce, (bladeForce(ib),ib=1,rotor%nb)
