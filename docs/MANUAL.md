@@ -29,82 +29,39 @@ Actual gamma has to be mutiplied to find correct magnitude of induced velocity.
 
 ### Object Hierarchy 
 
-**rotor** (rotor_class)  
-- nb - No. of blades   
-- ns - No. of spanwise panels   
-- nc - No. of chordwise panels   
-- blade - blade objects  
-- Omega - Angular velocity of rotor  
-- Omega_slow -  
-- shaft_axis -  
-- hub_coords -  
-- CG_coords -  
-- radius -   
-- chord -  
-- root_cut -  
-- control_pitch -  theta0,thetaC,thetaS  
-- theta_twist -  
-- pivotLE - pivot location from LE [x/c]  
-- flap_hinge   hinge location from centre [x/R]  
-- v_body -  
-- om_body -  
-- v_wind -  
-- om_wind -  
-- psi -  
-- pts -  phi,theta,psi about CG_coords  
-- spanwise_core -  
-- streamwise_core -  
-- AIC - Influence coefficient matrix  
-- AIC_inv - Inverse of Influence coefficient matrix  
-- gamvec -  
-- gamvec_prev -  
-- RHS -  
-- init_wake_vel -  
-- psi_start -  
+Objects | Nomenclature  
+--- | --- 
+Rotor  | rotor  
+Blade  | blade     
+Far wake panel        | Fwake  
+Near wake panel       | Nwake    
+Wing panel       | wingpanel    
+Vortex ring      | vr    
+Vortex filament  | vf    
 
+### Code Organization
 
-**blade** (blade_class)   
-- wiP - array of wing panels  
-- waP - array of wake panels  
-- Pwake - Predicted wake  
-- theta - pitch angle  
-- psi - azimuth angle  
-- pivotLE - pivot distance from leading edge along chord  
-- vind_wake - velocity induced at wake corners  
-- vind_wake1, vind_wake2, vind_wake3 - velocity induced at wake corners for other schemes  
-- Pvind_wake, vind_wake_step - velocity induced at wake corners for other schemes  
- 
-**wing panel**       (wingpanel_class)   
-- vr - vortex ring
-- pc - panel coords
-- CP - collocation point coords
-- ncap - unit normal vector
-- velCP - local velocity at CP
-- velCPm - relative inertial velocity at CP (due to motion)
-- dForce - panel Force vector in inertial frame
-- vel_pitch - pitch velocity
-- dLift, dDrag - magnitudes of panel lift and drag
-- delP - Pressure difference across panel
-- panel_area - Panel area for computing lift
-- r_hinge - dist to point about which pitching occurs (LE of wing)
-- alpha - local angle of attack
+**Input files**  
+All input files have the extension _.in_    
+_config.in_  -  Main configuration file containing general solver inputs  
+_rotorXX.in_  -  Configuration file for each rotor containing rotor parameters  
+_gridconfig.in_  -  Configuration file for generating grid-based solutions during postprocessing  
 
-**wake panel**       (wakepanel_class)   
-- vr - vortex ring
+**Code files**  
+_init_file.f90_  -  Variable initialisations  
+_main.f90_  -  Main code that controls execution  
+_classdef.f90_  -  Class definitions  
+_library.f90_  -  Subroutines common to all classes  
+_postproc.f90_  -  Postprocessing subroutines  
+_mymathlib.f90_  -  Math subroutines  
+_gridgen.f90_  -  Generates grid-based data using gridconfig.in and filamentsXXXXX.dat  
 
-**vortex ring**      (vr_class)   
-- vf - fortex filaments (x4)
-- gam - circulation
-
-**vortex filament**  (vf_class)   
-- fc - filament coordinates (xyz,1:2)  
-- l0 - original length  
-- lc - current length  
-- r_vc0 - initial vortex core radius  
-- r_vc  - current vortex core radius  
-- age   - vortex age (in s)  
-
-### Files
-
-### Nomenclature
-
+**Output files**  
+All output files are stored in Results/ directory  
+_wingPC.plt_  -  Panel verices of wing  
+_wingCP.plt_  -  Collocation points of wing  
+_wingVR.plt_  -  Vortex rings of wing  
+_NwakeXXXXX.plt_  -  Vortex collocation points of wing and near wake  
+_FwakeXXXXX.plt_  -  Vortex collocation points of far wake   
+_filamentsXXXXX.dat_  -  Filament properties in binary format  
+_rXXforce.txt_  -  Rotor and blade force values at corresponding timesteps  
