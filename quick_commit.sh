@@ -1,11 +1,16 @@
-if [ $# -eq 0 ]; then      # No arguments
-  git commit -am "Quick commit"
-elif [[ $1 == '-t' ]] | [[ $1 == 't' ]]; then
-  git commit -am 'testcase'
-elif [[ $1 == '-a' ]] | [[ $1 == 'a' ]]; then
-  git commit todo -m 'Add task'
-elif [[ $1 == '-r' ]] | [[ $1 == 'r' ]]; then
-  git commit todo -m 'Remove task'
-else
-  git commit -am "$1"
-fi
+case $1 in
+  -a|--add)
+    git commit todo -m "Add task" ;;
+  -h|--help)
+    git commit "Usage: $0 {--add|--remove|--test}" ;;
+  -r|--remove)
+    git commit todo -m "Remove task" ;;
+  -t|--test)
+    git commit -am "testcase" ;;
+  *)
+    if [ $# -eq 0 ]; then  # No arguments
+      git commit -am "Quick commit"
+    else
+      git commit -am "$1"
+    fi
+esac
