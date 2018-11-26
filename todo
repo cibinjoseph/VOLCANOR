@@ -6,3 +6,4 @@ Check CT and inflow distribution against BEMT
 Split Nwake and Fwake computations to separate loops to avoid if conditions
 Try slowstart to prevent starting vortex instability
 Get blade distributed parameters, at quarter chord maybe?
+Make lift integration higher order - unequal intervals
