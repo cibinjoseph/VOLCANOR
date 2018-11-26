@@ -2,7 +2,7 @@ case $1 in
   -a|--add)
     git commit todo -m "Add task" ;;
   -h|--help)
-    git commit "Usage: $0 {--add|--remove|--test}" ;;
+    git commit "Usage: quick_commit {--add|--remove|--test}" ;;
   -r|--remove)
     git commit todo -m "Remove task" ;;
   -t|--test)
