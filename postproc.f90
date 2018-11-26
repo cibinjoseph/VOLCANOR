@@ -404,7 +404,7 @@ contains
     close(10)
   end subroutine tip2file
 
-  subroutine rotorforce2file(rotor,rotorNumber,timestamp,directionVector)
+  subroutine force2file(rotor,rotorNumber,timestamp,directionVector)
     type(rotor_class), intent(in) :: rotor
     character(len=*), intent(in) :: timestamp
     integer, intent(in) :: rotorNumber
@@ -423,7 +423,7 @@ contains
     open(unit=11,file='Results/r'//rotorNumberChar//'force'//timestamp//'.txt')
     write(11,*) rotorForce/rotor%nonDimForceDenominator, rotorForce, (bladeForce(ib),ib=1,rotor%nb)
     close(11)
-  end subroutine rotorforce2file
+  end subroutine force2file
 
   ! subroutine thrust2file(rotor,rotorNumber,timestamp)
   !   type(rotor_class), intent(in) :: rotor

@@ -232,7 +232,7 @@ program main
       if (mod(iter,forcePlotSwitch) .eq. 0) then 
         do ir=1,nr
           call rotor(ir)%calc_force(density,dt)
-          call rotorforce2file(rotor(ir),ir,timestamp,-zAxis)
+          call force2file(rotor(ir),ir,timestamp,-zAxis)
         enddo
       endif
     endif
