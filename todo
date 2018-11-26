@@ -6,4 +6,3 @@ Check CT and inflow distribution against BEMT
 Split Nwake and Fwake computations to separate loops to avoid if conditions
 Try slowstart to prevent starting vortex instability
 Get blade distributed parameters
-Add forces to single file, use appending
