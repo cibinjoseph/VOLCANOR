@@ -427,6 +427,31 @@ contains
     100 format(A,15(E15.7))
   end subroutine force2file
 
+  subroutine bladeInflow2file(timestamp,rotorArray,directionVector,rotorNumber)
+    ! Calculates velocity along directionVector on the blades of rotor(rotorNumber)
+    ! at rotor(rotorNumber)%inflowLocations
+    character(len=*), intent(in) :: timestamp
+    type(rotor_class), intent(inout), dimension(:) :: rotorArray
+    integer, intent(in) :: rotorNumber
+    real(dp), intent(in), dimension(3) :: directionVector
+    character(len=3) :: rotorNumberChar
+    integer :: il,ir,ib
+    real(dp), dimension(3) :: P
+    real(dp), dimension(rotorArray(rotorNumber)%nInflowLocations,rotorArray(rotorNumber)%nb) :: inflowVel
+
+    inflowVel=0._dp
+    do ir=1,size(rotorArray)
+      do ib=1,rotorArray(rotorNumber)%nb
+        do il=1,rotorArray(rotorNumber)%nInflowLocations
+          P=rotorArray(rotorNumber)%blade(ib)%inflowLocations(il,ib)
+          inflowVel(il,ib)=inflowVel(il,ib)+dot_product(rotorArray(ir)%vind_bywing(P),directionVector) 
+          inflowVel(il,ib)=inflowVel(il,ib)+dot_product(rotorArray(ir)%vind_bywake(P),directionVector) 
+        enddo
+      enddo
+    enddo
+
+  end subroutine bladeInflow2file
+
   ! subroutine thrust2file(rotor,rotorNumber,timestamp)
   !   type(rotor_class), intent(in) :: rotor
   !   character(len=*), intent(in) :: timestamp
@@ -475,34 +500,6 @@ contains
     close(10)
 
   end subroutine gam2file
-
-  subroutine lift2file(liftvec,filename,extra_params)
-    real(dp), intent(in), dimension(:) :: liftvec
-    character(*), intent(in) :: filename
-    real(dp), intent(in), dimension(:) :: extra_params ![1]dt [2]omega(rad/s) [3]span(m) [4]speed(m/s)
-    integer :: i
-
-    open(unit=10,file=filename)
-    write(10,*) '# Lift'
-    do i=1,size(liftvec,1)
-      write(10,*) extra_params(1)*i,liftvec(i)/(1.2_dp*(extra_params(3)*extra_params(2))**2._dp*pi*extra_params(3)**2._dp)
-    enddo
-    close(10)
-  end subroutine lift2file
-
-  subroutine drag2file(dragvec,filename,extra_params)
-    real(dp), intent(in), dimension(:) :: dragvec
-    character(*), intent(in) :: filename
-    real(dp), intent(in), dimension(:) :: extra_params ![1]dt [2]chord [3]span [4]speed
-    integer :: i
-
-    open(unit=10,file=filename)
-    write(10,*) '# Drag'
-    do i=1,size(dragvec,1)
-      write(10,*) extra_params(1)*i,dragvec(i)!/(0.5_dp*1.2_dp*extra_params(4)**2._dp*extra_params(2)*extra_params(3))
-    enddo
-    close(10)
-  end subroutine drag2file
 
 end module postproc
 

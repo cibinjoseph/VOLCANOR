@@ -578,7 +578,7 @@ contains
     real(dp), intent(inout), dimension(3) :: axis  
     real(dp), intent(in), dimension(3) :: origin
     real(dp), dimension(3,3) :: Tmat
-    integer :: i,j,rows,ilocs
+    integer :: i,j,rows
     real(dp) :: ct,st,omct
 
     if (abs(theta)>eps) then
