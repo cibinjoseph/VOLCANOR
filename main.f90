@@ -229,7 +229,7 @@ program main
       if (mod(iter,forcePlotSwitch) .eq. 0) then 
         do ir=1,nr
           call rotor(ir)%calc_force(density,dt)
-          call force2file(timestamp,rotor(ir),ir,zAxis)
+          call force2file(timestamp,rotor(ir),ir,-zAxis)  ! Negative sign due to negative inflow or gamma
         enddo
       endif
     endif
