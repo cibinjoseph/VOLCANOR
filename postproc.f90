@@ -482,12 +482,12 @@ contains
   !   type(rotor_class), intent(in) :: rotor
   !   character(len=*), intent(in) :: timestamp
   !   integer, intent(in) :: rotorNumber
-  !   character(len=3) :: rotorNumberChar
+  !   character(len=2) :: rotorNumberChar
   !   character(len=2) :: blade_number_char
   !   integer :: ib, ispan
 
   !   open(unit=11,file='Results/r'//rotorNumberChar//'thrust'//timestamp//'.txt')
-  !   write(rotorNumberChar,'(I0.3)') rotorNumber
+  !   write(rotorNumberChar,'(I0.2)') rotorNumber
 
   !   do ib=1,rotor%nb
   !     write(blade_number_char,'(I0.2)') ib
