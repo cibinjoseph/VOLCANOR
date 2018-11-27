@@ -45,14 +45,14 @@ src_plot_dir = 'src_plot'
 if args.wake == True:
     filename = 'plot_wake.py'
 
-if args.force == True:
+elif args.force == True:
     filename = 'plot_force.py'
 
-if args.span == True:
+elif args.span == True:
     filename = 'plot_forceDist.py'
 
-if args.inflow == True:
-    filename = 'plot_inflow.py'
+elif args.inflow == True:
+    filename = 'plot_inflowDist.py'
 
 elif args.tip == True:
     filename = 'plot_tip.py'
