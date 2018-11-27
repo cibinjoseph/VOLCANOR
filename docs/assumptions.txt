@@ -2,10 +2,13 @@ Positive pitch and positive omega produces negative circulation and vice versa u
 - rotor_rollup() for gam_max 
 
 Panels have subdivisions along chord and not inclined to it 
-- calclift() for tangent vector
+- blade_calcforce() for tangent vector
 
-Max number of rotors is 999
-- rotor_number_char
+Max number of rotors is 99
+- rotorNumberChar
 
 Max number of blades for a rotor is 99
-- blade_number_char
+- bladeNumberChar
+
+Rectangular blade with no sweep
+- inflowLocations
