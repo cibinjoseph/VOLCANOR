@@ -409,10 +409,10 @@ contains
     character  (len=*), intent(in) :: timestamp
     integer, intent(in) :: rotorNumber
     real(dp),   intent(in), dimension(3) :: directionVector
-    character(len=2) :: rotorNumberChar
+    character(len=2) :: rotorNumberChar, bladeNumberChar
     real(dp) :: rotorForce
     real(dp), dimension(rotor%nb) :: bladeForce
-    integer :: ib
+    integer :: ib, ispan
 
     rotorForce = dot_product(rotor%Force,directionVector)
     do ib=1,rotor%nb
@@ -425,6 +425,19 @@ contains
     write(11,100) timestamp,rotorForce/rotor%nonDimForceDenominator, rotorForce, (bladeForce(ib),ib=1,rotor%nb)
     close(11)
     100 format(A,15(E15.7))
+
+    if (rotor%nc == 1) then
+      open(unit=12,file='Results/r'//rotorNumberChar//'forceDist'//timestamp//'.curve',action='write')
+      do ib=1,rotor%nb
+        write(bladeNumberChar,'(I0.2)') ib
+        write(12,*) '# Blade'//bladeNumberChar
+        do ispan=1,rotor%ns
+          write(12,*) norm2(rotor%hubCoords-rotor%blade(ib)%wiP(1,ispan)%CP), &
+          dot_product(rotor%blade(ib)%wiP(1,ispan)%normalForce,directionVector)
+      enddo
+      enddo
+      close(12)
+    endif
   end subroutine force2file
 
   subroutine bladeInflow2file(timestamp,rotorArray,directionVector,rotorNumber)
