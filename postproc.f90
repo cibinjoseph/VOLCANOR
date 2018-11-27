@@ -406,9 +406,9 @@ contains
 
   subroutine force2file(rotor,rotorNumber,timestamp,directionVector)
     type(rotor_class), intent(in) :: rotor
-    character(len=*), intent(in) :: timestamp
+    character  (len=*), intent(in) :: timestamp
     integer, intent(in) :: rotorNumber
-    real(dp), intent(in), dimension(3) :: directionVector
+    real(dp),   intent(in), dimension(3) :: directionVector
     character(len=2) :: rotorNumberChar
     real(dp) :: rotorForce
     real(dp), dimension(rotor%nb) :: bladeForce
@@ -428,7 +428,7 @@ contains
   end subroutine force2file
 
   subroutine bladeInflow2file(timestamp,rotorArray,directionVector,rotorNumber)
-    ! Calculates velocity along directionVector on the blades of rotor(rotorNumber)
+    ! Calculates inflow velocity along directionVector on the blades of rotor(rotorNumber)
     ! at rotor(rotorNumber)%inflowLocations
     character(len=*), intent(in) :: timestamp
     type(rotor_class), intent(inout), dimension(:) :: rotorArray
