@@ -482,6 +482,7 @@ module blade_classdef
     real(dp), dimension(3) :: Force
     real(dp) :: psi
     real(dp) :: pivotLE
+    real(dp), allocatable, dimension(:,:) :: inflowLocations
     real(dp), allocatable, dimension(:,:,:) :: velNwake
     real(dp), allocatable, dimension(:,:,:) :: velNwake1, velNwake2, velNwake3
     real(dp), allocatable, dimension(:,:,:) :: velNwakePredicted, velNwakeStep
@@ -543,6 +544,12 @@ contains
       enddo
     enddo
 
+    do i=1,size(this%inflowLocations,2)
+      this%inflowLocations(:,i)=this%inflowLocations(:,i)-origin
+      this%inflowLocations(:,i)=matmul(TMat,this%inflowLocations(:,i))
+      this%inflowLocations(:,i)=this%inflowLocations(:,i)+origin
+    enddo
+
   end subroutine blade_rot_pts
 
   subroutine rot_pitch(this,theta)  !pitch about pivotLE from LE
@@ -571,7 +578,7 @@ contains
     real(dp), intent(inout), dimension(3) :: axis  
     real(dp), intent(in), dimension(3) :: origin
     real(dp), dimension(3,3) :: Tmat
-    integer :: i,j,rows
+    integer :: i,j,rows,ilocs
     real(dp) :: ct,st,omct
 
     if (abs(theta)>eps) then
@@ -600,6 +607,13 @@ contains
 
       ! Untranslate from origin
       call this%move(origin)
+
+      ! Rotate inflowLocations also
+      do i=1,size(this%inflowLocations,2)
+        this%inflowLocations(:,i)=this%inflowLocations(:,i)-origin
+        this%inflowLocations(:,i)=matmul(TMat,this%inflowLocations(:,i))
+        this%inflowLocations(:,i)=this%inflowLocations(:,i)+origin
+      enddo
     endif
   end subroutine rot_axis
 
@@ -880,7 +894,7 @@ module rotor_classdef
     real(dp), dimension(3) :: hubCoords, cgCoords
     real(dp) :: radius, chord, root_cut
     real(dp) :: CT
-    real(dp), dimension(3) :: FOrce
+    real(dp), dimension(3) :: force
     real(dp), dimension(3) :: controlPitch  ! theta0,thetaC,thetaS
     real(dp) :: thetaTwist
     real(dp) :: pivotLE  ! pivot location from LE [x/c]
@@ -896,12 +910,13 @@ module rotor_classdef
     real(dp), allocatable, dimension(:) :: gamVec,RHS
     real(dp) :: initWakeVel, psiStart
     integer :: rollupStart, rollupEnd
+    integer :: inflowPlotSwitch, nInflowLocations
     integer :: rowNear, rowFar
     real(dp) :: nonDimForceDenominator
   contains
     procedure :: getdata
-    procedure :: init
-    procedure :: deinit
+    procedure :: init => rotor_init
+    procedure :: deinit => rotor_deinit
     procedure :: gettheta
     procedure :: getthetadot
     procedure :: move => rotor_move
@@ -976,6 +991,8 @@ contains
     read(12,*) rollupStartRadius, rollupEndRadius
     call skiplines(12,3)
     read(12,*) this%initWakeVel, this%psiStart
+    call skiplines(12,4)
+    read(12,*) this%inflowPlotSwitch, this%nInflowLocations
     close(12)
 
     ! Conversions
@@ -998,16 +1015,20 @@ contains
     allocate(this%AIC_inv(this%nc*this%ns*this%nb,this%nc*this%ns*this%nb))
     allocate(this%gamVec(this%nc*this%ns*this%nb))
     allocate(this%RHS(this%nc*this%ns*this%nb))
+
     ! Allocate blade object variables
     do ib=1,this%nb
       allocate(this%blade(ib)%wiP(this%nc,this%ns))
       allocate(this%blade(ib)%waP(this%nNwake,this%ns))
       allocate(this%blade(ib)%waF(this%nFwake))
+      if (this%inflowPlotSwitch > 0) then
+        allocate(this%blade(ib)%inflowLocations(3,this%nInflowLocations))
+      endif
     enddo
 
   end subroutine getdata
 
-  subroutine init(this,density,dt,spanSpacingSwitch,fdSchemeSwitch)
+  subroutine rotor_init(this,density,dt,spanSpacingSwitch,fdSchemeSwitch)
   class(rotor_class) :: this
     real(dp), intent(in) :: density, dt
     integer, intent(in) :: spanSpacingSwitch, fdSchemeSwitch
@@ -1089,6 +1110,12 @@ contains
           call this%blade(ib)%wiP(i,j)%calc_mean_dimensions()
         enddo
       enddo
+
+      if (this%inflowPlotSwitch > 0) then
+        this%blade(ib)%inflowLocations(1,:)=0.75_dp*xVec(1)+0.25_dp*xVec(this%nc+1)  ! Quarter chord
+        this%blade(ib)%inflowLocations(2,:)=linspace(this%root_cut*this%radius,this%radius,this%nInflowLocations)
+        this%blade(ib)%inflowLocations(3,:)=0._dp
+      endif
 
       ! Initialize gamma
       this%blade(ib)%wiP%vr%gam=0._dp
@@ -1239,9 +1266,9 @@ contains
 
     enddo
 
-  end subroutine init
+  end subroutine rotor_init
 
-  subroutine deinit(this,fdSchemeSwitch)
+  subroutine rotor_deinit(this,fdSchemeSwitch)
   class(rotor_class) :: this
     integer, intent(in) :: fdSchemeSwitch
     integer :: ib
@@ -1282,7 +1309,7 @@ contains
       end select
     enddo
 
-  end subroutine deinit
+  end subroutine rotor_deinit
 
   function gettheta(this,psi,ib)
   class(rotor_class) :: this
