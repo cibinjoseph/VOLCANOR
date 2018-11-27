@@ -30,6 +30,8 @@ parser = argparse.ArgumentParser(
         epilog = 'Author: Cibin Joseph')
 parser.add_argument('-w', '--wake', help='Plot wake structure', action = 'store_true')
 parser.add_argument('-f', '--force', help='Plot rotor force', action = 'store_true')
+parser.add_argument('-s', '--span', help='Plot blade force', action = 'store_true')
+parser.add_argument('-i', '--inflow', help='Plot blade inflow', action = 'store_true')
 parser.add_argument('-t', '--tip', help='Plot wake tip', action = 'store_true')
 parser.add_argument('-p', '--panel', help='Plot wing alone', action = 'store_true')
 parser.add_argument('-g', '--gamma', help='Plot gamma sectional', action = 'store_true')
@@ -45,6 +47,12 @@ if args.wake == True:
 
 if args.force == True:
     filename = 'plot_force.py'
+
+if args.span == True:
+    filename = 'plot_forceDist.py'
+
+if args.inflow == True:
+    filename = 'plot_inflow.py'
 
 elif args.tip == True:
     filename = 'plot_tip.py'
