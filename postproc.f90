@@ -3,7 +3,7 @@ module postproc
 
 contains
 
-  subroutine rotor2file(rotor,timestamp)
+  subroutine rotor2file(timestamp,rotor)
     type(rotor_class), intent(in) :: rotor
     character(len=*), intent(in) :: timestamp
     character(len=5) :: nxChar, nyChar
@@ -101,7 +101,7 @@ contains
     close(11)
   end subroutine rotor2file
 
-  subroutine filaments2file(rotor,timestamp)
+  subroutine filaments2file(timestamp,rotor)
     type(rotor_class), intent(in), dimension(:) :: rotor
     character(len=*), intent(in) :: timestamp
 
@@ -404,7 +404,7 @@ contains
     close(10)
   end subroutine tip2file
 
-  subroutine force2file(rotor,rotorNumber,timestamp,directionVector)
+  subroutine force2file(timestamp,rotor,rotorNumber,directionVector)
     type(rotor_class), intent(in) :: rotor
     character  (len=*), intent(in) :: timestamp
     integer, intent(in) :: rotorNumber
@@ -478,7 +478,7 @@ contains
 
   end subroutine bladeInflow2file
 
-  ! subroutine thrust2file(rotor,rotorNumber,timestamp)
+  ! subroutine thrust2file(timestamp,rotor,rotorNumber)
   !   type(rotor_class), intent(in) :: rotor
   !   character(len=*), intent(in) :: timestamp
   !   integer, intent(in) :: rotorNumber

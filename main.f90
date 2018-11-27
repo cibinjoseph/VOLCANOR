@@ -174,12 +174,9 @@ program main
     ! Write out wing n' wake
     do ir=1,nr
       if (wakePlotSwitch .ne. 0) then
-        if ((mod(iter,wakePlotSwitch) .eq. 0) .and.(rotor(ir)%rowFar .ne. 0) ) call rotor2file(rotor(ir),timestamp)
+        if ((mod(iter,wakePlotSwitch) .eq. 0) .and.(rotor(ir)%rowFar .ne. 0) ) call rotor2file(timestamp,rotor(ir))
       endif
     enddo
-    !call tip2file(rotor(ir)%blade(1)%wiP,rotor(ir)%blade(1)%waP(row_now:nt,:),'Results/tip'//timestamp//'.tec')
-    !    gam_sectional=calcgam(wing)
-    !    call gam2file(yVec,gam_sectional,'Results/gam'//timestamp//'.curve')
 
     ! Compute RHS
     do ir=1,nr
@@ -232,7 +229,7 @@ program main
       if (mod(iter,forcePlotSwitch) .eq. 0) then 
         do ir=1,nr
           call rotor(ir)%calc_force(density,dt)
-          call force2file(rotor(ir),ir,timestamp,-zAxis)
+          call force2file(timestamp,rotor(ir),ir,zAxis)
         enddo
       endif
     endif
@@ -249,7 +246,7 @@ program main
     ! Grid plot computation
     if (gridPlotSwitch .ne. 0) then
       if (mod(iter,gridPlotSwitch) .eq. 0) then 
-        call filaments2file(rotor,timestamp)
+        call filaments2file(timestamp,rotor)
       endif
     endif
 
@@ -506,7 +503,7 @@ program main
 
   if (wakePlotSwitch .eq. 1) then
     do ir=1,nr
-      call rotor2file(rotor(ir),timestamp)
+      call rotor2file(timestamp,rotor(ir))
     enddo
   endif
 
