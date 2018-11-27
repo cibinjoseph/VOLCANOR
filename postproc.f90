@@ -433,21 +433,21 @@ contains
         write(12,*) '# Blade'//bladeNumberChar
         do ispan=1,rotor%ns
           write(12,*) norm2(rotor%hubCoords-rotor%blade(ib)%wiP(1,ispan)%CP), &
-          dot_product(rotor%blade(ib)%wiP(1,ispan)%normalForce,directionVector)
-      enddo
+            dot_product(rotor%blade(ib)%wiP(1,ispan)%normalForce,directionVector)
+        enddo
       enddo
       close(12)
     endif
   end subroutine force2file
 
-  subroutine bladeInflow2file(timestamp,rotorArray,directionVector,rotorNumber)
+  subroutine bladeInflow2file(timestamp,rotorArray,rotorNumber,directionVector)
     ! Calculates inflow velocity along directionVector on the blades of rotor(rotorNumber)
     ! at rotor(rotorNumber)%inflowLocations
     character(len=*), intent(in) :: timestamp
     type(rotor_class), intent(inout), dimension(:) :: rotorArray
     integer, intent(in) :: rotorNumber
     real(dp), intent(in), dimension(3) :: directionVector
-    character(len=3) :: rotorNumberChar
+    character(len=2) :: rotorNumberChar, bladeNumberChar
     integer :: il,ir,ib
     real(dp), dimension(3) :: P
     real(dp), dimension(rotorArray(rotorNumber)%nInflowLocations,rotorArray(rotorNumber)%nb) :: inflowVel
@@ -462,6 +462,19 @@ contains
         enddo
       enddo
     enddo
+
+    ! Write to file
+    write(rotorNumberChar,'(I0.2)') rotorNumber
+    open(unit=12,file='Results/r'//rotorNumberChar//'inflowDist'//timestamp//'.curve',action='write')
+    do ib=1,rotorArray(rotorNumber)%nb
+      write(bladeNumberChar,'(I0.2)') ib
+      write(12,*) '# Blade'//bladeNumberChar
+      do il=1,rotorArray(rotorNumber)%nInflowLocations
+        write(12,*) norm2(rotorArray(rotorNumber)%hubCoords-rotorArray(rotorNumber)%blade(ib)%inflowLocations(:,il)), &
+          inflowVel(il,ib)
+      enddo
+    enddo
+    close(12)
 
   end subroutine bladeInflow2file
 
