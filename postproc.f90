@@ -456,7 +456,7 @@ contains
     do ir=1,size(rotorArray)
       do ib=1,rotorArray(rotorNumber)%nb
         do il=1,rotorArray(rotorNumber)%nInflowLocations
-          P=rotorArray(rotorNumber)%blade(ib)%inflowLocations(il,ib)
+          P=rotorArray(rotorNumber)%blade(ib)%inflowLocations(:,il)
           inflowVel(il,ib)=inflowVel(il,ib)+dot_product(rotorArray(ir)%vind_bywing(P),directionVector) 
           inflowVel(il,ib)=inflowVel(il,ib)+dot_product(rotorArray(ir)%vind_bywake(P),directionVector) 
         enddo
