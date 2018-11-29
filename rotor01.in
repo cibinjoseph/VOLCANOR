@@ -47,11 +47,11 @@ pivot point from LE[x/chord]    flapHinge from centre[r/R]
 spanwise core radius[x/c]       streamwise core_switch
                                  [s]ectional  [i]dentical
 ----------------------------------------------------------------
-        0.14                            i
+        0.04                            i
 
 streamwise core radius[x/c]   root <----> tip  (ns+1 entries)
 ----------------------------------------------------------------
-0.14 0.14 0.14 0.14 0.14 0.14 0.14 0.14 0.14 0.14 0.14 0.14 0.14 0.14
+0.04 0.14 0.14 0.14 0.14 0.14 0.14 0.14 0.14 0.14 0.14 0.14 0.14 0.14
 ===============================================================
 
 Spanwise start[r/R]  &  end[r/R] for centroid of tip vorticity
@@ -65,4 +65,4 @@ initWakeVel[m/s]     psiStart[deg]
  PLOT INFLOW: [0]Off [n]Every nth iteration
   inflowPlotSwitch         nInflowLocations
 -----------------------------------------------------------------------
-       200                       200
+       200                       13

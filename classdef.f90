@@ -1022,7 +1022,7 @@ contains
       allocate(this%blade(ib)%waP(this%nNwake,this%ns))
       allocate(this%blade(ib)%waF(this%nFwake))
       if (this%inflowPlotSwitch > 0) then
-        allocate(this%blade(ib)%inflowLocations(3,this%nInflowLocations))
+        allocate(this%blade(ib)%inflowLocations(3,this%ns))!InflowLocations))
       endif
     enddo
 
@@ -1112,9 +1112,12 @@ contains
       enddo
 
       if (this%inflowPlotSwitch > 0) then
-        this%blade(ib)%inflowLocations(1,:)=0.75_dp*xVec(1)+0.25_dp*xVec(this%nc+1)  ! Quarter chord
-        this%blade(ib)%inflowLocations(2,:)=linspace(this%root_cut*this%radius,this%radius,this%nInflowLocations)
-        this%blade(ib)%inflowLocations(3,:)=0._dp
+        !this%blade(ib)%inflowLocations(1,:)=0.75_dp*xVec(1)+0.25_dp*xVec(this%nc+1)  ! Quarter chord
+        !this%blade(ib)%inflowLocations(2,:)=linspace(this%root_cut*this%radius,this%radius,this%nInflowLocations)
+        !this%blade(ib)%inflowLocations(3,:)=0._dp
+        do i=1,this%ns
+          this%blade(ib)%inflowLocations(:,i)=this%blade(ib)%wiP(1,i)%CP
+        enddo
       endif
 
       ! Initialize gamma
