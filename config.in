@@ -25,7 +25,7 @@
  PLOT WAKE: [0]Off [n]Every nth iteration
   wakePlotSwitch         gridPlotSwitch      forcePlotSwitch
 -----------------------------------------------------------------------
-       1                       200               200
+       5                       200               200
 
  WAKE CONVECTION FINITE-DIFFERENCE SCHEME: [0]FT1 [1]PC2 [2]AB2 [3]AB4
   fdSchemeSwitch
