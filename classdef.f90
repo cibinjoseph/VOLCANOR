@@ -513,6 +513,10 @@ contains
         call this%wiP(i,j)%shiftdP(dshift)
       enddo
     enddo
+
+    do i=1,size(this%InflowLocations,2)
+      this%inflowLocations(:,i)=this%inflowLocations(:,i)+dshift
+    enddo
   end subroutine blade_move
 
   subroutine blade_rot_pts(this,pts,origin,order)
@@ -1112,12 +1116,12 @@ contains
       enddo
 
       if (this%inflowPlotSwitch > 0) then
-        !this%blade(ib)%inflowLocations(1,:)=0.75_dp*xVec(1)+0.25_dp*xVec(this%nc+1)  ! Quarter chord
-        !this%blade(ib)%inflowLocations(2,:)=linspace(this%root_cut*this%radius,this%radius,this%nInflowLocations)
-        !this%blade(ib)%inflowLocations(3,:)=0._dp
-        do i=1,this%ns
-          this%blade(ib)%inflowLocations(:,i)=this%blade(ib)%wiP(1,i)%CP
-        enddo
+        this%blade(ib)%inflowLocations(1,:)=0.75_dp*xVec(1)+0.25_dp*xVec(this%nc+1)  ! Quarter chord
+        this%blade(ib)%inflowLocations(2,:)=linspace(this%root_cut*this%radius,this%radius,this%nInflowLocations)
+        this%blade(ib)%inflowLocations(3,:)=0._dp
+        !do i=1,this%ns
+        !  this%blade(ib)%inflowLocations(:,i)=this%blade(ib)%wiP(1,i)%CP
+        !enddo
       endif
 
       ! Initialize gamma
