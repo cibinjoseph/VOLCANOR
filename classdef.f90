@@ -1026,7 +1026,7 @@ contains
       allocate(this%blade(ib)%waP(this%nNwake,this%ns))
       allocate(this%blade(ib)%waF(this%nFwake))
       if (this%inflowPlotSwitch > 0) then
-        allocate(this%blade(ib)%inflowLocations(3,this%ns))!InflowLocations))
+        allocate(this%blade(ib)%inflowLocations(3,this%nInflowLocations))
       endif
     enddo
 
