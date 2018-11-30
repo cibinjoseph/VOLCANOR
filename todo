@@ -7,4 +7,4 @@ Split Nwake and Fwake computations to separate loops to avoid if conditions
 Try slowstart to prevent starting vortex instability
 Get blade distributed parameters, at quarter chord maybe?
 Make lift integration higher order - unequal intervals
-Check oscillations in inflow
+Check oscillations in inflow - dependent on nInflowLocations
