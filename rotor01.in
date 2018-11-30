@@ -65,4 +65,4 @@ initWakeVel[m/s]     psiStart[deg]
  PLOT INFLOW: [0]Off [n]Every nth iteration
   inflowPlotSwitch         nInflowLocations
 -----------------------------------------------------------------------
-       200                       25
+       200                       55
