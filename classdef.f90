@@ -42,7 +42,6 @@ contains
     r1Xr2(3) = r1(1)*r2(2)-r1(2)*r2(1)
 
     r1Abs=norm2(r1)
-    print*,'fc=',this%fc(:,2)
     r2Abs=norm2(r2)
 
     vind=0.
@@ -643,20 +642,20 @@ contains
     real(dp), intent(in), dimension(3) :: P
     character(len=1), optional :: optionalChar
     real(dp), dimension(3) :: blade_vind_bywake
-    integer :: i,j,nFwake
+    integer :: i,j,nNwake
 
-    nFwake=size(this%waP,1)
+    nNwake=size(this%waP,1)
     blade_vind_bywake=0._dp
     if (.not. present(optionalChar)) then
       do j=1,size(this%waP,2)
-        do i=rowNear,nFwake
+        do i=rowNear,nNwake
           blade_vind_bywake=blade_vind_bywake+this%waP(i,j)%vr%vind(P)*this%waP(i,j)%vr%gam
         enddo
       enddo
 
       ! Last row of Fwake is made of horseshoe vortices
       do j=1,size(this%waP,2)
-        blade_vind_bywake=blade_vind_bywake-this%waP(nFwake,j)%vr%vf(2)%vind(P)*this%waP(nFwake,j)%vr%gam
+        blade_vind_bywake=blade_vind_bywake-this%waP(nNwake,j)%vr%vf(2)%vind(P)*this%waP(nNwake,j)%vr%gam
       enddo
 
       if (rowFar .ne. 0) then
@@ -666,14 +665,14 @@ contains
       endif
     elseif ((optionalChar .eq. 'P') .or. (optionalChar .eq. 'p')) then
       do j=1,size(this%waP,2)
-        do i=rowNear,nFwake
+        do i=rowNear,nNwake
           blade_vind_bywake=blade_vind_bywake+this%waPPredicted(i,j)%vr%vind(P)*this%waPPredicted(i,j)%vr%gam
         enddo
       enddo
 
       ! Last row of Fwake is made of horseshoe vortices
       do j=1,size(this%waP,2)
-        blade_vind_bywake=blade_vind_bywake-this%waPPredicted(nFwake,j)%vr%vf(2)%vind(P)*this%waPPredicted(nFwake,j)%vr%gam
+        blade_vind_bywake=blade_vind_bywake-this%waPPredicted(nNwake,j)%vr%vf(2)%vind(P)*this%waPPredicted(nNwake,j)%vr%gam
       enddo
 
       if (rowFar .ne. 0) then
