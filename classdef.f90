@@ -1196,7 +1196,11 @@ contains
     call this%rot_pts(this%pts,this%cgCoords,1)
 
     ! Compute denominators for non-dimensionalisation
-    this%nonDimForceDenominator = 0.5_dp*density*(pi*this%radius**2._dp)*(this%radius*this%omega)**2._dp
+    if (this%omega .ne. 0) then
+      this%nonDimForceDenominator = density*(pi*this%radius**2._dp)*(this%radius*this%omega)**2._dp
+    else
+      this%nonDimForceDenominator = 0.5_dp*density*(this%radius*this%chord)*(dot_product(this%velBody,this%velBody))
+    endif
 
     ! Assign wind velocities
     this%velWind=-1._dp*this%velBody
