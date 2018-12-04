@@ -1,7 +1,7 @@
 #### IFORT ####
 ifc=ifort
 iflags=-fast -O3 -implicitnone -r8 -qopenmp -parallel -heap-arrays 200  -ansi-alias -qopt-jump-tables='large' -xcore-avx2
-iflagsdbg=-traceback -O0 -warn all -implicitnone -r8 -check bounds -g -fpe0 -debug extended #-pg
+iflagsdbg=-traceback -O0 -warn all -implicitnone -r8 -check bounds -g -fpe0 -debug extended -heap-arrays 200 #-pg
 iflagsprof=-traceback -O3 -implicitnone -r8 -g -debug inline-debug-info -parallel-source-info=2 -qopenmp -xcore-avx2 #-pg
 
 #### GFORTRAN ####
