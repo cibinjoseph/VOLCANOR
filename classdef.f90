@@ -42,6 +42,7 @@ contains
     r1Xr2(3) = r1(1)*r2(2)-r1(2)*r2(1)
 
     r1Abs=norm2(r1)
+    print*,'fc=',this%fc(:,2)
     r2Abs=norm2(r2)
 
     vind=0.
@@ -1026,8 +1027,11 @@ contains
       allocate(this%blade(ib)%waP(this%nNwake,this%ns))
       allocate(this%blade(ib)%waF(this%nFwake))
       if (this%inflowPlotSwitch > 0) then
-        if (this%nInflowLocations < 0) this%nInflowLocations = this%ns
-        allocate(this%blade(ib)%inflowLocations(3,this%nInflowLocations))
+        if (this%nInflowLocations < 0) then 
+          allocate(this%blade(ib)%inflowLocations(3,this%ns))
+        else
+          allocate(this%blade(ib)%inflowLocations(3,this%nInflowLocations))
+        endif
       endif
     enddo
 
@@ -1183,6 +1187,11 @@ contains
         read(*,*)
       endif
     enddo
+
+    ! Change value of nInflowLocations to ns if negative for use in postproc
+    if (this%nInflowLocations < 0) then
+      this%nInflowLocations = this%ns
+    endif
 
     ! Move rotor to hub coordinates
     do ib=1,this%nb
