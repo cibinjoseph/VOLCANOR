@@ -1026,11 +1026,8 @@ contains
       allocate(this%blade(ib)%waP(this%nNwake,this%ns))
       allocate(this%blade(ib)%waF(this%nFwake))
       if (this%inflowPlotSwitch > 0) then
-        if (this%nInflowLocations > 0) then
-          allocate(this%blade(ib)%inflowLocations(3,this%nInflowLocations))
-        else  ! -n input corresponds to nth chordwise row and CP points
-          allocate(this%blade(ib)%inflowLocations(3,this%ns))
-        endif
+        if (this%nInflowLocations < 0) this%nInflowLocations = this%ns
+        allocate(this%blade(ib)%inflowLocations(3,this%nInflowLocations))
       endif
     enddo
 
