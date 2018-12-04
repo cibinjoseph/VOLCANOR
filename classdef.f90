@@ -995,7 +995,7 @@ contains
     read(12,*) rollupStartRadius, rollupEndRadius
     call skiplines(12,3)
     read(12,*) this%initWakeVel, this%psiStart
-    call skiplines(12,4)
+    call skiplines(12,6)
     read(12,*) this%inflowPlotSwitch, this%nInflowLocations
     close(12)
 
@@ -1026,7 +1026,11 @@ contains
       allocate(this%blade(ib)%waP(this%nNwake,this%ns))
       allocate(this%blade(ib)%waF(this%nFwake))
       if (this%inflowPlotSwitch > 0) then
-        allocate(this%blade(ib)%inflowLocations(3,this%nInflowLocations))
+        if (this%nInflowLocations > 0) then
+          allocate(this%blade(ib)%inflowLocations(3,this%nInflowLocations))
+        else  ! -n input corresponds to nth chordwise row and CP points
+          allocate(this%blade(ib)%inflowLocations(3,this%ns))
+        endif
       endif
     enddo
 
@@ -1116,12 +1120,15 @@ contains
       enddo
 
       if (this%inflowPlotSwitch > 0) then
-        this%blade(ib)%inflowLocations(1,:)=0.75_dp*xVec(1)+0.25_dp*xVec(this%nc+1)  ! Quarter chord
-        this%blade(ib)%inflowLocations(2,:)=linspace(this%root_cut*this%radius,this%radius,this%nInflowLocations)
-        this%blade(ib)%inflowLocations(3,:)=0._dp
-        !do i=1,this%ns
-        !  this%blade(ib)%inflowLocations(:,i)=this%blade(ib)%wiP(1,i)%CP
-        !enddo
+        if (this%nInflowLocations > 0) then
+          this%blade(ib)%inflowLocations(1,:)=0.75_dp*xVec(1)+0.25_dp*xVec(this%nc+1)  ! Quarter chord
+          this%blade(ib)%inflowLocations(2,:)=linspace(this%root_cut*this%radius,this%radius,this%nInflowLocations)
+          this%blade(ib)%inflowLocations(3,:)=0._dp
+        else
+          do i=1,this%ns
+            this%blade(ib)%inflowLocations(:,i)=this%blade(ib)%wiP(abs(this%nInflowLocations),i)%CP
+          enddo
+        endif
       endif
 
       ! Initialize gamma
