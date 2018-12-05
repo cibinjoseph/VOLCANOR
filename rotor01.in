@@ -67,4 +67,4 @@ initWakeVel[m/s]     psiStart[deg]
                                 [n] for number of spanwise points at c/4
                                 [-n] for inflow at coll. point of nth chordwise row
 -----------------------------------------------------------------------
-       15                       -1
+       1000                       -1
