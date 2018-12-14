@@ -51,7 +51,7 @@ spanwise core radius[x/c]       streamwise core_switch
 
 streamwise core radius[x/c]   root <----> tip  (ns+1 entries)
 ----------------------------------------------------------------
-0.04 0.14 0.14 0.14 0.14 0.14 0.14 0.14 0.14 0.14 0.14 0.14 0.14 0.14
+0.04 
 ===============================================================
 
 Spanwise start[r/R]  &  end[r/R] for centroid of tip vorticity
