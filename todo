@@ -8,3 +8,6 @@ Try slowstart to prevent starting vortex instability
 Get blade distributed parameters, at quarter chord maybe?
 Make lift integration higher order - unequal intervals
 Check oscillations in inflow - dependent on nInflowLocations
+  - Why Ffxed wing produces oscillations at c/4
+  - what contributes to it?
+  - Should bound vortex be switched off?
