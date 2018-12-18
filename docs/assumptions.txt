@@ -12,3 +12,6 @@ Max number of blades for a rotor is 99
 
 Rectangular blade with no sweep
 - inflowLocations
+
+Distance used is from hub centre rather than spanwise distance
+- inflow2file, gamma2file
