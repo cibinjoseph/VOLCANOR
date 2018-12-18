@@ -496,6 +496,7 @@ module blade_classdef
     procedure :: rot_axis
     procedure :: rot_pts => blade_rot_pts
     procedure :: vind_bywing => blade_vind_bywing
+    procedure :: vind_bywing_boundVortices => blade_vind_bywing_boundVortices
     procedure :: vind_bywake => blade_vind_bywake
     procedure :: convectwake
     procedure :: wake_continuity
@@ -635,6 +636,20 @@ contains
     enddo
 
   end function blade_vind_bywing
+
+  function blade_vind_bywing_boundVortices(this,P)  
+  class(blade_class), intent(inout) :: this
+    real(dp), intent(in), dimension(3) :: P
+    real(dp), dimension(3) :: blade_vind_bywing_boundVortices
+    integer :: i,j
+
+    blade_vind_bywing_boundVortices=0._dp
+    do j=1,size(this%wiP,2)
+      do i=1,size(this%wiP,1)
+        blade_vind_bywing_boundVortices=blade_vind_bywing_boundVortices+this%wiP(i,j)%vr%vf(4)%vind(P)*this%wiP(i,j)%vr%gam
+      enddo
+    enddo
+  end function blade_vind_bywing_boundVortices
 
   function blade_vind_bywake(this,rowNear,rowFar,P,optionalChar) 
   class(blade_class), intent(inout) :: this
@@ -933,6 +948,7 @@ module rotor_classdef
     procedure :: strain_wake
     procedure :: calcAIC
     procedure :: vind_bywing => rotor_vind_bywing
+    procedure :: vind_bywing_boundVortices => rotor_vind_bywing_boundVortices
     procedure :: vind_bywake => rotor_vind_bywake
     procedure :: shiftwake => rotor_shiftwake
     procedure :: rollup => rotor_rollup
@@ -1561,6 +1577,18 @@ contains
       rotor_vind_bywing=rotor_vind_bywing+this%blade(ib)%vind_bywing(P)
     enddo
   end function rotor_vind_bywing
+
+  function rotor_vind_bywing_boundVortices(this,P)
+  class(rotor_class), intent(inout) :: this
+    real(dp), intent(in), dimension(3) :: P
+    real(dp), dimension(3) :: rotor_vind_bywing_boundVortices
+    integer :: ib
+
+    rotor_vind_bywing_boundVortices=0._dp
+    do ib=1,this%nb
+      rotor_vind_bywing_boundVortices=rotor_vind_bywing_boundVortices+this%blade(ib)%vind_bywing_boundVortices(P)
+    enddo
+  end function rotor_vind_bywing_boundVortices
 
   function rotor_vind_bywake(this,P,optionalChar)
   class(rotor_class), intent(inout) :: this
