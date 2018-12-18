@@ -234,11 +234,20 @@ program main
       endif
     endif
 
-    ! Inflow computation
+    ! Inflow plot
     do ir=1,nr
       if (rotor(ir)%inflowPlotSwitch .ne. 0) then
         if (mod(iter,rotor(ir)%inflowPlotSwitch) .eq. 0) then 
           call inflow2file(timestamp,rotor,ir,-zAxis)
+        endif
+      endif
+    enddo
+
+    ! Gamma plot
+    do ir=1,nr
+      if (rotor(ir)%gammaPlotSwitch .ne. 0) then
+        if (mod(iter,rotor(ir)%gammaPlotSwitch) .eq. 0) then 
+          call gamma2file(timestamp,rotor(1),ir)
         endif
       endif
     enddo

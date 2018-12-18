@@ -479,5 +479,39 @@ contains
 
   end subroutine inflow2file
 
+  subroutine gamma2file(timestamp,rotor,rotorNumber)
+    ! Calculates inflow velocity along directionVector on the blades of rotor(rotorNumber)
+    ! at rotor(rotorNumber)%inflowLocations
+    character(len=*), intent(in) :: timestamp
+    type(rotor_class), intent(in) :: rotor
+    integer, intent(in) :: rotorNumber
+    integer :: ib, ic, is
+    character(len=2) :: rotorNumberChar, bladeNumberChar, rowNumberChar
+
+    ! Write to file
+    write(rotorNumberChar,'(I0.2)') rotorNumber
+    open(unit=12,file='Results/r'//rotorNumberChar//'gammaDist'//timestamp//'.curve',action='write')
+    do ib=1,rotor%nb
+      write(bladeNumberChar,'(I0.2)') ib
+      ic=1
+      write(rowNumberChar,'(I0.2)') ic
+      write(12,*) '# Blade'//bladeNumberChar//'Row'//rowNumberChar
+      do is=1,rotor%ns
+        write(12,*) norm2(rotor%hubCoords-rotor%blade(ib)%wiP(ic,is)%cp), &
+          -1._dp*rotor%blade(ib)%wiP(ic,is)%vr%gam
+      enddo
+      do ic=2,rotor%nc
+        write(rowNumberChar,'(I0.2)') ic
+        write(12,*) '# Blade'//bladeNumberChar//'Row'//rowNumberChar
+        do is=1,rotor%ns
+          write(12,*) norm2(rotor%hubCoords-rotor%blade(ib)%wiP(ic,is)%cp), &
+            -1._dp*(rotor%blade(ib)%wiP(ic,is)%vr%gam-rotor%blade(ib)%wiP(ic-1,is)%vr%gam)
+        enddo
+      enddo
+    enddo
+    close(12)
+
+  end subroutine gamma2file
+
 end module postproc
 
