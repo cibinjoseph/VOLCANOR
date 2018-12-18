@@ -238,7 +238,7 @@ program main
     do ir=1,nr
       if (rotor(ir)%inflowPlotSwitch .ne. 0) then
         if (mod(iter,rotor(ir)%inflowPlotSwitch) .eq. 0) then 
-          call bladeInflow2file(timestamp,rotor,ir,-zAxis)
+          call inflow2file(timestamp,rotor,ir,-zAxis)
         endif
       endif
     enddo

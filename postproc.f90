@@ -440,7 +440,7 @@ contains
     endif
   end subroutine force2file
 
-  subroutine bladeInflow2file(timestamp,rotorArray,rotorNumber,directionVector)
+  subroutine inflow2file(timestamp,rotorArray,rotorNumber,directionVector)
     ! Calculates inflow velocity along directionVector on the blades of rotor(rotorNumber)
     ! at rotor(rotorNumber)%inflowLocations
     character(len=*), intent(in) :: timestamp
@@ -477,56 +477,7 @@ contains
     enddo
     close(12)
 
-  end subroutine bladeInflow2file
-
-  ! subroutine thrust2file(timestamp,rotor,rotorNumber)
-  !   type(rotor_class), intent(in) :: rotor
-  !   character(len=*), intent(in) :: timestamp
-  !   integer, intent(in) :: rotorNumber
-  !   character(len=2) :: rotorNumberChar
-  !   character(len=2) :: blade_number_char
-  !   integer :: ib, ispan
-
-  !   open(unit=11,file='Results/r'//rotorNumberChar//'thrust'//timestamp//'.txt')
-  !   write(rotorNumberChar,'(I0.2)') rotorNumber
-
-  !   do ib=1,rotor%nb
-  !     write(blade_number_char,'(I0.2)') ib
-  !     open(unit=10,file='Results/R'//rotorNumberChar//'Bl'//blade_number_char//'L'//timestamp//'.curve')
-  !     write(10,*) '# Blade lift'
-  !     do ispan=1,rotor%ns
-  !       write(10,*) norm2(rotor%hubCoords-rotor%blade(ib)%wiP(1,ispan)%CP),rotor%blade(ib)%wiP(1,ispan)%dLift
-  !     enddo
-  !     close(10)
-
-  !     write(11,*) 'Blade'//blade_number_char//' ',rotor%blade(ib)%thrust
-  !   enddo
-
-  !   write(11,*) 'Net thrust ',rotor%thrust
-  !   close(11)
-  ! end subroutine thrust2file
-
-  subroutine gam2file(yVec,gam_sectional,filename)
-    real(dp), intent(in), dimension(:) :: yVec
-    real(dp), intent(in), dimension(:) :: gam_sectional
-    character(len=*), intent(in) :: filename
-    real(dp), dimension(size(yVec)-1) :: yVec_file
-    integer :: i,ny
-
-    ny=size(gam_sectional)
-
-    open(unit=10,file=filename,position='append')
-    do i=1,ny
-      yVec_file(i)=(yVec(i)+yVec(i+1))*0.5_dp
-    enddo
-
-    write(10,*) '# Gamma'
-    do i=1,ny
-      write(10,*) yVec_file(i), -1._dp*gam_sectional(i)
-    enddo
-    close(10)
-
-  end subroutine gam2file
+  end subroutine inflow2file
 
 end module postproc
 
