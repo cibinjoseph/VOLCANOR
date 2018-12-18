@@ -60,11 +60,11 @@ Spanwise start[r/R]  &  end[r/R] for centroid of tip vorticity
 
 initWakeVel[m/s]     psiStart[deg]
 ----------------------------------------------------------------
-     25.0                   0.0
+     0.0                   0.0
 
  PLOT INFLOW: 
   inflowPlotSwitch         nInflowLocations
     [0]Off                      [n] for number of spanwise points at c/4
     [n]Every nth iteration      [-n] for inflow at coll. point of nth chordwise row
 -----------------------------------------------------------------------
-       200                       -1
+       500                       -1
