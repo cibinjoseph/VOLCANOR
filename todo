@@ -1,5 +1,4 @@
 Max circulation at non max lift in forward flight?
-Check leapfrogging in vortex rings - dependance on discretization
 Does discretization give rise to instability? cause for Kelvin waves or Crow instability?
 Check performance using VTune Amplifier and Advisor
 Check CT and inflow distribution against BEMT
@@ -9,3 +8,6 @@ Get blade distributed parameters, at quarter chord maybe?
 Make lift integration higher order - unequal intervals
 Check oscillations in inflow - dependent on nInflowLocations
 Plot wing gamma distribution
+
+Make separate validation cases repo that contains testcases and results as branches
+Also make a folder that contains parameters/files for specific case
