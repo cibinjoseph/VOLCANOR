@@ -12,3 +12,5 @@ Plot wing gamma distribution
 Make separate validation cases repo that contains testcases and results as branches
 Also make a folder that contains parameters/files for specific case
 Check CT and inflow distribution against BEMT for CarrNTung rotor
+
+Effect of vortex core radius on wake structure
