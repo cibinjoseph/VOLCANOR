@@ -1,6 +1,6 @@
  NO. OF TIMESTEPS [nt]    TIMESTEP (sec) [dt]    NO. OF ROTORS [nr]
 -----------------------------------------------------------------------
-      5000                       0.0006                  1
+      500                       0.00625                  1
 =======================================================================
 
    DENSITY [kg/m3]      TURB. VISCOSITY
@@ -25,7 +25,7 @@
  PLOT WAKE: [0]Off [n]Every nth iteration
   wakePlotSwitch         gridPlotSwitch      forcePlotSwitch
 -----------------------------------------------------------------------
-       500                       0               2000
+       100                       0                 1
 
  WAKE CONVECTION FINITE-DIFFERENCE SCHEME: [0]FT1 [1]PC2 [2]AB2 [3]AB4
   fdSchemeSwitch
