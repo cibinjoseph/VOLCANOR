@@ -1395,8 +1395,6 @@ contains
               do i=1,this%nc
                 col=i+this%nc*(j-1)+this%ns*this%nc*(jblade-1)
                 vec_dummy=this%blade(jblade)%wiP(i,j)%vr%vind(this%blade(ib)%wiP(ic,is)%CP)
-                print*,this%blade(1)%wiP(1,1)%vr%vf(1)%fc
-                stop
                 this%AIC(row,col)=dot_product(vec_dummy,this%blade(ib)%wiP(ic,is)%nCap)
               enddo
             enddo
