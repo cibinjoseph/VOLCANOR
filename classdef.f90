@@ -871,10 +871,16 @@ contains
       gamElementChord(ic,1)=this%wiP(ic,1)%vr%gam
     enddo
 
+    gamElementSpan(1,1)=this%wiP(1,1)%vr%gam
+    do ic=2,rows
+      gamElementSpan(ic,1)=this%wiP(ic,1)%vr%gam-this%wiP(ic-1,1)%vr%gam
+    enddo
+
     do is=2,cols
       velTangentialChord(1,is)=dot_product(this%wiP(1,is)%velCP,this%wiP(1,is)%tauCapChord)
       velTangentialSpan(1,is)=dot_product(this%wiP(1,is)%velCP,this%wiP(1,is)%tauCapSpan)
-      gamElementChord(1,is)=this%wiP(1,is)%vr%gam
+      gamElementChord(1,is)=this%wiP(1,is)%vr%gam-this%wiP(1,is-1)%vr%gam
+      gamElementSpan(1,is)=this%wiP(1,is)%vr%gam
       do ic=2,rows
         velTangentialChord(ic,is)=dot_product(this%wiP(ic,is)%velCP,this%wiP(ic,is)%tauCapChord)
         velTangentialSpan(ic,is)=dot_product(this%wiP(ic,is)%velCP,this%wiP(ic,is)%tauCapSpan)
@@ -893,8 +899,8 @@ contains
         this%Force=this%Force+this%wiP(ic,is)%normalForce
       enddo
     enddo
-    !print*,this%wiP(1,1)%delP
-    !stop
+    print*,this%wiP(2,1)%delP
+    stop
 
   end subroutine blade_calc_force
 
