@@ -233,6 +233,8 @@ program main
         enddo
       endif
     endif
+          print*,rotor(1)%force(3)
+          stop
 
     ! Inflow plot
     do ir=1,nr
