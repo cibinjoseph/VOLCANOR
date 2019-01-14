@@ -1052,7 +1052,6 @@ contains
         endif
       endif
     enddo
-
   end subroutine getdata
 
   subroutine rotor_init(this,density,dt,spanSpacingSwitch,fdSchemeSwitch)
@@ -1113,6 +1112,10 @@ contains
         call this%blade(ib)%wiP(this%nc,j)%vr%assignP(3,(/xVec(this%nc+1)+xshiftTE,yVec(j+1),0._dp/))
         call this%blade(ib)%wiP(this%nc,j)%vr%assignP(4,(/xVec(this%nc  )+xshiftLE,yVec(j+1),0._dp/))
       enddo
+
+      ! Assign wind velocities
+      this%velWind=-1._dp*this%velBody
+      this%omegaWind=-1._dp*this%omegaBody
 
       ! Shed last row of vortices
       if (abs(norm2(this%velWind)) < eps) then
@@ -1232,10 +1235,6 @@ contains
     else
       this%nonDimForceDenominator = 0.5_dp*density*(this%radius*(1._dp-this%root_cut)*this%chord)*(dot_product(this%velBody,this%velBody))
     endif
-
-    ! Assign wind velocities
-    this%velWind=-1._dp*this%velBody
-    this%omegaWind=-1._dp*this%omegaBody
 
     ! Allocate vars required for wake convection
     ! on the basis of finite diff scheme
@@ -1396,6 +1395,8 @@ contains
               do i=1,this%nc
                 col=i+this%nc*(j-1)+this%ns*this%nc*(jblade-1)
                 vec_dummy=this%blade(jblade)%wiP(i,j)%vr%vind(this%blade(ib)%wiP(ic,is)%CP)
+                print*,this%blade(1)%wiP(1,1)%vr%vf(1)%fc
+                stop
                 this%AIC(row,col)=dot_product(vec_dummy,this%blade(ib)%wiP(ic,is)%nCap)
               enddo
             enddo
@@ -1405,6 +1406,8 @@ contains
       enddo
     enddo
     this%AIC_inv=inv(this%AIC)
+    print*,this%AIC(1,1)
+    stop
   end subroutine calcAIC
 
   subroutine map_gam(this)
