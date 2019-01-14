@@ -1230,7 +1230,7 @@ contains
     if (this%omega .ne. 0) then
       this%nonDimForceDenominator = density*(pi*this%radius**2._dp)*(this%radius*this%omega)**2._dp
     else
-      this%nonDimForceDenominator = 0.5_dp*density*(this%radius*this%chord)*(dot_product(this%velBody,this%velBody))
+      this%nonDimForceDenominator = 0.5_dp*density*(this%radius*(1._dp-this%root_cut)*this%chord)*(dot_product(this%velBody,this%velBody))
     endif
 
     ! Assign wind velocities
