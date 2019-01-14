@@ -1404,8 +1404,6 @@ contains
       enddo
     enddo
     this%AIC_inv=inv(this%AIC)
-    print*,this%AIC(1,1)
-    stop
   end subroutine calcAIC
 
   subroutine map_gam(this)
