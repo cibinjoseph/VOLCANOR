@@ -668,12 +668,12 @@ contains
         enddo
       enddo
 
-      ! Last row of Fwake is made of horseshoe vortices
-      do j=1,size(this%waP,2)
-        blade_vind_bywake=blade_vind_bywake-this%waP(nNwake,j)%vr%vf(2)%vind(P)*this%waP(nNwake,j)%vr%gam
-      enddo
-
       if (rowFar .ne. 0) then
+        ! Last row of Nwake is made of horseshoe vortices, if Fwake is generated
+        do j=1,size(this%waP,2)
+          blade_vind_bywake=blade_vind_bywake-this%waP(nNwake,j)%vr%vf(2)%vind(P)*this%waP(nNwake,j)%vr%gam
+        enddo
+
         do i=rowFar,size(this%waF,1)
           blade_vind_bywake=blade_vind_bywake+this%waF(i)%vf%vind(P)*this%waF(i)%gam
         enddo
@@ -685,12 +685,12 @@ contains
         enddo
       enddo
 
-      ! Last row of Fwake is made of horseshoe vortices
-      do j=1,size(this%waP,2)
-        blade_vind_bywake=blade_vind_bywake-this%waPPredicted(nNwake,j)%vr%vf(2)%vind(P)*this%waPPredicted(nNwake,j)%vr%gam
-      enddo
-
       if (rowFar .ne. 0) then
+        ! Last row of Nwake is made of horseshoe vortices, if Fwake is generated
+        do j=1,size(this%waP,2)
+          blade_vind_bywake=blade_vind_bywake-this%waPPredicted(nNwake,j)%vr%vf(2)%vind(P)*this%waPPredicted(nNwake,j)%vr%gam
+        enddo
+
         do i=rowFar,size(this%waF,1)
           blade_vind_bywake=blade_vind_bywake+this%waFPredicted(i)%vf%vind(P)*this%waFPredicted(i)%gam
         enddo
@@ -893,6 +893,8 @@ contains
         this%Force=this%Force+this%wiP(ic,is)%normalForce
       enddo
     enddo
+    !print*,this%wiP(1,1)%delP
+    !stop
 
   end subroutine blade_calc_force
 
