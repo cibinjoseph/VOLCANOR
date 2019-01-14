@@ -421,7 +421,7 @@ contains
 
     write(rotorNumberChar,'(I0.2)') rotorNumber
     open(unit=11,file='Results/r'//rotorNumberChar//'force.txt',action='write',position='append')
-    ! timestamp(in s)  CT  rotorThrust  bladeThrust1 bladeThrust2...
+    ! timestamp(iters)  CT  rotorThrust  bladeThrust1 bladeThrust2...
     write(11,100) timestamp,rotorForce/rotor%nonDimForceDenominator, rotorForce, (bladeForce(ib),ib=1,rotor%nb)
     close(11)
     100 format(A,15(E15.7))
