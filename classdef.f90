@@ -903,7 +903,7 @@ contains
           + velTangentialSpan(ic,is)*gamElementSpan(ic,is)/this%wiP(ic,is)%meanSpan &
           + (this%wiP(ic,is)%vr%gam-this%wiP(ic,is)%vr%gamPrev)/dt
         this%wiP(ic,is)%delP=density*this%wiP(ic,is)%delP
-        this%wiP(ic,is)%normalForce=this%wiP(ic,is)%delP*this%wiP(ic,is)%nCap
+        this%wiP(ic,is)%normalForce=this%wiP(ic,is)%delP*(this%wiP(ic,is)%meanSpan*this%wiP(ic,is)%meanChord)*this%wiP(ic,is)%nCap
         this%Force=this%Force+this%wiP(ic,is)%normalForce
       enddo
     enddo
