@@ -864,31 +864,39 @@ contains
 
     this%Force=0._dp
 
-    ! Compute tangential velocity and panel circulation
-    do ic=1,rows
-      velTangentialChord(ic,1)=dot_product(this%wiP(ic,1)%velCP,this%wiP(ic,1)%tauCapChord)
-      velTangentialSpan(ic,1)=dot_product(this%wiP(ic,1)%velCP,this%wiP(ic,1)%tauCapSpan)
-      gamElementChord(ic,1)=this%wiP(ic,1)%vr%gam
-    enddo
-
-    gamElementSpan(1,1)=this%wiP(1,1)%vr%gam
-    do ic=2,rows
-      gamElementSpan(ic,1)=this%wiP(ic,1)%vr%gam-this%wiP(ic-1,1)%vr%gam
-    enddo
-
-    do is=2,cols
-      velTangentialChord(1,is)=dot_product(this%wiP(1,is)%velCP,this%wiP(1,is)%tauCapChord)
-      velTangentialSpan(1,is)=dot_product(this%wiP(1,is)%velCP,this%wiP(1,is)%tauCapSpan)
-      gamElementChord(1,is)=this%wiP(1,is)%vr%gam-this%wiP(1,is-1)%vr%gam
-      gamElementSpan(1,is)=this%wiP(1,is)%vr%gam
-      do ic=2,rows
+    ! Compute tangential velocity 
+    do is=1,cols
+      do ic=1,rows
         velTangentialChord(ic,is)=dot_product(this%wiP(ic,is)%velCP,this%wiP(ic,is)%tauCapChord)
         velTangentialSpan(ic,is)=dot_product(this%wiP(ic,is)%velCP,this%wiP(ic,is)%tauCapSpan)
+      enddo
+    enddo
+
+    ! Compute chordwise elemental circulation of edge panels
+    do is=1,cols
+      gamElementChord(1,is)=this%wiP(1,is)%vr%gam
+    enddo
+    do ic=2,rows
+      gamElementChord(ic,1)=this%wiP(ic,1)%vr%gam-this%wiP(ic-1,1)%vr%gam
+    enddo
+
+    ! Compute spanwise elemental circulation of edge panels
+    do ic=1,rows
+      gamElementSpan(ic,1)=this%wiP(ic,1)%vr%gam
+    enddo
+    do is=2,cols
+      gamElementSpan(1,is)=this%wiP(1,is)%vr%gam-this%wiP(1,is-1)%vr%gam
+    enddo
+
+    ! Compute chordwise and spanwise elemental circulations of inner panels
+    do is=2,cols
+      do ic=2,rows
         gamElementChord(ic,is)=this%wiP(ic,is)%vr%gam-this%wiP(ic-1,is)%vr%gam
         gamElementSpan(ic,is)=this%wiP(ic,is)%vr%gam-this%wiP(ic,is-1)%vr%gam
       enddo
     enddo
 
+    ! Compute delP
     do is=1,cols
       do ic=1,rows
         this%wiP(ic,is)%delP=velTangentialChord(ic,is)*gamElementChord(ic,is)/this%wiP(ic,is)%meanChord &
@@ -899,8 +907,6 @@ contains
         this%Force=this%Force+this%wiP(ic,is)%normalForce
       enddo
     enddo
-    print*,this%wiP(2,1)%delP
-    stop
 
   end subroutine blade_calc_force
 
