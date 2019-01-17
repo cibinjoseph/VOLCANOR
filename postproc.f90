@@ -406,13 +406,15 @@ contains
 
   subroutine force2file(timestamp,rotor,rotorNumber,directionVector)
     type(rotor_class), intent(in) :: rotor
-    character  (len=*), intent(in) :: timestamp
+    character(len=*), intent(in) :: timestamp
     integer, intent(in) :: rotorNumber
     real(dp),   intent(in), dimension(3) :: directionVector
     character(len=2) :: rotorNumberChar, bladeNumberChar
     real(dp) :: rotorForce
     real(dp), dimension(rotor%nb) :: bladeForce
     integer :: ib, ispan
+    character(len=20) :: forceFilename
+    logical :: fileExists
 
     rotorForce = dot_product(rotor%Force,directionVector)
     do ib=1,rotor%nb
@@ -420,8 +422,15 @@ contains
     enddo
 
     write(rotorNumberChar,'(I0.2)') rotorNumber
-    open(unit=11,file='Results/r'//rotorNumberChar//'force.txt',action='write',position='append')
-    ! timestamp(iters)  CT  rotorThrust  bladeThrust1 bladeThrust2...
+    forceFilename='Results/r'//rotorNumberChar//'force.txt'
+
+    ! Add data headers if file does not exist
+    inquire(file=forceFilename,exist=fileExists)
+    open(unit=11,file=forceFilename,action='write',position='append')
+    if (fileExists .eqv. .FALSE.) then
+      ! timestamp(iters)  CT  rotorThrust  bladeThrust1 bladeThrust2...
+      write(11,100) '# timestamp(iters)    CT    rotorThrust    bladeThrust1    bladeThrust2...'
+    endif
     write(11,100) timestamp,rotorForce/rotor%nonDimForceDenominator, rotorForce, (bladeForce(ib),ib=1,rotor%nb)
     close(11)
     100 format(A,15(E15.7))
