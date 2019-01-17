@@ -46,7 +46,7 @@ if args.wake == True:
     filename = 'plot_wake.py'
 
 elif args.force == True:
-    filename = 'plot_force.py'
+     filename = 'plot_force.py'
 
 elif args.span == True:
     filename = 'plot_forceDist.py'
@@ -83,8 +83,13 @@ else:
     # raise ValueError 
     filename = 'plot_wake.py'  # Assume -w flag by dfault
 
+if args.force == True:
+    sys.path.insert(0, 'src_plot')  # Append src_plot/ to search path
+    import plot_force
 
-call(['visit', '-np', '4', '-s', '{}/{}'.format(src_plot_dir, filename)])
+else:
+    call(['visit', '-np', '4', '-s', '{}/{}'.format(src_plot_dir, filename)])
+
 try:
     os.remove('visitlog.py')
 except OSError:

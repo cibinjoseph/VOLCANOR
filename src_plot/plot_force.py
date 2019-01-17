@@ -1,20 +1,22 @@
-OpenDatabase("localhost:/home/cibin/WorkInProgress/VOLCANOR/Results/r01force.txt", 0)
-AddPlot("Scatter", "var00", 1, 1)
-ScatterAtts = ScatterAttributes()
-ScatterAtts.var1 = "var00"
-ScatterAtts.var2 = "var01"
-ScatterAtts.pointSize = 0.05
-ScatterAtts.pointSizePixels = 5
-ScatterAtts.pointType = ScatterAtts.Point  # Box, Axis, Icosahedron, Octahedron, Tetrahedron, SphereGeometry, Point, Sphere
-ScatterAtts.scaleCube = 0
-ScatterAtts.legendFlag = 1
-SetPlotOptions(ScatterAtts)
+import matplotlib.pyplot as plt
+import numpy
 
-SetPlotDescription(0, "Thrust Coefficient")
-AnnotationAtts = AnnotationAttributes()
-AnnotationAtts.axes2D.xAxis.title.userTitle = 1
-AnnotationAtts.axes2D.xAxis.title.title = "Iterations"
-AnnotationAtts.axes2D.yAxis.title.userTitle = 1
-AnnotationAtts.axes2D.yAxis.title.title = "Thrust Coefficient"
-SetAnnotationAttributes(AnnotationAtts)
-DrawPlots()
+# Get data points (timestep and Force)
+filename = 'Results/r01forceHist.txt'
+timestamp = []
+CT = []
+with open(filename) as forceFile:
+    for line in forceFile:
+        # Handle empty lines and comments
+        if line and (line[0][0] != '#'):
+            data = line.split()
+            timestamp.append(float(data[0].strip()))
+            CT.append(float(data[1].strip()))
+
+plt.plot(timestamp, CT, 'b')
+plt.xlabel('Iteration')
+plt.ylabel('CT')
+plt.grid()
+
+plt.show(block=True)
+# input('Press Enter to exit')
