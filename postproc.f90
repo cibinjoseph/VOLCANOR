@@ -413,7 +413,7 @@ contains
     real(dp) :: rotorForce
     real(dp), dimension(rotor%nb) :: bladeForce
     integer :: ib, ispan
-    character(len=20) :: forceFilename
+    character(len=24) :: forceFilename
     logical :: fileExists
 
     rotorForce = dot_product(rotor%Force,directionVector)
@@ -422,7 +422,7 @@ contains
     enddo
 
     write(rotorNumberChar,'(I0.2)') rotorNumber
-    forceFilename='Results/r'//rotorNumberChar//'force.txt'
+    forceFilename='Results/r'//rotorNumberChar//'forceHist.txt'
 
     ! Add data headers if file does not exist
     inquire(file=forceFilename,exist=fileExists)
