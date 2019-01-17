@@ -15,3 +15,5 @@ octave-workspace
 *.zip
 *.tar.gz
 *.phy
+*.pyc
+src_plot/*.pyc
