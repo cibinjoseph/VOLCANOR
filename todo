@@ -15,5 +15,3 @@ Check CT and inflow distribution against BEMT for CarrNTung rotor
 Effect of vortex core radius on wake structure
 
 Change wingverify() to class based rotor code
-Add init_plots() to create headers on intial run
-Add zeroth iteration result to CTHist plots
