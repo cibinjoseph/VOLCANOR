@@ -3,6 +3,23 @@ module postproc
 
 contains
 
+  subroutine init_plots(numOfRotors)
+    integer, intent(in) :: numOfRotors
+    character(len=24) :: forceFilename
+    integer :: rotorNumber
+    character(len=2) :: rotorNumberChar
+
+    do rotorNumber=1,numOfRotors
+      write(rotorNumberChar,'(I0.2)') rotorNumber
+      forceFilename='Results/r'//rotorNumberChar//'forceHist.txt'
+
+      ! Add data headers
+      open(unit=11,file=forceFilename,action='write')
+      write(11,'(A)') '# timestamp(iters)    CT    rotorThrust    bladeThrust1    bladeThrust2...'
+    enddo
+    close(11)
+  end subroutine init_plots
+
   subroutine rotor2file(timestamp,rotor)
     type(rotor_class), intent(in) :: rotor
     character(len=*), intent(in) :: timestamp
@@ -414,7 +431,6 @@ contains
     real(dp), dimension(rotor%nb) :: bladeForce
     integer :: ib, ispan
     character(len=24) :: forceFilename
-    logical :: fileExists
 
     rotorForce = dot_product(rotor%Force,directionVector)
     do ib=1,rotor%nb
@@ -424,13 +440,7 @@ contains
     write(rotorNumberChar,'(I0.2)') rotorNumber
     forceFilename='Results/r'//rotorNumberChar//'forceHist.txt'
 
-    ! Add data headers if file does not exist
-    inquire(file=forceFilename,exist=fileExists)
     open(unit=11,file=forceFilename,action='write',position='append')
-    if (fileExists .eqv. .FALSE.) then
-      ! timestamp(iters)  CT  rotorThrust  bladeThrust1 bladeThrust2...
-      write(11,100) '# timestamp(iters)    CT    rotorThrust    bladeThrust1    bladeThrust2...'
-    endif
     write(11,100) timestamp,rotorForce/rotor%nonDimForceDenominator, rotorForce, (bladeForce(ib),ib=1,rotor%nb)
     close(11)
     100 format(A,15(E15.7))
