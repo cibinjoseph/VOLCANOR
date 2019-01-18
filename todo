@@ -6,7 +6,6 @@ Try slowstart to prevent starting vortex instability
 Get blade distributed parameters, at quarter chord maybe?
 Make lift integration higher order - unequal intervals
 Check oscillations in inflow - dependent on nInflowLocations
-Plot wing gamma distribution
 
 - Validation
 Make separate validation cases repo that contains testcases and results as branches
@@ -14,3 +13,7 @@ Also make a folder that contains parameters/files for specific case
 Check CT and inflow distribution against BEMT for CarrNTung rotor
 
 Effect of vortex core radius on wake structure
+
+Change wingverify() to class based rotor code
+Add init_plots() to create headers on intial run
+Add zeroth iteration result to CTHist plots
