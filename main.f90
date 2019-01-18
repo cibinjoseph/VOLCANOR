@@ -508,8 +508,6 @@ program main
 
   enddo
 
-  !  call drag2file(drag,'Results/drag.curve',(/dt,omegaBody(3),span,vwind(1)/))
-
   if (wakePlotSwitch .eq. 1) then
     do ir=1,nr
       call rotor2file(timestamp,rotor(ir))
