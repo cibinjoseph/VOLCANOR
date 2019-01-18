@@ -73,7 +73,10 @@ program main
       rotor(ir)%omegaSlow=rotor(ir)%Omega
     enddo
   endif
+
   t=0._dp
+  iter=0
+  write(timestamp,'(I0.5)') iter
 
   ! Compute RHS
   do ir=1,nr
@@ -114,6 +117,15 @@ program main
     rotor(ir)%rowNear=rotor(ir)%nNwake+1  ! Since assignshed TE assigns to rowNear-1 panel
     call rotor(ir)%assignshed('TE')  ! Store shed vortex as TE
   enddo
+
+  ! Forces computation
+  if (forcePlotSwitch .ne. 0) then
+    !call init_plots(nr)    ! Create headers for plot files
+    do ir=1,nr
+      call rotor(ir)%calc_force(density,dt)
+      call force2file(timestamp,rotor(ir),ir,-zAxis)  ! Negative sign due to negative inflow or gamma
+    enddo
+  endif
 
   ! ------- MAIN LOOP START -------
   do iter=1,nt
