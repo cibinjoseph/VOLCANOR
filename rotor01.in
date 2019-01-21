@@ -22,7 +22,7 @@ X-cgCoords      Y-cgCoords      Z-cgCoords     [all in m]
 
 Radius[m]        root_cut[r/R]       chord[m]      
 ---------------------------------------------------------------
-    8.0              0.1               1.0
+    20.0              0.1               1.0
 ===============================================================
 
  Omega[rad/s]   X-shaftAxis     Y-shaftAxis     Z-shaftAxis 
