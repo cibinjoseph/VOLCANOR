@@ -27,5 +27,3 @@ if (len(sys.argv) == 4):
     nt=nrev*360./ndeg
     print('Revs             = {}'.format(nrev))
     print('no. of timesteps = {}'.format(nt))
-
-
