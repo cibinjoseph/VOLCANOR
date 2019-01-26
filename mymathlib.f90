@@ -132,7 +132,8 @@ contains
     ! Variables for LU Decomposition
     real(dp), dimension(size(A,1),size(A,1)) :: L,U,P
     real(dp), dimension(size(A,1)) :: Pb,d,x,bvec
-    real(dp) :: sumu, suml, det
+    real(dp) :: sumu, suml
+    real(dp), dimension(size(A,1)) :: diagonalTerms
 
     n=size(A,1)
     A_dummy=A
@@ -182,9 +183,8 @@ contains
     enddo
 
     ! Assigning all zero elements in triangular matrices
-    det=1._dp
     do i=1,n
-      det=det*U(i,i)
+      diagonalTerms(i)=U(i,i)
       do j=1,n
         if (i>j) then
           U(i,j)=0._dp
@@ -194,16 +194,20 @@ contains
       enddo
     enddo
 
-    ! Checking Determinant for singularity
-    if (abs(det)<eps) then
-      print*
-      print*,'ERROR: Matrix is Singular or Ill-conditioned!!'
-      call print_mat(A)
-      print*,'Determinant was found to be:'
-      print*,det
-      call print_mat(U)
-      stop 404
-    endif
+    ! Checking diagonal elements for zero
+    ! If determinant is computed here by multiplication,
+    ! for large matrices it may produce floating point overflow
+    do i=1,n
+      if (abs(diagonalTerms(i))<eps) then
+        print*
+        print*,'ERROR: Matrix is Singular or Ill-conditioned!!'
+        print*,'A-matrix:'
+        call print_mat(A)
+        print*,'U-matrix:'
+        call print_mat(U)
+        stop 404
+      endif
+    enddo
 
     ! Changing RHS loop
     do bb=1,n
