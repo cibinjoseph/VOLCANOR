@@ -556,6 +556,10 @@ contains
       this%inflowLocations(:,i)=this%inflowLocations(:,i)+origin
     enddo
 
+    ! Rotate sectional chordwise vector to align with chord
+    do j=1,size(this%sectionalChordwiseVec,2)
+      this%sectionalChordwiseVec(:,j)=matmul(TMat,this%sectionalChordwiseVec(:,j))
+    enddo
   end subroutine blade_rot_pts
 
   subroutine rot_pitch(this,theta)  !pitch about pivotLE from LE
@@ -620,6 +624,12 @@ contains
         this%inflowLocations(:,i)=matmul(TMat,this%inflowLocations(:,i))
         this%inflowLocations(:,i)=this%inflowLocations(:,i)+origin
       enddo
+
+      ! Rotate sectional chordwise vector also alongwith blade
+      do j=1,size(this%sectionalChordwiseVec,2)
+        this%sectionalChordwiseVec(:,j)=matmul(TMat,this%sectionalChordwiseVec(:,j))
+      enddo
+
     endif
   end subroutine rot_axis
 
@@ -1111,8 +1121,8 @@ contains
       ! Initialize sectional chordwise vector
       do j=1,this%ns
         this%blade(ib)%sectionalChordwiseVec(:,j) =  &
-        (this%blade(ib)%wiP(this%nc,j)%PC(:,3)+this%blade(ib)%wiP(this%nc,j)%PC(:,2)- &
-        this%blade(ib)%wiP(1,j)%PC(:,4)-this%blade(ib)%wiP(1,j)%PC(:,1))*0.5_dp
+          (this%blade(ib)%wiP(this%nc,j)%PC(:,3)+this%blade(ib)%wiP(this%nc,j)%PC(:,2)- &
+          this%blade(ib)%wiP(1,j)%PC(:,4)-this%blade(ib)%wiP(1,j)%PC(:,1))*0.5_dp
       enddo
 
       ! Initialize vr coords of all panels except last row (to accomodate mismatch of vr coords when usi    ng unequal spacing)
