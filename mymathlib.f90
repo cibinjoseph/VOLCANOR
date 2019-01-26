@@ -239,6 +239,34 @@ contains
 
   end function inv
 
+  function isInverse(A,Ainv)
+    logical :: isInverse
+    real(dp), intent(in), dimension(:,:) :: A, Ainv
+    real(dp), dimension(size(A,1),size(A,2)) :: productMat
+    integer :: i,j
+    real(dp) :: tol
+
+    productMat=matmul(A,Ainv)
+    isInverse=.TRUE.
+    tol=eps*1000._dp
+
+    do j=1,size(A,2)
+      do i=1,size(A,1)
+        if (i .ne. j) then
+          ! Check if off-diagonal values are 0._dp
+          if (productMat(i,j) > tol) then
+            isInverse=.FALSE.
+          endif
+        else
+          ! Check if on-diagonal values are 1._dp
+          if (productMat(i,j)-1._dp > tol) then
+            isInverse=.FALSE.
+          endif
+        endif
+      enddo
+    enddo
+  end function isInverse
+
   ! -------------------------------------------------
   !                print_mat
   ! -------------------------------------------------

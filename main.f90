@@ -59,8 +59,13 @@ program main
   call print_status('Computing AIC matrices')
   do ir=1,nr
     call rotor(ir)%calcAIC()
+    if (isInverse(rotor(ir)%AIC,rotor(ir)%AIC_inv)) then
+      call print_status()    ! SUCCESS
+    else
+      stop 'Warning: Computed AIC_inv does not seem to be correct within given tolerance'
+      read*
+    endif
   enddo
-  call print_status()    ! SUCCESS
 
   ! Initial Solution
   call print_status('Computing initial solution')
