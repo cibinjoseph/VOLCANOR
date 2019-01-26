@@ -277,83 +277,83 @@ contains
     close(10)
   end subroutine mesh2file
 
-  ! subroutine wingverify(wing_array)
-  !   ! For verifying orientation of wing panels, bound vortex rings and CPs
-  !   type(wingpanel_class), intent(in), dimension(:,:) :: wing_array
-  !   character(len=5) :: nxChar, nyChar
-  !   real(dp), dimension(3,size(wing_array,1)+1,size(wing_array,2)+1) :: wingMesh  
-  !   integer :: i,j,nx,ny
+   subroutine wingverify(wing_array)
+     ! For verifying orientation of wing panels, bound vortex rings and CPs
+     type(wingpanel_class), intent(in), dimension(:,:) :: wing_array
+     character(len=5) :: nxChar, nyChar
+     real(dp), dimension(3,size(wing_array,1)+1,size(wing_array,2)+1) :: wingMesh  
+     integer :: i,j,nx,ny
 
-  !   nx=size(wing_array,1)
-  !   ny=size(wing_array,2)
-  !   write(nxChar,'(I5)') nx+1
-  !   write(nyChar,'(I5)') ny+1
+     nx=size(wing_array,1)
+     ny=size(wing_array,2)
+     write(nxChar,'(I5)') nx+1
+     write(nyChar,'(I5)') ny+1
 
-  !   do j=1,ny
-  !     do i=1,nx
-  !       wingMesh(:,i,j)=wing_array(i,j)%pc(:,1)
-  !     enddo
-  !   enddo
-  !   do i=1,nx
-  !     wingMesh(:,i,ny+1)=wing_array(i,ny)%pc(:,4)
-  !   enddo
-  !   do j=1,ny
-  !     wingMesh(:,nx+1,j)=wing_array(nx,j)%pc(:,2)
-  !   enddo
-  !   wingMesh(:,nx+1,ny+1)=wing_array(nx,ny)%pc(:,3)
+     do j=1,ny
+       do i=1,nx
+         wingMesh(:,i,j)=wing_array(i,j)%pc(:,1)
+       enddo
+     enddo
+     do i=1,nx
+       wingMesh(:,i,ny+1)=wing_array(i,ny)%pc(:,4)
+     enddo
+     do j=1,ny
+       wingMesh(:,nx+1,j)=wing_array(nx,j)%pc(:,2)
+     enddo
+     wingMesh(:,nx+1,ny+1)=wing_array(nx,ny)%pc(:,3)
 
-  !   open(unit=10,file='Results/wingPC.plt',position='append')
-  !   write(10,*) 'Title = "Panel Vertices"'
-  !   write(10,*) 'VARIABLES = "X" "Y" "Z"'
-  !   write(10,*) 'Zone I='//trim(nxChar)//' J='//trim(nyChar)//' K=1  T="Panel Vertices"'
-  !   write(10,*) 'DATAPACKING=BLOCK'
-  !   write(10,*) ((wingMesh(1,i,j),i=1,nx+1),j=1,ny+1)
-  !   write(10,*) ((wingMesh(2,i,j),i=1,nx+1),j=1,ny+1)
-  !   write(10,*) ((wingMesh(3,i,j),i=1,nx+1),j=1,ny+1)
-  !   close(10)
+     open(unit=10,file='Results/wingPC.plt',position='append')
+     write(10,*) 'Title = "Panel Vertices"'
+     write(10,*) 'VARIABLES = "X" "Y" "Z"'
+     write(10,*) 'Zone I='//trim(nxChar)//' J='//trim(nyChar)//' K=1  T="Panel Vertices"'
+     write(10,*) 'DATAPACKING=BLOCK'
+     write(10,*) ((wingMesh(1,i,j),i=1,nx+1),j=1,ny+1)
+     write(10,*) ((wingMesh(2,i,j),i=1,nx+1),j=1,ny+1)
+     write(10,*) ((wingMesh(3,i,j),i=1,nx+1),j=1,ny+1)
+     close(10)
 
-  !   write(nxChar,'(I5)') nx
-  !   write(nyChar,'(I5)') ny
-  !   do j=1,ny
-  !     do i=1,nx
-  !       wingMesh(:,i,j)=wing_array(i,j)%CP
-  !     enddo
-  !   enddo
-  !   open(unit=11,file='Results/wingCP.plt',position='append')
-  !   write(11,*) 'Title = "Coll. points"'
-  !   write(11,*) 'VARIABLES = "X" "Y" "Z"'
-  !   write(11,*) 'Zone I='//trim(nxChar)//' J='//trim(nyChar)//' K=1  T="Coll. points"'
-  !   write(11,*) 'DATAPACKING=BLOCK'
-  !   write(11,*) ((wingMesh(1,i,j),i=1,nx),j=1,ny)
-  !   write(11,*) ((wingMesh(2,i,j),i=1,nx),j=1,ny)
-  !   write(11,*) ((wingMesh(3,i,j),i=1,nx),j=1,ny)
-  !   close(11)
+     write(nxChar,'(I5)') nx
+     write(nyChar,'(I5)') ny
+     do j=1,ny
+       do i=1,nx
+         wingMesh(:,i,j)=wing_array(i,j)%CP
+       enddo
+     enddo
+     open(unit=11,file='Results/wingCP.plt',position='append')
+     write(11,*) 'Title = "Coll. points"'
+     write(11,*) 'VARIABLES = "X" "Y" "Z"'
+     write(11,*) 'Zone I='//trim(nxChar)//' J='//trim(nyChar)//' K=1  T="Coll. points"'
+     write(11,*) 'DATAPACKING=BLOCK'
+     write(11,*) ((wingMesh(1,i,j),i=1,nx),j=1,ny)
+     write(11,*) ((wingMesh(2,i,j),i=1,nx),j=1,ny)
+     write(11,*) ((wingMesh(3,i,j),i=1,nx),j=1,ny)
+     close(11)
 
-  !   write(nxChar,'(I5)') nx+1
-  !   write(nyChar,'(I5)') ny+1
-  !   do j=1,ny
-  !     do i=1,nx
-  !       wingMesh(:,i,j)=wing_array(i,j)%vr%vf(1)%fc(:,1)
-  !     enddo
-  !   enddo
-  !   do i=1,nx
-  !     wingMesh(:,i,ny+1)=wing_array(i,ny)%vr%vf(4)%fc(:,1)
-  !   enddo
-  !   do j=1,ny
-  !     wingMesh(:,nx+1,j)=wing_array(nx,j)%vr%vf(2)%fc(:,1)
-  !   enddo
-  !   wingMesh(:,nx+1,ny+1)=wing_array(nx,ny)%vr%vf(3)%fc(:,1)
+     write(nxChar,'(I5)') nx+1
+     write(nyChar,'(I5)') ny+1
+     do j=1,ny
+       do i=1,nx
+         wingMesh(:,i,j)=wing_array(i,j)%vr%vf(1)%fc(:,1)
+       enddo
+     enddo
+     do i=1,nx
+       wingMesh(:,i,ny+1)=wing_array(i,ny)%vr%vf(4)%fc(:,1)
+     enddo
+     do j=1,ny
+       wingMesh(:,nx+1,j)=wing_array(nx,j)%vr%vf(2)%fc(:,1)
+     enddo
+     wingMesh(:,nx+1,ny+1)=wing_array(nx,ny)%vr%vf(3)%fc(:,1)
 
-  !   open(unit=12,file='Results/wingVR.plt',position='append')
-  !   write(12,*) 'Title = "Vortex Rings"'
-  !   write(12,*) 'VARIABLES = "X" "Y" "Z"'
-  !   write(12,*) 'Zone I='//trim(nxChar)//' J='//trim(nyChar)//' K=1  T="Vortex Rings"'
-  !   write(12,*) 'DATAPACKING=BLOCK'
-  !   write(12,*) ((wingMesh(1,i,j),i=1,nx+1),j=1,ny+1)
-  !   write(12,*) ((wingMesh(2,i,j),i=1,nx+1),j=1,ny+1)
-  !   write(12,*) ((wingMesh(3,i,j),i=1,nx+1),j=1,ny+1)
-  !   close(12)
-  ! end subroutine wingverify
+     open(unit=12,file='Results/wingVR.plt',position='append')
+     write(12,*) 'Title = "Vortex Rings"'
+     write(12,*) 'VARIABLES = "X" "Y" "Z"'
+     write(12,*) 'Zone I='//trim(nxChar)//' J='//trim(nyChar)//' K=1  T="Vortex Rings"'
+     write(12,*) 'DATAPACKING=BLOCK'
+     write(12,*) ((wingMesh(1,i,j),i=1,nx+1),j=1,ny+1)
+     write(12,*) ((wingMesh(2,i,j),i=1,nx+1),j=1,ny+1)
+     write(12,*) ((wingMesh(3,i,j),i=1,nx+1),j=1,ny+1)
+     close(12)
+   end subroutine wingverify
 
   ! subroutine tip2file(wing_array,wake_array,filename)
   !   type(wingpanel_class), intent(in), dimension(:,:) :: wing_array
