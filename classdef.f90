@@ -1123,6 +1123,10 @@ contains
         this%blade(ib)%sectionalChordwiseVec(:,j) =  &
           (this%blade(ib)%wiP(this%nc,j)%PC(:,3)+this%blade(ib)%wiP(this%nc,j)%PC(:,2)- &
           this%blade(ib)%wiP(1,j)%PC(:,4)-this%blade(ib)%wiP(1,j)%PC(:,1))*0.5_dp
+
+        ! Normalize
+        this%blade(ib)%sectionalChordwiseVec(:,j) = this%blade(ib)%sectionalChordwiseVec(:,j)/ &
+        norm2(this%blade(ib)%sectionalChordwiseVec(:,j))
       enddo
 
       ! Initialize vr coords of all panels except last row (to accomodate mismatch of vr coords when usi    ng unequal spacing)
