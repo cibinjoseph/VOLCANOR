@@ -213,7 +213,7 @@ end module vr_classdef
 !------+-------------------+------|
 ! ++++ | MODULE DEFINITION | ++++ |
 !------+-------------------+------|
-module wingpanel_classdef
+module   wingpanel_classdef
   use vr_classdef
   implicit none
   type wingpanel_class
@@ -482,6 +482,7 @@ module blade_classdef
     real(dp), dimension(3) :: Force
     real(dp) :: psi
     real(dp) :: pivotLE
+    real(dp), dimension(:,:) :: sectionalChordwiseVec
     real(dp), allocatable, dimension(:,:) :: inflowLocations
     real(dp), allocatable, dimension(:,:,:) :: velNwake
     real(dp), allocatable, dimension(:,:,:) :: velNwake1, velNwake2, velNwake3
@@ -1058,6 +1059,7 @@ contains
       allocate(this%blade(ib)%wiP(this%nc,this%ns))
       allocate(this%blade(ib)%waP(this%nNwake,this%ns))
       allocate(this%blade(ib)%waF(this%nFwake))
+      allocate(this%blade(ib)%sectionalChordwiseVec(3,this%ns))
       if (this%inflowPlotSwitch > 0) then
         if (this%nInflowLocations < 0) then 
           allocate(this%blade(ib)%inflowLocations(3,this%ns))
@@ -1104,6 +1106,13 @@ contains
           call this%blade(ib)%wiP(i,j)%assignP(3,(/xVec(i+1),yVec(j+1),0._dp/))
           call this%blade(ib)%wiP(i,j)%assignP(4,(/xVec(i  ),yVec(j+1),0._dp/))
         enddo
+      enddo
+
+      ! Initialize sectional chordwise vector
+      do j=1,this%ns
+        this%blade(ib)%sectionalChordwiseVec(:,j) =  &
+        (this%blade(ib)%wiP(this%nc,j)%PC(:,3)+this%blade(ib)%wiP(this%nc,j)%PC(:,2)- &
+        this%blade(ib)%wiP(1,j)%PC(:,4)-this%blade(ib)%wiP(1,j)%PC(:,1))*0.5_dp
       enddo
 
       ! Initialize vr coords of all panels except last row (to accomodate mismatch of vr coords when usi    ng unequal spacing)
