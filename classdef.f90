@@ -1078,6 +1078,7 @@ contains
     integer :: i,j,ib
     real(dp) :: bladeOffset
     real(dp) :: xshiftLE,xshiftTE,velShed
+    logical :: warnUser
 
     ! Blade initialization
     if (this%Omega .ge. 0) then
@@ -1201,23 +1202,25 @@ contains
       enddo
 
       ! Verify CP is outside vortex core for boundary panels
+      warnUser = .FALSE.
       if (isCPinsidecore(this%blade(ib)%wiP(1,1))) then
         print*,'Warning: CP inside vortex core at panel LU'
-        print*,'Any key to continue. Ctrl-C to exit'
-        read(*,*)
+        warnUser = .TRUE.
       endif
       if (isCPinsidecore(this%blade(ib)%wiP(this%nc,1))) then
         print*,'Warning: CP inside vortex core at panel LB'
-        print*,'Any key to continue. Ctrl-C to exit'
-        read(*,*)
+        warnUser = .TRUE.
       endif
       if (isCPinsidecore(this%blade(ib)%wiP(1,this%ns))) then
         print*,'Warning: CP inside vortex core at panel RU'
-        print*,'Any key to continue. Ctrl-C to exit'
-        read(*,*)
+        warnUser = .TRUE.
       endif
       if (isCPinsidecore(this%blade(ib)%wiP(this%nc,this%ns))) then
         print*,'Warning: CP inside vortex core at panel RB'
+        warnUser = .TRUE.
+      endif
+
+      if (warnUser .eqv. .TRUE.) then
         print*,'Any key to continue. Ctrl-C to exit'
         read(*,*)
       endif
