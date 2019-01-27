@@ -483,6 +483,7 @@ module blade_classdef
     real(dp) :: psi
     real(dp) :: pivotLE
     real(dp), dimension(:,:) :: sectionalChordwiseVec
+    real(dp), dimension(:,:) :: alpha
     real(dp), allocatable, dimension(:,:) :: inflowLocations
     real(dp), allocatable, dimension(:,:,:) :: velNwake
     real(dp), allocatable, dimension(:,:,:) :: velNwake1, velNwake2, velNwake3
@@ -502,6 +503,7 @@ module blade_classdef
     procedure :: convectwake
     procedure :: wake_continuity
     procedure :: calc_force => blade_calc_force
+    procedure :: calc_alpha => blade_calc_alpha
   end type blade_class
 contains
 
@@ -906,7 +908,7 @@ contains
         gamElementSpan(ic,is)=this%wiP(ic,is)%vr%gam-this%wiP(ic,is-1)%vr%gam
       enddo
     enddo
-
+  
     ! Compute delP
     do is=1,cols
       do ic=1,rows
@@ -921,6 +923,12 @@ contains
 
   end subroutine blade_calc_force
 
+  subroutine blade_calc_alpha(this)
+    class(blade_class), intent(inout) :: this
+
+
+  end subroutine blade_calc_alpha
+  
 end module blade_classdef
 
 
@@ -1070,6 +1078,7 @@ contains
       allocate(this%blade(ib)%waP(this%nNwake,this%ns))
       allocate(this%blade(ib)%waF(this%nFwake))
       allocate(this%blade(ib)%sectionalChordwiseVec(3,this%ns))
+      allocate(this%blade(ib)%alpha(3,this%ns))
       if (this%inflowPlotSwitch > 0) then
         if (this%nInflowLocations < 0) then 
           allocate(this%blade(ib)%inflowLocations(3,this%ns))
@@ -1126,7 +1135,7 @@ contains
 
         ! Normalize
         this%blade(ib)%sectionalChordwiseVec(:,j) = this%blade(ib)%sectionalChordwiseVec(:,j)/ &
-        norm2(this%blade(ib)%sectionalChordwiseVec(:,j))
+          norm2(this%blade(ib)%sectionalChordwiseVec(:,j))
       enddo
 
       ! Initialize vr coords of all panels except last row (to accomodate mismatch of vr coords when usi    ng unequal spacing)
