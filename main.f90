@@ -130,16 +130,23 @@ program main
       call rotor(ir)%calc_force(density,dt)
       call force2file(timestamp,rotor(ir),ir,-zAxis)  ! Negative sign due to negative inflow or gamma
 
-      ! Calculate alpha
-      do jr=1,nr
-        do ib=1,rotor(ir)%nb
-          do is=1,rotor(ir)%ns
-            do ic=1,rotor(ir)%nc
-              rotor(ir)%blade(ib)%wiP(ic,is)%velLocal=rotor(ir)%blade(ib)%wiP(ic,is)%velCP+  &
+      ! Compute alpha
+      do ib=1,rotor(ir)%nb
+        do is=1,rotor(ir)%ns
+          do ic=1,rotor(ir)%nc
+            ! Compute local velocity vector (excluding induced velocities from wing bound vortices)
+            do jr=1,nr
+              rotor(ir)%blade(ib)%wiP(ic,is)%velLocal=rotor(ir)%blade(ib)%wiP(ic,is)%velLocal+  &
+                rotor(ir)%blade(ib)%wiP(ic,is)%velCP+  &
                 rotor(jr)%vind_bywing(rotor(ir)%blade(ib)%wiP(ic,is)%CP)-  &
                 rotor(jr)%vind_bywing_boundVortices(rotor(ir)%blade(ib)%wiP(ic,is)%CP)
             enddo
-          enddo
+
+            rotor(ir)%blade(ib)%wiP(ic,is)%alpha=  &
+              dot_product(rotor(ir)%blade(ib)%wiP(ic,is)%velLocal,  &
+              rotor(ir)%blade(ib)%wiP(ic,is)%tauCapChord)/  &
+              norm2(rotor(ir)%blade(ib)%wiP(ic,is)%velLocal)
+            enddo
         enddo
       enddo
     enddo
