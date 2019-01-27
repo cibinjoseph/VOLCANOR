@@ -240,7 +240,6 @@ module   wingpanel_classdef
     procedure :: calcTau => wingpanel_class_calcTau
     procedure :: rot => wingpanel_class_rot
     procedure :: shiftdP => wingpanel_class_shiftdP
-    !procedure :: calc_alpha
     procedure :: calc_area
     procedure :: calc_mean_dimensions
     !procedure :: orthproj
@@ -335,19 +334,6 @@ contains
     this%meanSpan =0.5_dp*(norm2(this%pc(:,4)-this%pc(:,1))+norm2(this%pc(:,3)-this%pc(:,2)))
     this%meanChord=0.5_dp*(norm2(this%pc(:,2)-this%pc(:,1))+norm2(this%pc(:,3)-this%pc(:,4)))
   end subroutine calc_mean_dimensions
-
-  ! subroutine calc_alpha(this)
-  ! class(wingpanel_class) :: this
-  !   real(dp), dimension(3) :: tau_c
-  !   tau_c=this%pc(:,2)-this%pc(:,1)
-  !   tau_c=tau_c/norm2(tau_c)
-  !   !this%alpha=0.5_dp*pi
-  !   !if (dot_product(this%velCPm,tau_c)>eps) then
-  !   !  this%alpha=atan((dot_product(this%velCPm,this%nCap)+this%velPitch)/dot_product(this%velCPm,tau_c))
-  !   !endif
-  !   this%alpha=acos(dot_product(this%velCP,tau_c)/norm2(this%velCP))
-  !   ! THIS IS WRONG - velCP here does not contain wing induced velocity!!!
-  ! end subroutine calc_alpha
 
   !! Calculates the orthogonal projection operator
   !function orthproj(this)
@@ -503,7 +489,6 @@ module blade_classdef
     procedure :: convectwake
     procedure :: wake_continuity
     procedure :: calc_force => blade_calc_force
-    procedure :: calc_alpha => blade_calc_alpha
   end type blade_class
 contains
 
@@ -863,7 +848,7 @@ contains
     case default
       error stop 'ERROR: Wrong character flag for convectwake()'
     end select
-
+  
   end subroutine wake_continuity
 
   subroutine blade_calc_force(this,density,dt)
@@ -908,7 +893,7 @@ contains
         gamElementSpan(ic,is)=this%wiP(ic,is)%vr%gam-this%wiP(ic,is-1)%vr%gam
       enddo
     enddo
-  
+
     ! Compute delP
     do is=1,cols
       do ic=1,rows
@@ -923,12 +908,6 @@ contains
 
   end subroutine blade_calc_force
 
-  subroutine blade_calc_alpha(this)
-    class(blade_class), intent(inout) :: this
-
-
-  end subroutine blade_calc_alpha
-  
 end module blade_classdef
 
 
@@ -1754,17 +1733,17 @@ contains
     enddo
   end subroutine rotor_calc_force
 
-  ! subroutine rotor_calc_alpha(this)
-  ! class(rotor_class), intent(inout) :: this
-  !   integer :: irow, icol, ib
+  !subroutine rotor_calc_alpha(this)
+  !class(rotor_class), intent(inout) :: this
+  !  integer :: irow, icol, ib
 
-  !   do ib=1,this%nb
-  !     do icol=1,this%ns
-  !       do irow=1,this%nc
-  !         call this%blade(ib)%wiP(irow,icol)%calc_alpha()
-  !       enddo
-  !     enddo
-  !   enddo
-  ! end subroutine rotor_calc_alpha
+  !  do ib=1,this%nb
+  !    do icol=1,this%ns
+  !      do irow=1,this%nc
+  !        call this%blade(ib)%wiP(irow,icol)%calc_alpha()
+  !      enddo
+  !    enddo
+  !  enddo
+  !end subroutine rotor_calc_alpha
 
 end module rotor_classdef
