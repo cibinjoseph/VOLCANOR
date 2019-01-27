@@ -16,3 +16,5 @@ Effect of vortex core radius on wake structure
 Add provision for coning for blades
 
 Add induced velocity by other rotors to RHS  **VERY IMPORTANT**
+- wing induced velocities by other rotors are neglected now
+- this has to be performed in zeroth iteration also
