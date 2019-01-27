@@ -213,7 +213,7 @@ end module vr_classdef
 !------+-------------------+------|
 ! ++++ | MODULE DEFINITION | ++++ |
 !------+-------------------+------|
-module   wingpanel_classdef
+module wingpanel_classdef
   use vr_classdef
   implicit none
   type wingpanel_class
@@ -223,7 +223,8 @@ module   wingpanel_classdef
     real(dp), dimension(3) :: nCap    ! unit normal vector
     real(dp), dimension(3) :: tauCapChord ! unit tangential vector along chord
     real(dp), dimension(3) :: tauCapSpan  ! unit tangential vector along span
-    real(dp), dimension(3) :: velCP   ! local velocity at CP
+    real(dp), dimension(3) :: velCP       ! local velocity at CP excluding bound vortices
+    real(dp), dimension(3) :: velCPTotal  ! local velocity at CP including bound vortices
     real(dp), dimension(3) :: velCPm  ! rel. inertial velocity at CP (due to motion)
     real(dp), dimension(3) :: normalForce  ! panel normalForce vector in inertial frame
     real(dp) :: velPitch             ! pitch velocity
@@ -848,7 +849,7 @@ contains
     case default
       error stop 'ERROR: Wrong character flag for convectwake()'
     end select
-  
+
   end subroutine wake_continuity
 
   subroutine blade_calc_force(this,density,dt)
