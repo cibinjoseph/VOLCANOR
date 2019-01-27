@@ -2,7 +2,7 @@ program main
   use library
   use postproc
 
-  ! Variable Initialization
+  ! Initialize variables
   include "init_file.f90"
   print*
 
@@ -67,7 +67,7 @@ program main
     endif
   enddo
 
-  ! Initial Solution
+  ! Obtain initial solution
   call print_status('Computing initial solution')
   if (slowStartSwitch .ne. 0) then
     do ir=1,nr
@@ -123,7 +123,7 @@ program main
     call rotor(ir)%assignshed('TE')  ! Store shed vortex as TE
   enddo
 
-  ! Forces computation
+  ! Compute forces
   if (forcePlotSwitch .ne. 0) then
     call init_plots(nr)    ! Create headers for plot files
     do ir=1,nr
@@ -146,7 +146,7 @@ program main
               dot_product(rotor(ir)%blade(ib)%wiP(ic,is)%velLocal,  &
               rotor(ir)%blade(ib)%wiP(ic,is)%tauCapChord)/  &
               norm2(rotor(ir)%blade(ib)%wiP(ic,is)%velLocal)
-            enddo
+          enddo
         enddo
       enddo
     enddo
@@ -196,7 +196,7 @@ program main
       enddo
     endif
 
-    ! Wing motion 
+    ! Move wing
     do ir=1,nr
       call rotor(ir)%move(rotor(ir)%velBody*dt)
       call rotor(ir)%rot_pts(rotor(ir)%omegaBody*dt,rotor(ir)%cgCoords,1)
@@ -261,7 +261,7 @@ program main
       call rotor(ir)%map_gam()
     enddo
 
-    ! Forces computation
+    ! Compute forces
     if (forcePlotSwitch .ne. 0) then
       if (mod(iter,forcePlotSwitch) .eq. 0) then 
         do ir=1,nr
