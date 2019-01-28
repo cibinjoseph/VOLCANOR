@@ -265,7 +265,6 @@ program main
     if (forcePlotSwitch .ne. 0) then
       if (mod(iter,forcePlotSwitch) .eq. 0) then 
         do ir=1,nr
-          call rotor(ir)%calc_force(density,dt)
           call force2file(timestamp,rotor(ir),ir,-zAxis)  ! -ve sign due to negative inflow or gamma
 
           ! Compute alpha
@@ -290,6 +289,9 @@ program main
               rotor(ir)%blade(ib)%sectionalAlpha(is)=sum(rotor(ir)%blade(ib)%wiP(:,is)%alpha)/rotor(ir)%nc
             enddo
           enddo
+
+          ! Compute forces from wing circulation
+          !call rotor(ir)%calc_force(density,dt)
         enddo
       endif
     endif
