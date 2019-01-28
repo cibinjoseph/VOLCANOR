@@ -72,4 +72,4 @@ initWakeVel[m/s]     psiStart[deg]
 
   gammaPlotSwitch   [0]Off   [n]Every nth iteration    
 ---------------------------------------------------------------
-       100 
+       0
