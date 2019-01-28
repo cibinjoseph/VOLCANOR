@@ -285,6 +285,9 @@ program main
                   rotor(ir)%blade(ib)%wiP(ic,is)%tauCapChord)/  &
                   norm2(rotor(ir)%blade(ib)%wiP(ic,is)%velLocal)
               enddo
+
+              ! Compute sectional angle of attack
+              rotor(ir)%blade(ib)%sectionalAlpha(is)=sum(rotor(ir)%blade(ib)%wiP(:,is)%alpha)/rotor(ir)%nc
             enddo
           enddo
         enddo
