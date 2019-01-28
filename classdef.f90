@@ -223,8 +223,8 @@ module wingpanel_classdef
     real(dp), dimension(3) :: nCap    ! unit normal vector
     real(dp), dimension(3) :: tauCapChord ! unit tangential vector along chord
     real(dp), dimension(3) :: tauCapSpan  ! unit tangential vector along span
-    real(dp), dimension(3) :: velCP       ! local velocity at CP excluding bound vortices
-    real(dp), dimension(3) :: velCPTotal  ! local velocity at CP including bound vortices
+    real(dp), dimension(3) :: velCP       ! local velocity at CP excluding wing vortices
+    real(dp), dimension(3) :: velCPTotal  ! local velocity at CP including wing vortices
     real(dp), dimension(3) :: velCPm  ! rel. inertial velocity at CP (due to motion)
     real(dp), dimension(3) :: normalForce  ! panel normalForce vector in inertial frame
     real(dp) :: velPitch             ! pitch velocity
@@ -469,8 +469,8 @@ module blade_classdef
     real(dp), dimension(3) :: Force
     real(dp) :: psi
     real(dp) :: pivotLE
-    real(dp), dimension(:,:) :: sectionalChordwiseVec
-    real(dp), dimension(:) :: sectionalAlpha
+    real(dp), allocatable, dimension(:,:) :: sectionalChordwiseVec
+    real(dp), allocatable, dimension(:) :: sectionalAlpha
     real(dp), allocatable, dimension(:,:) :: inflowLocations
     real(dp), allocatable, dimension(:,:,:) :: velNwake
     real(dp), allocatable, dimension(:,:,:) :: velNwake1, velNwake2, velNwake3
@@ -489,7 +489,8 @@ module blade_classdef
     procedure :: vind_bywake => blade_vind_bywake
     procedure :: convectwake
     procedure :: wake_continuity
-    procedure :: calc_force => blade_calc_force
+    procedure :: calc_force_gamma => blade_calc_force_gamma
+    procedure :: calc_force_alpha => blade_calc_force_alpha
   end type blade_class
 contains
 
@@ -843,7 +844,7 @@ contains
         do i=rowFar+1,nFwake
           call this%waFPredicted(i)%assignP(2,this%waFPredicted(i-1)%vf%fc(:,1))
         enddo
-        !$omp end parallel do
+          !$omp end parallel do
       endif
 
     case default
@@ -852,7 +853,7 @@ contains
 
   end subroutine wake_continuity
 
-  subroutine blade_calc_force(this,density,dt)
+  subroutine blade_calc_force_gamma(this,density,dt)
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: density, dt
     integer :: is, ic, rows, cols
@@ -860,7 +861,7 @@ contains
     real(dp), dimension(size(this%wiP,1),size(this%wiP,2)) :: gamElementChord, gamElementSpan
     rows=size(this%wiP,1)
     cols=size(this%wiP,2)
-
+  
     this%Force=0._dp
 
     ! Compute tangential velocity 
@@ -907,12 +908,23 @@ contains
       enddo
     enddo
 
-  end subroutine blade_calc_force
+  end subroutine blade_calc_force_gamma
 
+  subroutine blade_calc_force_alpha(this)
+    class(blade_class), intent(inout) :: this
+      integer :: is
+
+      this%Force=0._dp
+      do is=1,size(this%wiP,2)
+        this%Force=this%Force+2._dp*pi*this%sectionalAlpha(is)
+      enddo
+
+  end subroutine blade_calc_force_alpha
+  
 end module blade_classdef
 
 
-!------+-------------------+------|
+!------+----------------  ---+------|
 ! ++++ | MODULE DEFINITION | ++++ |
 !------+-------------------+------|
 module rotor_classdef
@@ -968,7 +980,8 @@ module rotor_classdef
     procedure :: rollup => rotor_rollup
     procedure :: record_gamPrev
     !procedure :: calc_alpha => rotor_calc_alpha
-    procedure :: calc_force => rotor_calc_force
+    procedure :: calc_force_gamma => rotor_calc_force_gamma
+    procedure :: calc_force_alpha => rotor_calc_force_alpha
   end type rotor_class
 
 contains
@@ -1722,17 +1735,28 @@ contains
     enddo
   end subroutine record_gamPrev
 
-  subroutine rotor_calc_force(this,density,dt)
+  subroutine rotor_calc_force_gamma(this,density,dt)
   class(rotor_class), intent(inout) :: this
     real(dp), intent(in) :: density, dt
     integer :: ib
 
     this%Force=0._dp
     do ib=1,this%nb
-      call this%blade(ib)%calc_force(density,dt)
+      call this%blade(ib)%calc_force_gamma(density,dt)
       this%Force=this%Force+this%blade(ib)%Force
     enddo
-  end subroutine rotor_calc_force
+  end subroutine rotor_calc_force_gamma
+
+  subroutine rotor_calc_force_alpha(this)
+  class(rotor_class), intent(inout) :: this
+    integer :: ib
+
+    this%Force=0._dp
+    do ib=1,this%nb
+      call this%blade(ib)%calc_force_alpha()
+      this%Force=this%Force+this%blade(ib)%Force
+    enddo
+  end subroutine rotor_calc_force_alpha
 
   !subroutine rotor_calc_alpha(this)
   !class(rotor_class), intent(inout) :: this
