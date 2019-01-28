@@ -133,11 +133,12 @@ program main
         do is=1,rotor(ir)%ns
           do ic=1,rotor(ir)%nc
             ! Compute local velocity vector (excluding induced velocities from wing bound vortices)
+            rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal=0._dp
             do jr=1,nr
               rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal=rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal+  &
                 rotor(ir)%blade(ib)%wiP(ic,is)%velCP+  &
                 rotor(jr)%vind_bywing(rotor(ir)%blade(ib)%wiP(ic,is)%CP)-  &
-                rotor(jr)%vind_bywing_boundVortices(rotor(ir)%blade(ib)%wiP(ic,is)%CP)
+              rotor(jr)%vind_bywing_boundVortices(rotor(ir)%blade(ib)%wiP(ic,is)%CP)
             enddo
 
             rotor(ir)%blade(ib)%wiP(ic,is)%alpha=  &
@@ -278,6 +279,7 @@ program main
             do is=1,rotor(ir)%ns
               do ic=1,rotor(ir)%nc
                 ! Compute local velocity vector (excluding induced velocities from wing bound vortices)
+                rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal=0._dp
                 do jr=1,nr
                   rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal=rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal+  &
                     rotor(ir)%blade(ib)%wiP(ic,is)%velCP+  &
@@ -293,6 +295,8 @@ program main
 
               ! Compute sectional angle of attack
               rotor(ir)%blade(ib)%sectionalAlpha(is)=sum(rotor(ir)%blade(ib)%wiP(:,is)%alpha)/rotor(ir)%nc
+              print*,rotor(ir)%blade(ib)%sectionalAlpha(is)*180._dp/pi
+              read*
             enddo
           enddo
 
