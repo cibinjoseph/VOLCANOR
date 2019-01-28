@@ -470,7 +470,7 @@ module blade_classdef
     real(dp) :: psi
     real(dp) :: pivotLE
     real(dp), dimension(:,:) :: sectionalChordwiseVec
-    real(dp), dimension(:,:) :: sectionalAlpha
+    real(dp), dimension(:) :: sectionalAlpha
     real(dp), allocatable, dimension(:,:) :: inflowLocations
     real(dp), allocatable, dimension(:,:,:) :: velNwake
     real(dp), allocatable, dimension(:,:,:) :: velNwake1, velNwake2, velNwake3
@@ -1058,7 +1058,7 @@ contains
       allocate(this%blade(ib)%waP(this%nNwake,this%ns))
       allocate(this%blade(ib)%waF(this%nFwake))
       allocate(this%blade(ib)%sectionalChordwiseVec(3,this%ns))
-      allocate(this%blade(ib)%SectionalAlpha(3,this%ns))
+      allocate(this%blade(ib)%SectionalAlpha(this%ns))
       if (this%inflowPlotSwitch > 0) then
         if (this%nInflowLocations < 0) then 
           allocate(this%blade(ib)%inflowLocations(3,this%ns))
