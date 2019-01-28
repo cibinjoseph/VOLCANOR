@@ -154,7 +154,8 @@ program main
       ! Compute forces from wing circulation
       !call rotor(ir)%calc_force_gamma(density,dt)
       call rotor(ir)%calc_force_alpha()
-      call force2file(timestamp,rotor(ir),ir,-zAxis)  ! Negative sign due to negative inflow or gamma
+      !call force2file(timestamp,rotor(ir),ir,-zAxis)  ! Negative sign due to negative inflow or gamma
+      call alpha2file(timestamp,rotor(ir),1)
     enddo
   endif
 
@@ -297,8 +298,9 @@ program main
 
           ! Compute forces from wing circulation
           !call rotor(ir)%calc_force_gamma(density,dt)
-          call rotor(ir)%calc_force_alpha()
-          call force2file(timestamp,rotor(ir),ir,-zAxis)  ! -ve sign due to negative inflow or gamma
+          !call rotor(ir)%calc_force_alpha()
+          !call force2file(timestamp,rotor(ir),ir,-zAxis)  ! -ve sign due to negative inflow or gamma
+          call alpha2file(timestamp,rotor(ir),1)
         enddo
       endif
     endif

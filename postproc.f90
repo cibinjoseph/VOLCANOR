@@ -533,5 +533,29 @@ contains
 
   end subroutine gamma2file
 
+  subroutine alpha2file(timestamp,rotor,rotorNumber)
+    ! Writes alpha to file
+    character(len=*), intent(in) :: timestamp
+    type(rotor_class), intent(inout) :: rotor
+    integer, intent(in) :: rotorNumber
+    integer :: ib, is
+    character(len=2) :: rotorNumberChar, bladeNumberChar
+
+    ! Write to file
+    write(rotorNumberChar,'(I0.2)') rotorNumber
+    open(unit=12,file='Results/r'//rotorNumberChar//'alphaDist'//timestamp//'.curve',action='write')
+    do ib=1,rotor%nb
+      write(bladeNumberChar,'(I0.2)') ib
+      write(12,*) '# Blade'//bladeNumberChar
+      do is=1,rotor%ns
+          call radtodeg(rotor%blade(ib)%sectionalAlpha(is))
+        write(12,*) norm2(rotor%hubCoords-rotor%blade(ib)%wiP(1,is)%cp), &
+          rotor%blade(ib)%sectionalAlpha(is)
+      enddo
+    enddo
+    close(12)
+
+  end subroutine alpha2file
+
 end module postproc
 
