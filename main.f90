@@ -133,10 +133,9 @@ program main
         do is=1,rotor(ir)%ns
           do ic=1,rotor(ir)%nc
             ! Compute local velocity vector (excluding induced velocities from wing bound vortices)
-            rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal=0._dp
+              rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal=rotor(ir)%blade(ib)%wiP(ic,is)%velCP
             do jr=1,nr
               rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal=rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal+  &
-                rotor(ir)%blade(ib)%wiP(ic,is)%velCP+  &
                 rotor(jr)%vind_bywing(rotor(ir)%blade(ib)%wiP(ic,is)%CP)-  &
               rotor(jr)%vind_bywing_boundVortices(rotor(ir)%blade(ib)%wiP(ic,is)%CP)
             enddo
@@ -279,10 +278,9 @@ program main
             do is=1,rotor(ir)%ns
               do ic=1,rotor(ir)%nc
                 ! Compute local velocity vector (excluding induced velocities from wing bound vortices)
-                rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal=0._dp
+                  rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal=rotor(ir)%blade(ib)%wiP(ic,is)%velCP
                 do jr=1,nr
                   rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal=rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal+  &
-                    rotor(ir)%blade(ib)%wiP(ic,is)%velCP+  &
                     rotor(jr)%vind_bywing(rotor(ir)%blade(ib)%wiP(ic,is)%CP)-  &
                     rotor(jr)%vind_bywing_boundVortices(rotor(ir)%blade(ib)%wiP(ic,is)%CP)
                 enddo
