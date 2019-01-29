@@ -497,6 +497,7 @@ module blade_classdef
     procedure :: wake_continuity
     procedure :: calc_force_gamma => blade_calc_force_gamma
     procedure :: calc_force_alpha => blade_calc_force_alpha
+    procedure :: calc_sectionalAlpha => blade_calc_sectionalAlpha
   end type blade_class
 contains
 
@@ -913,7 +914,6 @@ contains
         this%Force=this%Force+this%wiP(ic,is)%normalForce
       enddo
     enddo
-
   end subroutine blade_calc_force_gamma
 
   subroutine blade_calc_force_alpha(this)
@@ -924,8 +924,17 @@ contains
     do is=1,size(this%wiP,2)
       this%Force=this%Force+2._dp*pi*this%sectionalAlpha(is)
     enddo
-
   end subroutine blade_calc_force_alpha
+
+  subroutine blade_calc_sectionalAlpha(this)
+  class(blade_class), intent(inout) :: this
+    integer :: is, rows
+
+    rows=size(this%wiP,1)
+    do is=1,size(this%sectionalAlpha)
+      this%sectionalAlpha(is)=sum(this%wiP(:,is)%alpha)/rows
+    enddo
+    end subroutine blade_calc_sectionalAlpha
 
 end module blade_classdef
 
@@ -988,6 +997,7 @@ module rotor_classdef
     procedure :: calc_alpha => rotor_calc_alpha
     procedure :: calc_force_gamma => rotor_calc_force_gamma
     procedure :: calc_force_alpha => rotor_calc_force_alpha
+    procedure :: calc_sectionalAlpha => rotor_calc_sectionalAlpha
   end type rotor_class
 
 contains
@@ -1776,5 +1786,14 @@ contains
       enddo
     enddo
   end subroutine rotor_calc_alpha
+
+  subroutine rotor_calc_sectionalAlpha(this)
+  class(rotor_class), intent(inout) :: this
+    integer :: ib
+
+    do ib=1,this%nb
+      call this%blade(ib)%calc_sectionalAlpha()
+    enddo
+  end subroutine rotor_calc_sectionalAlpha
 
 end module rotor_classdef

@@ -144,11 +144,7 @@ program main
       enddo
 
       call rotor(ir)%calc_alpha()  ! Use velCPTotal to compute local alpha
-
-      do ib=1,rotor(ir)%nb
-        ! Compute sectional angle of attack
-        rotor(ir)%blade(ib)%sectionalAlpha(is)=sum(rotor(ir)%blade(ib)%wiP(:,is)%alpha)/rotor(ir)%nc
-      enddo
+      call rotor(ir)%calc_sectionalAlpha()
 
       ! Compute forces from wing circulation
       !call rotor(ir)%calc_force_gamma(density,dt)
@@ -287,12 +283,9 @@ program main
 
             enddo
           enddo
-          call rotor(ir)%calc_alpha()  ! Use velCPTotal to compute local alpha
 
-          do ib=1,rotor(ir)%nb
-            ! Compute sectional angle of attack
-            rotor(ir)%blade(ib)%sectionalAlpha(is)=sum(rotor(ir)%blade(ib)%wiP(:,is)%alpha)/rotor(ir)%nc
-          enddo
+          call rotor(ir)%calc_alpha()  ! Use velCPTotal to compute local alpha
+          call rotor(ir)%calc_sectionalAlpha()
 
           ! Compute forces from wing circulation
           !call rotor(ir)%calc_force_gamma(density,dt)
