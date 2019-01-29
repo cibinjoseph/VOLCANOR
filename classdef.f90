@@ -372,8 +372,16 @@ contains
 
   subroutine wingpanel_calc_alpha(this)
   class(wingpanel_class), intent(inout) :: this
+    real(dp) :: velCPTotalMagnitude
 
-    this%alpha=acos(dot_product(this%velCPTotal,this%tauCapChord)/norm2(this%velCPTotal))
+    velCPTotalMagnitude=norm2(this%velCPTotal)
+
+    if (velCPTotalMagnitude .gt. eps) then
+print*,this%velCPTotal,this%tauCapChord
+      this%alpha=acos(dot_product(this%velCPTotal,this%tauCapChord)/velCPTotalMagnitude)
+    else
+      this%alpha=0._dp
+    endif
   end subroutine wingpanel_calc_alpha
 
 end module wingpanel_classdef
@@ -934,7 +942,7 @@ contains
     do is=1,size(this%sectionalAlpha)
       this%sectionalAlpha(is)=sum(this%wiP(:,is)%alpha)/rows
     enddo
-    end subroutine blade_calc_sectionalAlpha
+  end subroutine blade_calc_sectionalAlpha
 
 end module blade_classdef
 
