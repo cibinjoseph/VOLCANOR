@@ -133,11 +133,11 @@ program main
         do is=1,rotor(ir)%ns
           do ic=1,rotor(ir)%nc
             ! Compute local velocity vector (excluding induced velocities from wing bound vortices)
-              rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal=rotor(ir)%blade(ib)%wiP(ic,is)%velCP
+            rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal=rotor(ir)%blade(ib)%wiP(ic,is)%velCP
             do jr=1,nr
               rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal=rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal+  &
                 rotor(jr)%vind_bywing(rotor(ir)%blade(ib)%wiP(ic,is)%CP)-  &
-              rotor(jr)%vind_bywing_boundVortices(rotor(ir)%blade(ib)%wiP(ic,is)%CP)
+                rotor(jr)%vind_bywing_boundVortices(rotor(ir)%blade(ib)%wiP(ic,is)%CP)
             enddo
 
             rotor(ir)%blade(ib)%wiP(ic,is)%alpha=  &
@@ -153,9 +153,9 @@ program main
 
       ! Compute forces from wing circulation
       !call rotor(ir)%calc_force_gamma(density,dt)
-      call rotor(ir)%calc_force_alpha()
+      !call rotor(ir)%calc_force_alpha()
       !call force2file(timestamp,rotor(ir),ir,-zAxis)  ! Negative sign due to negative inflow or gamma
-      call alpha2file(timestamp,rotor(ir),1)
+      !call alpha2file(timestamp,rotor(ir),1)
     enddo
   endif
 
@@ -278,7 +278,7 @@ program main
             do is=1,rotor(ir)%ns
               do ic=1,rotor(ir)%nc
                 ! Compute local velocity vector (excluding induced velocities from wing bound vortices)
-                  rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal=rotor(ir)%blade(ib)%wiP(ic,is)%velCP
+                rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal=rotor(ir)%blade(ib)%wiP(ic,is)%velCP
                 do jr=1,nr
                   rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal=rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal+  &
                     rotor(jr)%vind_bywing(rotor(ir)%blade(ib)%wiP(ic,is)%CP)-  &
@@ -302,7 +302,7 @@ program main
           !call rotor(ir)%calc_force_gamma(density,dt)
           !call rotor(ir)%calc_force_alpha()
           !call force2file(timestamp,rotor(ir),ir,-zAxis)  ! -ve sign due to negative inflow or gamma
-          call alpha2file(timestamp,rotor(ir),1)
+          !call alpha2file(timestamp,rotor(ir),1)
         enddo
       endif
     endif
