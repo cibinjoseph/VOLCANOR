@@ -377,7 +377,6 @@ contains
     velCPTotalMagnitude=norm2(this%velCPTotal)
 
     if (velCPTotalMagnitude .gt. eps) then
-print*,this%velCPTotal,this%tauCapChord
       this%alpha=acos(dot_product(this%velCPTotal,this%tauCapChord)/velCPTotalMagnitude)
     else
       this%alpha=0._dp
