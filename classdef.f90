@@ -241,9 +241,9 @@ module wingpanel_classdef
     procedure :: calcTau => wingpanel_class_calcTau
     procedure :: rot => wingpanel_class_rot
     procedure :: shiftdP => wingpanel_class_shiftdP
+    procedure :: calc_alpha => wingpanel_calc_alpha
     procedure :: calc_area
     procedure :: calc_mean_dimensions
-    !procedure :: orthproj
     procedure :: isCPinsidecore
   end type wingpanel_class
 
@@ -369,6 +369,12 @@ contains
       isCPinsidecore = .true.  ! Bottom edge
     endif
   end function isCPinsidecore
+
+  subroutine wingpanel_calc_alpha(this)
+  class(wingpanel_class), intent(inout) :: this
+
+    this%alpha=acos(dot_product(this%velCPTotal,this%tauCapChord)/norm2(this%velCPTotal))
+  end subroutine wingpanel_calc_alpha
 
 end module wingpanel_classdef
 
@@ -844,7 +850,7 @@ contains
         do i=rowFar+1,nFwake
           call this%waFPredicted(i)%assignP(2,this%waFPredicted(i-1)%vf%fc(:,1))
         enddo
-          !$omp end parallel do
+        !$omp end parallel do
       endif
 
     case default
@@ -861,7 +867,7 @@ contains
     real(dp), dimension(size(this%wiP,1),size(this%wiP,2)) :: gamElementChord, gamElementSpan
     rows=size(this%wiP,1)
     cols=size(this%wiP,2)
-  
+
     this%Force=0._dp
 
     ! Compute tangential velocity 
@@ -911,16 +917,16 @@ contains
   end subroutine blade_calc_force_gamma
 
   subroutine blade_calc_force_alpha(this)
-    class(blade_class), intent(inout) :: this
-      integer :: is
+  class(blade_class), intent(inout) :: this
+    integer :: is
 
-      this%Force=0._dp
-      do is=1,size(this%wiP,2)
-        this%Force=this%Force+2._dp*pi*this%sectionalAlpha(is)
-      enddo
+    this%Force=0._dp
+    do is=1,size(this%wiP,2)
+      this%Force=this%Force+2._dp*pi*this%sectionalAlpha(is)
+    enddo
 
   end subroutine blade_calc_force_alpha
-  
+
 end module blade_classdef
 
 
@@ -979,7 +985,7 @@ module rotor_classdef
     procedure :: shiftwake => rotor_shiftwake
     procedure :: rollup => rotor_rollup
     procedure :: record_gamPrev
-    !procedure :: calc_alpha => rotor_calc_alpha
+    procedure :: calc_alpha => rotor_calc_alpha
     procedure :: calc_force_gamma => rotor_calc_force_gamma
     procedure :: calc_force_alpha => rotor_calc_force_alpha
   end type rotor_class
@@ -1758,17 +1764,17 @@ contains
     enddo
   end subroutine rotor_calc_force_alpha
 
-  !subroutine rotor_calc_alpha(this)
-  !class(rotor_class), intent(inout) :: this
-  !  integer :: irow, icol, ib
+  subroutine rotor_calc_alpha(this)
+  class(rotor_class), intent(inout) :: this
+    integer :: irow, icol, ib
 
-  !  do ib=1,this%nb
-  !    do icol=1,this%ns
-  !      do irow=1,this%nc
-  !        call this%blade(ib)%wiP(irow,icol)%calc_alpha()
-  !      enddo
-  !    enddo
-  !  enddo
-  !end subroutine rotor_calc_alpha
+    do ib=1,this%nb
+      do icol=1,this%ns
+        do irow=1,this%nc
+          call this%blade(ib)%wiP(irow,icol)%calc_alpha()
+        enddo
+      enddo
+    enddo
+  end subroutine rotor_calc_alpha
 
 end module rotor_classdef

@@ -139,16 +139,15 @@ program main
                 rotor(jr)%vind_bywing(rotor(ir)%blade(ib)%wiP(ic,is)%CP)-  &
                 rotor(jr)%vind_bywing_boundVortices(rotor(ir)%blade(ib)%wiP(ic,is)%CP)
             enddo
-
-            rotor(ir)%blade(ib)%wiP(ic,is)%alpha=acos(  &
-              dot_product(rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal,  &
-              rotor(ir)%blade(ib)%wiP(ic,is)%tauCapChord)/  &
-              norm2(rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal))
           enddo
-
-          ! Compute sectional angle of attack
-          rotor(ir)%blade(ib)%sectionalAlpha(is)=sum(rotor(ir)%blade(ib)%wiP(:,is)%alpha)/rotor(ir)%nc
         enddo
+      enddo
+
+      call rotor(ir)%calc_alpha()  ! Use velCPTotal to compute local alpha
+
+      do ib=1,rotor(ir)%nb
+        ! Compute sectional angle of attack
+        rotor(ir)%blade(ib)%sectionalAlpha(is)=sum(rotor(ir)%blade(ib)%wiP(:,is)%alpha)/rotor(ir)%nc
       enddo
 
       ! Compute forces from wing circulation
@@ -284,16 +283,15 @@ program main
                     rotor(jr)%vind_bywing(rotor(ir)%blade(ib)%wiP(ic,is)%CP)-  &
                     rotor(jr)%vind_bywing_boundVortices(rotor(ir)%blade(ib)%wiP(ic,is)%CP)
                 enddo
-
-                rotor(ir)%blade(ib)%wiP(ic,is)%alpha=acos( &
-                  dot_product(rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal,  &
-                  rotor(ir)%blade(ib)%wiP(ic,is)%tauCapChord)/  &
-                  norm2(rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal))
               enddo
 
-              ! Compute sectional angle of attack
-              rotor(ir)%blade(ib)%sectionalAlpha(is)=sum(rotor(ir)%blade(ib)%wiP(:,is)%alpha)/rotor(ir)%nc
             enddo
+          enddo
+          call rotor(ir)%calc_alpha()  ! Use velCPTotal to compute local alpha
+
+          do ib=1,rotor(ir)%nb
+            ! Compute sectional angle of attack
+            rotor(ir)%blade(ib)%sectionalAlpha(is)=sum(rotor(ir)%blade(ib)%wiP(:,is)%alpha)/rotor(ir)%nc
           enddo
 
           ! Compute forces from wing circulation
