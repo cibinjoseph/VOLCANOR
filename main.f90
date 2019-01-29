@@ -140,10 +140,10 @@ program main
                 rotor(jr)%vind_bywing_boundVortices(rotor(ir)%blade(ib)%wiP(ic,is)%CP)
             enddo
 
-            rotor(ir)%blade(ib)%wiP(ic,is)%alpha=  &
+            rotor(ir)%blade(ib)%wiP(ic,is)%alpha=acos(  &
               dot_product(rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal,  &
               rotor(ir)%blade(ib)%wiP(ic,is)%tauCapChord)/  &
-              norm2(rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal)
+              norm2(rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal))
           enddo
 
           ! Compute sectional angle of attack
@@ -155,7 +155,7 @@ program main
       !call rotor(ir)%calc_force_gamma(density,dt)
       !call rotor(ir)%calc_force_alpha()
       !call force2file(timestamp,rotor(ir),ir,-zAxis)  ! Negative sign due to negative inflow or gamma
-      !call alpha2file(timestamp,rotor(ir),1)
+      call alpha2file(timestamp,rotor(ir),ir)
     enddo
   endif
 
@@ -285,16 +285,14 @@ program main
                     rotor(jr)%vind_bywing_boundVortices(rotor(ir)%blade(ib)%wiP(ic,is)%CP)
                 enddo
 
-                rotor(ir)%blade(ib)%wiP(ic,is)%alpha=  &
+                rotor(ir)%blade(ib)%wiP(ic,is)%alpha=acos( &
                   dot_product(rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal,  &
                   rotor(ir)%blade(ib)%wiP(ic,is)%tauCapChord)/  &
-                  norm2(rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal)
+                  norm2(rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal))
               enddo
 
               ! Compute sectional angle of attack
               rotor(ir)%blade(ib)%sectionalAlpha(is)=sum(rotor(ir)%blade(ib)%wiP(:,is)%alpha)/rotor(ir)%nc
-              print*,rotor(ir)%blade(ib)%sectionalAlpha(is)*180._dp/pi
-              read*
             enddo
           enddo
 
@@ -302,7 +300,7 @@ program main
           !call rotor(ir)%calc_force_gamma(density,dt)
           !call rotor(ir)%calc_force_alpha()
           !call force2file(timestamp,rotor(ir),ir,-zAxis)  ! -ve sign due to negative inflow or gamma
-          !call alpha2file(timestamp,rotor(ir),1)
+          call alpha2file(timestamp,rotor(ir),ir)
         enddo
       endif
     endif
