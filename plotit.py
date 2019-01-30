@@ -83,8 +83,6 @@ elif args.drag == True:
         sleep(1)
 
 else:
-    # print('Error: Wrong input arguments')
-    # raise ValueError 
     filename = 'plot_wake.py'  # Assume -w flag by dfault
 
 if args.force == True:
