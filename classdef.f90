@@ -977,7 +977,7 @@ module rotor_classdef
     real(dp) :: initWakeVel, psiStart
     integer :: rollupStart, rollupEnd
     integer :: inflowPlotSwitch, nInflowLocations
-    integer :: gammaPlotSwitch
+    integer :: gammaPlotSwitch, alphaPlotSwitch
     integer :: rowNear, rowFar
     real(dp) :: nonDimForceDenominator
   contains
@@ -1065,6 +1065,8 @@ contains
     read(12,*) this%inflowPlotSwitch, this%nInflowLocations
     call skiplines(12,3)
     read(12,*) this%gammaPlotSwitch
+    call skiplines(12,3)
+    read(12,*) this%alphaPlotSwitch
     close(12)
 
     ! Conversions

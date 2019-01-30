@@ -146,11 +146,17 @@ program main
       call rotor(ir)%calc_alpha()  ! Use velCPTotal to compute local alpha
       call rotor(ir)%calc_sectionalAlpha()
 
+      ! Plot alpha
+      if (rotor(ir)%alphaPlotSwitch .ne. 0) then
+        if (mod(iter,rotor(ir)%alphaPlotSwitch) .eq. 0) then 
+          call alpha2file(timestamp,rotor(ir),ir)
+        endif
+      endif
+
       ! Compute forces from wing circulation
       !call rotor(ir)%calc_force_gamma(density,dt)
       !call rotor(ir)%calc_force_alpha()
       !call force2file(timestamp,rotor(ir),ir,-zAxis)  ! Negative sign due to negative inflow or gamma
-      call alpha2file(timestamp,rotor(ir),ir)
     enddo
   endif
 
@@ -287,11 +293,16 @@ program main
           call rotor(ir)%calc_alpha()  ! Use velCPTotal to compute local alpha
           call rotor(ir)%calc_sectionalAlpha()
 
+          ! Plot alpha
+          if (rotor(ir)%alphaPlotSwitch .ne. 0) then
+            if (mod(iter,rotor(ir)%alphaPlotSwitch) .eq. 0) then 
+              call alpha2file(timestamp,rotor(ir),ir)
+            endif
+          endif
           ! Compute forces from wing circulation
           !call rotor(ir)%calc_force_gamma(density,dt)
           !call rotor(ir)%calc_force_alpha()
           !call force2file(timestamp,rotor(ir),ir,-zAxis)  ! -ve sign due to negative inflow or gamma
-          call alpha2file(timestamp,rotor(ir),ir)
         enddo
       endif
     endif
