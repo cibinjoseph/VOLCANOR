@@ -12,15 +12,17 @@ program main
   call skiplines(11,2)
   read(11,*) nt,dt,nr
   call skiplines(11,4)
-  read(11,*) density, turbulentViscosity
-  call skiplines(11,4)
   read(11,*) spanSpacingSwitch
   call skiplines(11,4)
+  read(11,*) density, turbulentViscosity
+  call skiplines(11,5)
+  read(11,*) wakePlotSwitch, gridPlotSwitch
+  call skiplines(11,4)
+  read(11,*) forcePlotSwitch, forceCalcSwitch
+  call skiplines(11,5)
   read(11,*) tipDissipationSwitch, wakeStrainSwitch
   call skiplines(11,4)
   read(11,*) slowStartSwitch, slowStartNt
-  call skiplines(11,4)
-  read(11,*) wakePlotSwitch, gridPlotSwitch, forcePlotSwitch
   call skiplines(11,4)
   read(11,*) fdSchemeSwitch
   call skiplines(11,4)
