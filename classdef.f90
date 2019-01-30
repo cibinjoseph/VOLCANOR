@@ -923,13 +923,15 @@ contains
     enddo
   end subroutine blade_calc_force_gamma
 
-  subroutine blade_calc_force_alpha(this)
+  ! Return CL for now, **CHANGE TO DIMENSIONAL FORCES LATER**
+  subroutine blade_calc_force_alpha(density,this)
   class(blade_class), intent(inout) :: this
+    real(dP), intent(in) :: density
     integer :: is
 
     this%Force=0._dp
     do is=1,size(this%wiP,2)
-      this%Force=this%Force+2._dp*pi*this%sectionalAlpha(is)
+      this%Force=this%Force+(2._dp*pi)*this%sectionalAlpha(is)
     enddo
   end subroutine blade_calc_force_alpha
 
@@ -946,7 +948,7 @@ contains
 end module blade_classdef
 
 
-!------+----------------  ---+------|
+!------+-------------------+------|
 ! ++++ | MODULE DEFINITION | ++++ |
 !------+-------------------+------|
 module rotor_classdef
@@ -1772,13 +1774,14 @@ contains
     enddo
   end subroutine rotor_calc_force_gamma
 
-  subroutine rotor_calc_force_alpha(this)
+  subroutine rotor_calc_force_alpha(density,this)
   class(rotor_class), intent(inout) :: this
+    real(dp), intent(in) :: density
     integer :: ib
 
     this%Force=0._dp
     do ib=1,this%nb
-      call this%blade(ib)%calc_force_alpha()
+      call this%blade(ib)%calc_force_alpha(density)
       this%Force=this%Force+this%blade(ib)%Force
     enddo
   end subroutine rotor_calc_force_alpha
