@@ -18,3 +18,7 @@ Add provision for coning for blades
 Add induced velocity by other rotors to RHS  **VERY IMPORTANT**
 - wing induced velocities by other rotors are neglected now
 - this has to be performed in zeroth iteration also
+
+Finish up calc_force subroutines properly
+Make better selection switches for plotting gamma, alpha etc distributions
+Add alpha plots to plotit.py
