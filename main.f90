@@ -128,37 +128,45 @@ program main
   ! Compute forces
   if (forcePlotSwitch .ne. 0) then
     call init_plots(nr)    ! Create headers for plot files
-    do ir=1,nr
+    select case (forceCalcSwitch)
 
-      ! Compute alpha
-      do ib=1,rotor(ir)%nb
-        do is=1,rotor(ir)%ns
-          do ic=1,rotor(ir)%nc
-            ! Compute local velocity vector (excluding induced velocities from wing bound vortices)
-            rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal=rotor(ir)%blade(ib)%wiP(ic,is)%velCP
-            do jr=1,nr
-              rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal=rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal+  &
-                rotor(jr)%vind_bywing(rotor(ir)%blade(ib)%wiP(ic,is)%CP)-  &
-                rotor(jr)%vind_bywing_boundVortices(rotor(ir)%blade(ib)%wiP(ic,is)%CP)
+    case (0)  ! Compute using wing circulation
+      do ir=1,nr
+        call rotor(ir)%calc_force_gamma(density,dt)
+      enddo
+
+    case (1)  ! Compute using alpha
+      do ir=1,nr
+        ! Compute alpha
+        do ib=1,rotor(ir)%nb
+          do is=1,rotor(ir)%ns
+            do ic=1,rotor(ir)%nc
+              ! Compute local velocity vector (excluding induced velocities from wing bound vortices)
+              rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal=rotor(ir)%blade(ib)%wiP(ic,is)%velCP
+              do jr=1,nr
+                rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal=rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal+  &
+                  rotor(jr)%vind_bywing(rotor(ir)%blade(ib)%wiP(ic,is)%CP)-  &
+                  rotor(jr)%vind_bywing_boundVortices(rotor(ir)%blade(ib)%wiP(ic,is)%CP)
+              enddo
             enddo
           enddo
         enddo
+
+        call rotor(ir)%calc_alpha()  ! Use velCPTotal to compute local alpha
+        call rotor(ir)%calc_sectionalAlpha()
+        !call rotor(ir)%calc_force_alpha()
+
+        ! Plot alpha
+        if (rotor(ir)%alphaPlotSwitch .ne. 0) then
+          if (mod(iter,rotor(ir)%alphaPlotSwitch) .eq. 0) then 
+            call alpha2file(timestamp,rotor(ir),ir)
+          endif
+        endif
       enddo
 
-      call rotor(ir)%calc_alpha()  ! Use velCPTotal to compute local alpha
-      call rotor(ir)%calc_sectionalAlpha()
-
-      ! Plot alpha
-      if (rotor(ir)%alphaPlotSwitch .ne. 0) then
-        if (mod(iter,rotor(ir)%alphaPlotSwitch) .eq. 0) then 
-          call alpha2file(timestamp,rotor(ir),ir)
-        endif
-      endif
-
-      ! Compute forces from wing circulation
-      !call rotor(ir)%calc_force_gamma(density,dt)
-      !call rotor(ir)%calc_force_alpha()
-      !call force2file(timestamp,rotor(ir),ir,-zAxis)  ! Negative sign due to negative inflow or gamma
+    end select
+    do ir=1,nr
+      call force2file(timestamp,rotor(ir),ir,-zAxis)  ! Negative sign due to negative inflow or gamma
     enddo
   endif
 
@@ -274,37 +282,46 @@ program main
     ! Compute forces
     if (forcePlotSwitch .ne. 0) then
       if (mod(iter,forcePlotSwitch) .eq. 0) then 
-        do ir=1,nr
+        select case (forceCalcSwitch)
 
-          ! Compute alpha
-          do ib=1,rotor(ir)%nb
-            do is=1,rotor(ir)%ns
-              do ic=1,rotor(ir)%nc
-                ! Compute local velocity vector (excluding induced velocities from wing bound vortices)
-                rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal=rotor(ir)%blade(ib)%wiP(ic,is)%velCP
-                do jr=1,nr
-                  rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal=rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal+  &
-                    rotor(jr)%vind_bywing(rotor(ir)%blade(ib)%wiP(ic,is)%CP)-  &
-                    rotor(jr)%vind_bywing_boundVortices(rotor(ir)%blade(ib)%wiP(ic,is)%CP)
-                enddo
-              enddo
-
-            enddo
+        case (0)  ! Compute using wing circulation
+          do ir=1,nr
+            call rotor(ir)%calc_force_gamma(density,dt)
           enddo
 
-          call rotor(ir)%calc_alpha()  ! Use velCPTotal to compute local alpha
-          call rotor(ir)%calc_sectionalAlpha()
+        case (1)  ! Compute using alpha
+          do ir=1,nr
+            ! Compute alpha
+            do ib=1,rotor(ir)%nb
+              do is=1,rotor(ir)%ns
+                do ic=1,rotor(ir)%nc
+                  ! Compute local velocity vector (excluding induced velocities from wing bound vortices)
+                  rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal=rotor(ir)%blade(ib)%wiP(ic,is)%velCP
+                  do jr=1,nr
+                    rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal=rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal+  &
+                      rotor(jr)%vind_bywing(rotor(ir)%blade(ib)%wiP(ic,is)%CP)-  &
+                      rotor(jr)%vind_bywing_boundVortices(rotor(ir)%blade(ib)%wiP(ic,is)%CP)
+                  enddo
+                enddo
+              enddo
+            enddo
 
-          ! Plot alpha
-          if (rotor(ir)%alphaPlotSwitch .ne. 0) then
-            if (mod(iter,rotor(ir)%alphaPlotSwitch) .eq. 0) then 
-              call alpha2file(timestamp,rotor(ir),ir)
+            call rotor(ir)%calc_alpha()  ! Use velCPTotal to compute local alpha
+            call rotor(ir)%calc_sectionalAlpha()
+            !call rotor(ir)%calc_force_alpha()
+
+            ! Plot alpha
+            if (rotor(ir)%alphaPlotSwitch .ne. 0) then
+              if (mod(iter,rotor(ir)%alphaPlotSwitch) .eq. 0) then 
+                call alpha2file(timestamp,rotor(ir),ir)
+              endif
             endif
-          endif
-          ! Compute forces from wing circulation
-          !call rotor(ir)%calc_force_gamma(density,dt)
-          !call rotor(ir)%calc_force_alpha()
-          !call force2file(timestamp,rotor(ir),ir,-zAxis)  ! -ve sign due to negative inflow or gamma
+          enddo
+
+        end select
+
+        do ir=1,nr
+          call force2file(timestamp,rotor(ir),ir,-zAxis)  ! -ve sign due to negative inflow or gamma
         enddo
       endif
     endif
