@@ -21,4 +21,3 @@ Add induced velocity by other rotors to RHS  **VERY IMPORTANT**
 
 Finish up calc_force subroutines properly
 Make better selection switches for plotting gamma, alpha etc distributions
-Add alpha plots to plotit.py

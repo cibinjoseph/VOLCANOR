@@ -35,6 +35,7 @@ parser.add_argument('-i', '--inflow', help='Plot blade inflow', action = 'store_
 parser.add_argument('-t', '--tip', help='Plot wake tip', action = 'store_true')
 parser.add_argument('-p', '--panel', help='Plot wing alone', action = 'store_true')
 parser.add_argument('-g', '--gamma', help='Plot gamma sectional', action = 'store_true')
+parser.add_argument('-a', '--alpha', help='Plot alpha sectional', action = 'store_true')
 parser.add_argument('-l', '--lift', help='Plot lift', action = 'store_true')
 parser.add_argument('-d', '--drag', help='Plot drag', action = 'store_true')
 
@@ -62,6 +63,9 @@ elif args.panel == True:
 
 elif args.gamma == True:
     filename = 'plot_gamma.py'
+
+elif args.alpha == True:
+    filename = 'plot_alpha.py'
 
 elif args.lift == True:
     filename = 'plot_lift.py'
