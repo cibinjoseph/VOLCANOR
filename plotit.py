@@ -39,53 +39,35 @@ parser.add_argument('-a', '--alpha', help='Plot alpha sectional', action = 'stor
 parser.add_argument('-l', '--lift', help='Plot lift', action = 'store_true')
 parser.add_argument('-d', '--drag', help='Plot drag', action = 'store_true')
 
+# Parse args and obtain arguments
 args = parser.parse_args()
+
+# Convert to dict type for iterating through
+argsDict = vars(args)
+
+# Obtain filename for first argument that is True
+filename = 'plot_wake.py'  # default plot
+for argName in argsDict:
+    if argsDict[argName] == True:
+        filename = 'plot_'+argName+'.py'
+        break
 
 src_plot_dir = 'src_plot'
 
-if args.wake == True:
-    filename = 'plot_wake.py'
-
-elif args.force == True:
-     filename = 'plot_force.py'
-
-elif args.span == True:
-    filename = 'plot_forceDist.py'
-
-elif args.inflow == True:
-    filename = 'plot_inflowDist.py'
-
-elif args.tip == True:
-    filename = 'plot_tip.py'
-
-elif args.panel == True:
-    filename = 'plot_panel.py'
-
-elif args.gamma == True:
-    filename = 'plot_gamma.py'
-
-elif args.alpha == True:
-    filename = 'plot_alpha.py'
-
-elif args.lift == True:
-    filename = 'plot_lift.py'
+if filename == 'plot_lift.py':
     if os.path.exists('Results/lift.curve') == False:
         print('Waiting for file creation...') 
     while os.path.exists('Results/lift.curve') == False:
         sleep(1)
 
-elif args.drag == True:
-    filename = 'plot_drag.py'
+elif filename == 'plot_drag.py':
     if os.path.exists('Results/drag.curve') == False:
         print('Waiting for file creation...') 
     while os.path.exists('Results/drag.curve') == False:
         print('Waiting for file creation...') 
         sleep(1)
 
-else:
-    filename = 'plot_wake.py'  # Assume -w flag by dfault
-
-if args.force == True:
+if filename == 'plot_force.py':
     sys.path.insert(0, 'src_plot')  # Append src_plot/ to search path
     import plot_force
 
