@@ -7,6 +7,9 @@ import signal, os, sys
 from subprocess import call
 from time import sleep
 
+src_plotDir = 'src_plot/'
+resultsDir = 'Results/'
+
 # Functions to be invoked for asynchronous keyboard signals ctrl+Z and ctrl+C
 def ctrlZ_func(signum, frame):
     print('Reloading plots...')
@@ -19,6 +22,13 @@ def ctrlC_func(signum, frame):
         pass
     print('Program exit...')  # Exit program
     sys.exit(0)
+
+def wait4file(filename):
+    if os.path.exists(filename) == False:
+        print('Waiting for file creation...') 
+    while os.path.exists(filename) == False:
+        sleep(1)
+
 
 # Attach signal to the respective signal handlers (functions)
 signal.signal(signal.SIGTSTP, ctrlZ_func)
@@ -46,33 +56,26 @@ args = parser.parse_args()
 argsDict = vars(args)
 
 # Obtain filename for first argument that is True
-filename = 'plot_wake.py'  # default plot
+pyFilename = 'plot_wake.py'  # default plot
+plotFilename = 'Fwake*.plt'
+
 for argName in argsDict:
     if argsDict[argName] == True:
-        filename = 'plot_'+argName+'.py'
+        pyFilename = 'plot_'+argName+'.py'
         break
 
-src_plot_dir = 'src_plot'
+if pyFilename == 'plot_lift.py':
+    wait4file(resultsDir+'lift.curve')
 
-if filename == 'plot_lift.py':
-    if os.path.exists('Results/lift.curve') == False:
-        print('Waiting for file creation...') 
-    while os.path.exists('Results/lift.curve') == False:
-        sleep(1)
+elif pyFilename == 'plot_drag.py':
+    wait4file(resultsDir+'drag.curve')
 
-elif filename == 'plot_drag.py':
-    if os.path.exists('Results/drag.curve') == False:
-        print('Waiting for file creation...') 
-    while os.path.exists('Results/drag.curve') == False:
-        print('Waiting for file creation...') 
-        sleep(1)
-
-if filename == 'plot_force.py':
-    sys.path.insert(0, 'src_plot')  # Append src_plot/ to search path
+if pyFilename == 'plot_force.py':
+    sys.path.insert(0, src_plotDir)  # Append src_plot/ to search path
     import plot_force
 
 else:
-    call(['visit', '-np', '4', '-s', '{}/{}'.format(src_plot_dir, filename)])
+    call(['visit', '-np', '4', '-s', '{}/{}'.format(src_plotDir, pyFilename)])
 
 try:
     os.remove('visitlog.py')
