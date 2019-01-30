@@ -4,7 +4,7 @@
 
 Spanwise panels,ns     Chordwise panels,nc   Near wake panels,nNwake
 ---------------------------------------------------------------
-       13                      5                   4
+       13                      1                   4
 ===============================================================
 
 X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
@@ -31,7 +31,7 @@ Radius[m]        root_cut[r/R]       chord[m]
 
  theta0[deg]    thetaC[deg]    thetaS[deg]    thetaTwist[deg]
 ---------------------------------------------------------------
-    5.0            0.0              0.0           0.0
+    1.0            0.0              0.0           0.0
 ===============================================================
 
 u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]    
