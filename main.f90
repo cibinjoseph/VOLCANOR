@@ -154,7 +154,7 @@ program main
 
         call rotor(ir)%calc_alpha()  ! Use velCPTotal to compute local alpha
         call rotor(ir)%calc_sectionalAlpha()
-        !call rotor(ir)%calc_force_alpha()
+        call rotor(ir)%calc_force_alpha(density)
 
         ! Plot alpha
         if (rotor(ir)%alphaPlotSwitch .ne. 0) then
@@ -308,7 +308,7 @@ program main
 
             call rotor(ir)%calc_alpha()  ! Use velCPTotal to compute local alpha
             call rotor(ir)%calc_sectionalAlpha()
-            !call rotor(ir)%calc_force_alpha()
+            call rotor(ir)%calc_force_alpha(density)
 
             ! Plot alpha
             if (rotor(ir)%alphaPlotSwitch .ne. 0) then

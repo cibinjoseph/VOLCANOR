@@ -934,7 +934,7 @@ contains
     integer :: is,ic,rows
 
     rows=size(this%wiP,1)
-    sumSectionalVelCPTotal(:,is)=0._dp
+    sumSectionalVelCPTotal=0._dp
     do is=1,size(this%wiP,2)
       do ic=1,rows
         sumSectionalVelCPTotal(:,is)=sumSectionalVelCPTotal(:,is)+this%wiP(ic,is)%velCPTotal
