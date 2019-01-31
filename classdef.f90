@@ -502,6 +502,8 @@ module blade_classdef
     procedure :: vind_bywake => blade_vind_bywake
     procedure :: convectwake
     procedure :: wake_continuity
+    procedure :: getSectionalDynamicPressure
+    procedure :: getSectionalArea
     procedure :: calc_force_gamma => blade_calc_force_gamma
     procedure :: calc_force_alpha => blade_calc_force_alpha
     procedure :: calc_sectionalAlpha => blade_calc_sectionalAlpha
@@ -923,16 +925,41 @@ contains
     enddo
   end subroutine blade_calc_force_gamma
 
+  function getSectionalDynamicPressure(this,density)
+  class(blade_class), intent(inout) :: this
+    real(dp), intent(in) :: density
+    real(dp), dimension(size(this%wiP,2)) :: magSectionalVelCPTotal
+    real(dp), dimension(3,size(this%wiP,2)) :: sumSectionalVelCPTotal
+    real(dp), dimension(size(this%wiP,2)) :: getSectionalDynamicPressure
+    integer :: is,ic,rows
+
+    rows=size(this%wiP,1)
+    sumSectionalVelCPTotal(:,is)=0._dp
+    do is=1,size(this%wiP,2)
+      do ic=1,rows
+        sumSectionalVelCPTotal(:,is)=sumSectionalVelCPTotal(:,is)+this%wiP(ic,is)%velCPTotal
+      enddo
+        magSectionalVelCPTotal(is)=norm2(sumSectionalVelCPTotal(:,is)/rows)
+    enddo
+    getSectionalDynamicPressure=0.5_dp*density*magSectionalVelCPTotal**2._dp
+  end function getSectionalDynamicPressure
+
+  function getSectionalArea(this)
+  class(blade_class), intent(inout) :: this
+    real(dp), dimension(size(this%wiP,2)) :: getSectionalArea
+    integer :: is
+
+    do is=1,size(this%wiP,2)
+      getSectionalArea(is)=sum(this%wiP(:,is)%panelArea)
+    enddo
+  end function getSectionalArea
+
   ! Return CL for now, **CHANGE TO DIMENSIONAL FORCES LATER**
   subroutine blade_calc_force_alpha(this,density)
   class(blade_class), intent(inout) :: this
-    real(dP), intent(in) :: density
-    integer :: is
+    real(dp), intent(in) :: density
 
-    this%Force=0._dp
-    do is=1,size(this%wiP,2)
-      this%Force=this%Force+(2._dp*pi)*this%sectionalAlpha(is)
-    enddo
+    this%Force=sum(this%getSectionalDynamicPressure(density)*this%getSectionalArea()*(2._dp*pi)*this%sectionalAlpha)
   end subroutine blade_calc_force_alpha
 
   subroutine blade_calc_sectionalAlpha(this)
