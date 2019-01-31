@@ -924,7 +924,7 @@ contains
   end subroutine blade_calc_force_gamma
 
   ! Return CL for now, **CHANGE TO DIMENSIONAL FORCES LATER**
-  subroutine blade_calc_force_alpha(density,this)
+  subroutine blade_calc_force_alpha(this,density)
   class(blade_class), intent(inout) :: this
     real(dP), intent(in) :: density
     integer :: is
@@ -1774,7 +1774,7 @@ contains
     enddo
   end subroutine rotor_calc_force_gamma
 
-  subroutine rotor_calc_force_alpha(density,this)
+  subroutine rotor_calc_force_alpha(this,density)
   class(rotor_class), intent(inout) :: this
     real(dp), intent(in) :: density
     integer :: ib
