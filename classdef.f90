@@ -912,10 +912,6 @@ contains
       enddo
     enddo
 
-    ! Multiply -1 for correcting inverted circulation
-    gamElementSpan=-1._dp*gamElementSpan
-    gamElementChord=-1._dp*gamElementChord
-
     ! Compute delP
     do is=1,cols
       do ic=1,rows
@@ -1801,7 +1797,8 @@ contains
     this%Force=0._dp
     do ib=1,this%nb
       call this%blade(ib)%calc_force_gamma(density,dt)
-      this%Force=this%Force+this%blade(ib)%Force
+      ! Correct computed negative forces due to opposite direction of circulation
+      this%Force=this%Force+this%blade(ib)%Force*-1._dp*sign(1._dp,this%Omega*this%controlPitch(1))
     enddo
   end subroutine rotor_calc_force_gamma
 
