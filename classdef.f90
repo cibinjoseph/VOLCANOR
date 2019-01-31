@@ -912,6 +912,10 @@ contains
       enddo
     enddo
 
+    ! Multiply -1 for correcting inverted circulation
+    gamElementSpan=-1._dp*gamElementSpan
+    gamElementChord=-1._dp*gamElementChord
+
     ! Compute delP
     do is=1,cols
       do ic=1,rows

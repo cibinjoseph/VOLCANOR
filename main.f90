@@ -166,7 +166,7 @@ program main
 
     end select
     do ir=1,nr
-      call force2file(timestamp,rotor(ir),ir,-zAxis)  ! Negative sign due to negative inflow or gamma
+      call force2file(timestamp,rotor(ir),ir,zAxis)  ! Negative sign due to negative inflow or gamma
     enddo
   endif
 
@@ -321,7 +321,7 @@ program main
         end select
 
         do ir=1,nr
-          call force2file(timestamp,rotor(ir),ir,-zAxis)  ! -ve sign due to negative inflow or gamma
+          call force2file(timestamp,rotor(ir),ir,zAxis)  ! -ve sign due to negative inflow or gamma
         enddo
       endif
     endif
