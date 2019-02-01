@@ -137,15 +137,6 @@ program main
         call rotor(ir)%calc_force_gamma(density,dt)
       enddo
 
-      ! DEBUG -------
-      ! Output sectional Cl
-      do is=1,rotor(1)%ns
-        print*,dot_product(rotor(1)%blade(1)%wiP(1,is)%normalForce,-zAxis)/(0.5_dp*density*rotor(1)%blade(1)%wiP(1,is)%panelArea*norm2(rotor(1)%blade(1)%wiP(1,is)%velCP)**2._dp)
-        print*,norm2(rotor(1)%blade(1)%wiP(1,is)%velCP)**2._dp
-      enddo
-      stop
-      ! DEBUG -------
-
     case (1)  ! Compute using alpha
       do ir=1,nr
         ! Compute alpha
@@ -174,9 +165,6 @@ program main
           endif
         endif
       enddo
-
-      print*,rotor(1)%blade(1)%sectionalAlpha*2._dp*pi
-      stop
 
     end select
     do ir=1,nr
