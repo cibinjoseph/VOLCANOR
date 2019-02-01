@@ -93,15 +93,17 @@ program main
           row=ic+rotor(ir)%nc*(is-1)+rotor(ir)%ns*rotor(ir)%nc*(ib-1)
 
           ! Rotational vel
-          rotor(ir)%RHS(row) = dot_product(rotor(ir)%velWind,rotor(ir)%blade(ib)%wiP(ic,is)%nCap)
+          rotor(ir)%blade(ib)%wiP(ic,is)%velCP=rotor(ir)%velWind
 
           ! Rotational vel
-          rotor(ir)%RHS(row)=rotor(ir)%RHS(row)+dot_product(cross3(rotor(ir)%omegaWind  &
-            ,rotor(ir)%blade(ib)%wiP(ic,is)%CP-rotor(ir)%cgCoords),rotor(ir)%blade(ib)%wiP(ic,is)%nCap)
+          rotor(ir)%blade(ib)%wiP(ic,is)%velCP=rotor(ir)%blade(ib)%wiP(ic,is)%velCP  &
+            +cross3(rotor(ir)%omegaWind,rotor(ir)%blade(ib)%wiP(ic,is)%CP-rotor(ir)%cgCoords)
 
           ! Omega vel
-          rotor(ir)%RHS(row)=rotor(ir)%RHS(row)+dot_product(cross3(-rotor(ir)%omegaSlow*rotor(ir)%shaftAxis  &
-            ,rotor(ir)%blade(ib)%wiP(ic,is)%CP-rotor(ir)%hubCoords),rotor(ir)%blade(ib)%wiP(ic,is)%nCap)
+          rotor(ir)%blade(ib)%wiP(ic,is)%velCP=rotor(ir)%blade(ib)%wiP(ic,is)%velCP  &
+            +cross3(-rotor(ir)%omegaSlow*rotor(ir)%shaftAxis,rotor(ir)%blade(ib)%wiP(ic,is)%CP-rotor(ir)%hubCoords)
+
+            rotor(ir)%RHS(row)=dot_product(rotor(ir)%blade(ib)%wiP(ic,is)%velCP,rotor(ir)%blade(ib)%wiP(ic,is)%nCap)
 
           ! Pitch vel
           !rotor(ir)%blade%(ib)%wing(ic,is)%velPitch=rotor(ir)%thetadot_pitch(0._dp,ib)*rotor(ir)%blade(ib)%wiP(ic,is)%rHinge
