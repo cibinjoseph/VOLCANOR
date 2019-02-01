@@ -548,9 +548,8 @@ contains
       write(bladeNumberChar,'(I0.2)') ib
       write(12,*) '# Blade'//bladeNumberChar
       do is=1,rotor%ns
-          call radtodeg(rotor%blade(ib)%sectionalAlpha(is))
         write(12,*) norm2(rotor%hubCoords-rotor%blade(ib)%wiP(1,is)%cp), &
-          rotor%blade(ib)%sectionalAlpha(is)
+          rotor%blade(ib)%sectionalAlpha(is)*180./pi
       enddo
     enddo
     close(12)
