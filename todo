@@ -13,5 +13,11 @@ Also make a folder that contains parameters/files for specific case
 Check CT and inflow distribution against BEMT for CarrNTung rotor
 
 Effect of vortex core radius on wake structure
+Add provision for coning for blades
 
-Change wingverify() to class based rotor code
+Add induced velocity by other rotors to RHS  **VERY IMPORTANT**
+- wing induced velocities by other rotors are neglected now
+- this has to be performed in zeroth iteration also
+
+Add velCP computation on zeroth iteration
+Check why alpha values are different when more than one chordwise panels are used

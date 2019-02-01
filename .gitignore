@@ -17,3 +17,4 @@ octave-workspace
 *.phy
 *.pyc
 src_plot/*.pyc
+*_copy

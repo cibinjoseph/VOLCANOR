@@ -7,6 +7,9 @@ import signal, os, sys
 from subprocess import call
 from time import sleep
 
+src_plotDir = 'src_plot/'
+resultsDir = 'Results/'
+
 # Functions to be invoked for asynchronous keyboard signals ctrl+Z and ctrl+C
 def ctrlZ_func(signum, frame):
     print('Reloading plots...')
@@ -19,6 +22,13 @@ def ctrlC_func(signum, frame):
         pass
     print('Program exit...')  # Exit program
     sys.exit(0)
+
+def wait4file(filename):
+    if os.path.exists(filename) == False:
+        print('Waiting for file creation...') 
+    while os.path.exists(filename) == False:
+        sleep(1)
+
 
 # Attach signal to the respective signal handlers (functions)
 signal.signal(signal.SIGTSTP, ctrlZ_func)
@@ -35,60 +45,37 @@ parser.add_argument('-i', '--inflow', help='Plot blade inflow', action = 'store_
 parser.add_argument('-t', '--tip', help='Plot wake tip', action = 'store_true')
 parser.add_argument('-p', '--panel', help='Plot wing alone', action = 'store_true')
 parser.add_argument('-g', '--gamma', help='Plot gamma sectional', action = 'store_true')
+parser.add_argument('-a', '--alpha', help='Plot alpha sectional', action = 'store_true')
 parser.add_argument('-l', '--lift', help='Plot lift', action = 'store_true')
 parser.add_argument('-d', '--drag', help='Plot drag', action = 'store_true')
 
+# Parse args and obtain arguments
 args = parser.parse_args()
 
-src_plot_dir = 'src_plot'
+# Convert to dict type for iterating through
+argsDict = vars(args)
 
-if args.wake == True:
-    filename = 'plot_wake.py'
+# Obtain filename for first argument that is True
+pyFilename = 'plot_wake.py'  # default plot
+plotFilename = 'Fwake*.plt'
 
-elif args.force == True:
-     filename = 'plot_force.py'
+for argName in argsDict:
+    if argsDict[argName] == True:
+        pyFilename = 'plot_'+argName+'.py'
+        break
 
-elif args.span == True:
-    filename = 'plot_forceDist.py'
+if pyFilename == 'plot_lift.py':
+    wait4file(resultsDir+'lift.curve')
 
-elif args.inflow == True:
-    filename = 'plot_inflowDist.py'
+elif pyFilename == 'plot_drag.py':
+    wait4file(resultsDir+'drag.curve')
 
-elif args.tip == True:
-    filename = 'plot_tip.py'
-
-elif args.panel == True:
-    filename = 'plot_panel.py'
-
-elif args.gamma == True:
-    filename = 'plot_gamma.py'
-
-elif args.lift == True:
-    filename = 'plot_lift.py'
-    if os.path.exists('Results/lift.curve') == False:
-        print('Waiting for file creation...') 
-    while os.path.exists('Results/lift.curve') == False:
-        sleep(1)
-
-elif args.drag == True:
-    filename = 'plot_drag.py'
-    if os.path.exists('Results/drag.curve') == False:
-        print('Waiting for file creation...') 
-    while os.path.exists('Results/drag.curve') == False:
-        print('Waiting for file creation...') 
-        sleep(1)
-
-else:
-    # print('Error: Wrong input arguments')
-    # raise ValueError 
-    filename = 'plot_wake.py'  # Assume -w flag by dfault
-
-if args.force == True:
-    sys.path.insert(0, 'src_plot')  # Append src_plot/ to search path
+if pyFilename == 'plot_force.py':
+    sys.path.insert(0, src_plotDir)  # Append src_plot/ to search path
     import plot_force
 
 else:
-    call(['visit', '-np', '4', '-s', '{}/{}'.format(src_plot_dir, filename)])
+    call(['visit', '-np', '4', '-s', '{}/{}'.format(src_plotDir, pyFilename)])
 
 try:
     os.remove('visitlog.py')

@@ -1,19 +1,31 @@
  NO. OF TIMESTEPS [nt]    TIMESTEP (sec) [dt]    NO. OF ROTORS [nr]
 -----------------------------------------------------------------------
-      300                       0.00625                  1
-=======================================================================
-
-   DENSITY [kg/m3]      TURB. VISCOSITY
------------------------------------------------------------------------
-      1.2                     200.0
+      1440                       0.00133                  1
 
  SPAN DISCRETIZATION : [1]linear [2]cosine [3]halfsine
  spanSpacingSwitch
 -----------------------------------------------------------------------
        1
+=======================================================================
+
+   DENSITY [kg/m3]      TURB. VISCOSITY
+-----------------------------------------------------------------------
+      1.2                     200.0
+=======================================================================
+
+ PLOT WAKE: [0]Off [n]Every nth iteration
+  wakePlotSwitch         gridPlotSwitch      
+-----------------------------------------------------------------------
+       100                       0          
+
+ PLOT FORCES: [0]Off [n]th iteration      using [0]gamma  [1]alpha
+  forcePlotSwitch                             forceCalcSwitch
+-----------------------------------------------------------------------
+       1                                          1
+=======================================================================
 
  WAKE TIP DISSIPATION: [0]Off [1]On      Wake strain: [0]Off [1]On
- tipDissipationSwitch                           wakeStrainSwitch
+ tipDissipationSwitch                         wakeStrainSwitch
 -----------------------------------------------------------------------
        1                                            0
 
@@ -21,11 +33,6 @@
   slowStartSwitch       slowStartNt
 -----------------------------------------------------------------------
        0                      0
-
- PLOT WAKE: [0]Off [n]Every nth iteration
-  wakePlotSwitch         gridPlotSwitch      forcePlotSwitch
------------------------------------------------------------------------
-       100                       0                 1
 
  WAKE CONVECTION FINITE-DIFFERENCE SCHEME: [0]FT1 [1]PC2 [2]AB2 [3]AB4
   fdSchemeSwitch

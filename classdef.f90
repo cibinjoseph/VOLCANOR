@@ -223,7 +223,8 @@ module wingpanel_classdef
     real(dp), dimension(3) :: nCap    ! unit normal vector
     real(dp), dimension(3) :: tauCapChord ! unit tangential vector along chord
     real(dp), dimension(3) :: tauCapSpan  ! unit tangential vector along span
-    real(dp), dimension(3) :: velCP   ! local velocity at CP
+    real(dp), dimension(3) :: velCP       ! local velocity at CP excluding wing vortices
+    real(dp), dimension(3) :: velCPTotal  ! local velocity at CP including wing vortices
     real(dp), dimension(3) :: velCPm  ! rel. inertial velocity at CP (due to motion)
     real(dp), dimension(3) :: normalForce  ! panel normalForce vector in inertial frame
     real(dp) :: velPitch             ! pitch velocity
@@ -240,10 +241,9 @@ module wingpanel_classdef
     procedure :: calcTau => wingpanel_class_calcTau
     procedure :: rot => wingpanel_class_rot
     procedure :: shiftdP => wingpanel_class_shiftdP
-    !procedure :: calc_alpha
+    procedure :: calc_alpha => wingpanel_calc_alpha
     procedure :: calc_area
     procedure :: calc_mean_dimensions
-    !procedure :: orthproj
     procedure :: isCPinsidecore
   end type wingpanel_class
 
@@ -336,19 +336,6 @@ contains
     this%meanChord=0.5_dp*(norm2(this%pc(:,2)-this%pc(:,1))+norm2(this%pc(:,3)-this%pc(:,4)))
   end subroutine calc_mean_dimensions
 
-  ! subroutine calc_alpha(this)
-  ! class(wingpanel_class) :: this
-  !   real(dp), dimension(3) :: tau_c
-  !   tau_c=this%pc(:,2)-this%pc(:,1)
-  !   tau_c=tau_c/norm2(tau_c)
-  !   !this%alpha=0.5_dp*pi
-  !   !if (dot_product(this%velCPm,tau_c)>eps) then
-  !   !  this%alpha=atan((dot_product(this%velCPm,this%nCap)+this%velPitch)/dot_product(this%velCPm,tau_c))
-  !   !endif
-  !   this%alpha=acos(dot_product(this%velCP,tau_c)/norm2(this%velCP))
-  !   ! THIS IS WRONG - velCP here does not contain wing induced velocity!!!
-  ! end subroutine calc_alpha
-
   !! Calculates the orthogonal projection operator
   !function orthproj(this)
   !class(wingpanel_class) :: this
@@ -382,6 +369,19 @@ contains
       isCPinsidecore = .true.  ! Bottom edge
     endif
   end function isCPinsidecore
+
+  subroutine wingpanel_calc_alpha(this)
+  class(wingpanel_class), intent(inout) :: this
+    real(dp) :: velCPTotalMagnitude
+
+    velCPTotalMagnitude=norm2(this%velCPTotal)
+
+    if (velCPTotalMagnitude .gt. eps) then
+      this%alpha=acos(dot_product(this%velCPTotal,this%tauCapChord)/velCPTotalMagnitude)
+    else
+      this%alpha=0._dp
+    endif
+  end subroutine wingpanel_calc_alpha
 
 end module wingpanel_classdef
 
@@ -482,6 +482,8 @@ module blade_classdef
     real(dp), dimension(3) :: Force
     real(dp) :: psi
     real(dp) :: pivotLE
+    real(dp), allocatable, dimension(:,:) :: sectionalChordwiseVec
+    real(dp), allocatable, dimension(:) :: sectionalAlpha
     real(dp), allocatable, dimension(:,:) :: inflowLocations
     real(dp), allocatable, dimension(:,:,:) :: velNwake
     real(dp), allocatable, dimension(:,:,:) :: velNwake1, velNwake2, velNwake3
@@ -500,7 +502,11 @@ module blade_classdef
     procedure :: vind_bywake => blade_vind_bywake
     procedure :: convectwake
     procedure :: wake_continuity
-    procedure :: calc_force => blade_calc_force
+    procedure :: getSectionalDynamicPressure
+    procedure :: getSectionalArea
+    procedure :: calc_force_gamma => blade_calc_force_gamma
+    procedure :: calc_force_alpha => blade_calc_force_alpha
+    procedure :: calc_sectionalAlpha => blade_calc_sectionalAlpha
   end type blade_class
 contains
 
@@ -555,6 +561,10 @@ contains
       this%inflowLocations(:,i)=this%inflowLocations(:,i)+origin
     enddo
 
+    ! Rotate sectional chordwise vector to align with chord
+    do j=1,size(this%sectionalChordwiseVec,2)
+      this%sectionalChordwiseVec(:,j)=matmul(TMat,this%sectionalChordwiseVec(:,j))
+    enddo
   end subroutine blade_rot_pts
 
   subroutine rot_pitch(this,theta)  !pitch about pivotLE from LE
@@ -619,6 +629,12 @@ contains
         this%inflowLocations(:,i)=matmul(TMat,this%inflowLocations(:,i))
         this%inflowLocations(:,i)=this%inflowLocations(:,i)+origin
       enddo
+
+      ! Rotate sectional chordwise vector also alongwith blade
+      do j=1,size(this%sectionalChordwiseVec,2)
+        this%sectionalChordwiseVec(:,j)=matmul(TMat,this%sectionalChordwiseVec(:,j))
+      enddo
+
     endif
   end subroutine rot_axis
 
@@ -646,7 +662,9 @@ contains
     blade_vind_bywing_boundVortices=0._dp
     do j=1,size(this%wiP,2)
       do i=1,size(this%wiP,1)
-        blade_vind_bywing_boundVortices=blade_vind_bywing_boundVortices+this%wiP(i,j)%vr%vf(4)%vind(P)*this%wiP(i,j)%vr%gam
+        blade_vind_bywing_boundVortices=blade_vind_bywing_boundVortices+  &
+          (this%wiP(i,j)%vr%vf(2)%vind(P)+this%wiP(i,j)%vr%vf(4)%vind(P))*  &
+          this%wiP(i,j)%vr%gam
       enddo
     enddo
   end function blade_vind_bywing_boundVortices
@@ -853,7 +871,7 @@ contains
 
   end subroutine wake_continuity
 
-  subroutine blade_calc_force(this,density,dt)
+  subroutine blade_calc_force_gamma(this,density,dt)
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: density, dt
     integer :: is, ic, rows, cols
@@ -907,8 +925,54 @@ contains
         this%Force=this%Force+this%wiP(ic,is)%normalForce
       enddo
     enddo
+  end subroutine blade_calc_force_gamma
 
-  end subroutine blade_calc_force
+  function getSectionalDynamicPressure(this,density)
+  class(blade_class), intent(inout) :: this
+    real(dp), intent(in) :: density
+    real(dp), dimension(size(this%wiP,2)) :: magSectionalVelCPTotal
+    real(dp), dimension(3,size(this%wiP,2)) :: sumSectionalVelCPTotal
+    real(dp), dimension(size(this%wiP,2)) :: getSectionalDynamicPressure
+    integer :: is,ic,rows
+
+    rows=size(this%wiP,1)
+    sumSectionalVelCPTotal=0._dp
+    do is=1,size(this%wiP,2)
+      do ic=1,rows
+        sumSectionalVelCPTotal(:,is)=sumSectionalVelCPTotal(:,is)+this%wiP(ic,is)%velCPTotal
+      enddo
+        magSectionalVelCPTotal(is)=norm2(sumSectionalVelCPTotal(:,is)/rows)
+    enddo
+    getSectionalDynamicPressure=0.5_dp*density*magSectionalVelCPTotal**2._dp
+  end function getSectionalDynamicPressure
+
+  function getSectionalArea(this)
+  class(blade_class), intent(inout) :: this
+    real(dp), dimension(size(this%wiP,2)) :: getSectionalArea
+    integer :: is
+
+    do is=1,size(this%wiP,2)
+      getSectionalArea(is)=sum(this%wiP(:,is)%panelArea)
+    enddo
+  end function getSectionalArea
+
+  ! Return CL for now, **CHANGE TO DIMENSIONAL FORCES LATER**
+  subroutine blade_calc_force_alpha(this,density)
+  class(blade_class), intent(inout) :: this
+    real(dp), intent(in) :: density
+
+    this%Force=sum(this%getSectionalDynamicPressure(density)*this%getSectionalArea()*(2._dp*pi)*this%sectionalAlpha)
+  end subroutine blade_calc_force_alpha
+
+  subroutine blade_calc_sectionalAlpha(this)
+  class(blade_class), intent(inout) :: this
+    integer :: is, rows
+
+    rows=size(this%wiP,1)
+    do is=1,size(this%sectionalAlpha)
+      this%sectionalAlpha(is)=sum(this%wiP(:,is)%alpha)/rows
+    enddo
+  end subroutine blade_calc_sectionalAlpha
 
 end module blade_classdef
 
@@ -944,7 +1008,7 @@ module rotor_classdef
     real(dp) :: initWakeVel, psiStart
     integer :: rollupStart, rollupEnd
     integer :: inflowPlotSwitch, nInflowLocations
-    integer :: gammaPlotSwitch
+    integer :: gammaPlotSwitch, alphaPlotSwitch
     integer :: rowNear, rowFar
     real(dp) :: nonDimForceDenominator
   contains
@@ -968,8 +1032,10 @@ module rotor_classdef
     procedure :: shiftwake => rotor_shiftwake
     procedure :: rollup => rotor_rollup
     procedure :: record_gamPrev
-    !procedure :: calc_alpha => rotor_calc_alpha
-    procedure :: calc_force => rotor_calc_force
+    procedure :: calc_alpha => rotor_calc_alpha
+    procedure :: calc_force_gamma => rotor_calc_force_gamma
+    procedure :: calc_force_alpha => rotor_calc_force_alpha
+    procedure :: calc_sectionalAlpha => rotor_calc_sectionalAlpha
   end type rotor_class
 
 contains
@@ -1030,6 +1096,8 @@ contains
     read(12,*) this%inflowPlotSwitch, this%nInflowLocations
     call skiplines(12,3)
     read(12,*) this%gammaPlotSwitch
+    call skiplines(12,3)
+    read(12,*) this%alphaPlotSwitch
     close(12)
 
     ! Conversions
@@ -1058,6 +1126,8 @@ contains
       allocate(this%blade(ib)%wiP(this%nc,this%ns))
       allocate(this%blade(ib)%waP(this%nNwake,this%ns))
       allocate(this%blade(ib)%waF(this%nFwake))
+      allocate(this%blade(ib)%sectionalChordwiseVec(3,this%ns))
+      allocate(this%blade(ib)%SectionalAlpha(this%ns))
       if (this%inflowPlotSwitch > 0) then
         if (this%nInflowLocations < 0) then 
           allocate(this%blade(ib)%inflowLocations(3,this%ns))
@@ -1104,6 +1174,17 @@ contains
           call this%blade(ib)%wiP(i,j)%assignP(3,(/xVec(i+1),yVec(j+1),0._dp/))
           call this%blade(ib)%wiP(i,j)%assignP(4,(/xVec(i  ),yVec(j+1),0._dp/))
         enddo
+      enddo
+
+      ! Initialize sectional chordwise vector
+      do j=1,this%ns
+        this%blade(ib)%sectionalChordwiseVec(:,j) =  &
+          (this%blade(ib)%wiP(this%nc,j)%PC(:,3)+this%blade(ib)%wiP(this%nc,j)%PC(:,2)- &
+          this%blade(ib)%wiP(1,j)%PC(:,4)-this%blade(ib)%wiP(1,j)%PC(:,1))*0.5_dp
+
+        ! Normalize
+        this%blade(ib)%sectionalChordwiseVec(:,j) = this%blade(ib)%sectionalChordwiseVec(:,j)/ &
+          norm2(this%blade(ib)%sectionalChordwiseVec(:,j))
       enddo
 
       ! Initialize vr coords of all panels except last row (to accomodate mismatch of vr coords when usi    ng unequal spacing)
@@ -1710,29 +1791,51 @@ contains
     enddo
   end subroutine record_gamPrev
 
-  subroutine rotor_calc_force(this,density,dt)
+  subroutine rotor_calc_force_gamma(this,density,dt)
   class(rotor_class), intent(inout) :: this
     real(dp), intent(in) :: density, dt
     integer :: ib
 
     this%Force=0._dp
     do ib=1,this%nb
-      call this%blade(ib)%calc_force(density,dt)
+      call this%blade(ib)%calc_force_gamma(density,dt)
+      ! Correct computed negative forces due to opposite direction of circulation
+      this%Force=this%Force+this%blade(ib)%Force*-1._dp*sign(1._dp,this%Omega*this%controlPitch(1))
+    enddo
+  end subroutine rotor_calc_force_gamma
+
+  subroutine rotor_calc_force_alpha(this,density)
+  class(rotor_class), intent(inout) :: this
+    real(dp), intent(in) :: density
+    integer :: ib
+
+    this%Force=0._dp
+    do ib=1,this%nb
+      call this%blade(ib)%calc_force_alpha(density)
       this%Force=this%Force+this%blade(ib)%Force
     enddo
-  end subroutine rotor_calc_force
+  end subroutine rotor_calc_force_alpha
 
-  ! subroutine rotor_calc_alpha(this)
-  ! class(rotor_class), intent(inout) :: this
-  !   integer :: irow, icol, ib
+  subroutine rotor_calc_alpha(this)
+  class(rotor_class), intent(inout) :: this
+    integer :: irow, icol, ib
 
-  !   do ib=1,this%nb
-  !     do icol=1,this%ns
-  !       do irow=1,this%nc
-  !         call this%blade(ib)%wiP(irow,icol)%calc_alpha()
-  !       enddo
-  !     enddo
-  !   enddo
-  ! end subroutine rotor_calc_alpha
+    do ib=1,this%nb
+      do icol=1,this%ns
+        do irow=1,this%nc
+          call this%blade(ib)%wiP(irow,icol)%calc_alpha()
+        enddo
+      enddo
+    enddo
+  end subroutine rotor_calc_alpha
+
+  subroutine rotor_calc_sectionalAlpha(this)
+  class(rotor_class), intent(inout) :: this
+    integer :: ib
+
+    do ib=1,this%nb
+      call this%blade(ib)%calc_sectionalAlpha()
+    enddo
+  end subroutine rotor_calc_sectionalAlpha
 
 end module rotor_classdef

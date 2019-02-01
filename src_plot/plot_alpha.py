@@ -1,5 +1,5 @@
-OpenDatabase("Results/r01gammaDist*.curve database")
-AddPlot("Curve", "# Blade01Row01", 1, 1)
+OpenDatabase("Results/r01alphaDist*.curve database")
+AddPlot("Curve", "# Blade01", 1, 1)
 CurveAtts = CurveAttributes()
 CurveAtts.showPoints = 1
 CurveAtts.symbol = CurveAtts.Point  # Point, TriangleUp, TriangleDown, Square, Circle, Plus, X

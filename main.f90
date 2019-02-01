@@ -2,7 +2,7 @@ program main
   use library
   use postproc
 
-  ! Variable Initialization
+  ! Initialize variables
   include "init_file.f90"
   print*
 
@@ -12,15 +12,17 @@ program main
   call skiplines(11,2)
   read(11,*) nt,dt,nr
   call skiplines(11,4)
-  read(11,*) density, turbulentViscosity
-  call skiplines(11,4)
   read(11,*) spanSpacingSwitch
   call skiplines(11,4)
+  read(11,*) density, turbulentViscosity
+  call skiplines(11,5)
+  read(11,*) wakePlotSwitch, gridPlotSwitch
+  call skiplines(11,4)
+  read(11,*) forcePlotSwitch, forceCalcSwitch
+  call skiplines(11,5)
   read(11,*) tipDissipationSwitch, wakeStrainSwitch
   call skiplines(11,4)
   read(11,*) slowStartSwitch, slowStartNt
-  call skiplines(11,4)
-  read(11,*) wakePlotSwitch, gridPlotSwitch, forcePlotSwitch
   call skiplines(11,4)
   read(11,*) fdSchemeSwitch
   call skiplines(11,4)
@@ -67,7 +69,7 @@ program main
     endif
   enddo
 
-  ! Initial Solution
+  ! Obtain initial solution
   call print_status('Computing initial solution')
   if (slowStartSwitch .ne. 0) then
     do ir=1,nr
@@ -91,15 +93,17 @@ program main
           row=ic+rotor(ir)%nc*(is-1)+rotor(ir)%ns*rotor(ir)%nc*(ib-1)
 
           ! Rotational vel
-          rotor(ir)%RHS(row) = dot_product(rotor(ir)%velWind,rotor(ir)%blade(ib)%wiP(ic,is)%nCap)
+          rotor(ir)%blade(ib)%wiP(ic,is)%velCP=rotor(ir)%velWind
 
           ! Rotational vel
-          rotor(ir)%RHS(row)=rotor(ir)%RHS(row)+dot_product(cross3(rotor(ir)%omegaWind  &
-            ,rotor(ir)%blade(ib)%wiP(ic,is)%CP-rotor(ir)%cgCoords),rotor(ir)%blade(ib)%wiP(ic,is)%nCap)
+          rotor(ir)%blade(ib)%wiP(ic,is)%velCP=rotor(ir)%blade(ib)%wiP(ic,is)%velCP  &
+            +cross3(rotor(ir)%omegaWind,rotor(ir)%blade(ib)%wiP(ic,is)%CP-rotor(ir)%cgCoords)
 
           ! Omega vel
-          rotor(ir)%RHS(row)=rotor(ir)%RHS(row)+dot_product(cross3(-rotor(ir)%omegaSlow*rotor(ir)%shaftAxis  &
-            ,rotor(ir)%blade(ib)%wiP(ic,is)%CP-rotor(ir)%hubCoords),rotor(ir)%blade(ib)%wiP(ic,is)%nCap)
+          rotor(ir)%blade(ib)%wiP(ic,is)%velCP=rotor(ir)%blade(ib)%wiP(ic,is)%velCP  &
+            +cross3(-rotor(ir)%omegaSlow*rotor(ir)%shaftAxis,rotor(ir)%blade(ib)%wiP(ic,is)%CP-rotor(ir)%hubCoords)
+
+          rotor(ir)%RHS(row)=dot_product(rotor(ir)%blade(ib)%wiP(ic,is)%velCP,rotor(ir)%blade(ib)%wiP(ic,is)%nCap)
 
           ! Pitch vel
           !rotor(ir)%blade%(ib)%wing(ic,is)%velPitch=rotor(ir)%thetadot_pitch(0._dp,ib)*rotor(ir)%blade(ib)%wiP(ic,is)%rHinge
@@ -123,12 +127,48 @@ program main
     call rotor(ir)%assignshed('TE')  ! Store shed vortex as TE
   enddo
 
-  ! Forces computation
+  ! Compute forces
   if (forcePlotSwitch .ne. 0) then
     call init_plots(nr)    ! Create headers for plot files
+    select case (forceCalcSwitch)
+
+    case (0)  ! Compute using wing circulation
+      do ir=1,nr
+        call rotor(ir)%calc_force_gamma(density,dt)
+      enddo
+
+    case (1)  ! Compute using alpha
+      do ir=1,nr
+        ! Compute alpha
+        do ib=1,rotor(ir)%nb
+          do is=1,rotor(ir)%ns
+            do ic=1,rotor(ir)%nc
+              ! Compute local velocity vector (excluding induced velocities from wing bound vortices)
+              rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal=rotor(ir)%blade(ib)%wiP(ic,is)%velCP
+              do jr=1,nr
+                rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal=rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal+  &
+                  rotor(jr)%vind_bywing(rotor(ir)%blade(ib)%wiP(ic,is)%CP)-  &
+                  rotor(jr)%vind_bywing_boundVortices(rotor(ir)%blade(ib)%wiP(ic,is)%CP)
+              enddo
+            enddo
+          enddo
+        enddo
+
+        call rotor(ir)%calc_alpha()  ! Use velCPTotal to compute local alpha
+        call rotor(ir)%calc_sectionalAlpha()
+        call rotor(ir)%calc_force_alpha(density)
+
+        ! Plot alpha
+        if (rotor(ir)%alphaPlotSwitch .ne. 0) then
+          if (mod(iter,rotor(ir)%alphaPlotSwitch) .eq. 0) then 
+            call alpha2file(timestamp,rotor(ir),ir)
+          endif
+        endif
+      enddo
+
+    end select
     do ir=1,nr
-      call rotor(ir)%calc_force(density,dt)
-      call force2file(timestamp,rotor(ir),ir,-zAxis)  ! Negative sign due to negative inflow or gamma
+      call force2file(timestamp,rotor(ir),ir,zAxis)  ! Negative sign due to negative inflow or gamma
     enddo
   endif
 
@@ -176,7 +216,7 @@ program main
       enddo
     endif
 
-    ! Wing motion 
+    ! Move wing
     do ir=1,nr
       call rotor(ir)%move(rotor(ir)%velBody*dt)
       call rotor(ir)%rot_pts(rotor(ir)%omegaBody*dt,rotor(ir)%cgCoords,1)
@@ -241,12 +281,49 @@ program main
       call rotor(ir)%map_gam()
     enddo
 
-    ! Forces computation
+    ! Compute forces
     if (forcePlotSwitch .ne. 0) then
       if (mod(iter,forcePlotSwitch) .eq. 0) then 
+        select case (forceCalcSwitch)
+
+        case (0)  ! Compute using wing circulation
+          do ir=1,nr
+            call rotor(ir)%calc_force_gamma(density,dt)
+          enddo
+
+        case (1)  ! Compute using alpha
+          do ir=1,nr
+            ! Compute alpha
+            do ib=1,rotor(ir)%nb
+              do is=1,rotor(ir)%ns
+                do ic=1,rotor(ir)%nc
+                  ! Compute local velocity vector (excluding induced velocities from wing bound vortices)
+                  rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal=rotor(ir)%blade(ib)%wiP(ic,is)%velCP
+                  do jr=1,nr
+                    rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal=rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal+  &
+                      rotor(jr)%vind_bywing(rotor(ir)%blade(ib)%wiP(ic,is)%CP)-  &
+                      rotor(jr)%vind_bywing_boundVortices(rotor(ir)%blade(ib)%wiP(ic,is)%CP)
+                  enddo
+                enddo
+              enddo
+            enddo
+
+            call rotor(ir)%calc_alpha()  ! Use velCPTotal to compute local alpha
+            call rotor(ir)%calc_sectionalAlpha()
+            call rotor(ir)%calc_force_alpha(density)
+
+            ! Plot alpha
+            if (rotor(ir)%alphaPlotSwitch .ne. 0) then
+              if (mod(iter,rotor(ir)%alphaPlotSwitch) .eq. 0) then 
+                call alpha2file(timestamp,rotor(ir),ir)
+              endif
+            endif
+          enddo
+
+        end select
+
         do ir=1,nr
-          call rotor(ir)%calc_force(density,dt)
-          call force2file(timestamp,rotor(ir),ir,-zAxis)  ! Negative sign due to negative inflow or gamma
+          call force2file(timestamp,rotor(ir),ir,zAxis)  ! -ve sign due to negative inflow or gamma
         enddo
       endif
     endif
