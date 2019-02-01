@@ -662,7 +662,9 @@ contains
     blade_vind_bywing_boundVortices=0._dp
     do j=1,size(this%wiP,2)
       do i=1,size(this%wiP,1)
-        blade_vind_bywing_boundVortices=blade_vind_bywing_boundVortices+this%wiP(i,j)%vr%vf(4)%vind(P)*this%wiP(i,j)%vr%gam
+        blade_vind_bywing_boundVortices=blade_vind_bywing_boundVortices+  &
+          (this%wiP(i,j)%vr%vf(2)%vind(P)+this%wiP(i,j)%vr%vf(4)%vind(P))*  &
+          this%wiP(i,j)%vr%gam
       enddo
     enddo
   end function blade_vind_bywing_boundVortices
