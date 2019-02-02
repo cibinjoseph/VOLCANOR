@@ -96,14 +96,23 @@ program main
           rotor(ir)%blade(ib)%wiP(ic,is)%velCP=rotor(ir)%velWind
 
           ! Rotational vel
-          rotor(ir)%blade(ib)%wiP(ic,is)%velCP=rotor(ir)%blade(ib)%wiP(ic,is)%velCP  &
-            +cross3(rotor(ir)%omegaWind,rotor(ir)%blade(ib)%wiP(ic,is)%CP-rotor(ir)%cgCoords)
+          rotor(ir)%blade(ib)%wiP(ic,is)%velCP=rotor(ir)%blade(ib)%wiP(ic,is)%velCP+  &
+            cross3(rotor(ir)%omegaWind,rotor(ir)%blade(ib)%wiP(ic,is)%CP-rotor(ir)%cgCoords)
 
           ! Omega vel
-          rotor(ir)%blade(ib)%wiP(ic,is)%velCP=rotor(ir)%blade(ib)%wiP(ic,is)%velCP  &
-            +cross3(-rotor(ir)%omegaSlow*rotor(ir)%shaftAxis,rotor(ir)%blade(ib)%wiP(ic,is)%CP-rotor(ir)%hubCoords)
+          rotor(ir)%blade(ib)%wiP(ic,is)%velCP=rotor(ir)%blade(ib)%wiP(ic,is)%velCP+  &
+            cross3(-rotor(ir)%omegaSlow*rotor(ir)%shaftAxis,rotor(ir)%blade(ib)%wiP(ic,is)%CP-rotor(ir)%hubCoords)
+
+          ! Velocity due to wing vortices of other rotors
+          do jr=1,nr
+            if (ir .ne. jr) then
+              rotor(ir)%blade(ib)%wiP(ic,is)%velCP=rotor(ir)%blade(ib)%wiP(ic,is)%velCP+  &
+                rotor(jr)%vind_bywing(rotor(ir)%blade(ib)%wiP(ic,is)%CP)
+            endif
+          enddo
 
           rotor(ir)%RHS(row)=dot_product(rotor(ir)%blade(ib)%wiP(ic,is)%velCP,rotor(ir)%blade(ib)%wiP(ic,is)%nCap)
+
 
           ! Pitch vel
           !rotor(ir)%blade%(ib)%wing(ic,is)%velPitch=rotor(ir)%thetadot_pitch(0._dp,ib)*rotor(ir)%blade(ib)%wiP(ic,is)%rHinge
@@ -254,10 +263,16 @@ program main
             rotor(ir)%blade(ib)%wiP(ic,is)%velCP=rotor(ir)%blade(ib)%wiP(ic,is)%velCP  &
               +cross3(-rotor(ir)%omegaSlow*rotor(ir)%shaftAxis,rotor(ir)%blade(ib)%wiP(ic,is)%CP-rotor(ir)%hubCoords)
 
-            ! Wake vel
             do jr=1,nr
+              ! Wake vel due to all rotors
               rotor(ir)%blade(ib)%wiP(ic,is)%velCP=rotor(ir)%blade(ib)%wiP(ic,is)%velCP  &
                 +rotor(jr)%vind_bywake(rotor(ir)%blade(ib)%wiP(ic,is)%CP)
+
+              ! Wing induced vel due to wing vortices of other rotors
+              if (ir .ne. jr) then
+                rotor(ir)%blade(ib)%wiP(ic,is)%velCP=rotor(ir)%blade(ib)%wiP(ic,is)%velCP+  &
+                  rotor(jr)%vind_bywing(rotor(ir)%blade(ib)%wiP(ic,is)%CP)
+              endif
             enddo
 
             rotor(ir)%RHS(row)=dot_product(rotor(ir)%blade(ib)%wiP(ic,is)%velCP,rotor(ir)%blade(ib)%wiP(ic,is)%nCap)
