@@ -14,3 +14,4 @@ Check CT and inflow distribution against BEMT for CarrNTung rotor
 
 Effect of vortex core radius on wake structure
 Add provision for coning for blades
+Approximate alpha at c/4 using lsq2
