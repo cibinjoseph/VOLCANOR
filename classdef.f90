@@ -1669,7 +1669,7 @@ contains
   class(rotor_class), intent(inout) :: this
     real(dp), intent(in) :: turbulentViscosity
     real(dp) :: oseenParameter, kinematicViscosity
-    integer :: ib,ic,is
+    integer :: ib,ic,is,ifil
     oseenParameter= 1.2564_dp
     kinematicViscosity   = 0.0000181_dp
 
@@ -1677,8 +1677,10 @@ contains
     do ib=1,this%nb
       do is=1,this%ns
         do ic=this%rowNear,this%nNwake
-          this%blade(ib)%waP(ic,is)%vf%rVc=sqrt(this%blade(ib)%waP(ic,is)%vf%rVc**2._dp &
-            +4._dp*oseenParameter*turbulentViscosity*kinematicViscosity*this%blade(ib)%waP(ic,is)%vf%age)
+          do ifil=1,4
+            this%blade(ib)%waP(ic,is)%vr%vf(ifil)%rVc=sqrt(this%blade(ib)%waP(ic,is)%vr%vf(ifil)%rVc**2._dp &
+              +4._dp*oseenParameter*turbulentViscosity*kinematicViscosity*this%blade(ib)%waP(ic,is)%vr%vf(ifil)%age)
+          enddo
         enddo
       enddo
 
@@ -1688,8 +1690,8 @@ contains
           this%blade(ib)%waF(ic)%vf%rVc=sqrt(this%blade(ib)%waF(ic)%vf%rVc**2._dp &
             +4._dp*oseenParameter*turbulentViscosity*kinematicViscosity*this%blade(ib)%waF(ic)%vf%age)
         enddo
-      enddo
-    endif
+      endif
+    enddo
   end subroutine dissipate_wake
 
   subroutine strain_wake(this)
