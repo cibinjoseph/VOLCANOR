@@ -217,13 +217,11 @@ program main
 
     if (tipDissipationSwitch .eq. 1) then
       do ir=1,nr
-        if (rotor(ir)%rowFar .ne. 0) then
-          ! Age vortex filaments
-          call rotor(ir)%age_wake(dt)
+        ! Age vortex filaments
+        call rotor(ir)%age_wake(dt)
 
-          ! Wake tip dissipation
-          call rotor(ir)%dissipate_tip(turbulentViscosity)
-        endif
+        ! Wake tip dissipation
+        call rotor(ir)%dissipate_wake(turbulentViscosity)
       enddo
     endif
 

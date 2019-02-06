@@ -1048,7 +1048,7 @@ module rotor_classdef
     procedure :: assignshed
     procedure :: map_gam
     procedure :: age_wake
-    procedure :: dissipate_tip
+    procedure :: dissipate_wake
     procedure :: strain_wake
     procedure :: calcAIC
     procedure :: vind_bywing => rotor_vind_bywing
@@ -1665,21 +1665,32 @@ contains
     enddo
   end subroutine age_wake
 
-  subroutine dissipate_tip(this,turbulentViscosity)
+  subroutine dissipate_wake(this,turbulentViscosity)
   class(rotor_class), intent(inout) :: this
     real(dp), intent(in) :: turbulentViscosity
     real(dp) :: oseenParameter, kinematicViscosity
-    integer :: i,ib
+    integer :: ib,ic,is
     oseenParameter= 1.2564_dp
     kinematicViscosity   = 0.0000181_dp
 
+    ! Dissipate near wake
     do ib=1,this%nb
-      do i=this%rowNear,this%nFwake
-        this%blade(ib)%waF(i)%vf%rVc=sqrt(this%blade(ib)%waF(i)%vf%rVc**2._dp &
-          +4._dp*oseenParameter*turbulentViscosity*kinematicViscosity*this%blade(ib)%waF(i)%vf%age)
+      do is=1,this%ns
+        do ic=this%rowNear,this%nNwake
+          this%blade(ib)%waP(ic,is)%vf%rVc=sqrt(this%blade(ib)%waP(ic,is)%vf%rVc**2._dp &
+            +4._dp*oseenParameter*turbulentViscosity*kinematicViscosity*this%blade(ib)%waP(ic,is)%vf%age)
+        enddo
       enddo
-    enddo
-  end subroutine dissipate_tip
+
+      ! Dissipate far wake if present
+      if (this%rowFar .ne. 0) then
+        do ic=this%rowFar,this%nFwake
+          this%blade(ib)%waF(ic)%vf%rVc=sqrt(this%blade(ib)%waF(ic)%vf%rVc**2._dp &
+            +4._dp*oseenParameter*turbulentViscosity*kinematicViscosity*this%blade(ib)%waF(ic)%vf%age)
+        enddo
+      enddo
+    endif
+  end subroutine dissipate_wake
 
   subroutine strain_wake(this)
   class(rotor_class), intent(inout) :: this
