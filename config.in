@@ -24,8 +24,8 @@
        1                                          1
 =======================================================================
 
- WAKE TIP DISSIPATION: [0]Off [1]On      Wake strain: [0]Off [1]On
- tipDissipationSwitch                         wakeStrainSwitch
+ WAKE DISSIPATION: [0]Off [1]On         Wake strain: [0]Off [1]On
+ wakeDissipationSwitch                         wakeStrainSwitch
 -----------------------------------------------------------------------
        1                                            0
 

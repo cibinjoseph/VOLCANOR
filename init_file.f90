@@ -17,7 +17,7 @@ integer :: i,is,ic,row,iter,ir,jr,ib
 
 ! Switches
 integer :: spanSpacingSwitch
-integer :: tipDissipationSwitch, wakeStrainSwitch
+integer :: wakeDissipationSwitch, wakeStrainSwitch
 integer :: slowStartSwitch, slowStartNt
 integer :: wakePlotSwitch, gridPlotSwitch
 integer :: forcePlotSwitch, forceCalcSwitch

@@ -20,7 +20,7 @@ program main
   call skiplines(11,4)
   read(11,*) forcePlotSwitch, forceCalcSwitch
   call skiplines(11,5)
-  read(11,*) tipDissipationSwitch, wakeStrainSwitch
+  read(11,*) wakeDissipationSwitch, wakeStrainSwitch
   call skiplines(11,4)
   read(11,*) slowStartSwitch, slowStartNt
   call skiplines(11,4)
@@ -215,7 +215,7 @@ program main
       error stop "Assign correct slowStartSwitch"
     end select
 
-    if (tipDissipationSwitch .eq. 1) then
+    if (wakeDissipationSwitch .eq. 1) then
       do ir=1,nr
         ! Age vortex filaments
         call rotor(ir)%age_wake(dt)
