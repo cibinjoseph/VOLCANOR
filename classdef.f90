@@ -480,6 +480,7 @@ module blade_classdef
     type(Fwake_class), allocatable, dimension(:) :: waFPredicted
     real(dp) :: theta
     real(dp), dimension(3) :: Force
+    real(dp), allocatable, dimension(:,:) :: sectionalQuarterChord
     real(dp) :: psi
     real(dp) :: pivotLE
     real(dp), allocatable, dimension(:,:) :: sectionalChordwiseVec
@@ -504,6 +505,7 @@ module blade_classdef
     procedure :: wake_continuity
     procedure :: getSectionalDynamicPressure
     procedure :: getSectionalArea
+    procedure :: calc_sectionalQuarterChord
     procedure :: calc_force_gamma => blade_calc_force_gamma
     procedure :: calc_force_alpha => blade_calc_force_alpha
     procedure :: calc_sectionalAlpha => blade_calc_sectionalAlpha
@@ -941,7 +943,7 @@ contains
       do ic=1,rows
         sumSectionalVelCPTotal(:,is)=sumSectionalVelCPTotal(:,is)+this%wiP(ic,is)%velCPTotal
       enddo
-        magSectionalVelCPTotal(is)=norm2(sumSectionalVelCPTotal(:,is)/rows)
+      magSectionalVelCPTotal(is)=norm2(sumSectionalVelCPTotal(:,is)/rows)
     enddo
     getSectionalDynamicPressure=0.5_dp*density*magSectionalVelCPTotal**2._dp
   end function getSectionalDynamicPressure
@@ -969,10 +971,29 @@ contains
     integer :: is, rows
 
     rows=size(this%wiP,1)
-    do is=1,size(this%sectionalAlpha)
-      this%sectionalAlpha(is)=sum(this%wiP(:,is)%alpha)/rows
-    enddo
+    if (rows .ge. 3) then  ! Use least squares fit to get alpha
+      do is=1,size(this%sectionalAlpha)
+        ! Add subroutine to get alpha at c/4 position
+      enddo
+    else  ! Use average of alpha values
+      do is=1,size(this%sectionalAlpha)
+        this%sectionalAlpha(is)=sum(this%wiP(:,is)%alpha)/rows
+      enddo
+    endif
   end subroutine blade_calc_sectionalAlpha
+
+  subroutine calc_sectionalQuarterChord(this)
+  class(blade_class), intent(inout) :: this
+    integer :: is, rows
+    real(dp), dimension(3) :: LEvec, TEvec
+
+    rows=size(this%wiP,1)
+    do is=1,size(this%wiP,2)
+      LEvec=this%wiP(1,is)%PC(:,4)-this%wiP(1,is)%PC(:,1)
+      TEvec=this%wiP(rows,is)%PC(:,3)-this%wiP(rows,is)%PC(:,2)
+      this%sectionalQuarterChord(:,is)=0.75_dp*LEvec+0.25_dp*TEvec
+    enddo
+  end subroutine calc_sectionalQuarterChord
 
 end module blade_classdef
 
@@ -1127,7 +1148,8 @@ contains
       allocate(this%blade(ib)%waP(this%nNwake,this%ns))
       allocate(this%blade(ib)%waF(this%nFwake))
       allocate(this%blade(ib)%sectionalChordwiseVec(3,this%ns))
-      allocate(this%blade(ib)%SectionalAlpha(this%ns))
+      allocate(this%blade(ib)%sectionalQuarterChord(3,this%ns))
+      allocate(this%blade(ib)%sectionalAlpha(this%ns))
       if (this%inflowPlotSwitch > 0) then
         if (this%nInflowLocations < 0) then 
           allocate(this%blade(ib)%inflowLocations(3,this%ns))
@@ -1248,6 +1270,9 @@ contains
           enddo
         endif
       endif
+
+      ! Initialize quarter sectional chord positions
+      call blade(ib)%calc_sectionalQuarterChord()
 
       ! Initialize gamma
       this%blade(ib)%wiP%vr%gam=0._dp
