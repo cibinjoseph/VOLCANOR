@@ -16,3 +16,5 @@ Effect of vortex core radius on wake structure
 Add provision for coning for blades
 Check if wake age is computed correctly on shifting of wake arrays
 the age shouldnt cause dissipation to keep increasing uncontrollably
+- the wake age of far wake filaments must be transfered from the near wake during roll up
+- the new near wake elements must be initialised to age zero
