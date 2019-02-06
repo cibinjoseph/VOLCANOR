@@ -968,12 +968,18 @@ contains
 
   subroutine blade_calc_sectionalAlpha(this)
   class(blade_class), intent(inout) :: this
-    integer :: is, rows
+    integer :: is, ic, rows
+    real(dp), dimension(size(this%wiP,1)) :: xDist
 
     rows=size(this%wiP,1)
     if (rows .ge. 3) then  ! Use least squares fit to get alpha
       do is=1,size(this%sectionalAlpha)
-        ! Add subroutine to get alpha at c/4 position
+        do ic=1,rows
+          xDist(ic)=dot_product(this%wiP(ic,is)%CP-this%wiP(1,is)%PC(:,1),  &
+            this%sectionalChordwiseVec(:,is))
+        enddo
+        this%sectionalAlpha(is)=lsq2(dot_product(this%sectionalQuarterChord(:,is)-  &
+          this%wiP(1,is)%PC(:,1),this%sectionalChordwiseVec(:,is)),xDist,this%wiP(:,is)%alpha)
       enddo
     else  ! Use average of alpha values
       do is=1,size(this%sectionalAlpha)
@@ -985,13 +991,11 @@ contains
   subroutine calc_sectionalQuarterChord(this)
   class(blade_class), intent(inout) :: this
     integer :: is, rows
-    real(dp), dimension(3) :: LEvec, TEvec
 
     rows=size(this%wiP,1)
     do is=1,size(this%wiP,2)
-      LEvec=this%wiP(1,is)%PC(:,4)-this%wiP(1,is)%PC(:,1)
-      TEvec=this%wiP(rows,is)%PC(:,3)-this%wiP(rows,is)%PC(:,2)
-      this%sectionalQuarterChord(:,is)=0.75_dp*LEvec+0.25_dp*TEvec
+      this%sectionalQuarterChord(:,is)=0.75_dp*(this%wiP(1,is)%PC(:,4)-this%wiP(1,is)%PC(:,1))+  &
+        (0.25_dp*this%wiP(rows,is)%PC(:,3)-this%wiP(rows,is)%PC(:,2))
     enddo
   end subroutine calc_sectionalQuarterChord
 
@@ -1271,8 +1275,8 @@ contains
         endif
       endif
 
-      ! Initialize quarter sectional chord positions
-      call blade(ib)%calc_sectionalQuarterChord()
+      ! Initialize sectional quarter chord positions
+      call this%blade(ib)%calc_sectionalQuarterChord()
 
       ! Initialize gamma
       this%blade(ib)%wiP%vr%gam=0._dp
