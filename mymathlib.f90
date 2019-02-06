@@ -9,6 +9,10 @@ module mymathlib
   real(dp), parameter, dimension(3) :: yAxis = (/0._dp,1._dp,0._dp/)
   real(dp), parameter, dimension(3) :: zAxis = (/0._dp,0._dp,1._dp/)
 
+  interface lsq2
+    module procedure lsq2_scalar, lsq2_array
+  end interface
+
 contains
 
   ! -------------------------------------------------
@@ -303,6 +307,68 @@ contains
     enddo
     norm=sqrt(norm)
   end function norm
+
+  !--------------------------------------------------------!
+  !        Linear Least Squares fitting (2nd order)        !
+  !--------------------------------------------------------!
+  function lsq2_scalar(xQuery,xData,yData)
+    real(dp), intent(in) :: xQuery
+    real(dp), intent(in), dimension(:) :: xData, yData
+    real(dp), dimension(3) :: coeff, RHS
+    real(dp), dimension(3,3) :: Amat
+    real(dp) :: lsq2_scalar
+
+    if (size(xData) .ne. size(yData)) error stop 'ERROR: size of xData and yData have to be equal'
+
+    Amat(1,1)=size(xData)
+    Amat(1,2)=sum(xData)
+    Amat(1,3)=sum(xData**2._dp)
+    Amat(2,1)=Amat(1,2)
+    Amat(2,2)=Amat(1,3)
+    Amat(2,3)=sum(xData**3._dp)
+    Amat(3,1)=Amat(1,3)
+    Amat(3,2)=Amat(2,3)
+    Amat(3,3)=sum(xData**4._dp)
+
+    RHS(1)=sum(yData)
+    RHS(2)=sum(yData*xData)
+    RHS(3)=sum(yData*xData**2._dp)
+
+    coeff=matmul(inv(Amat),RHS)
+
+    lsq2_scalar=coeff(1)+coeff(2)*xQuery+coeff(3)*xQuery*xQuery
+  end function lsq2_scalar
+
+  function lsq2_array(xQuery,xData,yData)
+    real(dp), intent(in), dimension(:) :: xQuery
+    real(dp), intent(in), dimension(:) :: xData, yData
+    real(dp), dimension(3) :: coeff, RHS
+    real(dp), dimension(3,3) :: Amat
+    real(dp), dimension(size(xQuery)) :: lsq2_array
+    integer :: i
+
+    if (size(xData) .ne. size(yData)) error stop 'ERROR: size of xData and yData have to be equal'
+
+    Amat(1,1)=size(xData)
+    Amat(1,2)=sum(xData)
+    Amat(1,3)=sum(xData**2._dp)
+    Amat(2,1)=Amat(1,2)
+    Amat(2,2)=Amat(1,3)
+    Amat(2,3)=sum(xData**3._dp)
+    Amat(3,1)=Amat(1,3)
+    Amat(3,2)=Amat(2,3)
+    Amat(3,3)=sum(xData**4._dp)
+
+    RHS(1)=sum(yData)
+    RHS(2)=sum(yData*xData)
+    RHS(3)=sum(yData*xData**2._dp)
+
+    coeff=matmul(inv(Amat),RHS)
+
+    do i=1,size(xQuery)
+      lsq2_array(i)=coeff(1)+coeff(2)*xQuery(i)+coeff(3)*xQuery(i)*xQuery(i)
+    enddo
+  end function lsq2_array
 
   !--------------------------------------------------------!
   !              Transformation Functions                  !
