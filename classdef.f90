@@ -1780,7 +1780,7 @@ contains
   class(rotor_class), intent(inout) :: this
     integer :: ib,ispan,rowFarNext
     real(dp), dimension(3) :: centroidLE,centroidTE
-    real(dp) :: gamRollup
+    real(dp) :: gamRollup, ageRollup
 
     rowFarNext=this%rowFar-1    ! Rollup the vortex filament of 'next' row
     if (rowFarNext==-1) rowFarNext=this%nFwake
@@ -1806,6 +1806,7 @@ contains
           endif
         endif
       enddo
+      ageRollup=this%blade(ib)%waP(this%nNwake,this%ns)%vr%vf(1)%age
       centroidLE=centroidLE/(this%rollupEnd-this%rollupStart+1)
       centroidTE=centroidTE/(this%rollupEnd-this%rollupStart+1)
 
@@ -1814,6 +1815,7 @@ contains
       this%blade(ib)%waF(rowFarNext)%vf%fc(:,2)=centroidLE
       this%blade(ib)%waF(rowFarNext)%vf%fc(:,1)=centroidTE
       this%blade(ib)%waF(rowFarNext)%gam=gamRollup
+      this%blade(ib)%waF(rowFarNext)%vf%age=ageRollup
       call this%blade(ib)%waF(rowFarNext)%vf%calclength(.TRUE.)    ! TRUE => record original length
 
       ! Ensure continuity in far wake by assigning
