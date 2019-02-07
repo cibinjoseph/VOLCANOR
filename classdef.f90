@@ -1761,7 +1761,13 @@ contains
       do i=this%nNwake,2,-1
         this%blade(ib)%waP(i,:)=this%blade(ib)%waP(i-1,:)
       enddo
+
+      ! Wake age of first row has to be set to zero
+      do i=1,4
+        this%blade(ib)%waP(1,:)%vr%vf(i)%age=0._dp
+      enddo
     enddo
+
   end subroutine rotor_shiftwake
 
   subroutine rotor_rollup(this)
