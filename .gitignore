@@ -18,3 +18,4 @@ octave-workspace
 *.pyc
 src_plot/*.pyc
 *_copy
+status.txt

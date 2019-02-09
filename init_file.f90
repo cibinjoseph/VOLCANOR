@@ -11,6 +11,7 @@ real(dp) :: density,turbulentViscosity
 character(len=5) :: timestamp
 character(len=2) :: rotorChar
 character(len=10) :: rotorFile
+character(len=10) :: currentTime
 
 ! Iterators
 integer :: i,is,ic,row,iter,ir,jr,ib

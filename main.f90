@@ -183,10 +183,17 @@ program main
     enddo
   endif
 
+  open(unit=22,file='status.txt',status='replace',action='write')
+  currentTime=''
+
   ! ------- MAIN LOOP START -------
   do iter=1,nt
     t=t+dt
-    print*,iter,nt
+
+    ! In case current time is required in status.txt
+    ! call date_and_time(time=currentTime)
+
+    write(22,*) currentTime,iter,nt
     write(timestamp,'(I0.5)') iter
     do ir=1,nr
       rotor(ir)%rowNear=max(rotor(ir)%nNwake-(iter-1),1)
@@ -618,6 +625,8 @@ program main
     enddo
 
   enddo
+
+  close(22)  ! Close status.txt
 
   if (wakePlotSwitch .eq. 1) then
     do ir=1,nr

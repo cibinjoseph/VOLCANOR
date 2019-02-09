@@ -57,7 +57,7 @@ _mymathlib.f90_  -  Math subroutines
 _gridgen.f90_  -  Generates grid-based data using gridconfig.in and filamentsXXXXX.dat  
 
 **Output files**  
-All output files are stored in Results/ directory  
+_status.txt_  -  Current status of computation (use tailf to view in real-time)
 _wingPC.plt_  -  Panel verices of wing  
 _wingCP.plt_  -  Collocation points of wing  
 _wingVR.plt_  -  Vortex rings of wing  
