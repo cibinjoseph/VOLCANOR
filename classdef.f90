@@ -922,6 +922,8 @@ contains
         this%wiP(ic,is)%delP=velTangentialChord(ic,is)*gamElementChord(ic,is)/this%wiP(ic,is)%meanChord &
           + velTangentialSpan(ic,is)*gamElementSpan(ic,is)/this%wiP(ic,is)%meanSpan &
           + (this%wiP(ic,is)%vr%gam-this%wiP(ic,is)%vr%gamPrev)/dt
+        print*,velTangentialChord(1,1)  ! DEBUG
+        stop
         this%wiP(ic,is)%delP=density*this%wiP(ic,is)%delP
         this%wiP(ic,is)%normalForce=this%wiP(ic,is)%delP*this%wiP(ic,is)%panelArea*this%wiP(ic,is)%nCap
         this%Force=this%Force+this%wiP(ic,is)%normalForce
