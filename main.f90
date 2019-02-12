@@ -239,6 +239,7 @@ program main
       call rotor(ir)%rot_advance(rotor(ir)%omegaSlow*dt)
     enddo
 
+
     ! Assign LE of near wake
     do ir=1,nr
       call rotor(ir)%assignshed('LE')  ! Store shed vortex as LE
@@ -277,8 +278,8 @@ program main
 
               ! Wing induced vel due to wing vortices of other rotors
               if (ir .ne. jr) then
-                rotor(ir)%blade(ib)%wiP(ic,is)%velCP=rotor(ir)%blade(ib)%wiP(ic,is)%velCP+  &
-                  rotor(jr)%vind_bywing(rotor(ir)%blade(ib)%wiP(ic,is)%CP)
+                rotor(ir)%blade(ib)%wiP(ic,is)%velCP=rotor(ir)%blade(ib)%wiP(ic,is)%velCP  &
+                  +rotor(jr)%vind_bywing(rotor(ir)%blade(ib)%wiP(ic,is)%CP)
               endif
             enddo
 
