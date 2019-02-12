@@ -958,7 +958,6 @@ contains
     enddo
   end function getSectionalArea
 
-  ! Return CL for now, **CHANGE TO DIMENSIONAL FORCES LATER**
   subroutine blade_calc_force_alpha(this,density)
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: density
