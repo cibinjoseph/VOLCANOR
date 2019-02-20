@@ -337,6 +337,10 @@ program main
             call rotor(ir)%calc_sectionalAlpha()
             call rotor(ir)%calc_force_alpha(density)
 
+            ! DEBUG
+            print*, rotor(1)%blade(1)%sectionalAlpha*180._dp/pi
+            read*
+
             ! Plot alpha
             if (rotor(ir)%alphaPlotSwitch .ne. 0) then
               if (mod(iter,rotor(ir)%alphaPlotSwitch) .eq. 0) then 
