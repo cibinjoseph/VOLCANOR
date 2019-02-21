@@ -273,14 +273,16 @@ program main
 
             do jr=1,nr
               ! Wake vel due to all rotors
-              rotor(ir)%blade(ib)%wiP(ic,is)%velCP=rotor(ir)%blade(ib)%wiP(ic,is)%velCP  &
-                +rotor(jr)%vind_bywake(rotor(ir)%blade(ib)%wiP(ic,is)%CP)
+              ! DEBUG
+              !rotor(ir)%blade(ib)%wiP(ic,is)%velCP=rotor(ir)%blade(ib)%wiP(ic,is)%velCP  &
+              !  +rotor(jr)%vind_bywake(rotor(ir)%blade(ib)%wiP(ic,is)%CP)
 
               ! Wing induced vel due to wing vortices of other rotors
-              if (ir .ne. jr) then
-                rotor(ir)%blade(ib)%wiP(ic,is)%velCP=rotor(ir)%blade(ib)%wiP(ic,is)%velCP  &
-                  +rotor(jr)%vind_bywing(rotor(ir)%blade(ib)%wiP(ic,is)%CP)
-              endif
+              ! DEBUG
+              !if (ir .ne. jr) then
+              !  rotor(ir)%blade(ib)%wiP(ic,is)%velCP=rotor(ir)%blade(ib)%wiP(ic,is)%velCP  &
+              !    +rotor(jr)%vind_bywing(rotor(ir)%blade(ib)%wiP(ic,is)%CP)
+              !endif
             enddo
 
             rotor(ir)%RHS(row)=dot_product(rotor(ir)%blade(ib)%wiP(ic,is)%velCP,rotor(ir)%blade(ib)%wiP(ic,is)%nCap)
@@ -322,9 +324,17 @@ program main
                 do ic=1,rotor(ir)%nc
                   ! Compute local velocity vector (excluding induced velocities from wing bound vortices)
                   rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal=rotor(ir)%blade(ib)%wiP(ic,is)%velCP
-                  do jr=1,nr  ! Neglect velocity due to spanwise vortices for all wings
-                    rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal=rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal-  &
-                      rotor(jr)%vind_bywing_boundVortices(rotor(ir)%blade(ib)%wiP(ic,is)%CP)
+                  do jr=1,nr 
+                    ! Neglect velocity due to spanwise vortices for all wings
+                    !rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal=rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal-  &
+                    !  rotor(jr)%vind_bywing_boundVortices(rotor(ir)%blade(ib)%wiP(ic,is)%CP)
+
+                    ! DEBUG
+                    !do js=1,rotor(jr)%ns
+                    !  ! Add velocity due to trailing shed wake filament on wing
+                    !  rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal=rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal+  &
+                    !    rotor(jr)%blade(1)%waP(rotor(jr)%nc,js)%vr%vf(2)%vind(rotor(ir)%blade(ib)%wiP(ic,is)%CP)
+                    !enddo
                   enddo
                   ! Add self induced velocity due to wing vortices
                   rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal=rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal+  &
@@ -338,8 +348,8 @@ program main
             call rotor(ir)%calc_force_alpha(density)
 
             ! DEBUG
-            print*, rotor(1)%blade(1)%sectionalAlpha*180._dp/pi
-            read*
+            !print*,'secAlpha',rotor(1)%blade(1)%sectionalAlpha*180._dp/pi
+            stop
 
             ! Plot alpha
             if (rotor(ir)%alphaPlotSwitch .ne. 0) then

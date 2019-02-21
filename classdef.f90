@@ -360,7 +360,7 @@ contains
 
     isCPinsidecore = .false.
     if (deltayby2 .lt. this%vr%vf(1)%rVc) then
-      isCPinsidecore = .true.    ! Left edge
+      isCPinsidecore = .true.  ! Left edge
     elseif (deltayby2 .lt. this%vr%vf(3)%rVc) then
       isCPinsidecore = .true.  ! Right edge
     elseif (deltaxby4 .lt. this%vr%vf(2)%rVc) then
@@ -379,7 +379,8 @@ contains
     if (velCPTotalMagnitude .gt. eps) then
       ! DEBUG
       this%alpha=acos(dot_product(this%velCPTotal,this%tauCapChord)/velCPTotalMagnitude)
-      !print*,this%velCPTotal(3)
+      print*,'velCP(3)',this%velCPTotal(3)
+      print*,'alpha',this%velCPTotal(3)*180._dp/pi
     else
       this%alpha=0._dp
     endif
