@@ -15,6 +15,4 @@ Check CT and inflow distribution against BEMT for CarrNTung rotor
 Effect of vortex core radius on wake structure
 Add provision for coning for blades
 
-Correct discrepancies in CT computed using alpha approximations 
 Check if lsq2 is creating problems
-Check if dissipation in near wake is stabilizing like in VLM_Wing
