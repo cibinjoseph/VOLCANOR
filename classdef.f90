@@ -377,10 +377,7 @@ contains
     velCPTotalMagnitude=norm2(this%velCPTotal)
 
     if (velCPTotalMagnitude .gt. eps) then
-      ! DEBUG
       this%alpha=acos(dot_product(this%velCPTotal,this%tauCapChord)/velCPTotalMagnitude)
-      print*,'velCP(3)',this%velCPTotal(3)
-      print*,'alpha',this%velCPTotal(3)*180._dp/pi
     else
       this%alpha=0._dp
     endif
@@ -662,15 +659,22 @@ contains
   class(blade_class), intent(inout) :: this
     real(dp), intent(in), dimension(3) :: P
     real(dp), dimension(3) :: blade_vind_bywing_boundVortices
-    integer :: i,j
+    integer :: i,j,rows,cols
+
+    rows = size(this%wiP,1)
+    cols = size(this%wiP,2)
 
     blade_vind_bywing_boundVortices=0._dp
-    do j=1,size(this%wiP,2)
-      do i=1,size(this%wiP,1)
+    do j=1,cols
+      do i=1,rows
         blade_vind_bywing_boundVortices=blade_vind_bywing_boundVortices+  &
           (this%wiP(i,j)%vr%vf(2)%vind(P)+this%wiP(i,j)%vr%vf(4)%vind(P))*  &
           this%wiP(i,j)%vr%gam
       enddo
+    enddo
+    do j=1,cols
+      blade_vind_bywing_boundVortices=blade_vind_bywing_boundVortices-  &
+        this%wiP(rows,j)%vr%vf(2)%vind(P)*this%wiP(rows,j)%vr%gam
     enddo
   end function blade_vind_bywing_boundVortices
 
