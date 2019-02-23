@@ -211,6 +211,8 @@ program main
     ! call date_and_time(time=currentTime)
 
     write(22,*) currentTime,iter,nt
+    print*, currentTime,iter,nt
+
     write(timestamp,'(I0.5)') iter
     do ir=1,nr
       rotor(ir)%rowNear=max(rotor(ir)%nNwake-(iter-1),1)
