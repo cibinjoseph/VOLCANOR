@@ -8,9 +8,7 @@ Make lift integration higher order - unequal intervals
 Check oscillations in inflow - dependent on nInflowLocations
 
 - Validation
-Make separate validation cases repo that contains testcases and results as branches
-Also make a folder that contains parameters/files for specific case
-Check CT and inflow distribution against BEMT for CarrNTung rotor
+Convergence
 
 Effect of vortex core radius on wake structure
 Add provision for coning for blades
