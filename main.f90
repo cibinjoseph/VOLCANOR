@@ -298,11 +298,6 @@ program main
               cross3(-rotor(ir)%omegaSlow*rotor(ir)%shaftAxis, &
               rotor(ir)%blade(ib)%wiP(ic,is)%CP-rotor(ir)%hubCoords)
 
-            ! DEBUG
-            print*,rotor(1)%blade(1)%waP(rotor(1)%nNwake,1)%vr%vf(1)%rVc
-            print*,rotor(1)%blade(1)%waP(rotor(1)%nNwake,1)%vr%vf(1)%age
-            read*
-
             do jr=1,nr
               ! Wake vel due to all rotors
               rotor(ir)%blade(ib)%wiP(ic,is)%velCP= &
@@ -317,9 +312,6 @@ program main
               endif
             enddo
 
-            ! DEBUG
-            !print*, rotor(1)%blade(1)%wiP(1,1)%velCP
-            !stop
             rotor(ir)%RHS(row)= &
               dot_product(rotor(ir)%blade(ib)%wiP(ic,is)%velCP, &
               rotor(ir)%blade(ib)%wiP(ic,is)%nCap)
@@ -337,11 +329,6 @@ program main
       call rotor(ir)%record_gamPrev()    ! For calculating dGam/dT
       rotor(ir)%gamVec=matmul(rotor(ir)%AIC_inv,rotor(ir)%RHS)
     enddo
-    ! DEBUG
-    print*,rotor(1)%RHS(1)
-
-    !print*, rotor(1)%gamvec
-    read*
 
     ! Map gamVec to wing gam for each blade in rotor
     do ir=1,nr
