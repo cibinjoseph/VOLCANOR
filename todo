@@ -13,7 +13,7 @@ Convergence
 Effect of vortex core radius on wake structure
 Add provision for coning for blades
 
-Check if lsq2 is creating problems
 Add provision for CL-alpha tables
 
 Comparison of centroids of vorticity for rollup model
+Check if lsq2 is creating problems
