@@ -1664,8 +1664,11 @@ contains
   subroutine age_wake(this,dt)
   class(rotor_class), intent(inout) :: this
     real(dp),intent(in) :: dt
-    integer :: ib
+    integer :: ib, ifil
     do ib=1,this%nb
+      do ifil=1,4
+        this%blade(ib)%waP(this%rowNear:this%nNwake,:)%vr%vf(ifil)%age=this%blade(ib)%waP(this%rowNear:this%nNwake,:)%vr%vf(ifil)%age+dt
+      enddo
       if (this%rowFar .ne. 0) then
         this%blade(ib)%waF(this%rowFar:this%nFwake)%vf%age=this%blade(ib)%waF(this%rowFar:this%nFwake)%vf%age+dt
       endif
