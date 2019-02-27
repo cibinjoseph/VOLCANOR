@@ -549,7 +549,7 @@ contains
       write(12,*) '# Blade'//bladeNumberChar
       do is=1,rotor%ns
         write(12,*) norm2(rotor%hubCoords-rotor%blade(ib)%wiP(1,is)%cp), &
-          rotor%blade(ib)%sectionalAlpha(is)*180./pi
+          rotor%blade(ib)%sectionalAlpha(is)*180._dp/pi
       enddo
     enddo
     close(12)
