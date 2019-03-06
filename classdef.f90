@@ -1007,18 +1007,19 @@ contains
         enddo
         this%sectionalAlpha(is)=lsq2(dot_product(this%sectionalQuarterChord(:,is)-  &
           this%wiP(1,is)%PC(:,1),this%sectionalChordwiseVec(:,is)),xDist,this%wiP(:,is)%alpha)
-      else  ! Use average of alpha values
-        do is=1,size(this%sectionalAlpha)
-          this%sectionalAlpha(is)=sum(this%wiP(:,is)%alpha)/rows
-        enddo
-      endif
-    end subroutine blade_calc_sectionalAlpha
+      enddo
+    else  ! Use average of alpha values
+      do is=1,size(this%sectionalAlpha)
+        this%sectionalAlpha(is)=sum(this%wiP(:,is)%alpha)/rows
+      enddo
+    endif
+  end subroutine blade_calc_sectionalAlpha
 
-    subroutine calc_sectionalQuarterChord(this)
-    class(blade_class), intent(inout) :: this
-      integer :: is, rows
+  subroutine calc_sectionalQuarterChord(this)
+  class(blade_class), intent(inout) :: this
+    integer :: is, rows
 
-      rows=size(this%wiP,1)
+    rows=size(this%wiP,1)
     do is=1,size(this%wiP,2)
       this%sectionalQuarterChord(:,is)=0.75_dp*(this%wiP(1,is)%PC(:,4)+this%wiP(1,is)%PC(:,1))*0.5_dp+  &
         0.25_dp*(this%wiP(rows,is)%PC(:,3)+this%wiP(rows,is)%PC(:,2))*0.5_dp
