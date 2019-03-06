@@ -16,4 +16,4 @@ Add provision for coning for blades
 Add provision for CL-alpha tables
 
 Comparison of centroids of vorticity for rollup model
-Check why lsq2 is shooting off
+Check lsq2 for rotor case
