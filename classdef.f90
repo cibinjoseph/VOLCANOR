@@ -567,6 +567,14 @@ contains
     do j=1,size(this%sectionalChordwiseVec,2)
       this%sectionalChordwiseVec(:,j)=matmul(TMat,this%sectionalChordwiseVec(:,j))
     enddo
+
+    ! Rotate sectional quarter chord location
+    do j=1,size(this%sectionalQuarterChord,2)
+      this%sectionalQuarterChord(:,j)=this%sectionalQuarterChord(:,j)-origin
+      this%sectionalQuarterChord(:,j)=matmul(TMat,this%sectionalQuarterChord(:,j))
+      this%sectionalQuarterChord(:,j)=this%sectionalQuarterChord(:,j)+origin
+    enddo
+
   end subroutine blade_rot_pts
 
   subroutine rot_pitch(this,theta)  !pitch about pivotLE from LE
@@ -969,7 +977,8 @@ contains
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: density
 
-    this%Force=sum(this%getSectionalDynamicPressure(density)*this%getSectionalArea()*(2._dp*pi)*this%sectionalAlpha)
+    this%Force=sum(this%getSectionalDynamicPressure(density)* &
+      this%getSectionalArea()*(2._dp*pi)*this%sectionalAlpha)
   end subroutine blade_calc_force_alpha
 
   subroutine blade_calc_sectionalAlpha(this)
@@ -978,6 +987,11 @@ contains
     real(dp), dimension(size(this%wiP,1)) :: xDist
 
     rows=size(this%wiP,1)
+
+    ! This shouldn't be necessary if sectionalQuarterChord is rotated
+    ! but removing it seems to change quarter chord location
+    call this%calc_sectionalQuarterChord()  
+
     if (rows .ge. 3) then  ! Use least squares fit to get alpha
       do is=1,size(this%sectionalAlpha)
         do ic=1,rows
@@ -986,7 +1000,14 @@ contains
         enddo
         this%sectionalAlpha(is)=lsq2(dot_product(this%sectionalQuarterChord(:,is)-  &
           this%wiP(1,is)%PC(:,1),this%sectionalChordwiseVec(:,is)),xDist,this%wiP(:,is)%alpha)
+        ! DEBUG
+        print*,dot_product(this%sectionalQuarterChord(:,1)-  & 
+          this%wiP(1,1)%PC(:,1),this%sectionalChordwiseVec(:,1))
       enddo
+      ! DEBUG
+      print*, this%wiP(:,1)%alpha*180._dp/pi
+      print*, this%sectionalAlpha(1)*180._dp/pi
+      read*
     else  ! Use average of alpha values
       do is=1,size(this%sectionalAlpha)
         this%sectionalAlpha(is)=sum(this%wiP(:,is)%alpha)/rows
