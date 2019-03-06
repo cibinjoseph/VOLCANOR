@@ -526,6 +526,11 @@ contains
     do i=1,size(this%InflowLocations,2)
       this%inflowLocations(:,i)=this%inflowLocations(:,i)+dshift
     enddo
+
+    do i=1,size(this%sectionalQuarterChord,2)
+      this%sectionalQuarterChord(:,i)=this%sectionalQuarterChord(:,i)+dshift
+    enddo
+
   end subroutine blade_move
 
   subroutine blade_rot_pts(this,pts,origin,order)
@@ -640,9 +645,16 @@ contains
         this%inflowLocations(:,i)=this%inflowLocations(:,i)+origin
       enddo
 
-      ! Rotate sectional chordwise vector also alongwith blade
+      ! Rotate sectional chordwise vector also along with blade
       do j=1,size(this%sectionalChordwiseVec,2)
         this%sectionalChordwiseVec(:,j)=matmul(TMat,this%sectionalChordwiseVec(:,j))
+      enddo
+
+      ! Rotate sectional quarter chord location also along with blade
+      do j=1,size(this%sectionalQuarterChord,2)
+        this%sectionalQuarterChord(:,j)=this%sectionalQuarterChord(:,j)-origin
+        this%sectionalQuarterChord(:,j)=matmul(TMat,this%sectionalQuarterChord(:,j))
+        this%sectionalQuarterChord(:,j)=this%sectionalQuarterChord(:,j)+origin
       enddo
 
     endif
@@ -987,11 +999,6 @@ contains
     real(dp), dimension(size(this%wiP,1)) :: xDist
 
     rows=size(this%wiP,1)
-
-    ! This shouldn't be necessary if sectionalQuarterChord is rotated
-    ! but removing it seems to change quarter chord location
-    call this%calc_sectionalQuarterChord()  
-
     if (rows .ge. 3) then  ! Use least squares fit to get alpha
       do is=1,size(this%sectionalAlpha)
         do ic=1,rows
@@ -1000,26 +1007,18 @@ contains
         enddo
         this%sectionalAlpha(is)=lsq2(dot_product(this%sectionalQuarterChord(:,is)-  &
           this%wiP(1,is)%PC(:,1),this%sectionalChordwiseVec(:,is)),xDist,this%wiP(:,is)%alpha)
-        ! DEBUG
-        print*,dot_product(this%sectionalQuarterChord(:,1)-  & 
-          this%wiP(1,1)%PC(:,1),this%sectionalChordwiseVec(:,1))
-      enddo
-      ! DEBUG
-      print*, this%wiP(:,1)%alpha*180._dp/pi
-      print*, this%sectionalAlpha(1)*180._dp/pi
-      read*
-    else  ! Use average of alpha values
-      do is=1,size(this%sectionalAlpha)
-        this%sectionalAlpha(is)=sum(this%wiP(:,is)%alpha)/rows
-      enddo
-    endif
-  end subroutine blade_calc_sectionalAlpha
+      else  ! Use average of alpha values
+        do is=1,size(this%sectionalAlpha)
+          this%sectionalAlpha(is)=sum(this%wiP(:,is)%alpha)/rows
+        enddo
+      endif
+    end subroutine blade_calc_sectionalAlpha
 
-  subroutine calc_sectionalQuarterChord(this)
-  class(blade_class), intent(inout) :: this
-    integer :: is, rows
+    subroutine calc_sectionalQuarterChord(this)
+    class(blade_class), intent(inout) :: this
+      integer :: is, rows
 
-    rows=size(this%wiP,1)
+      rows=size(this%wiP,1)
     do is=1,size(this%wiP,2)
       this%sectionalQuarterChord(:,is)=0.75_dp*(this%wiP(1,is)%PC(:,4)+this%wiP(1,is)%PC(:,1))*0.5_dp+  &
         0.25_dp*(this%wiP(rows,is)%PC(:,3)+this%wiP(rows,is)%PC(:,2))*0.5_dp
