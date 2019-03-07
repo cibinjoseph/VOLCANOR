@@ -21,7 +21,7 @@
  PLOT FORCES: [0]Off [n]th iteration      using [0]gamma  [1]alpha
   forcePlotSwitch                             forceCalcSwitch
 -----------------------------------------------------------------------
-       1                                          1
+       1                                          0
 =======================================================================
 
  WAKE DISSIPATION: [0]Off [1]On         Wake strain: [0]Off [1]On
