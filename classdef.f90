@@ -372,12 +372,17 @@ contains
 
   subroutine wingpanel_calc_alpha(this)
   class(wingpanel_class), intent(inout) :: this
-    real(dp) :: velCPTotalMagnitude
+    real(dp) :: velCPTotalChordwiseProjectedMagnitude
+    real(dp), dimension(3) :: velCPTotalChordwiseProjected
 
-    velCPTotalMagnitude=norm2(this%velCPTotal)
+    velCPTotalChordwiseProjected=this%velCPTotal- &
+      dot_product(this%velCPTotal,this%tauCapSpan)*this%tauCapSpan
 
-    if (velCPTotalMagnitude .gt. eps) then
-      this%alpha=acos(dot_product(this%velCPTotal,this%tauCapChord)/velCPTotalMagnitude)
+    velCPTotalChordwiseProjectedMagnitude=norm2(velCPTotalChordwiseProjected)
+
+    if (velCPTotalChordwiseProjectedMagnitude .gt. eps) then
+      this%alpha=acos(dot_product(velCPTotalChordwiseProjected,this%tauCapChord) &
+        /velCPTotalChordwiseProjectedMagnitude)
     else
       this%alpha=0._dp
     endif
