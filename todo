@@ -17,3 +17,4 @@ Add provision for CL-alpha tables
 
 Comparison of centroids of vorticity for rollup model
 Check thrust from alpha for rotor case
+Check convergence of thrust history with nc
