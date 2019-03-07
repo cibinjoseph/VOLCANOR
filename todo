@@ -17,3 +17,4 @@ Add provision for CL-alpha tables
 
 Comparison of centroids of vorticity for rollup model
 Check overprediction of alpha for rotor case
+- alpha same for all pitch angles even 0 deg
