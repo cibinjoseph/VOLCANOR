@@ -1004,15 +1004,19 @@ contains
     real(dp), dimension(size(this%wiP,1)) :: xDist
 
     rows=size(this%wiP,1)
-    ! DEBUG
     if (rows .ge. 3) then  ! Use least squares fit to get alpha
       do is=1,size(this%sectionalAlpha)
         do ic=1,rows
           xDist(ic)=dot_product(this%wiP(ic,is)%CP-this%wiP(1,is)%PC(:,1),  &
             this%sectionalChordwiseVec(:,is))
+          ! DEBUG
+          !print*,this%wiP(ic,1)%alpha*180._dp/pi
         enddo
         this%sectionalAlpha(is)=lsq2(dot_product(this%sectionalQuarterChord(:,is)-  &
           this%wiP(1,is)%PC(:,1),this%sectionalChordwiseVec(:,is)),xDist,this%wiP(:,is)%alpha)
+        ! DEBUG
+        !print*,this%sectionalAlpha(1)*180._dp/pi
+        !stop
       enddo
     else  ! Use average of alpha values
       do is=1,size(this%sectionalAlpha)
