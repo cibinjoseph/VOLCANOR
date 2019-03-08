@@ -6,6 +6,7 @@ Try slowstart to prevent starting vortex instability
 Get blade distributed parameters, at quarter chord maybe?
 Make lift integration higher order - unequal intervals
 Check oscillations in inflow - dependent on nInflowLocations
+Check if vortex strain is overriding vortex core changes due to dissipation
 
 - Validation
 Convergence of CT w.r.t nc, ns
