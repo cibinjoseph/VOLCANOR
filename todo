@@ -19,3 +19,4 @@ Add provision for CL-alpha tables
 Comparison of centroids of vorticity for rollup model
 Check convergence of thrust history with nc for thurst(mean alf) and thrust(lsq alf)
 Why thrust(mean alf) converges to different value than thrust(gamma) - discrepancy
+Check convergence of thrust(gamma) for multiple values of near wake panels and nc
