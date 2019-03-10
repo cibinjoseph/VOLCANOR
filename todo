@@ -21,3 +21,6 @@ Check convergence of thrust history with nc for thurst(mean alf) and thrust(lsq 
 Why thrust(mean alf) converges to different value than thrust(gamma) - discrepancy
 Check convergence of thrust(gamma) for multiple values of near wake panels and nc
 Why does roll up model cause a huge change in thrust/induced velocities?
+
+Calculate centroid of rollup release correctly by including curculation
+Assign core radius correctly for roll up
