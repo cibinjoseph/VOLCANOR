@@ -1820,7 +1820,7 @@ contains
   class(rotor_class), intent(inout) :: this
     integer :: ib,ispan,rowFarNext
     real(dp), dimension(3) :: centroidLE,centroidTE
-    real(dp) :: gamRollup, ageRollup
+    real(dp) :: gamRollup, ageRollup, radiusRollup, gamSum
 
     rowFarNext=this%rowFar-1    ! Rollup the vortex filament of 'next' row
     if (rowFarNext==-1) rowFarNext=this%nFwake
@@ -1829,13 +1829,18 @@ contains
       gamRollup=this%blade(ib)%waP(this%nNwake,this%ns)%vr%gam
       centroidLE=0._dp
       centroidTE=0._dp
+      radiusRollup=0._dp
 
       do ispan=this%rollupStart,this%rollupEnd
-        ! Find centroid LE
-        centroidLE=centroidLE+this%blade(ib)%waP(this%nNwake,ispan)%vr%vf(4)%fc(:,1)
-        ! Find centroid TE
-        centroidTE=centroidTE+this%blade(ib)%waP(this%nNwake,ispan)%vr%vf(3)%fc(:,1)
-        ! Assign gamRollup from last row to wake filament gamma
+        ! Find centroid LE and TE
+        centroidLE=centroidLE+this%blade(ib)%waP(this%nNwake,ispan)%vr%vf(4)%fc(:,1)* &
+          this%blade(ib)%waP(this%nNwake,ispan)%vr%gam
+        centroidTE=centroidTE+this%blade(ib)%waP(this%nNwake,ispan)%vr%vf(3)%fc(:,1)* &
+          this%blade(ib)%waP(this%nNwake,ispan)%vr%gam
+        gamSum=gamSum+this%blade(ib)%waP(this%nNwake,ispan)%vr%gam
+
+        ! Assign gamRollup and radiusRollup from last row to wake filament gamma
+        ! Compute gamRollup
         if (sign(1._dp,this%Omega*this%controlPitch(1)) > eps) then    ! +ve Omega or zero Omega with +ve pitch
           if (this%blade(ib)%waP(this%nNwake,ispan)%vr%gam<gamRollup) then    ! '<' because of negative gamma
             gamRollup=this%blade(ib)%waP(this%nNwake,ispan)%vr%gam
@@ -1845,17 +1850,24 @@ contains
             gamRollup=this%blade(ib)%waP(this%nNwake,ispan)%vr%gam
           endif
         endif
+
+        ! Compute radiusRollup
+        radiusRollup=radiusRollup+this%blade(ib)%waP(this%nNwake,ispan)%vr%vf(3)%rVc* &
+          this%blade(ib)%waP(this%nNwake,ispan)%vr%gam
       enddo
-      ageRollup=this%blade(ib)%waP(this%nNwake,this%ns)%vr%vf(1)%age
-      centroidLE=centroidLE/(this%rollupEnd-this%rollupStart+1)
-      centroidTE=centroidTE/(this%rollupEnd-this%rollupStart+1)
 
+      ageRollup=this%blade(ib)%waP(this%nNwake,this%ns)%vr%vf(3)%age
+      centroidLE=centroidLE/gamSum
+      centroidTE=centroidTE/gamSum
+      radiusRollup=radiusRollup/gamSum
 
-      ! Assign to far wake tip
+      ! Initialize far wake tip
       this%blade(ib)%waF(rowFarNext)%vf%fc(:,2)=centroidLE
       this%blade(ib)%waF(rowFarNext)%vf%fc(:,1)=centroidTE
       this%blade(ib)%waF(rowFarNext)%gam=gamRollup
       this%blade(ib)%waF(rowFarNext)%vf%age=ageRollup
+      this%blade(ib)%waF(rowFarNext)%vf%rVc0=radiusRollup
+      this%blade(ib)%waF(rowFarNext)%vf%rVc=radiusRollup
       call this%blade(ib)%waF(rowFarNext)%vf%calclength(.TRUE.)    ! TRUE => record original length
 
       ! Ensure continuity in far wake by assigning
