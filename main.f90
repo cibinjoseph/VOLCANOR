@@ -717,6 +717,8 @@ program main
     do ir=1,nr
       if ((rotor(ir)%rowNear .eq. 1) .and. (rotor(ir)%rowFar/=1)) then  
         ! Last step of near wake or later steps
+        ! DEBUG
+        print*, 'HERE'
         call rotor(ir)%rollup()    ! Rollup wake for next far wake panel
         call rotor(ir)%shiftwake()    ! Shift wake 
         ! Store shed vortex as TE for next near wake panel
