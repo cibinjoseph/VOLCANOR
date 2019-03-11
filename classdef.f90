@@ -1405,6 +1405,8 @@ contains
     do ib=1,this%nb
       allocate(this%blade(ib)%velNwake(3,this%nNwake,this%ns+1))
       allocate(this%blade(ib)%velFwake(3,this%nFwake))
+      this%blade(ib)%velNwake=0._dp
+      this%blade(ib)%velFwake=0._dp
 
       select case (fdSchemeSwitch)
       case (0)
@@ -1412,15 +1414,22 @@ contains
       case (1)
         allocate(this%blade(ib)%waPPredicted(this%nNwake,this%ns))
         allocate(this%blade(ib)%velNwakePredicted(3,this%nNwake,this%ns+1))
+        this%blade(ib)%velNwakePredicted=0._dp
 
         allocate(this%blade(ib)%waFPredicted(this%nFwake))
         allocate(this%blade(ib)%velFwakePredicted(3,this%nFwake))
+        this%blade(ib)%velFwakePredicted=0._dp
       case (2)
         allocate(this%blade(ib)%velNwake1(3,this%nNwake,this%ns+1))
         allocate(this%blade(ib)%velNwakeStep(3,this%nNwake,this%ns+1))
+        this%blade(ib)%velNwake1=0._dp
+        this%blade(ib)%velNwakeStep=0._dp
 
         allocate(this%blade(ib)%velFwake1(3,this%nFwake))
         allocate(this%blade(ib)%velFwakeStep(3,this%nFwake))
+        this%blade(ib)%velFwake1=0._dp
+        this%blade(ib)%velFwakeStep=0._dp
+
       case (3)
         allocate(this%blade(ib)%waPPredicted(this%nNwake,this%ns))
         allocate(this%blade(ib)%velNwake1(3,this%nNwake,this%ns+1))
@@ -1428,6 +1437,11 @@ contains
         allocate(this%blade(ib)%velNwake3(3,this%nNwake,this%ns+1))
         allocate(this%blade(ib)%velNwakePredicted(3,this%nNwake,this%ns+1))
         allocate(this%blade(ib)%velNwakeStep(3,this%nNwake,this%ns+1))
+        this%blade(ib)%velNwake1=0._dp
+        this%blade(ib)%velNwake2=0._dp
+        this%blade(ib)%velNwake3=0._dp
+        this%blade(ib)%velNwakePredicted=0._dp
+        this%blade(ib)%velNwakeStep=0._dp
 
         allocate(this%blade(ib)%waFPredicted(this%nFwake))
         allocate(this%blade(ib)%velFwake1(3,this%nFwake))
@@ -1435,6 +1449,11 @@ contains
         allocate(this%blade(ib)%velFwake3(3,this%nFwake))
         allocate(this%blade(ib)%velFwakePredicted(3,this%nFwake))
         allocate(this%blade(ib)%velFwakeStep(3,this%nFwake))
+        this%blade(ib)%velFwake1=0._dp
+        this%blade(ib)%velFwake2=0._dp
+        this%blade(ib)%velFwake3=0._dp
+        this%blade(ib)%velFwakePredicted=0._dp
+        this%blade(ib)%velFwakeStep=0._dp
       end select
     enddo
 
