@@ -23,3 +23,4 @@ Check convergence of thrust(gamma) for multiple values of near wake panels and n
 Why does roll up model cause a huge change in thrust/induced velocities?
 
 Adding dissipation during causes huge loss in thrust after rollup, why?
+Changes in shiftwake()
