@@ -269,7 +269,7 @@ program main
     ! Write out wing n' wake
     do ir=1,nr
       if (wakePlotSwitch .ne. 0) then
-        if ((mod(iter,wakePlotSwitch) .eq. 0) .and. (rotor(ir)%rowFar .ne. 0))&
+        if (mod(iter,wakePlotSwitch) .eq. 0) &
           call rotor2file(timestamp,rotor(ir))
       endif
     enddo

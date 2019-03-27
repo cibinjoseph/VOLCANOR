@@ -29,8 +29,6 @@ contains
     real(dp), dimension(3,rotor%nFwake+1) :: wakeTip   ! Optimise this by only initialising reqd size
     integer :: i,j,nx,ny,ib
 
-    if (rotor%rowFar .eq. 0) error stop "ERROR: plot only after far wake is created"
-
     open(unit=10,file='Results/Nwake'//timestamp//'.plt',position='append')
     open(unit=11,file='Results/Fwake'//timestamp//'.plt',position='append')
 
@@ -95,22 +93,38 @@ contains
 
       ! Far wake 
       nx=rotor%nFwake
-      write(nxChar,'(I5)') nx-(rotor%rowFar-1)+1
+      if (rotor%rowFar .ne. 0) then
+        write(nxChar,'(I5)') nx-(rotor%rowFar-1)+1
 
-      !Check if necessary - $omp parallel do collapse(2)
-      do i=rotor%rowFar,nx
-        wakeTip(:,i)=rotor%blade(ib)%waF(i)%vf%fc(:,2)
-      enddo
-      wakeTip(:,nx+1)=rotor%blade(ib)%waF(rotor%nFwake)%vf%fc(:,1)
-      !Check if necessary -$omp end parallel do
+        !Check if necessary - $omp parallel do collapse(2)
+        do i=rotor%rowFar,nx
+          wakeTip(:,i)=rotor%blade(ib)%waF(i)%vf%fc(:,2)
+        enddo
+        wakeTip(:,nx+1)=rotor%blade(ib)%waF(rotor%nFwake)%vf%fc(:,1)
+        !Check if necessary -$omp end parallel do
 
-      write(11,*) 'Title = "Far wake"'
-      write(11,*) 'VARIABLES = "X" "Y" "Z"'
-      write(11,*) 'Zone I='//trim(nxChar)//' J=1   K=1   T="FarWake"'
-      write(11,*) 'DATAPACKING=BLOCK'
-      write(11,*) (wakeTip(1,i),i=rotor%rowFar,nx+1)
-      write(11,*) (wakeTip(2,i),i=rotor%rowFar,nx+1)
-      write(11,*) (wakeTip(3,i),i=rotor%rowFar,nx+1)
+        write(11,*) 'Title = "Far wake"'
+        write(11,*) 'VARIABLES = "X" "Y" "Z"'
+        write(11,*) 'Zone I='//trim(nxChar)//' J=1   K=1   T="FarWake"'
+        write(11,*) 'DATAPACKING=BLOCK'
+        write(11,*) (wakeTip(1,i),i=rotor%rowFar,nx+1)
+        write(11,*) (wakeTip(2,i),i=rotor%rowFar,nx+1)
+        write(11,*) (wakeTip(3,i),i=rotor%rowFar,nx+1)
+
+      else  ! No far wake present
+
+        write(nxChar,'(I5)') 2  ! Plot mesh as single redundant point
+        wakeTip(:,1) = rotor%blade(ib)%waP(rotor%nNwake,rotor%ns)%vr%vf(3)%fc(:,1)
+
+        write(11,*) 'Title = "Far wake"'
+        write(11,*) 'VARIABLES = "X" "Y" "Z"'
+        write(11,*) 'Zone I='//trim(nxChar)//' J=1   K=1   T="FarWake"'
+        write(11,*) 'DATAPACKING=BLOCK'
+        write(11,*) wakeTip(1,1),wakeTip(1,1)
+        write(11,*) wakeTip(2,1),wakeTip(2,1)
+        write(11,*) wakeTip(3,1),wakeTip(3,1)
+
+      endif
 
     enddo
 
