@@ -20,7 +20,7 @@ program main
   call skiplines(11,4)
   read(11,*) forcePlotSwitch, forceCalcSwitch
   call skiplines(11,5)
-  read(11,*) wakeDissipationSwitch, wakeStrainSwitch
+  read(11,*) wakeDissipationSwitch, wakeStrainSwitch, wakeBurstSwitch
   call skiplines(11,4)
   read(11,*) slowStartSwitch, slowStartNt
   call skiplines(11,4)
@@ -265,6 +265,13 @@ program main
         call rotor(ir)%dissipate_wake(turbulentViscosity)
       enddo
     endif
+
+    do ir=1,nr
+      if (wakeBurstSwitch .ne. 0) then
+        if (mod(iter,wakeBurstSwitch) .eq. 0) &
+          call rotor(ir)%burst_wake(0.90_dp)
+      endif
+    enddo
 
     ! Write out wing n' wake
     do ir=1,nr

@@ -97,6 +97,7 @@ module vr_classdef
     procedure :: calclength => vrclass_calclength
     procedure :: strain => vrclass_strain
     procedure :: getInteriorAngles
+    procedure :: burst
   end type vr_class
 
 contains
@@ -212,7 +213,6 @@ contains
   class(vr_class) :: this
     real(dp), dimension(4) :: getInteriorAngles
     real(dp), dimension(3) :: p1, p2, p3, p4
-    integer :: i
 
     p1 = this%vf(1)%fc(:,1)
     p2 = this%vf(2)%fc(:,1)
@@ -223,11 +223,24 @@ contains
     getInteriorAngles(1) = getAngleCos(p2-p1,p4-p1)
     getInteriorAngles(2) = getAngleCos(p3-p2,p1-p2)
     getInteriorAngles(3) = getAngleCos(p4-p3,p2-p3)
-    !getInteriorAngles(4) = getAngleCos(p3-p4,p1-p4)
-    getInteriorAngles(4) = 2._dp*pi-sum(getInteriorAngles)
+    getInteriorAngles(4) = getAngleCos(p3-p4,p1-p4)
+    !getInteriorAngles(4) = 2._dp*pi-sum(getInteriorAngles)
 
   end function getInteriorAngles
 
+  subroutine burst(this,skewLimit)
+  class(vr_class) :: this
+    real(dp), intent(in) :: skewLimit
+    real(dp), dimension(4) :: interiorAngle, skew
+
+    if (this%gam > eps) then
+      interiorAngle = this%getInteriorAngles()
+      skew = abs(interiorAngle-0.5_dp*pi)/(0.5_dp*pi)
+
+      if (maxval(skew) .ge. skewLimit) this%gam = 0._dp
+    endif
+
+  end subroutine burst
 end module vr_classdef
 
 
@@ -535,6 +548,7 @@ module blade_classdef
     procedure :: calc_force_gamma => blade_calc_force_gamma
     procedure :: calc_force_alpha => blade_calc_force_alpha
     procedure :: calc_sectionalAlpha => blade_calc_sectionalAlpha
+    procedure :: burst_wake => blade_burst_wake
   end type blade_class
 contains
 
@@ -1057,6 +1071,18 @@ contains
     enddo
   end subroutine calc_sectionalQuarterChord
 
+  subroutine blade_burst_wake(this,rowNear,skewLimit)
+  class(blade_class), intent(inout) :: this
+    real(dp), intent(in) :: skewLimit
+    integer, intent(in) :: rowNear
+    integer :: irow, icol
+
+    do icol=1,size(this%waP,2)
+      do irow=rowNear,size(this%waP,1)
+        call this%waP(irow,icol)%vr%burst(skewLimit)
+      enddo
+    enddo
+  end subroutine blade_burst_wake
 end module blade_classdef
 
 
@@ -1119,6 +1145,7 @@ module rotor_classdef
     procedure :: calc_force_gamma => rotor_calc_force_gamma
     procedure :: calc_force_alpha => rotor_calc_force_alpha
     procedure :: calc_sectionalAlpha => rotor_calc_sectionalAlpha
+    procedure :: burst_wake => rotor_burst_wake
   end type rotor_class
 
 contains
@@ -1980,4 +2007,13 @@ contains
     enddo
   end subroutine rotor_calc_sectionalAlpha
 
+  subroutine rotor_burst_wake(this,skewLimit)
+  class(rotor_class), intent(inout) :: this
+    real(dp), intent(in) :: skewLimit
+    integer :: ib
+
+    do ib=1,this%nb
+      call this%blade(ib)%burst_wake(this%rowNear,skewLimit)
+    enddo
+  end subroutine rotor_burst_wake
 end module rotor_classdef
