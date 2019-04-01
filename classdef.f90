@@ -96,6 +96,7 @@ module vr_classdef
     procedure :: rot  => vrclass_rot
     procedure :: calclength => vrclass_calclength
     procedure :: strain => vrclass_strain
+    procedure :: getInteriorAngles
   end type vr_class
 
 contains
@@ -206,6 +207,26 @@ contains
       call this%vf(i)%strain()
     enddo
   end subroutine vrclass_strain
+
+  function getInteriorAngles(this)
+  class(vr_class) :: this
+    real(dp), dimension(4) :: getInteriorAngles
+    real(dp), dimension(3) :: p1, p2, p3, p4
+    integer :: i
+
+    p1 = this%vf(1)%fc(:,1)
+    p2 = this%vf(2)%fc(:,1)
+    p3 = this%vf(3)%fc(:,1)
+    p4 = this%vf(4)%fc(:,1)
+
+    getInteriorAngles = 0._dp
+    getInteriorAngles(1) = getAngleCos(p2-p1,p4-p1)
+    getInteriorAngles(2) = getAngleCos(p3-p2,p1-p2)
+    getInteriorAngles(3) = getAngleCos(p4-p3,p2-p3)
+    !getInteriorAngles(4) = getAngleCos(p3-p4,p1-p4)
+    getInteriorAngles(4) = 2._dp*pi-sum(getInteriorAngles)
+
+  end function getInteriorAngles
 
 end module vr_classdef
 
