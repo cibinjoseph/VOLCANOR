@@ -116,14 +116,14 @@ contains
   ! -------------------------------------------------
   function getAngleTan(a,b)
     real(dp), intent(in), dimension(3) :: a, b
-    real(dp) :: getAngle
-    real(dp) :: mag2A, mag2B
+    real(dp) :: getAngleTan
+    real(dp) :: mag2A, mag2B, dotAB
 
     ! Result will be -pi to pi
     mag2A = a(1)*a(1)+a(2)*a(2)+a(3)*a(3)
     mag2B = b(1)*b(1)+b(2)*b(2)+b(3)*b(3)
     dotAB = dot_product(a,b)
-    getAngle = atan2(sqrt(mag2A*mag2B-dotAB*dotAB),dotAB)
+    getAngleTan = atan2(sqrt(mag2A*mag2B-dotAB*dotAB),dotAB)
   end function getAngleTan
 
   ! -------------------------------------------------
@@ -131,13 +131,13 @@ contains
   ! -------------------------------------------------
   function getAngleCos(a,b)
     real(dp), intent(in), dimension(3) :: a, b
-    real(dp) :: getAngle
+    real(dp) :: getAngleCos
     real(dp) :: mag2A, mag2B
 
     ! Assumes no angle > 180 deg exists
     mag2A = a(1)*a(1)+a(2)*a(2)+a(3)*a(3)
     mag2B = b(1)*b(1)+b(2)*b(2)+b(3)*b(3)
-    getAngle = acos(dot_product(a,b)/(sqrt(mag2A*mag2B)))
+    getAngleCos = acos(dot_product(a,b)/(sqrt(mag2A*mag2B)))
   end function getAngleCos
 
   ! -------------------------------------------------
