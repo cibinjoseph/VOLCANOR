@@ -10,7 +10,7 @@
 
    DENSITY [kg/m3]      TURB. VISCOSITY
 -----------------------------------------------------------------------
-      1.2                     1000.0
+      1.2                     100.0
 =======================================================================
 
  PLOT WAKE: [0]Off [n]Every nth iteration
@@ -24,10 +24,10 @@
        1                                          0
 =======================================================================
 
- WAKE DISSIPATION: [0]Off [1]On         Wake strain: [0]Off [1]On
- wakeDissipationSwitch                         wakeStrainSwitch
+ WAKE DISSIPATION: [0]Off [1]On  Wake strain: [0]Off [1]On  Wake burst
+ wakeDissipationSwitch            wakeStrainSwitch   wakeBurstSwitch
 -----------------------------------------------------------------------
-       1                                            0
+       1                                0                  1
 
  SLOW START TO AVOID LARGE STARTING VORTEX: [0]Off [1]linear [2]tanh [3]extended tanh
   slowStartSwitch       slowStartNt
