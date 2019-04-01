@@ -269,7 +269,7 @@ program main
     do ir=1,nr
       if (wakeBurstSwitch .ne. 0) then
         if (mod(iter,wakeBurstSwitch) .eq. 0) &
-          call rotor(ir)%burst_wake(0.90_dp)
+          call rotor(ir)%burst_wake(0.60_dp)
       endif
     enddo
 
