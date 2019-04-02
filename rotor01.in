@@ -4,7 +4,7 @@
 
 Spanwise panels,ns     Chordwise panels,nc   Near wake panels,nNwake
 ---------------------------------------------------------------
-       13                      1                   200
+       13                      1                   108
 ===============================================================
 
 X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
@@ -36,7 +36,7 @@ Radius[m]        root_cut[r/R]       chord[m]
 
 u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]    
 ----------------------------------------------------------------
-  0.0         0.0        0.0       0.0        0.0         0.0
+  0.0         0.0        2.0       0.0        0.0         0.0
 ===============================================================
 
 pivot point from LE[x/chord]    flapHinge from centre[r/R]
@@ -58,9 +58,9 @@ Spanwise start[r/R]  &  end[r/R] for centroid of tip vorticity
 ----------------------------------------------------------------
            0.75             1.0 
 
-initWakeVel[m/s]     psiStart[deg]
+initWakeVel[m/s]     psiStart[deg]      skewLimit
 ----------------------------------------------------------------
-     0.0                   0.0
+     0.0                   0.0            0.0
 ===============================================================
 
  PLOTS OF SPANWISE DISTRIBUTIONS: 
