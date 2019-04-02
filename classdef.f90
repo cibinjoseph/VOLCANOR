@@ -233,7 +233,7 @@ contains
     real(dp), intent(in) :: skewLimit
     real(dp), dimension(4) :: interiorAngle, skew
 
-    if (this%gam > eps) then
+    if (abs(this%gam) > eps) then
       interiorAngle = this%getInteriorAngles()
       skew = abs(interiorAngle-0.5_dp*pi)/(0.5_dp*pi)
 
@@ -1897,6 +1897,7 @@ contains
       centroidLE=0._dp
       centroidTE=0._dp
       radiusRollup=0._dp
+      gamSum=0._dp
 
       do ispan=this%rollupStart,this%rollupEnd
         ! Find centroid LE and TE
@@ -2011,7 +2012,6 @@ contains
   class(rotor_class), intent(inout) :: this
     real(dp), intent(in) :: skewLimit
     integer :: ib
-
     do ib=1,this%nb
       call this%blade(ib)%burst_wake(this%rowNear,skewLimit)
     enddo
