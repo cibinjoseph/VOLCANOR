@@ -47,7 +47,9 @@ contains
     vind=0.
 
     ! Ideal vortex model (Common part)
-    if (abs(sum(r1Xr2))>eps) then
+    !if (abs(sum(r1Xr2))>eps) then
+    ! DEBUG
+    if (norm2(r1Xr2) > eps) then
       inv_r1Xr2Abs2=1._dp/(r1Xr2(1)**2._dp+r1Xr2(2)**2._dp+r1Xr2(3)**2._dp)
       vind=r1Xr2*inv4pi*inv_r1Xr2Abs2*dot_product(r0,r1/r1Abs-r2/r2Abs)
 
@@ -1114,7 +1116,7 @@ module rotor_classdef
     real(dp), allocatable, dimension(:) :: streamwiseCoreVec
     real(dp), allocatable, dimension(:,:) :: AIC,AIC_inv  ! Influence coefficient matrix
     real(dp), allocatable, dimension(:) :: gamVec,RHS
-    real(dp) :: initWakeVel, psiStart
+    real(dp) :: initWakeVel, psiStart, skewLimit
     integer :: rollupStart, rollupEnd
     integer :: inflowPlotSwitch, nInflowLocations
     integer :: gammaPlotSwitch, alphaPlotSwitch
@@ -1201,7 +1203,7 @@ contains
     call skiplines(12,4)
     read(12,*) rollupStartRadius, rollupEndRadius
     call skiplines(12,3)
-    read(12,*) this%initWakeVel, this%psiStart
+    read(12,*) this%initWakeVel, this%psiStart, this%skewLimit
     call skiplines(12,7)
     read(12,*) this%inflowPlotSwitch, this%nInflowLocations
     call skiplines(12,3)
@@ -1925,9 +1927,15 @@ contains
       enddo
 
       ageRollup=this%blade(ib)%waP(this%nNwake,this%ns)%vr%vf(3)%age
-      centroidLE=centroidLE/gamSum
-      centroidTE=centroidTE/gamSum
-      radiusRollup=radiusRollup/gamSum
+      if (abs(gamSum) > eps) then
+        centroidLE=centroidLE/gamSum
+        centroidTE=centroidTE/gamSum
+        radiusRollup=radiusRollup/gamSum
+      else
+        centroidLE=this%blade(ib)%waP(this%nNwake,this%rollupEnd)%vr%vf(2)%fc(:,1)
+        centroidTE=this%blade(ib)%waP(this%nNwake,this%rollupEnd)%vr%vf(3)%fc(:,1)
+        radiusRollup=this%blade(ib)%waP(this%nNwake,this%rollupEnd)%vr%vf(3)%rVc
+      endif
 
       ! Initialize far wake tip
       this%blade(ib)%waF(rowFarNext)%vf%fc(:,2)=centroidLE
@@ -2008,12 +2016,11 @@ contains
     enddo
   end subroutine rotor_calc_sectionalAlpha
 
-  subroutine rotor_burst_wake(this,skewLimit)
+  subroutine rotor_burst_wake(this)
   class(rotor_class), intent(inout) :: this
-    real(dp), intent(in) :: skewLimit
     integer :: ib
     do ib=1,this%nb
-      call this%blade(ib)%burst_wake(this%rowNear,skewLimit)
+      call this%blade(ib)%burst_wake(this%rowNear,this%skewLimit)
     enddo
   end subroutine rotor_burst_wake
 end module rotor_classdef
