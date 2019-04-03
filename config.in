@@ -1,6 +1,6 @@
  NO. OF TIMESTEPS [nt]    TIMESTEP (sec) [dt]    NO. OF ROTORS [nr]
 -----------------------------------------------------------------------
-      1440                       0.00277                  1
+      5760                       0.00069                  1
 
  SPAN DISCRETIZATION : [1]linear [2]cosine [3]halfsine
  spanSpacingSwitch
@@ -10,7 +10,7 @@
 
    DENSITY [kg/m3]      TURB. VISCOSITY
 -----------------------------------------------------------------------
-      1.2                     100.0
+      1.2                     500.0
 =======================================================================
 
  PLOT WAKE: [0]Off [n]Every nth iteration
