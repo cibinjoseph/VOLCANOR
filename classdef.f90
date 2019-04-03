@@ -753,7 +753,8 @@ contains
     if (.not. present(optionalChar)) then
       do j=1,size(this%waP,2)
         do i=rowNear,nNwake
-          blade_vind_bywake=blade_vind_bywake+this%waP(i,j)%vr%vind(P)*this%waP(i,j)%vr%gam
+          if (this%waP(i,j)%vr%gam .gt. eps ) &
+            blade_vind_bywake=blade_vind_bywake+this%waP(i,j)%vr%vind(P)*this%waP(i,j)%vr%gam
         enddo
       enddo
 
@@ -764,13 +765,15 @@ contains
         enddo
 
         do i=rowFar,size(this%waF,1)
-          blade_vind_bywake=blade_vind_bywake+this%waF(i)%vf%vind(P)*this%waF(i)%gam
+          if (this%waF(i)%gam .gt. eps ) &
+            blade_vind_bywake=blade_vind_bywake+this%waF(i)%vf%vind(P)*this%waF(i)%gam
         enddo
       endif
     elseif ((optionalChar .eq. 'P') .or. (optionalChar .eq. 'p')) then
       do j=1,size(this%waP,2)
         do i=rowNear,nNwake
-          blade_vind_bywake=blade_vind_bywake+this%waPPredicted(i,j)%vr%vind(P)*this%waPPredicted(i,j)%vr%gam
+          if (this%waPPredicted(i,j)%vr%gam .gt. eps ) &
+            blade_vind_bywake=blade_vind_bywake+this%waPPredicted(i,j)%vr%vind(P)*this%waPPredicted(i,j)%vr%gam
         enddo
       enddo
 
@@ -781,7 +784,8 @@ contains
         enddo
 
         do i=rowFar,size(this%waF,1)
-          blade_vind_bywake=blade_vind_bywake+this%waFPredicted(i)%vf%vind(P)*this%waFPredicted(i)%gam
+          if (this%waFPredicted(i)%gam .gt. eps ) &
+            blade_vind_bywake=blade_vind_bywake+this%waFPredicted(i)%vf%vind(P)*this%waFPredicted(i)%gam
         enddo
       endif
     else
