@@ -3,6 +3,7 @@ program gridgen
 
   integer :: nx,ny,nz
   real(dp), dimension(3) :: cMin, cMax    ! Coordinates of corners
+  real(dp), dimension(3) :: vel           ! x,y,z velocities
   integer :: fileRange, fileRangeStart, fileRangeStep, fileRangeEnd
 
   integer :: ix,iy,iz,ifil
@@ -25,6 +26,8 @@ program gridgen
   read(11,*) cMin(1),cMin(2),cMin(3)
   call skiplines(11,3)
   read(11,*) cMax(1),cMax(2),cMax(3)
+  call skiplines(11,4)
+  read(11,*) vel(1),vel(2),vel(3)
   call skiplines(11,5)
   read(11,*) fileRangeStart, fileRangeStep, fileRangeEnd
   close(11)
@@ -110,13 +113,18 @@ program gridgen
           enddo
           ! from Fwake
           do ifil=1,nVfFwake
-            velCentre(:,ix,iy,iz)=velCentre(:,ix,iy,iz)+vfFwake(ifil)%vind(gridCentre(:,ix,iy,iz))*gamFwake(ifil)
+            velCentre(:,ix,iy,iz)=velCentre(:,ix,iy,iz)+vfFwake(ifil)%vind(gridCentre(:,ix,iy,iz))*gamFwake(ifil)*1.5_dp
           enddo
         enddo
       enddo
     enddo
     !$omp end parallel do
     call print_status()
+
+    ! Add freestream velocities
+    velCentre(1,:,:,:)=velCentre(1,:,:,:)+vel(1)
+    velCentre(2,:,:,:)=velCentre(2,:,:,:)+vel(2)
+    velCentre(3,:,:,:)=velCentre(3,:,:,:)+vel(3)
 
     ! Write to file
     call print_status('Writing file '//'grid'//timestamp//'.plt')
