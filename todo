@@ -24,4 +24,4 @@ Check convergence of thrust(gamma) for multiple values of near wake panels and n
 Check slow change from climb to hover stabilises wake
 Wake smoothening using skew
 Wake dissipation on skew
-
+Make turbulence disspation rotor dependent
