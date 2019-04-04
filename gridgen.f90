@@ -113,7 +113,7 @@ program gridgen
           enddo
           ! from Fwake
           do ifil=1,nVfFwake
-            velCentre(:,ix,iy,iz)=velCentre(:,ix,iy,iz)+vfFwake(ifil)%vind(gridCentre(:,ix,iy,iz))*gamFwake(ifil)*1.5_dp
+            velCentre(:,ix,iy,iz)=velCentre(:,ix,iy,iz)+vfFwake(ifil)%vind(gridCentre(:,ix,iy,iz))*gamFwake(ifil)
           enddo
         enddo
       enddo
