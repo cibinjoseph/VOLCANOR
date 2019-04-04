@@ -91,6 +91,7 @@ module vr_classdef
     type(vf_class), dimension(4) :: vf
     real(dp) :: gam
     real(dp) :: gamPrev
+    real(dp) :: skew
   contains
     procedure :: vind => vrclass_vind
     procedure :: assignP => vrclass_assignP
@@ -99,6 +100,7 @@ module vr_classdef
     procedure :: calclength => vrclass_calclength
     procedure :: strain => vrclass_strain
     procedure :: getInteriorAngles
+    procedure :: getMedianAngle
     procedure :: burst
   end type vr_class
 
@@ -226,23 +228,50 @@ contains
     getInteriorAngles(2) = getAngleCos(p3-p2,p1-p2)
     getInteriorAngles(3) = getAngleCos(p4-p3,p2-p3)
     getInteriorAngles(4) = getAngleCos(p3-p4,p1-p4)
-    !getInteriorAngles(4) = 2._dp*pi-sum(getInteriorAngles)
-
   end function getInteriorAngles
+
+  function getMedianAngle(this)
+  class(vr_class) :: this
+    real(dp) :: getMedianAngle
+    real(dp), dimension(3) :: p1, p2, p3, p4
+
+    p1 = this%vf(1)%fc(:,1)
+    p2 = this%vf(2)%fc(:,1)
+    p3 = this%vf(3)%fc(:,1)
+    p4 = this%vf(4)%fc(:,1)
+
+    getMedianAngle = getAngleCos(p3+p4-p1-p2,p4+p1-p2-p3)
+  end function getMedianAngle
 
   subroutine burst(this,skewLimit)
   class(vr_class) :: this
     real(dp), intent(in) :: skewLimit
-    real(dp), dimension(4) :: interiorAngle, skew
+    real(dp) :: medianAngle, skewVal
 
     if (abs(this%gam) > eps) then
-      interiorAngle = this%getInteriorAngles()
-      skew = abs(interiorAngle-0.5_dp*pi)/(0.5_dp*pi)
+      medianAngle = this%getMedianAngle()
+      skewVal = abs(medianAngle-0.5_dp*pi)/(0.5_dp*pi)
 
-      if (maxval(skew) .ge. skewLimit) this%gam = 0._dp
+      ! DEBUG
+      !if (skew .ge. skewLimit) this%gam = 0._dp
     endif
+    this%skew = skewVal
 
   end subroutine burst
+
+  !subroutine burst(this,skewLimit)
+  !class(vr_class) :: this
+  !  real(dp), intent(in) :: skewLimit
+  !  real(dp), dimension(4) :: interiorAngle, skew
+
+  !  if (abs(this%gam) > eps) then
+  !    interiorAngle = this%getInteriorAngles()
+  !    skew = abs(interiorAngle-0.5_dp*pi)/(0.5_dp*pi)
+
+  !    if (maxval(skew) .ge. skewLimit) this%gam = 0._dp
+  !  endif
+
+  !end subroutine burst
 end module vr_classdef
 
 
@@ -1371,6 +1400,7 @@ contains
 
       ! Initialize gamma
       this%blade(ib)%wiP%vr%gam=0._dp
+      this%blade(ib)%wiP%vr%skew=0._dp
       this%blade(ib)%pivotLE=this%pivotLE
 
       ! Initialize wake age

@@ -33,7 +33,7 @@ contains
     open(unit=11,file='Results/Fwake'//timestamp//'.plt',position='append')
 
     write(10,*) 'Title = "Wing and Near wake"'
-    write(10,*) 'VARIABLES = "X" "Y" "Z" "GAM"'
+    write(10,*) 'VARIABLES = "X" "Y" "Z" "GAM" "SKEW"'
 
     do ib=1,rotor%nb
       nx=rotor%nc
@@ -56,11 +56,12 @@ contains
 
       write(10,*) 'Zone I='//trim(nxChar)//' J='//trim(nyChar)//' K=1  T="Blade"'
       write(10,*) 'DATAPACKING=BLOCK'
-      write(10,*) 'VARLOCATION=([4]=CELLCENTERED)'!,[5]=CELLCENTERED)'
+      write(10,*) 'VARLOCATION=([4]=CELLCENTERED,[5]=CELLCENTERED)'
       write(10,*) ((wingMesh(1,i,j),i=1,nx+1),j=1,ny+1)
       write(10,*) ((wingMesh(2,i,j),i=1,nx+1),j=1,ny+1)
       write(10,*) ((wingMesh(3,i,j),i=1,nx+1),j=1,ny+1)
       write(10,*) ((-1._dp*rotor%blade(ib)%wiP(i,j)%vr%gam,i=1,nx),j=1,ny)
+      write(10,*) ((rotor%blade(ib)%wiP(i,j)%vr%skew,i=1,nx),j=1,ny)
 
       ! Near wake 
       nx=rotor%nNwake
@@ -85,11 +86,12 @@ contains
 
       write(10,*) 'Zone I='//trim(nxChar)//' J='//trim(nyChar)//' K=1  T="NearWake"'
       write(10,*) 'DATAPACKING=BLOCK'
-      write(10,*) 'VARLOCATION=([4]=CELLCENTERED)'!,[5]=CELLCENTERED)'
+      write(10,*) 'VARLOCATION=([4]=CELLCENTERED,[5]=CELLCENTERED)'
       write(10,*) ((wakeMesh(1,i,j),i=rotor%rowNear,nx+1),j=1,ny+1)
       write(10,*) ((wakeMesh(2,i,j),i=rotor%rowNear,nx+1),j=1,ny+1)
       write(10,*) ((wakeMesh(3,i,j),i=rotor%rowNear,nx+1),j=1,ny+1)
       write(10,*) ((-1._dp*rotor%blade(ib)%waP(i,j)%vr%gam,i=rotor%rowNear,nx),j=1,ny)
+      write(10,*) ((rotor%blade(ib)%waP(i,j)%vr%skew,i=rotor%rowNear,nx),j=1,ny)
 
       ! Far wake 
       nx=rotor%nFwake
