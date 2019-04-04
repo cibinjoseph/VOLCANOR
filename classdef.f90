@@ -1782,7 +1782,7 @@ contains
   class(rotor_class), intent(inout) :: this
     real(dp), intent(in) :: turbulentViscosity
     real(dp) :: oseenParameter, kinematicViscosity
-    integer :: ib,ic,is,ifil
+    integer :: ib,ic,is
     oseenParameter = 1.2564_dp
     kinematicViscosity = 0.0000181_dp
 
@@ -1790,11 +1790,20 @@ contains
     do ib=1,this%nb
       do is=1,this%ns
         do ic=this%rowNear,this%nNwake
-          do ifil=1,4
-            this%blade(ib)%waP(ic,is)%vr%vf(ifil)%rVc=sqrt(this%blade(ib)%waP(ic,is)%vr%vf(ifil)%rVc0**2._dp &
-              +4._dp*oseenParameter*turbulentViscosity*kinematicViscosity*this%blade(ib)%waP(ic,is)%vr%vf(ifil)%age)
-          enddo
+          this%blade(ib)%waP(ic,is)%vr%vf(1)%rVc=sqrt(this%blade(ib)%waP(ic,is)%vr%vf(1)%rVc0**2._dp &
+            +4._dp*oseenParameter*turbulentViscosity*kinematicViscosity*this%blade(ib)%waP(ic,is)%vr%vf(1)%age)
+          this%blade(ib)%waP(ic,is)%vr%vf(3)%rVc=this%blade(ib)%waP(ic,is)%vr%vf(1)%rVc
         enddo
+        ! To maintain consistency of rVc in overlapping filaments
+        do ic=this%rowNear,this%nNwake
+          this%blade(ib)%waP(ic,is)%vr%vf(2)%rVc=sqrt(this%blade(ib)%waP(ic,is)%vr%vf(2)%rVc0**2._dp &
+            +4._dp*oseenParameter*turbulentViscosity*kinematicViscosity*this%blade(ib)%waP(ic,is)%vr%vf(2)%age)
+        enddo
+        if (this%rowNear .ne. this%nNwake) then
+          do ic=this%rowNear+1,this%nNwake
+            this%blade(ib)%waP(ic,is)%vr%vf(4)%rVc=this%blade(ib)%waP(ic-1,is)%vr%vf(2)%rVc
+          enddo
+        endif
       enddo
 
       ! Dissipate far wake if present
