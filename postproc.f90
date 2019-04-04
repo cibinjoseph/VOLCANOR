@@ -104,12 +104,16 @@ contains
         !Check if necessary -$omp end parallel do
 
         write(11,*) 'Title = "Far wake"'
-        write(11,*) 'VARIABLES = "X" "Y" "Z"'
+        write(11,*) 'VARIABLES = "X" "Y" "Z" "GAM" "rVc" "age"'
         write(11,*) 'Zone I='//trim(nxChar)//' J=1   K=1   T="FarWake"'
         write(11,*) 'DATAPACKING=BLOCK'
+        write(11,*) 'VARLOCATION=([4]=CELLCENTERED,[5]=CELLCENTERED,[6]=CELLCENTERED)'
         write(11,*) (wakeTip(1,i),i=rotor%rowFar,nx+1)
         write(11,*) (wakeTip(2,i),i=rotor%rowFar,nx+1)
         write(11,*) (wakeTip(3,i),i=rotor%rowFar,nx+1)
+        write(11,*) (-1._dp*rotor%blade(ib)%waF(i)%gam,i=rotor%rowFar,nx)
+        write(11,*) (rotor%blade(ib)%waF(i)%vf%rVc,i=rotor%rowFar,nx)
+        write(11,*) (rotor%blade(ib)%waF(i)%vf%age,i=rotor%rowFar,nx)
 
       else  ! No far wake present
 
@@ -117,12 +121,16 @@ contains
         wakeTip(:,1) = rotor%blade(ib)%waP(rotor%nNwake,rotor%ns)%vr%vf(3)%fc(:,1)
 
         write(11,*) 'Title = "Far wake"'
-        write(11,*) 'VARIABLES = "X" "Y" "Z"'
+        write(11,*) 'VARIABLES = "X" "Y" "Z" "GAM" "rVc" "age"'
         write(11,*) 'Zone I='//trim(nxChar)//' J=1   K=1   T="FarWake"'
         write(11,*) 'DATAPACKING=BLOCK'
+        write(11,*) 'VARLOCATION=([4]=CELLCENTERED,[5]=CELLCENTERED,[6]=CELLCENTERED)'
         write(11,*) wakeTip(1,1),wakeTip(1,1)
         write(11,*) wakeTip(2,1),wakeTip(2,1)
         write(11,*) wakeTip(3,1),wakeTip(3,1)
+        write(11,*) 0._dp
+        write(11,*) 0._dp
+        write(11,*) 0._dp
 
       endif
 
