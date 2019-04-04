@@ -21,6 +21,8 @@ Check convergence of thrust history with nc for thurst(mean alf) and thrust(lsq 
 Why thrust(mean alf) converges to different value than thrust(gamma) - discrepancy
 Check convergence of thrust(gamma) for multiple values of near wake panels and nc
 
+Check if interior angles are computed properly
+
 Check slow change from climb to hover stabilises wake
 Wake smoothening using skew
 Wake dissipation on skew
