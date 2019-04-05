@@ -264,13 +264,12 @@ contains
   subroutine burst(this,skewLimit)
   class(vr_class) :: this
     real(dp), intent(in) :: skewLimit
-    real(dp) :: medianAngle, skewVal
+    real(dp) :: skewVal
 
     if (abs(this%gam) > eps) then
       ! skew:  0-good, 1-bad
       skewVal = this%getMedianCos()
-      ! DEBUG
-      !if (skew .ge. skewLimit) this%gam = 0._dp
+      if (skewVal .ge. skewLimit) this%gam = 0._dp
     endif
     this%skew = skewVal
 
@@ -1825,26 +1824,29 @@ contains
     enddo
   end subroutine age_wake
 
-  subroutine dissipate_wake(this,turbulentViscosity)
+  subroutine dissipate_wake(this,turbulentViscosity,dt)
   class(rotor_class), intent(inout) :: this
-    real(dp), intent(in) :: turbulentViscosity
+    real(dp), intent(in) :: turbulentViscosity, dt
     real(dp) :: oseenParameter, kinematicViscosity
     integer :: ib,ic,is
     oseenParameter = 1.2564_dp
     kinematicViscosity = 0.0000181_dp
 
+    ! Update wake age
+    call this%age_wake(dt)
+
     ! Dissipate near wake
     do ib=1,this%nb
       do is=1,this%ns
         do ic=this%rowNear,this%nNwake
-          this%blade(ib)%waP(ic,is)%vr%vf(1)%rVc=sqrt(this%blade(ib)%waP(ic,is)%vr%vf(1)%rVc0**2._dp &
-            +4._dp*oseenParameter*turbulentViscosity*kinematicViscosity*this%blade(ib)%waP(ic,is)%vr%vf(1)%age)
+          this%blade(ib)%waP(ic,is)%vr%vf(1)%rVc=sqrt(this%blade(ib)%waP(ic,is)%vr%vf(1)%rVc**2._dp &
+            +4._dp*oseenParameter*turbulentViscosity*kinematicViscosity*dt)
           this%blade(ib)%waP(ic,is)%vr%vf(3)%rVc=this%blade(ib)%waP(ic,is)%vr%vf(1)%rVc
         enddo
         ! To maintain consistency of rVc in overlapping filaments
         do ic=this%rowNear,this%nNwake
-          this%blade(ib)%waP(ic,is)%vr%vf(2)%rVc=sqrt(this%blade(ib)%waP(ic,is)%vr%vf(2)%rVc0**2._dp &
-            +4._dp*oseenParameter*turbulentViscosity*kinematicViscosity*this%blade(ib)%waP(ic,is)%vr%vf(2)%age)
+          this%blade(ib)%waP(ic,is)%vr%vf(2)%rVc=sqrt(this%blade(ib)%waP(ic,is)%vr%vf(2)%rVc**2._dp &
+            +4._dp*oseenParameter*turbulentViscosity*kinematicViscosity*dt)
         enddo
         if (this%rowNear .ne. this%nNwake) then
           do ic=this%rowNear+1,this%nNwake
@@ -1856,8 +1858,8 @@ contains
       ! Dissipate far wake if present
       if (this%rowFar .ne. 0) then
         do ic=this%rowFar,this%nFwake
-          this%blade(ib)%waF(ic)%vf%rVc=sqrt(this%blade(ib)%waF(ic)%vf%rVc0**2._dp &
-            +4._dp*oseenParameter*turbulentViscosity*kinematicViscosity*this%blade(ib)%waF(ic)%vf%age)
+          this%blade(ib)%waF(ic)%vf%rVc=sqrt(this%blade(ib)%waF(ic)%vf%rVc**2._dp &
+            +4._dp*oseenParameter*turbulentViscosity*kinematicViscosity*dt)
         enddo
       endif
     enddo
