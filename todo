@@ -27,3 +27,5 @@ Check slow change from climb to hover stabilises wake
 Wake smoothening using skew
 Wake dissipation on skew
 Make turbulence disspation rotor dependent
+
+Add burst model for Fwake
