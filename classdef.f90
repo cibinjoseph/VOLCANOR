@@ -99,10 +99,10 @@ module vr_classdef
     procedure :: rot  => vrclass_rot
     procedure :: calclength => vrclass_calclength
     procedure :: strain => vrclass_strain
+    procedure :: burst
     procedure :: getInteriorAngles
     procedure :: getMedianAngle
     procedure :: getMedianCos
-    procedure :: burst
   end type vr_class
 
 contains
@@ -1122,17 +1122,32 @@ contains
     enddo
   end subroutine calc_sectionalQuarterChord
 
-  subroutine blade_burst_wake(this,rowNear,skewLimit)
+  subroutine blade_burst_wake(this,rowNear,rowFar,skewLimit)
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: skewLimit
-    integer, intent(in) :: rowNear
+    integer, intent(in) :: rowNear, rowFar
     integer :: irow, icol
+    real(dp) :: skewVal
+    real(dp), dimension(3) :: aVec, bVec
 
+    ! Burst near wake
     do icol=1,size(this%waP,2)
       do irow=rowNear,size(this%waP,1)
         call this%waP(irow,icol)%vr%burst(skewLimit)
       enddo
     enddo
+
+    ! Burst far wake
+    if ((rowFar .ne. 0) .and. (rowFar .ne. size(this%waF,1))) then
+      do irow=rowFar,size(this%waF,1)-1
+        if (abs(this%waF(irow+1)%gam) > eps) then
+          aVec = this%waF(irow)%vf%fc(:,1)-this%waF(irow)%vf%fc(:,2)
+          bVec = this%waF(irow+1)%vf%fc(:,1)-this%waF(irow+1)%vf%fc(:,2)
+          skewVal=abs(getAngleCos(aVec,bVec)-pi)/pi
+          if (skewVal .ge. skewLimit) this%waF(irow+1)%gam = 0._dp
+        endif
+      enddo
+    endif
   end subroutine blade_burst_wake
 end module blade_classdef
 
@@ -2082,7 +2097,7 @@ contains
   class(rotor_class), intent(inout) :: this
     integer :: ib
     do ib=1,this%nb
-      call this%blade(ib)%burst_wake(this%rowNear,this%skewLimit)
+      call this%blade(ib)%burst_wake(this%rowNear,this%rowFar,this%skewLimit)
     enddo
   end subroutine rotor_burst_wake
 end module rotor_classdef
