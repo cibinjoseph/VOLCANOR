@@ -101,6 +101,7 @@ module vr_classdef
     procedure :: strain => vrclass_strain
     procedure :: getInteriorAngles
     procedure :: getMedianAngle
+    procedure :: getMedianCos
     procedure :: burst
   end type vr_class
 
@@ -243,15 +244,31 @@ contains
     getMedianAngle = getAngleCos(p3+p4-p1-p2,p4+p1-p2-p3)
   end function getMedianAngle
 
+  function getMedianCos(this)
+  class(vr_class) :: this
+    real(dp) :: getMedianCos
+    real(dp), dimension(3) :: p1, p2, p3, p4
+    real(dp), dimension(3) :: x1Vec, x2Vec
+
+    p1 = this%vf(1)%fc(:,1)
+    p2 = this%vf(2)%fc(:,1)
+    p3 = this%vf(3)%fc(:,1)
+    p4 = this%vf(4)%fc(:,1)
+
+    x1Vec = p3+p4-p1-p2
+    x2Vec = p4+p1-p2-p3
+    getMedianCos = abs(dot_product(x1Vec,x2Vec)/ &
+      sqrt(dot_product(x1Vec,x1Vec)*dot_product(x2Vec,x2Vec)))
+  end function getMedianCos
+
   subroutine burst(this,skewLimit)
   class(vr_class) :: this
     real(dp), intent(in) :: skewLimit
     real(dp) :: medianAngle, skewVal
 
     if (abs(this%gam) > eps) then
-      medianAngle = this%getMedianAngle()
-      skewVal = abs(medianAngle-0.5_dp*pi)/(0.5_dp*pi)
-
+      ! skew:  0-good, 1-bad
+      skewVal = this%getMedianCos()
       ! DEBUG
       !if (skew .ge. skewLimit) this%gam = 0._dp
     endif
