@@ -266,10 +266,11 @@ contains
     real(dp), intent(in) :: skewLimit
     real(dp) :: skewVal
 
-    if (abs(this%gam) > eps) then
+    if (abs(this%gam) > eps && skewLimit > eps) then
       ! skew:  0-good, 1-bad
       skewVal = this%getMedianCos()
-      if (skewVal .ge. skewLimit) this%gam = 0._dp
+      ! DEBUG
+      !if (skewVal .ge. skewLimit) this%gam = 0._dp
     endif
     this%skew = skewVal
 
