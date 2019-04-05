@@ -1128,22 +1128,22 @@ contains
     integer, intent(in) :: rowNear, rowFar
     integer :: irow, icol
     real(dp) :: skewVal
-    real(dp), dimension(3) :: aVec, bVec
 
-    ! Burst near wake
-    do icol=1,size(this%waP,2)
-      do irow=rowNear,size(this%waP,1)
-        call this%waP(irow,icol)%vr%burst(skewLimit)
-      enddo
-    enddo
+    ! DEBUG
+    !! Burst near wake
+    !do icol=1,size(this%waP,2)
+    !  do irow=rowNear,size(this%waP,1)
+    !    call this%waP(irow,icol)%vr%burst(skewLimit)
+    !  enddo
+    !enddo
 
     ! Burst far wake
     if ((rowFar .ne. 0) .and. (rowFar .ne. size(this%waF,1))) then
       do irow=rowFar,size(this%waF,1)-1
         if (abs(this%waF(irow+1)%gam) > eps) then
-          aVec = this%waF(irow)%vf%fc(:,1)-this%waF(irow)%vf%fc(:,2)
-          bVec = this%waF(irow+1)%vf%fc(:,1)-this%waF(irow+1)%vf%fc(:,2)
-          skewVal=abs(getAngleCos(aVec,bVec)-pi)/pi
+          skewVal=abs(getAngleCos(this%waF(irow)%vf%fc(:,2)-this%waF(irow)%vf%fc(:,1) &
+            ,this%waF(irow+1)%vf%fc(:,1)-this%waF(irow+1)%vf%fc(:,2) &
+            )-pi)/pi
           if (skewVal .ge. skewLimit) this%waF(irow+1)%gam = 0._dp
         endif
       enddo
