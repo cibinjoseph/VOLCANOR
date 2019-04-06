@@ -1140,12 +1140,16 @@ contains
     ! Burst far wake
     if ((rowFar .ne. 0) .and. (rowFar .ne. size(this%waF,1))) then
       do irow=rowFar,size(this%waF,1)-1
-        if (abs(this%waF(irow+1)%gam) > eps) then
-          skewVal=abs(getAngleCos(this%waF(irow)%vf%fc(:,2)-this%waF(irow)%vf%fc(:,1) &
-            ,this%waF(irow+1)%vf%fc(:,1)-this%waF(irow+1)%vf%fc(:,2) &
-            )-pi)/pi
-          if (skewVal .ge. skewLimit) this%waF(irow+1)%gam = 0._dp
+        ! DEBUG
+        !if (abs(this%waF(irow+1)%gam) > eps .and. abs(this%waF(irow)%gam) > eps) then
+        skewVal=abs(getAngleCos(this%waF(irow)%vf%fc(:,2)-this%waF(irow)%vf%fc(:,1) &
+          ,this%waF(irow+1)%vf%fc(:,1)-this%waF(irow+1)%vf%fc(:,2) &
+          )-pi)/pi
+        if (skewVal .ge. skewLimit) then
+          this%waF(irow+1)%gam = 0._dp
+          this%waF(irow)%gam = 0._dp
         endif
+        !endif
       enddo
     endif
   end subroutine blade_burst_wake
