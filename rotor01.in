@@ -1,10 +1,10 @@
   No.of blades,nb     
 ------------------------
-       1
+       2
 
 Spanwise panels,ns     Chordwise panels,nc   Near wake panels,nNwake
 ---------------------------------------------------------------
-       13                      1                   216
+       13                      1                   54
 ===============================================================
 
 X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
@@ -60,7 +60,7 @@ Spanwise start[r/R]  &  end[r/R] for centroid of tip vorticity
 
 initWakeVel[m/s]     psiStart[deg]      skewLimit
 ----------------------------------------------------------------
-     0.0                   0.0            0.5
+     0.0                   0.0            0.4
 ===============================================================
 
  PLOTS OF SPANWISE DISTRIBUTIONS: 
