@@ -140,12 +140,12 @@ gtrial:
 	@./trial.out
 
 clean:
-	-rm $(objpath)/*.o $(objpath)/*.mod *.out
-	-rm visitlog.py 
+	-rm -f $(objpath)/*.o $(objpath)/*.mod *.out
+	-rm -f visitlog.py 
 
 fileclean:
-	-rm $(resultspath)/*.plt
-	-rm $(resultspath)/*.curve
-	-rm $(resultspath)/*.dat
-	-rm $(resultspath)/*.txt
+	-rm -f $(resultspath)/*.plt
+	-rm -f $(resultspath)/*.curve
+	-rm -f $(resultspath)/*.dat
+	-rm -f $(resultspath)/*.txt
 
