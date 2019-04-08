@@ -1,6 +1,6 @@
  NO. OF TIMESTEPS [nt]    TIMESTEP (sec) [dt]    NO. OF ROTORS [nr]
 -----------------------------------------------------------------------
-      7200                       0.00014                  1
+      1440                       0.00138                  1
 
  SPAN DISCRETIZATION : [1]linear [2]cosine [3]halfsine
  spanSpacingSwitch
@@ -27,12 +27,12 @@
  WAKE DISSIPATION: [0]Off [1]On  Wake strain: [0]Off [1]On  Wake burst
  wakeDissipationSwitch            wakeStrainSwitch   wakeBurstSwitch
 -----------------------------------------------------------------------
-       1                                0                  0
+       1                                0                  1
 
  SLOW START TO AVOID LARGE STARTING VORTEX: [0]Off [1]linear [2]tanh [3]extended tanh
   slowStartSwitch       slowStartNt
 -----------------------------------------------------------------------
-       0                      0
+       1                      360
 
  WAKE CONVECTION FINITE-DIFFERENCE SCHEME: [0]FT1 [1]PC2 [2]AB2 [3]AB4
   fdSchemeSwitch
