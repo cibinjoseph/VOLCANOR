@@ -60,7 +60,7 @@ Spanwise start[r/R]  &  end[r/R] for centroid of tip vorticity
 
 initWakeVel[m/s]     psiStart[deg]      skewLimit
 ----------------------------------------------------------------
-     0.0                   0.0            0.4
+     0.0                   0.0            0.5
 ===============================================================
 
  PLOTS OF SPANWISE DISTRIBUTIONS: 
