@@ -269,6 +269,8 @@ contains
     if ((abs(this%gam) > eps) .and. (skewLimit > eps)) then
       ! skew:  0-good, 1-bad
       skewVal = this%getMedianCos()
+      ! DEBUG
+      !if (skewVal .ge. skewLimit) this%vf%rVc = 0.09525_dp !this%gam = 0._dp
       if (skewVal .ge. skewLimit) this%gam = 0._dp
     endif
     this%skew = skewVal
