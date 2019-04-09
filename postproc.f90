@@ -29,13 +29,13 @@ contains
     real(dp), dimension(3,rotor%nFwake+1) :: wakeTip   ! Optimise this by only initialising reqd size
     integer :: i,j,nx,ny,ib
 
-    open(unit=10,file='Results/Nwake'//timestamp//'.plt',position='append')
-    open(unit=11,file='Results/Fwake'//timestamp//'.plt',position='append')
+    open(unit=10,file='Results/wingNwake'//timestamp//'.plt',position='append')
 
-    write(10,*) 'Title = "Wing and Near wake"'
-    write(10,*) 'VARIABLES = "X" "Y" "Z" "GAM" "SKEW"'
+    write(10,*) 'Title = "Wing and Wake"'
+    write(10,*) 'VARIABLES = "X" "Y" "Z" "GAM"'! "Var5" "Var6"'
 
     do ib=1,rotor%nb
+      ! Wing
       nx=rotor%nc
       ny=rotor%ns
       write(nxChar,'(I5)') nx+1
@@ -56,12 +56,13 @@ contains
 
       write(10,*) 'Zone I='//trim(nxChar)//' J='//trim(nyChar)//' K=1  T="Blade"'
       write(10,*) 'DATAPACKING=BLOCK'
-      write(10,*) 'VARLOCATION=([4]=CELLCENTERED,[5]=CELLCENTERED)'
+      write(10,*) 'VARLOCATION=([4]=CELLCENTERED)'!,[5]=CELLCENTERED,[6]=CELLCENTERED)'
       write(10,*) ((wingMesh(1,i,j),i=1,nx+1),j=1,ny+1)
       write(10,*) ((wingMesh(2,i,j),i=1,nx+1),j=1,ny+1)
       write(10,*) ((wingMesh(3,i,j),i=1,nx+1),j=1,ny+1)
       write(10,*) ((-1._dp*rotor%blade(ib)%wiP(i,j)%vr%gam,i=1,nx),j=1,ny)
-      write(10,*) ((rotor%blade(ib)%wiP(i,j)%vr%skew,i=1,nx),j=1,ny)
+      !write(10,*) ((rotor%blade(ib)%wiP(i,j)%vr%skew,i=1,nx),j=1,ny)
+      !write(10,*) ((rotor%blade(ib)%wiP(i,j)%vr%skew,i=1,nx),j=1,ny)
 
       ! Near wake 
       nx=rotor%nNwake
@@ -86,12 +87,13 @@ contains
 
       write(10,*) 'Zone I='//trim(nxChar)//' J='//trim(nyChar)//' K=1  T="NearWake"'
       write(10,*) 'DATAPACKING=BLOCK'
-      write(10,*) 'VARLOCATION=([4]=CELLCENTERED,[5]=CELLCENTERED)'
+      write(10,*) 'VARLOCATION=([4]=CELLCENTERED)'!,[5]=CELLCENTERED,[6]=CELLCENTERED)'
       write(10,*) ((wakeMesh(1,i,j),i=rotor%rowNear,nx+1),j=1,ny+1)
       write(10,*) ((wakeMesh(2,i,j),i=rotor%rowNear,nx+1),j=1,ny+1)
       write(10,*) ((wakeMesh(3,i,j),i=rotor%rowNear,nx+1),j=1,ny+1)
       write(10,*) ((-1._dp*rotor%blade(ib)%waP(i,j)%vr%gam,i=rotor%rowNear,nx),j=1,ny)
-      write(10,*) ((rotor%blade(ib)%waP(i,j)%vr%skew,i=rotor%rowNear,nx),j=1,ny)
+      !write(10,*) ((rotor%blade(ib)%waP(i,j)%vr%skew,i=rotor%rowNear,nx),j=1,ny)
+      !write(10,*) ((rotor%blade(ib)%waP(i,j)%vr%skew,i=rotor%rowNear,nx),j=1,ny)
 
       ! Far wake 
       nx=rotor%nFwake
@@ -105,41 +107,35 @@ contains
         wakeTip(:,nx+1)=rotor%blade(ib)%waF(rotor%nFwake)%vf%fc(:,1)
         !Check if necessary -$omp end parallel do
 
-        write(11,*) 'Title = "Far wake"'
-        write(11,*) 'VARIABLES = "X" "Y" "Z" "GAM" "rVc" "age"'
-        write(11,*) 'Zone I='//trim(nxChar)//' J=1   K=1   T="FarWake"'
-        write(11,*) 'DATAPACKING=BLOCK'
-        write(11,*) 'VARLOCATION=([4]=CELLCENTERED,[5]=CELLCENTERED,[6]=CELLCENTERED)'
-        write(11,*) (wakeTip(1,i),i=rotor%rowFar,nx+1)
-        write(11,*) (wakeTip(2,i),i=rotor%rowFar,nx+1)
-        write(11,*) (wakeTip(3,i),i=rotor%rowFar,nx+1)
-        write(11,*) (-1._dp*rotor%blade(ib)%waF(i)%gam,i=rotor%rowFar,nx)
-        write(11,*) (rotor%blade(ib)%waF(i)%vf%rVc,i=rotor%rowFar,nx)
-        write(11,*) (rotor%blade(ib)%waF(i)%vf%age,i=rotor%rowFar,nx)
+        write(10,*) 'Zone I='//trim(nxChar)//' J=1   K=1   T="FarWake"'
+        write(10,*) 'DATAPACKING=BLOCK'
+        write(10,*) 'VARLOCATION=([4]=CELLCENTERED)'!,[5]=CELLCENTERED,[6]=CELLCENTERED)'
+        write(10,*) (wakeTip(1,i),i=rotor%rowFar,nx+1)
+        write(10,*) (wakeTip(2,i),i=rotor%rowFar,nx+1)
+        write(10,*) (wakeTip(3,i),i=rotor%rowFar,nx+1)
+        write(10,*) (-1._dp*rotor%blade(ib)%waF(i)%gam,i=rotor%rowFar,nx)
+        !write(10,*) (rotor%blade(ib)%waF(i)%vf%rVc,i=rotor%rowFar,nx)
+        !write(10,*) (rotor%blade(ib)%waF(i)%vf%age,i=rotor%rowFar,nx)
 
       else  ! No far wake present
 
         write(nxChar,'(I5)') 2  ! Plot mesh as single redundant point
         wakeTip(:,1) = rotor%blade(ib)%waP(rotor%nNwake,rotor%ns)%vr%vf(3)%fc(:,1)
 
-        write(11,*) 'Title = "Far wake"'
-        write(11,*) 'VARIABLES = "X" "Y" "Z" "GAM" "rVc" "age"'
-        write(11,*) 'Zone I='//trim(nxChar)//' J=1   K=1   T="FarWake"'
-        write(11,*) 'DATAPACKING=BLOCK'
-        write(11,*) 'VARLOCATION=([4]=CELLCENTERED,[5]=CELLCENTERED,[6]=CELLCENTERED)'
-        write(11,*) wakeTip(1,1),wakeTip(1,1)
-        write(11,*) wakeTip(2,1),wakeTip(2,1)
-        write(11,*) wakeTip(3,1),wakeTip(3,1)
-        write(11,*) 0._dp
-        write(11,*) 0._dp
-        write(11,*) 0._dp
-
+        write(10,*) 'Zone I='//trim(nxChar)//' J=1   K=1   T="FarWake"'
+        write(10,*) 'DATAPACKING=BLOCK'
+        write(10,*) 'VARLOCATION=([4]=CELLCENTERED)'!,[5]=CELLCENTERED,[6]=CELLCENTERED)'
+        write(10,*) wakeTip(1,1),wakeTip(1,1)
+        write(10,*) wakeTip(2,1),wakeTip(2,1)
+        write(10,*) wakeTip(3,1),wakeTip(3,1)
+        write(10,*) 0._dp
+        !write(10,*) 0._dp
+        !write(10,*) 0._dp
       endif
 
     enddo
 
     close(10)
-    close(11)
   end subroutine rotor2file
 
   subroutine filaments2file(timestamp,rotor)

@@ -1,7 +1,3 @@
-OpenDatabase("Results/Fwake*.plt database")
-AddPlot("Mesh", "mesh", 1, 1)
-DrawPlots()
-OpenDatabase("Results/Nwake*.plt database")
-CreateDatabaseCorrelation("Wake",("/home/cibin/WorkInProgress/VOLCANOR/Results/Fwake*.plt database", "/home/cibin/WorkInProgress/VOLCANOR/Results/Nwake*.plt database"), 0)
+OpenDatabase("Results/wingNwake*.plt database")
 AddPlot("Mesh", "mesh", 1, 1)
 DrawPlots()

@@ -57,7 +57,6 @@ argsDict = vars(args)
 
 # Obtain filename for first argument that is True
 pyFilename = 'plot_wake.py'  # default plot
-plotFilename = 'Fwake*.plt'
 
 for argName in argsDict:
     if argsDict[argName] == True:
