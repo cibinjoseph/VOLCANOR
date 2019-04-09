@@ -733,12 +733,6 @@ program main
 
   close(22)  ! Close status.txt
 
-  if (wakePlotSwitch .eq. 1) then
-    do ir=1,nr
-      call rotor2file(timestamp,rotor(ir))
-    enddo
-  endif
-
   do ir=1,nr
     call rotor(ir)%deinit(fdSchemeSwitch)
   enddo
