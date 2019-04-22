@@ -1131,7 +1131,6 @@ contains
     integer :: irow, icol
     real(dp) :: skewVal
 
-    ! DEBUG
     !! Burst near wake
     !do icol=1,size(this%waP,2)
     !  do irow=rowNear,size(this%waP,1)
