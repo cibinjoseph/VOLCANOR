@@ -1147,8 +1147,11 @@ contains
           ,this%waF(irow+1)%vf%fc(:,1)-this%waF(irow+1)%vf%fc(:,2) &
           )-pi)/pi
         if (skewVal .ge. skewLimit) then
+           ! DEBUG
           this%waF(irow+1)%gam = 0._dp
           this%waF(irow)%gam = 0._dp
+          !this%waF(irow+1)%vf%rVc = 0.1905_dp
+          !this%waF(irow)%vf%rVc = 0.1905_dp
         endif
         !endif
       enddo
