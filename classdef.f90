@@ -74,7 +74,7 @@ contains
   subroutine vfclass_strain(this)
   class(vf_class) :: this
     this%rVc=this%rVc0*sqrt(this%l0/this%lc)
-end subroutine vfclass_strain
+  end subroutine vfclass_strain
 
 end module vf_classdef
 
