@@ -1,6 +1,5 @@
 Max circulation at non max lift in forward flight?
 Does discretization give rise to instability? cause for Kelvin waves or Crow instability?
-Check performance using VTune Amplifier and Advisor
 Split Nwake and Fwake computations to separate loops to avoid if conditions
 Try slowstart to prevent starting vortex instability
 Get blade distributed parameters, at quarter chord maybe?
@@ -21,7 +20,6 @@ Check convergence of thrust history with nc for thurst(mean alf) and thrust(lsq 
 Why thrust(mean alf) converges to different value than thrust(gamma) - discrepancy
 Check convergence of thrust(gamma) for multiple values of near wake panels and nc
 
-Check slow change from climb to hover stabilises wake
 Wake smoothening using skew
 Wake dissipation on skew
-Make turbulence disspation rotor dependent
+Wake dissipation on extreme straining
