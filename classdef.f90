@@ -29,7 +29,7 @@ contains
     ! Calculates induced velocity by unit gam vortex filament
   class(vf_class) :: this
     real(dp), dimension(3) :: vind, P
-    real(dp) :: inv_r1Xr2Abs2, r1Abs, r2Abs, invH2, kVcore
+    real(dp) :: r1Xr2Abs2, inv_r1Xr2Abs2, r1Abs, r2Abs, invH2, kVcore
     real(dp), dimension(3) :: r1, r2, r0, r1Xr2
 
     r1=P-this%fc(:,1)
@@ -40,6 +40,7 @@ contains
     r1Xr2(1) = r1(2)*r2(3)-r1(3)*r2(2)
     r1Xr2(2) = r1(3)*r2(1)-r1(1)*r2(3)
     r1Xr2(3) = r1(1)*r2(2)-r1(2)*r2(1)
+    r1Xr2Abs2 = dot_product(r1Xr2,r1Xr2)
 
     r1Abs=norm2(r1)
     r2Abs=norm2(r2)
@@ -47,10 +48,8 @@ contains
     vind=0.
 
     ! Ideal vortex model (Common part)
-    !if (abs(sum(r1Xr2))>eps) then
-    ! DEBUG
-    if (norm2(r1Xr2) > eps) then
-      inv_r1Xr2Abs2=1._dp/(r1Xr2(1)**2._dp+r1Xr2(2)**2._dp+r1Xr2(3)**2._dp)
+    if (r1Xr2Abs2 > eps) then
+      inv_r1Xr2Abs2=1._dp/r1Xr2Abs2
       vind=r1Xr2*inv4pi*inv_r1Xr2Abs2*dot_product(r0,r1/r1Abs-r2/r2Abs)
 
       ! Rankine vortex model
@@ -75,7 +74,7 @@ contains
   subroutine vfclass_strain(this)
   class(vf_class) :: this
     this%rVc=this%rVc0*sqrt(this%l0/this%lc)
-  end subroutine vfclass_strain
+end subroutine vfclass_strain
 
 end module vf_classdef
 
