@@ -1189,6 +1189,7 @@ module rotor_classdef
     real(dp), allocatable, dimension(:,:) :: AIC,AIC_inv  ! Influence coefficient matrix
     real(dp), allocatable, dimension(:) :: gamVec,RHS
     real(dp) :: initWakeVel, psiStart, skewLimit
+    real(dp) :: turbulentViscosity
     integer :: rollupStart, rollupEnd
     integer :: inflowPlotSwitch, nInflowLocations
     integer :: gammaPlotSwitch, alphaPlotSwitch
@@ -1258,7 +1259,9 @@ contains
       ,        this%omegaBody(1), this%omegaBody(2), this%omegaBody(3)
     call skiplines(12,4)
     read(12,*) this%pivotLE, this%flapHinge
-    call skiplines(12,5)
+    call skiplines(12,4)
+    read(12,*) this%turbulentViscosity
+    call skiplines(12,4)
     read(12,*) this%spanwiseCore, this%streamwiseCoreSwitch
     call skiplines(12,3)
     allocate(this%streamwiseCoreVec(this%ns+1))
@@ -1847,9 +1850,9 @@ contains
     enddo
   end subroutine age_wake
 
-  subroutine dissipate_wake(this,turbulentViscosity,dt)
+  subroutine dissipate_wake(this,dt)
   class(rotor_class), intent(inout) :: this
-    real(dp), intent(in) :: turbulentViscosity, dt
+    real(dp), intent(in) :: dt
     real(dp) :: oseenParameter, kinematicViscosity
     integer :: ib,ic,is
     oseenParameter = 1.2564_dp
@@ -1863,13 +1866,13 @@ contains
       do is=1,this%ns
         do ic=this%rowNear,this%nNwake
           this%blade(ib)%waP(ic,is)%vr%vf(1)%rVc=sqrt(this%blade(ib)%waP(ic,is)%vr%vf(1)%rVc**2._dp &
-            +4._dp*oseenParameter*turbulentViscosity*kinematicViscosity*dt)
+            +4._dp*oseenParameter*this%turbulentViscosity*kinematicViscosity*dt)
           this%blade(ib)%waP(ic,is)%vr%vf(3)%rVc=this%blade(ib)%waP(ic,is)%vr%vf(1)%rVc
         enddo
         ! To maintain consistency of rVc in overlapping filaments
         do ic=this%rowNear,this%nNwake
           this%blade(ib)%waP(ic,is)%vr%vf(2)%rVc=sqrt(this%blade(ib)%waP(ic,is)%vr%vf(2)%rVc**2._dp &
-            +4._dp*oseenParameter*turbulentViscosity*kinematicViscosity*dt)
+            +4._dp*oseenParameter*this%turbulentViscosity*kinematicViscosity*dt)
         enddo
         if (this%rowNear .ne. this%nNwake) then
           do ic=this%rowNear+1,this%nNwake
@@ -1882,7 +1885,7 @@ contains
       if (this%rowFar .ne. 0) then
         do ic=this%rowFar,this%nFwake
           this%blade(ib)%waF(ic)%vf%rVc=sqrt(this%blade(ib)%waF(ic)%vf%rVc**2._dp &
-            +4._dp*oseenParameter*turbulentViscosity*kinematicViscosity*dt)
+            +4._dp*oseenParameter*this%turbulentViscosity*kinematicViscosity*dt)
         enddo
       endif
     enddo

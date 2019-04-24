@@ -14,7 +14,7 @@ program main
   call skiplines(11,4)
   read(11,*) spanSpacingSwitch
   call skiplines(11,4)
-  read(11,*) density, turbulentViscosity
+  read(11,*) density
   call skiplines(11,5)
   read(11,*) wakePlotSwitch, gridPlotSwitch
   call skiplines(11,4)
@@ -259,7 +259,7 @@ program main
     if (wakeDissipationSwitch .eq. 1) then
       do ir=1,nr
         ! Wake tip dissipation
-        call rotor(ir)%dissipate_wake(turbulentViscosity,dt)
+        call rotor(ir)%dissipate_wake(dt)
       enddo
     endif
 

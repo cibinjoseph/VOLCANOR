@@ -7,7 +7,7 @@ real(dp) :: dt
 
 ! Other Variables
 real(dp) :: t
-real(dp) :: density,turbulentViscosity
+real(dp) :: density
 character(len=5) :: timestamp
 character(len=2) :: rotorChar
 character(len=10) :: rotorFile
