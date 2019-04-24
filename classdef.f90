@@ -675,12 +675,13 @@ contains
     endif
   end subroutine rot_pitch
 
-  subroutine rot_axis(this,theta,axis,origin)  !rotate about axis at origin
+  subroutine rot_axis(this,theta,axisVec,origin)  !rotate about axis at origin
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: theta
-    real(dp), intent(inout), dimension(3) :: axis  
+    real(dp), intent(in), dimension(3) :: axisVec
     real(dp), intent(in), dimension(3) :: origin
     real(dp), dimension(3,3) :: Tmat
+    real(dp), dimension(3) :: axis
     integer :: i,j,rows
     real(dp) :: ct,st,omct
 
@@ -690,7 +691,7 @@ contains
       call this%move(-origin)
 
       ! Ensure axis is normalized
-      axis=axis/norm2(axis)
+      axis=axisVec/norm2(axisVec)
 
       ! Calculate TMat
       ct=cos(theta)
@@ -1151,7 +1152,7 @@ module rotor_classdef
     real(dp) :: Omega, omegaSlow
     real(dp), dimension(3) :: shaftAxis
     real(dp), dimension(3) :: hubCoords, cgCoords
-    real(dp) :: radius, chord, root_cut
+    real(dp) :: radius, chord, root_cut, coningAngle
     real(dp) :: CT
     real(dp), dimension(3) :: force
     real(dp), dimension(3) :: controlPitch  ! theta0,thetaC,thetaS
@@ -1228,7 +1229,7 @@ contains
     call skiplines(12,3)
     read(12,*) this%pts(1),this%pts(2),this%pts(3)
     call skiplines(12,4)
-    read(12,*) this%radius, this%root_cut, this%chord
+    read(12,*) this%radius, this%root_cut, this%chord, this%coningAngle
     call skiplines(12,4)
     read(12,*) this%Omega, this%shaftAxis(1), this%shaftAxis(2), this%shaftAxis(3)
     call skiplines(12,3)
@@ -1272,6 +1273,7 @@ contains
       call degtorad(this%pts(i))
     enddo
     call degtorad(this%thetaTwist)
+    call degtorad(this%coningAngle)
     call degtorad(this%psiStart)
     this%nFwake=nt-this%nNwake
     if (this%nFwake<2) error stop 'ERROR: Atleast 1 far wake rows mandatory'
@@ -1486,6 +1488,11 @@ contains
     ! Move rotor to hub coordinates
     do ib=1,this%nb
       call this%blade(ib)%move(this%hubCoords)
+    enddo
+
+    ! Set Coning angle
+    do ib=1,this%nb
+      call this%blade(ib)%rot_axis(this%coningAngle,xAxis,(/0._dp,0._dp,0._dp/))
     enddo
 
     ! Rotate remaining blades to their positions
