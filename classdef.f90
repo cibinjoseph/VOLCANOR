@@ -268,27 +268,12 @@ contains
     if ((abs(this%gam) > eps) .and. (skewLimit > eps)) then
       ! skew:  0-good, 1-bad
       skewVal = this%getMedianCos()
-      ! DEBUG
-      !if (skewVal .ge. skewLimit) this%vf%rVc = 0.09525_dp !this%gam = 0._dp
       if (skewVal .ge. skewLimit) this%gam = 0._dp
     endif
     this%skew = skewVal
 
   end subroutine burst
 
-  !subroutine burst(this,skewLimit)
-  !class(vr_class) :: this
-  !  real(dp), intent(in) :: skewLimit
-  !  real(dp), dimension(4) :: interiorAngle, skew
-
-  !  if (abs(this%gam) > eps) then
-  !    interiorAngle = this%getInteriorAngles()
-  !    skew = abs(interiorAngle-0.5_dp*pi)/(0.5_dp*pi)
-
-  !    if (maxval(skew) .ge. skewLimit) this%gam = 0._dp
-  !  endif
-
-  !end subroutine burst
 end module vr_classdef
 
 
@@ -1096,14 +1081,9 @@ contains
         do ic=1,rows
           xDist(ic)=dot_product(this%wiP(ic,is)%CP-this%wiP(1,is)%PC(:,1),  &
             this%sectionalChordwiseVec(:,is))
-          ! DEBUG
-          !print*,this%wiP(ic,1)%alpha*180._dp/pi
         enddo
         this%sectionalAlpha(is)=lsq2(dot_product(this%sectionalQuarterChord(:,is)-  &
           this%wiP(1,is)%PC(:,1),this%sectionalChordwiseVec(:,is)),xDist,this%wiP(:,is)%alpha)
-        ! DEBUG
-        !print*,this%sectionalAlpha(1)*180._dp/pi
-        !stop
       enddo
     else  ! Use average of alpha values
       do is=1,size(this%sectionalAlpha)
@@ -1123,11 +1103,12 @@ contains
     enddo
   end subroutine calc_sectionalQuarterChord
 
-  subroutine blade_burst_wake(this,rowNear,rowFar,skewLimit)
+  subroutine blade_burst_wake(this,rowFar,skewLimit,largeCoreRadius)
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: skewLimit
-    integer, intent(in) :: rowNear, rowFar
-    integer :: irow, icol
+    integer, intent(in) :: rowFar !, rowNear
+    real(dp), intent(in) :: largeCoreRadius
+    integer :: irow !, icol
     real(dp) :: skewVal
 
     !! Burst near wake
@@ -1140,17 +1121,16 @@ contains
     ! Burst far wake
     if ((rowFar .ne. 0) .and. (rowFar .ne. size(this%waF,1))) then
       do irow=rowFar,size(this%waF,1)-1
-        ! DEBUG
+        ! NEGLECT ALREADY BURST FILAMENTS IF NECCESSARY
         !if (abs(this%waF(irow+1)%gam) > eps .and. abs(this%waF(irow)%gam) > eps) then
         skewVal=abs(getAngleCos(this%waF(irow)%vf%fc(:,2)-this%waF(irow)%vf%fc(:,1) &
           ,this%waF(irow+1)%vf%fc(:,1)-this%waF(irow+1)%vf%fc(:,2) &
           )-pi)/pi
         if (skewVal .ge. skewLimit) then
-           ! DEBUG
-          this%waF(irow+1)%gam = 0._dp
-          this%waF(irow)%gam = 0._dp
-          !this%waF(irow+1)%vf%rVc = 0.1905_dp
-          !this%waF(irow)%vf%rVc = 0.1905_dp
+          !this%waF(irow+1)%gam = 0._dp
+          !this%waF(irow)%gam = 0._dp
+          this%waF(irow+1)%vf%rVc = largeCoreRadius
+          this%waF(irow)%vf%rVc = largeCoreRadius
         endif
         !endif
       enddo
@@ -2107,7 +2087,7 @@ contains
   class(rotor_class), intent(inout) :: this
     integer :: ib
     do ib=1,this%nb
-      call this%blade(ib)%burst_wake(this%rowNear,this%rowFar,this%skewLimit)
+      call this%blade(ib)%burst_wake(this%rowFar,this%skewLimit,this%chord)
     enddo
   end subroutine rotor_burst_wake
 end module rotor_classdef
