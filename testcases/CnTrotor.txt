@@ -1,0 +1,5 @@
+Caradonna and Tung rotor
+NACA 0012, untwisted, untapered
+0.5 deg precone
+AR = 6
+Radius = 1.143m
