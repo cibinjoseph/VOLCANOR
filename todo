@@ -24,3 +24,6 @@ Wake dissipation on skew
 Wake dissipation on extreme straining
 
 Check calculation of alpha using lsq
+Verify lift values for computation using gamma
+Verify lift values for computation using alpha
+Cross-verify for varying nc
