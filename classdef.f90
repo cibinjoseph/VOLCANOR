@@ -978,9 +978,9 @@ contains
 
   end subroutine wake_continuity
 
-  subroutine blade_calc_force_gamma(this,density,dt)
+  subroutine blade_calc_force_gamma(this,density,invertGammaSign,dt)
   class(blade_class), intent(inout) :: this
-    real(dp), intent(in) :: density, dt
+    real(dp), intent(in) :: density, invertGammaSign, dt
     integer :: is, ic, rows, cols
     real(dp), dimension(size(this%wiP,1),size(this%wiP,2)) :: velTangentialChord, velTangentialSpan 
     real(dp), dimension(size(this%wiP,1),size(this%wiP,2)) :: gamElementChord, gamElementSpan
@@ -1028,7 +1028,7 @@ contains
           + velTangentialSpan(ic,is)*gamElementSpan(ic,is)/this%wiP(ic,is)%meanSpan &
           + (this%wiP(ic,is)%vr%gam-this%wiP(ic,is)%vr%gamPrev)/dt
         this%wiP(ic,is)%delP=density*this%wiP(ic,is)%delP
-        this%wiP(ic,is)%normalForce=this%wiP(ic,is)%delP*this%wiP(ic,is)%panelArea*this%wiP(ic,is)%nCap
+        this%wiP(ic,is)%normalForce=this%wiP(ic,is)%delP*this%wiP(ic,is)%panelArea*this%wiP(ic,is)%nCap*-1._dp*invertGammaSign
         this%Force=this%Force+this%wiP(ic,is)%normalForce
       enddo
     enddo
@@ -2050,9 +2050,8 @@ contains
 
     this%Force=0._dp
     do ib=1,this%nb
-      call this%blade(ib)%calc_force_gamma(density,dt)
-      ! Correct computed negative forces due to opposite direction of circulation
-      this%Force=this%Force+this%blade(ib)%Force*-1._dp*sign(1._dp,this%Omega*this%controlPitch(1))
+      call this%blade(ib)%calc_force_gamma(density,sign(1._dp,this%Omega*this%controlPitch(1)),dt)
+      this%Force=this%Force+this%blade(ib)%Force
     enddo
   end subroutine rotor_calc_force_gamma
 
