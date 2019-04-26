@@ -1028,7 +1028,9 @@ contains
           + velTangentialSpan(ic,is)*gamElementSpan(ic,is)/this%wiP(ic,is)%meanSpan &
           + (this%wiP(ic,is)%vr%gam-this%wiP(ic,is)%vr%gamPrev)/dt
         this%wiP(ic,is)%delP=density*this%wiP(ic,is)%delP
-        this%wiP(ic,is)%normalForce=this%wiP(ic,is)%delP*this%wiP(ic,is)%panelArea*this%wiP(ic,is)%nCap*-1._dp*invertGammaSign
+        ! Invert direction of force according to gamma sign 
+        this%wiP(ic,is)%normalForce=this%wiP(ic,is)%delP* &
+          this%wiP(ic,is)%panelArea*this%wiP(ic,is)%nCap*-1._dp*invertGammaSign
         this%Force=this%Force+this%wiP(ic,is)%normalForce
       enddo
     enddo
