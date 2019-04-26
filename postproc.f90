@@ -465,18 +465,16 @@ contains
     close(11)
     100 format(A,15(E15.7))
 
-    if (rotor%nc == 1) then
-      open(unit=12,file='Results/r'//rotorNumberChar//'forceDist'//timestamp//'.curve',action='write')
-      do ib=1,rotor%nb
-        write(bladeNumberChar,'(I0.2)') ib
-        write(12,*) '# Blade'//bladeNumberChar
-        do ispan=1,rotor%ns
-          write(12,*) norm2(rotor%hubCoords-rotor%blade(ib)%wiP(1,ispan)%CP), &
-            dot_product(rotor%blade(ib)%wiP(1,ispan)%normalForce,directionVector)
-        enddo
+    open(unit=12,file='Results/r'//rotorNumberChar//'forceDist'//timestamp//'.curve',action='write')
+    do ib=1,rotor%nb
+      write(bladeNumberChar,'(I0.2)') ib
+      write(12,*) '# Blade'//bladeNumberChar
+      do ispan=1,rotor%ns
+        write(12,*) norm2(rotor%hubCoords-rotor%blade(ib)%wiP(1,ispan)%CP), &
+          dot_product(rotor%blade(ib)%sectionalForce(:,ispan),directionVector)
       enddo
-      close(12)
-    endif
+    enddo
+    close(12)
   end subroutine force2file
 
   subroutine inflow2file(timestamp,rotorArray,rotorNumber,directionVector)

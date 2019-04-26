@@ -553,6 +553,7 @@ module blade_classdef
     real(dp) :: theta
     real(dp), dimension(3) :: Force
     real(dp), allocatable, dimension(:,:) :: sectionalQuarterChord
+    real(dp), allocatable, dimension(:,:) :: sectionalForce
     real(dp) :: psi
     real(dp) :: pivotLE
     real(dp), allocatable, dimension(:,:) :: sectionalChordwiseVec
@@ -1022,15 +1023,17 @@ contains
     enddo
 
     ! Compute delP
+    this%sectionalForce=0._dp
     do is=1,cols
       do ic=1,rows
         this%wiP(ic,is)%delP=velTangentialChord(ic,is)*gamElementChord(ic,is)/this%wiP(ic,is)%meanChord &
           + velTangentialSpan(ic,is)*gamElementSpan(ic,is)/this%wiP(ic,is)%meanSpan &
           + (this%wiP(ic,is)%vr%gam-this%wiP(ic,is)%vr%gamPrev)/dt
         this%wiP(ic,is)%delP=density*this%wiP(ic,is)%delP
-        ! Invert direction of force according to gamma sign 
+        ! Invert direction of force according to sign of omega and collective pitch
         this%wiP(ic,is)%normalForce=this%wiP(ic,is)%delP* &
           this%wiP(ic,is)%panelArea*this%wiP(ic,is)%nCap*-1._dp*invertGammaSign
+        this%sectionalForce(:,is)=this%sectionalForce(:,is)+this%wiP(ic,is)%normalForce
         this%Force=this%Force+this%wiP(ic,is)%normalForce
       enddo
     enddo
@@ -1298,6 +1301,7 @@ contains
       allocate(this%blade(ib)%waF(this%nFwake))
       allocate(this%blade(ib)%sectionalChordwiseVec(3,this%ns))
       allocate(this%blade(ib)%sectionalQuarterChord(3,this%ns))
+      allocate(this%blade(ib)%sectionalForce(3,this%ns))
       allocate(this%blade(ib)%sectionalAlpha(this%ns))
       if (this%inflowPlotSwitch > 0) then
         if (this%nInflowLocations < 0) then 
