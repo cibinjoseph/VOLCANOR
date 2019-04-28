@@ -1071,9 +1071,15 @@ contains
   subroutine blade_calc_force_alpha(this,density)
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: density
+    integer :: i
 
-    this%Force=sum(this%getSectionalDynamicPressure(density)* &
-      this%getSectionalArea()*(2._dp*pi)*this%sectionalAlpha)
+    this%sectionalForce=0._dp
+    ! Lift in positive Z-direction assumption made
+    this%sectionalForce(3,:)=this%getSectionalDynamicPressure(density)* &
+      this%getSectionalArea()*(2._dp*pi)*this%sectionalAlpha
+    do i=1,3
+      this%Force(i)=sum(this%sectionalForce(i,:))
+    enddo
   end subroutine blade_calc_force_alpha
 
   subroutine blade_calc_sectionalAlpha(this)
