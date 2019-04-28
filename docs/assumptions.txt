@@ -15,3 +15,7 @@ Rectangular blade with no sweep
 
 Distance used is from hub centre rather than spanwise distance
 - inflow2file, gamma2file
+
+Force computation from alpha only gives lift
+- blade_calc_force_gamma
+
