@@ -16,12 +16,12 @@
  PLOT WAKE: [0]Off [n]Every nth iteration
   wakePlotSwitch         gridPlotSwitch      
 -----------------------------------------------------------------------
-       1440                       0          
+       1                       0          
 
  PLOT FORCES: [0]Off [n]th iteration      using [0]gamma  [1]alpha
   forcePlotSwitch                             forceCalcSwitch
 -----------------------------------------------------------------------
-       144                                          1
+       1                                          0
 =======================================================================
 
  WAKE PROPERTY SWITCHES: [0]Off [1]On  

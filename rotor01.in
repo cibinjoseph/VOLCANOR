@@ -1,10 +1,10 @@
   No.of blades,nb     
 ------------------------
-       1
+       2
 
 Spanwise panels,ns   Chordwise panels,nc   Near wake panels,nNwake
 ---------------------------------------------------------------
-       13                      8                   144
+       13                      8                   20
 ===============================================================
 
 X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
@@ -27,11 +27,11 @@ Radius[m]      root_cut[r/R]      chord[m]    coningAngle[deg]
 
  Omega[rad/s]   X-shaftAxis     Y-shaftAxis     Z-shaftAxis 
 ---------------------------------------------------------------
-   62.83             0.0              0.0              1.0
+   130.90             0.0              0.0              1.0
 
  theta0[deg]    thetaC[deg]    thetaS[deg]    thetaTwist[deg]
 ---------------------------------------------------------------
-    5.0            0.0              0.0           0.0
+    8.0            0.0              0.0           0.0
 ===============================================================
 
 u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]    
