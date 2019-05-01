@@ -21,3 +21,5 @@ Check convergence of thrust(gamma) for multiple values of near wake panels and n
 
 Wake smoothening / velocity limiter
 Wake dissipation on extreme straining
+
+Check parallelization oppurtunities in dissipation
