@@ -44,9 +44,9 @@ pivot point from LE[x/chord]    flapHinge from centre[r/R]
         1.00                            0.0
 ===============================================================
 
-turbulentViscosity parameter (10-1000)
+turbulentViscosity parameter (10-10000)
 ----------------------------------------------------------------
-        5000
+        2200
 ===============================================================
 spanwise core radius[x/c]       streamwise core_switch
                                  [s]ectional  [i]dentical

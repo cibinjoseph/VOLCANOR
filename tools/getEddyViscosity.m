@@ -4,12 +4,12 @@
 clc; clear;
 
 % Input parameters 
-radius = 0.86;  % in metres
-omega_rpm = 2113.6  % in rpm
+radius = 1.143;  % in metres
+omega_rpm = 130.89  % in rpm
 density = 1.225  % in kg/m3
 kinematicViscosity = 1.46*10^(-5)  % in m/s2
-Nblades = 4
-CT = 0.0064
+Nblades = 2
+CT = 0.00460
 a1 = 0.1;  % Ref. Bagai, Leishman
 
 
