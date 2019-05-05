@@ -7,7 +7,7 @@ radius = 1.143;
 omega = 130.90;
 rho = 1.225;
 vtip = radius*omega;
-dt = 0.00138;
+dt = 0.00026;
 
 nrev = iter*dt*omega/(2*pi);
 %rbar = r/radius;
