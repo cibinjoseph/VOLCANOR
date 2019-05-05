@@ -1862,29 +1862,37 @@ contains
     ! Dissipate near wake
     do ib=1,this%nb
       do is=1,this%ns
+        !$omp parallel do
         do ic=this%rowNear,this%nNwake
           this%blade(ib)%waP(ic,is)%vr%vf(1)%rVc=sqrt(this%blade(ib)%waP(ic,is)%vr%vf(1)%rVc**2._dp &
             +4._dp*oseenParameter*this%turbulentViscosity*kinematicViscosity*dt)
           this%blade(ib)%waP(ic,is)%vr%vf(3)%rVc=this%blade(ib)%waP(ic,is)%vr%vf(1)%rVc
         enddo
+        !$omp end parallel do
         ! To maintain consistency of rVc in overlapping filaments
+        !$omp parallel do
         do ic=this%rowNear,this%nNwake
           this%blade(ib)%waP(ic,is)%vr%vf(2)%rVc=sqrt(this%blade(ib)%waP(ic,is)%vr%vf(2)%rVc**2._dp &
             +4._dp*oseenParameter*this%turbulentViscosity*kinematicViscosity*dt)
         enddo
+        !$omp end parallel do
         if (this%rowNear .ne. this%nNwake) then
+          !$omp parallel do
           do ic=this%rowNear+1,this%nNwake
             this%blade(ib)%waP(ic,is)%vr%vf(4)%rVc=this%blade(ib)%waP(ic-1,is)%vr%vf(2)%rVc
           enddo
+          !$omp end parallel do
         endif
       enddo
 
       ! Dissipate far wake if present
       if (this%rowFar .ne. 0) then
+        !$omp parallel do
         do ic=this%rowFar,this%nFwake
           this%blade(ib)%waF(ic)%vf%rVc=sqrt(this%blade(ib)%waF(ic)%vf%rVc**2._dp &
             +4._dp*oseenParameter*this%turbulentViscosity*kinematicViscosity*dt)
         enddo
+        !$omp end parallel do
       endif
     enddo
   end subroutine dissipate_wake
