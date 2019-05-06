@@ -94,7 +94,7 @@ program main
         do ic=1,rotor(ir)%nc
           row=ic+rotor(ir)%nc*(is-1)+rotor(ir)%ns*rotor(ir)%nc*(ib-1)
 
-          ! Rotational vel
+          ! Translational vel
           rotor(ir)%blade(ib)%wiP(ic,is)%velCP=rotor(ir)%velWind
 
           ! Rotational vel
