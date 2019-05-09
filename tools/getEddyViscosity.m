@@ -10,7 +10,7 @@ density = 1.225  % in kg/m3
 kinematicViscosity = 1.46*10^(-5)  % in m/s2
 Nblades = 2
 CT = 0.00460
-a1 = 0.1;  % Ref. Bagai, Leishman
+a1 = 2*10^(-4);  % Ref. Bagai, Leishman
 
 
 % Calculated parameters
@@ -30,5 +30,8 @@ velAtLmax = 0.8*radius*omega;
 % Using Kutta-Joukowski to find gammaMax
 gammaMax = Lmax/(density*velAtLmax);
 
+Re_nu = gammaMax/kinematicViscosity
+
 % Assuming strength of tip vortex to be gammaMax
 eddyVisc = 1+a1*gammaMax/kinematicViscosity
+
