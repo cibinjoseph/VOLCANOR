@@ -1852,63 +1852,111 @@ contains
   class(rotor_class), intent(inout) :: this
     real(dp), intent(in) :: dt
     real(dp) :: oseenParameter, kinematicViscosity
+    real(dp) :: a1Constant, FilamentTurbulentViscosity
     integer :: ib,ic,is
     oseenParameter = 1.2564_dp
     kinematicViscosity = 0.0000181_dp
+    a1Constant = 0.0002_dp
 
     ! Update wake age
     call this%age_wake(dt)
 
-    ! Dissipate near wake
-    do ib=1,this%nb
-      do is=1,this%ns
-        !$omp parallel do
-        do ic=this%rowNear,this%nNwake
-          this%blade(ib)%waP(ic,is)%vr%vf(1)%rVc=sqrt(this%blade(ib)%waP(ic,is)%vr%vf(1)%rVc**2._dp &
-            +4._dp*oseenParameter*this%turbulentViscosity*kinematicViscosity*dt)
-          this%blade(ib)%waP(ic,is)%vr%vf(3)%rVc=this%blade(ib)%waP(ic,is)%vr%vf(1)%rVc
-        enddo
-        !$omp end parallel do
-        ! To maintain consistency of rVc in overlapping filaments
-        !$omp parallel do
-        do ic=this%rowNear,this%nNwake
-          this%blade(ib)%waP(ic,is)%vr%vf(2)%rVc=sqrt(this%blade(ib)%waP(ic,is)%vr%vf(2)%rVc**2._dp &
-            +4._dp*oseenParameter*this%turbulentViscosity*kinematicViscosity*dt)
-        enddo
-        !$omp end parallel do
-        if (this%rowNear .ne. this%nNwake) then
+    if (this%turbulentViscosity .ge. 0) then
+      ! Dissipate near wake
+      do ib=1,this%nb
+        do is=1,this%ns
           !$omp parallel do
-          do ic=this%rowNear+1,this%nNwake
-            this%blade(ib)%waP(ic,is)%vr%vf(4)%rVc=this%blade(ib)%waP(ic-1,is)%vr%vf(2)%rVc
+          do ic=this%rowNear,this%nNwake
+            this%blade(ib)%waP(ic,is)%vr%vf(1)%rVc=sqrt(this%blade(ib)%waP(ic,is)%vr%vf(1)%rVc**2._dp &
+              +4._dp*oseenParameter*this%turbulentViscosity*kinematicViscosity*dt)
+            this%blade(ib)%waP(ic,is)%vr%vf(3)%rVc=this%blade(ib)%waP(ic,is)%vr%vf(1)%rVc
+          enddo
+          !$omp end parallel do
+          ! To maintain consistency of rVc in overlapping filaments
+          !$omp parallel do
+          do ic=this%rowNear,this%nNwake
+            this%blade(ib)%waP(ic,is)%vr%vf(2)%rVc=sqrt(this%blade(ib)%waP(ic,is)%vr%vf(2)%rVc**2._dp &
+              +4._dp*oseenParameter*this%turbulentViscosity*kinematicViscosity*dt)
+          enddo
+          !$omp end parallel do
+          if (this%rowNear .ne. this%nNwake) then
+            !$omp parallel do
+            do ic=this%rowNear+1,this%nNwake
+              this%blade(ib)%waP(ic,is)%vr%vf(4)%rVc=this%blade(ib)%waP(ic-1,is)%vr%vf(2)%rVc
+            enddo
+            !$omp end parallel do
+          endif
+        enddo
+
+        ! Dissipate far wake if present
+        if (this%rowFar .ne. 0) then
+          !$omp parallel do
+          do ic=this%rowFar,this%nFwake
+            this%blade(ib)%waF(ic)%vf%rVc=sqrt(this%blade(ib)%waF(ic)%vf%rVc**2._dp &
+              +4._dp*oseenParameter*this%turbulentViscosity*kinematicViscosity*dt)
           enddo
           !$omp end parallel do
         endif
       enddo
 
-      ! Dissipate far wake if present
-      if (this%rowFar .ne. 0) then
-        !$omp parallel do
-        do ic=this%rowFar,this%nFwake
-          this%blade(ib)%waF(ic)%vf%rVc=sqrt(this%blade(ib)%waF(ic)%vf%rVc**2._dp &
-            +4._dp*oseenParameter*this%turbulentViscosity*kinematicViscosity*dt)
+    else  ! Calculate turbulentViscosity using Squire's hypothesis
+
+      ! Dissipate near wake
+      do ib=1,this%nb
+        do is=1,this%ns
+          !$omp parallel do
+          do ic=this%rowNear,this%nNwake
+            FilamentTurbulentViscosity=1+a1Constant*abs(this%blade(ib)%waP(ic,is)%vr%gam)/kinematicViscosity
+            this%blade(ib)%waP(ic,is)%vr%vf(1)%rVc=sqrt(this%blade(ib)%waP(ic,is)%vr%vf(1)%rVc**2._dp &
+              +4._dp*oseenParameter*FilamentTurbulentViscosity*kinematicViscosity*dt)
+            this%blade(ib)%waP(ic,is)%vr%vf(3)%rVc=this%blade(ib)%waP(ic,is)%vr%vf(1)%rVc
+          enddo
+          !$omp end parallel do
+
+          ! To maintain consistency of rVc in overlapping filaments
+          !$omp parallel do
+          do ic=this%rowNear,this%nNwake
+            FilamentTurbulentViscosity=1+a1Constant*abs(this%blade(ib)%waP(ic,is)%vr%gam)/kinematicViscosity
+            this%blade(ib)%waP(ic,is)%vr%vf(2)%rVc=sqrt(this%blade(ib)%waP(ic,is)%vr%vf(2)%rVc**2._dp &
+              +4._dp*oseenParameter*FilamentTurbulentViscosity*kinematicViscosity*dt)
+          enddo
+          !$omp end parallel do
+
+          if (this%rowNear .ne. this%nNwake) then
+            !$omp parallel do
+            do ic=this%rowNear+1,this%nNwake
+              this%blade(ib)%waP(ic,is)%vr%vf(4)%rVc=this%blade(ib)%waP(ic-1,is)%vr%vf(2)%rVc
+            enddo
+            !$omp end parallel do
+          endif
         enddo
-        !$omp end parallel do
-      endif
-    enddo
+
+        ! Dissipate far wake if present
+        if (this%rowFar .ne. 0) then
+          !$omp parallel do
+          do ic=this%rowFar,this%nFwake
+            FilamentTurbulentViscosity=1+a1Constant*abs(this%blade(ib)%waF(ic)%vf%gam)/kinematicViscosity
+            this%blade(ib)%waF(ic)%vf%rVc=sqrt(this%blade(ib)%waF(ic)%vf%rVc**2._dp &
+              +4._dp*oseenParameter*FilamentTurbulentViscosity*kinematicViscosity*dt)
+          enddo
+          !$omp end parallel do
+        endif
+      enddo
+    endif
   end subroutine dissipate_wake
 
   subroutine strain_wake(this)
   class(rotor_class), intent(inout) :: this
-    integer :: i,ib
+  integer :: i,ib
 
-    do ib=1,this%nb
-      !$omp parallel do 
-      do i=this%rowFar,this%nFwake
-        call this%blade(ib)%waF(i)%vf%calclength(.FALSE.)    ! Update current length
-        call this%blade(ib)%waF(i)%vf%strain()
-      enddo
-      !$omp end parallel do
+  do ib=1,this%nb
+    !$omp parallel do 
+    do i=this%rowFar,this%nFwake
+      call this%blade(ib)%waF(i)%vf%calclength(.FALSE.)    ! Update current length
+      call this%blade(ib)%waF(i)%vf%strain()
     enddo
+    !$omp end parallel do
+  enddo
   end subroutine strain_wake
 
   function rotor_vind_bywing(this,P)
