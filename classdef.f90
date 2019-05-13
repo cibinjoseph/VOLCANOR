@@ -47,17 +47,19 @@ contains
 
     vind=0.
 
-    ! Ideal vortex model (Common part)
     if (r1Xr2Abs2 > eps*eps) then
-      inv_r1Xr2Abs2=1._dp/r1Xr2Abs2
-      vind=r1Xr2*inv4pi*inv_r1Xr2Abs2*dot_product(r0,r1/r1Abs-r2/r2Abs)
+      if (r1Abs > eps .and. r2Abs > eps) then 
+        ! Ideal vortex model (Common part)
+        inv_r1Xr2Abs2=1._dp/r1Xr2Abs2
+        vind=r1Xr2*inv4pi*inv_r1Xr2Abs2*dot_product(r0,r1/r1Abs-r2/r2Abs)
 
-      ! Rankine vortex model
-      invH2=dot_product(r0,r0)*inv_r1Xr2Abs2
-      kVcore=1._dp/sqrt(1._dp+this%rVc**4._dp*invH2*invH2)
+        ! Rankine vortex model
+        invH2=dot_product(r0,r0)*inv_r1Xr2Abs2
+        kVcore=1._dp/sqrt(1._dp+this%rVc**4._dp*invH2*invH2)
 
-      !vind=min(kVcore,1._dp)*vind
-      vind=kVcore*vind
+        !vind=min(kVcore,1._dp)*vind
+        vind=kVcore*vind
+      endif
     endif
 
   end function vfclass_vind
