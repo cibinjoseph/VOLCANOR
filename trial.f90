@@ -1,10 +1,26 @@
 program trial
-  use mymathlib
-  real(dp), dimension(6) :: xData, yData 
-  real(dp), dimension(3) :: out
-  xData=(/0._dp, 0.5_dp, 1._dp, 1.5_dp, 2._dp, 2.5_dp/)
-  yData=(/0.0674_dp, -0.9156_dp, 1.6253_dp, 3.0377_dp, 3.3535_dp, 7.9409_dp/)
+  use vf_classdef
+  implicit none 
+  integer, parameter :: n = 100
+  type(vf_class) :: vf
+  real(dp), dimension(3,n) :: r,v
+  real(dp) :: a
+  integer :: i
 
-  out=lsq2((/0._dp,1._dp,2._dp/),xData,yData)
-  print*,out
+  r=0._dp
+  r(1,:)=linspace(0._dp,1._dp,n)
+
+  vf%fc(:,1)=(/0._dp, 20._dp,0._dp/)
+  vf%fc(:,2)=(/0._dp,-20._dp,0._dp/)
+  vf%rVc0=0.14_dp
+  vf%rVc=vf%rVc0
+
+  do i=1,n
+    v(:,i)=vf%vind(r(:,i))
+  enddo
+
+  do i=1,n
+    print*,r(1,i),v(3,i)
+  enddo
+
 end program trial
