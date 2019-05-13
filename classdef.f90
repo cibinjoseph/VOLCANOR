@@ -56,7 +56,8 @@ contains
       invH2=dot_product(r0,r0)*inv_r1Xr2Abs2
       kVcore=1._dp/sqrt(1._dp+this%rVc**4._dp*invH2*invH2)
 
-      vind=min(kVcore,1._dp)*vind
+      !vind=min(kVcore,1._dp)*vind
+      vind=kVcore*vind
     endif
 
   end function vfclass_vind
