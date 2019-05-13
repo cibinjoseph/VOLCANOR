@@ -572,10 +572,15 @@ program main
                 0.5_dp*(3._dp*rotor(ir)%blade(ib)%velFwake- &
                 rotor(ir)%blade(ib)%velFwake1)
             endif
-            rotor(ir)%blade(ib)%velNwake1=rotor(ir)%blade(ib)%velNwake
+
+            ! For next step
+            rotor(ir)%blade(ib)%velNwake1=rotor(ir)%blade(ib)%velNwakeStep
+            rotor(ir)%blade(ib)%velFwake1=rotor(ir)%blade(ib)%velFwakeStep
+
+            ! For convection
             rotor(ir)%blade(ib)%velNwake=rotor(ir)%blade(ib)%velNwakeStep
-            rotor(ir)%blade(ib)%velFwake1=rotor(ir)%blade(ib)%velFwake
             rotor(ir)%blade(ib)%velFwake=rotor(ir)%blade(ib)%velFwakeStep
+
             call rotor(ir)%blade(ib)%convectwake(rotor(ir)%rowNear, &
               rotor(ir)%rowFar,dt,'C')
           enddo
