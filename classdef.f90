@@ -48,7 +48,7 @@ contains
     vind=0.
 
     ! Ideal vortex model (Common part)
-    if (r1Xr2Abs2 > eps) then
+    if (r1Xr2Abs2 > eps*eps) then
       inv_r1Xr2Abs2=1._dp/r1Xr2Abs2
       vind=r1Xr2*inv4pi*inv_r1Xr2Abs2*dot_product(r0,r1/r1Abs-r2/r2Abs)
 
