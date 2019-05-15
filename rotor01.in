@@ -51,11 +51,11 @@ turbulentViscosity parameter (10-10000)
 spanwise core radius[x/c]       streamwise core_switch
                                  [s]ectional  [i]dentical
 ----------------------------------------------------------------
-        0.07                            i
+        0.14                            i
 
 streamwise core radius[x/c]   root <----> tip  (ns+1 entries)
 ----------------------------------------------------------------
-0.07 
+0.14 
 ===============================================================
 
 Spanwise start[r/R]  &  end[r/R] for centroid of tip vorticity
