@@ -1,10 +1,10 @@
   No.of blades,nb     
 ------------------------
-       2
+       1
 
 Spanwise panels,ns   Chordwise panels,nc   Near wake panels,nNwake
 ---------------------------------------------------------------
-       13                      4                   30
+       13                      4                   158
 ===============================================================
 
 X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
