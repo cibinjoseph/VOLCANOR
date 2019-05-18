@@ -15,12 +15,9 @@ Effect of vortex core radius on wake structure
 Add provision for CL-alpha tables
 
 Comparison of centroids of vorticity for rollup model
-Check convergence of thrust history with nc for thurst(mean alf) and thrust(lsq alf)
-Why thrust(mean alf) converges to different value than thrust(gamma) - discrepancy
-Check convergence of thrust(gamma) for multiple values of near wake panels and nc
 
 Wake smoothening / velocity limiter
 Wake dissipation on extreme straining
 
-Check lift computation using alpha and gamma match
 Check if wake truncation is used in Mendeley sudden start paper
+Check climb case lift - stable case
