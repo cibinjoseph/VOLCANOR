@@ -48,16 +48,16 @@ contains
     vind=0.
 
     if (r1Xr2Abs2 > eps*eps) then
-        ! Ideal vortex model (Common part)
-        inv_r1Xr2Abs2=1._dp/r1Xr2Abs2
-        vind=r1Xr2*inv4pi*inv_r1Xr2Abs2*dot_product(r0,r1/r1Abs-r2/r2Abs)
+      ! Ideal vortex model (Common part)
+      inv_r1Xr2Abs2=1._dp/r1Xr2Abs2
+      vind=r1Xr2*inv4pi*inv_r1Xr2Abs2*dot_product(r0,r1/r1Abs-r2/r2Abs)
 
-        ! Rankine vortex model
-        invH2=dot_product(r0,r0)*inv_r1Xr2Abs2
-        kVcore=1._dp/sqrt(1._dp+this%rVc**4._dp*invH2*invH2)
+      ! Rankine vortex model
+      invH2=dot_product(r0,r0)*inv_r1Xr2Abs2
+      kVcore=1._dp/sqrt(1._dp+this%rVc**4._dp*invH2*invH2)
 
-        !vind=min(kVcore,1._dp)*vind
-        vind=kVcore*vind
+      !vind=min(kVcore,1._dp)*vind
+      vind=kVcore*vind
     endif
 
   end function vfclass_vind
@@ -1108,11 +1108,14 @@ contains
   subroutine calc_sectionalQuarterChord(this)
   class(blade_class), intent(inout) :: this
     integer :: is, rows
+    real(dp) :: quarterVal
 
+    quarterVal = 0.5_dp
     rows=size(this%wiP,1)
+
     do is=1,size(this%wiP,2)
-      this%sectionalQuarterChord(:,is)=0.75_dp*(this%wiP(1,is)%PC(:,4)+this%wiP(1,is)%PC(:,1))*0.5_dp+  &
-        0.25_dp*(this%wiP(rows,is)%PC(:,3)+this%wiP(rows,is)%PC(:,2))*0.5_dp
+      this%sectionalQuarterChord(:,is)=(1._dp-quarterVal)*(this%wiP(1,is)%PC(:,4)+this%wiP(1,is)%PC(:,1))*0.5_dp+  &
+        quarterVal*(this%wiP(rows,is)%PC(:,3)+this%wiP(rows,is)%PC(:,2))*0.5_dp
     enddo
   end subroutine calc_sectionalQuarterChord
 
