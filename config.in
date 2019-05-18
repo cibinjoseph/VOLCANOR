@@ -27,7 +27,7 @@
  WAKE PROPERTY SWITCHES: [0]Off [1]On  
  wakeDissipationSwitch            wakeStrainSwitch   wakeBurstSwitch
 -----------------------------------------------------------------------
-       1                                0                  0
+       0                                0                  0
 
  SLOW START TO AVOID LARGE STARTING VORTEX: [0]Off [1]linear [2]tanh [3]extended tanh
   slowStartSwitch       slowStartNt
