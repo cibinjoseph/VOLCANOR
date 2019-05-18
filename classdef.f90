@@ -29,7 +29,7 @@ contains
     ! Calculates induced velocity by unit gam vortex filament
   class(vf_class) :: this
     real(dp), dimension(3) :: vind, P
-    real(dp) :: r1Xr2Abs2, inv_r1Xr2Abs2, r1Abs, r2Abs, invH2, kVcore
+    real(dp) :: r1Xr2Abs2, r1Abs, r2Abs
     real(dp), dimension(3) :: r1, r2, r0, r1Xr2
 
     r1=P-this%fc(:,1)
@@ -48,18 +48,9 @@ contains
     vind=0.
 
     if (r1Xr2Abs2 > eps*eps) then
-      ! Ideal vortex model (Common part)
-      inv_r1Xr2Abs2=1._dp/r1Xr2Abs2
-      vind=r1Xr2*inv4pi*inv_r1Xr2Abs2*dot_product(r0,r1/r1Abs-r2/r2Abs)
-
-      ! Rankine vortex model
-      invH2=dot_product(r0,r0)*inv_r1Xr2Abs2
-      kVcore=1._dp/sqrt(1._dp+this%rVc**4._dp*invH2*invH2)
-
-      !vind=min(kVcore,1._dp)*vind
-      vind=kVcore*vind
+      ! Vatistas core model
+      vind=(r1Xr2*inv4pi*dot_product(r0,r1/r1Abs-r2/r2Abs))/sqrt((this%rVc*norm2(r0))**4._dp+r1Xr2Abs2**2._dp)
     endif
-
   end function vfclass_vind
 
   subroutine vfclass_calclength(this,isOriginal) 
