@@ -48,7 +48,6 @@ contains
     vind=0.
 
     if (r1Xr2Abs2 > eps*eps) then
-      if (r1Abs > eps .and. r2Abs > eps) then 
         ! Ideal vortex model (Common part)
         inv_r1Xr2Abs2=1._dp/r1Xr2Abs2
         vind=r1Xr2*inv4pi*inv_r1Xr2Abs2*dot_product(r0,r1/r1Abs-r2/r2Abs)
@@ -59,7 +58,6 @@ contains
 
         !vind=min(kVcore,1._dp)*vind
         vind=kVcore*vind
-      endif
     endif
 
   end function vfclass_vind
