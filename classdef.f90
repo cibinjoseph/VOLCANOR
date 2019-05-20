@@ -1101,7 +1101,7 @@ contains
     integer :: is, rows
     real(dp) :: quarterVal
 
-    quarterVal = 0.5_dp
+    quarterVal = 0.25_dp
     rows=size(this%wiP,1)
 
     do is=1,size(this%wiP,2)

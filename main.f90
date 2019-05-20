@@ -349,33 +349,51 @@ program main
           enddo
 
         case (1)  ! Compute using alpha
+          rotor(1)%blade(1)%wiP%velCPTotal(1)=0._dp
+          rotor(1)%blade(1)%wiP%velCPTotal(2)=0._dp
+          rotor(1)%blade(1)%wiP%velCPTotal(3)=0._dp
+          ic=1
           do ir=1,nr
             ! Compute alpha
+            ! DEBUG
             do ib=1,rotor(ir)%nb
               do is=1,rotor(ir)%ns
-                do ic=1,rotor(ir)%nc
-                  ! Compute local velocity vector
-                  ! (excluding induced velocities from wing bound vortices)
-                  rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal= &
-                    rotor(ir)%blade(ib)%wiP(ic,is)%velCP
-                  do jr=1,nr 
-                    ! Neglect velocity due to spanwise vortices for all wings
-                    rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal= &
-                      rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal- &
-                      rotor(jr)%vind_bywing_boundVortices( &
-                      rotor(ir)%blade(ib)%wiP(ic,is)%CP)
-                  enddo
-                  ! Add self induced velocity due to wing vortices
-                  rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal= &
-                    rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal+ &
-                    rotor(ir)%vind_bywing(rotor(ir)%blade(ib)%wiP(ic,is)%CP)
-                enddo
+                ! Compute local velocity vector
+                ! (excluding induced velocities from wing bound vortices)
+                rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal= &
+                  rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal+  &
+                  rotor(ir)%velWind+ &  ! Translational
+                  rotor(ir)%vind_bywake(rotor(ir)%blade(ib)%sectionalQuarterChord(:,is))+ &  ! Wake
+                  rotor(ir)%vind_bywing(rotor(ir)%blade(ib)%sectionalQuarterChord(:,is))- &  ! Wing
+                  rotor(ir)%vind_bywing_boundVortices(rotor(ir)%blade(ib)%sectionalQuarterChord(:,is))  ! Bound vortices
               enddo
             enddo
 
-            call rotor(ir)%calc_alpha()  ! Use velCPTotal to compute local alpha
-            call rotor(ir)%calc_sectionalAlpha()
-            call rotor(ir)%calc_force_alpha(density)
+          !  do ib=1,rotor(ir)%nb
+          !    do is=1,rotor(ir)%ns
+          !      do ic=1,rotor(ir)%nc
+          !        ! Compute local velocity vector
+          !        ! (excluding induced velocities from wing bound vortices)
+          !        rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal= &
+          !          rotor(ir)%blade(ib)%wiP(ic,is)%velCP
+          !        do jr=1,nr 
+          !          ! Neglect velocity due to spanwise vortices for all wings
+          !          rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal= &
+          !            rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal- &
+          !            rotor(jr)%vind_bywing_boundVortices( &
+          !            rotor(ir)%blade(ib)%wiP(ic,is)%CP)
+          !        enddo
+          !        ! Add self induced velocity due to wing vortices
+          !        rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal= &
+          !          rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal+ &
+          !          rotor(ir)%vind_bywing(rotor(ir)%blade(ib)%wiP(ic,is)%CP)
+          !      enddo
+          !    enddo
+          !  enddo
+
+          call rotor(ir)%calc_alpha()  ! Use velCPTotal to compute local alpha
+          call rotor(ir)%calc_sectionalAlpha()
+          call rotor(ir)%calc_force_alpha(density)
 
             ! Plot alpha
             if (rotor(ir)%alphaPlotSwitch .ne. 0) then
