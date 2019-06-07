@@ -26,7 +26,7 @@ contains
 
   ! Efficient implementation to vind calculation
   function vfclass_vind(this,P) result(vind)
-    ! Calculates induced velocity by unit gam vortex filament
+    ! Compute induced velocity by unit strength vortex filament
   class(vf_class) :: this
     real(dp), dimension(3) :: vind, P
     real(dp) :: r1Xr2Abs2, r1Abs, r2Abs
@@ -54,6 +54,7 @@ contains
   end function vfclass_vind
 
   subroutine vfclass_calclength(this,isOriginal) 
+    ! Compute length of vortex filament
   class(vf_class) :: this
     logical, intent(in) :: isOriginal
     real(dp), dimension(3) :: delta
@@ -64,6 +65,7 @@ contains
   end subroutine vfclass_calclength
 
   subroutine vfclass_strain(this)
+    ! Changes core radius according to change in vortex length
   class(vf_class) :: this
     this%rVc=this%rVc0*sqrt(this%l0/this%lc)
   end subroutine vfclass_strain
@@ -99,7 +101,7 @@ module vr_classdef
 contains
 
   function vrclass_vind(this,P) result(vind)
-    ! Calculates induced velocity by unit gam vortex ring
+    ! Compute induced velocity by unit strength vortex ring
   class(vr_class) :: this
     real(dp), dimension(3) :: P, vind
     real(dp), dimension(4,3) :: vindMat
@@ -127,7 +129,8 @@ contains
   ! |
   ! V X along chord
 
-  subroutine vrclass_assignP(this,n,P)   ! for assigning coordinates to nth corner
+  subroutine vrclass_assignP(this,n,P)
+    ! Assign coordinates to nth corner
   class(vr_class) :: this
     integer, intent(in) :: n
     real(dp), dimension(3) :: P
@@ -151,7 +154,8 @@ contains
 
   end subroutine vrclass_assignP
 
-  subroutine vrclass_shiftdP(this,n,dshift)   ! for shifting coordinates of nth corner by dshift distance (usually for Udt convection)
+  subroutine vrclass_shiftdP(this,n,dshift)
+    ! Shift coordinates of nth corner by dshift distance (usually for Udt convection)
   class(vr_class) :: this
     integer, intent(in) :: n
     real(dp), intent(in), dimension(3) :: dshift
@@ -189,6 +193,7 @@ contains
   end subroutine vrclass_rot
 
   subroutine vrclass_calclength(this,isOriginal)
+    ! Calculate length of filaments in vortex ring
   class(vr_class) :: this
     logical, intent(in) :: isOriginal
     integer :: i
@@ -206,6 +211,7 @@ contains
   end subroutine vrclass_strain
 
   function getInteriorAngles(this)
+    ! Obtain interior angles of vortex ring
   class(vr_class) :: this
     real(dp), dimension(4) :: getInteriorAngles
     real(dp), dimension(3) :: p1, p2, p3, p4
@@ -223,6 +229,7 @@ contains
   end function getInteriorAngles
 
   function getMedianAngle(this)
+    ! Obtain median angle of vortex ring
   class(vr_class) :: this
     real(dp) :: getMedianAngle
     real(dp), dimension(3) :: p1, p2, p3, p4
@@ -253,6 +260,7 @@ contains
   end function getMedianCos
 
   subroutine burst(this,skewLimit)
+    ! Burst vortex filaments if skewLimit is hit
   class(vr_class) :: this
     real(dp), intent(in) :: skewLimit
     real(dp) :: skewVal
@@ -321,7 +329,8 @@ contains
   ! |
   ! V X along chord
 
-  subroutine wingpanel_class_assignP(this,n,P)   ! for assigning coordinates to nth corner
+  subroutine wingpanel_class_assignP(this,n,P)
+    ! Assign coordinates to nth corner
   class(wingpanel_class) :: this
     integer, intent(in) :: n
     real(dp), dimension(3) :: P
@@ -335,6 +344,7 @@ contains
   end subroutine wingpanel_class_assignP
 
   subroutine wingpanel_class_calcCP(this)
+    ! Compute collocation point location
   class(wingpanel_class) :: this
 
     this%CP(1)=this%pc(1,1)+(this%pc(1,2)-this%pc(1,1))*0.75_dp
@@ -343,12 +353,14 @@ contains
   end subroutine wingpanel_class_calcCP
 
   subroutine wingpanel_class_calcN(this)
+    ! Compute normal vector
   class(wingpanel_class) :: this
     this%nCap=cross3(this%pc(:,3)-this%pc(:,1),this%pc(:,4)-this%pc(:,2))
     this%nCap=this%nCap/norm2(this%nCap)
   end subroutine wingpanel_class_calcN
 
   subroutine wingpanel_class_calcTau(this)
+    ! Compute chordwise and streamwise tangential vectors
   class(wingpanel_class) :: this
     this%tauCapChord=0.5_dp*((this%pc(:,2)+this%pc(:,3))-(this%pc(:,1)+this%pc(:,4)))
     this%tauCapSpan=0.5_dp*((this%pc(:,3)+this%pc(:,4))-(this%pc(:,2)+this%pc(:,1)))
@@ -357,6 +369,7 @@ contains
   end subroutine wingpanel_class_calcTau
 
   subroutine wingpanel_class_rot(this,Tmat)
+    ! Rotate panel using transformation matrix
   class(wingpanel_class) :: this
     real(dp), dimension(3,3) :: Tmat
     integer :: i
@@ -372,6 +385,7 @@ contains
   end subroutine wingpanel_class_rot
 
   subroutine wingpanel_class_shiftdP(this,dshift)
+    ! Shift corners of vortex ring by dshift
   class(wingpanel_class) :: this
     real(dp), intent(in), dimension(3) :: dshift
     integer :: i
@@ -390,13 +404,14 @@ contains
   end subroutine calc_area
 
   subroutine calc_mean_dimensions(this)
+    ! Calculate mean chord and mean span
   class(wingpanel_class) :: this
     this%meanSpan =0.5_dp*(norm2(this%pc(:,4)-this%pc(:,1))+norm2(this%pc(:,3)-this%pc(:,2)))
     this%meanChord=0.5_dp*(norm2(this%pc(:,2)-this%pc(:,1))+norm2(this%pc(:,3)-this%pc(:,4)))
   end subroutine calc_mean_dimensions
 
-  !! Calculates the orthogonal projection operator
   !function orthproj(this)
+  !! Compute the orthogonal projection operator
   !class(wingpanel_class) :: this
   !  real(dp), dimension(3,3) :: orthproj
   !  real(dp), dimension(3,3) :: idenmat
@@ -408,8 +423,8 @@ contains
   !  orthproj=idenmat-outer_product(velCPm_cap,velCPm_cap)
   !end function orthproj
 
-  ! Checks whether CP lies inside viscous core region of vortex ring
   function isCPinsidecore(this)
+    ! Check whether collocation point lies inside viscous core region of vortex ring
   class(wingpanel_class), intent(in) :: this
     logical :: isCPinsidecore
     real(dp) :: deltaxby4, deltayby2
@@ -430,6 +445,7 @@ contains
   end function isCPinsidecore
 
   subroutine wingpanel_calc_alpha(this)
+    ! Compute panel alpha using local velocities
   class(wingpanel_class), intent(inout) :: this
     real(dp) :: velCPTotalChordwiseProjectedMagnitude
     real(dp), dimension(3) :: velCPTotalChordwiseProjected
@@ -508,7 +524,8 @@ contains
   ! |
   ! V X along chord
 
-  subroutine Fwake_shiftdP(this,n,dshift)   ! for shifting coordinates of nth corner by dshift distance (usually for Udt convection)
+  subroutine Fwake_shiftdP(this,n,dshift)
+    ! Shift coordinates of nth corner by dshift distance (usually for Udt convection)
   class(Fwake_class) :: this
     integer, intent(in) :: n
     real(dp), intent(in), dimension(3) :: dshift
@@ -518,6 +535,7 @@ contains
   end subroutine Fwake_shiftdP
 
   subroutine Fwake_assignP(this,n,P)
+    ! Assign point to nth endpoint of filament
   class(Fwake_class) :: this
     integer, intent(in) :: n
     real(dp), intent(in), dimension(3) :: P
@@ -579,6 +597,7 @@ module blade_classdef
 contains
 
   subroutine blade_move(this,dshift)
+    ! Move blade by dshift
   class(blade_class) :: this
     real(dp), intent(in), dimension(3) :: dshift
     integer :: i,j
@@ -600,6 +619,7 @@ contains
   end subroutine blade_move
 
   subroutine blade_rot_pts(this,pts,origin,order)
+    ! Rotate blade using pts => phi theta psi
   class(blade_class), intent(inout) :: this
     real(dp), dimension(3), intent(in) :: pts    ! pts => phi,theta,psi
     real(dp), dimension(3), intent(in) :: origin ! rotation about
@@ -648,7 +668,8 @@ contains
 
   end subroutine blade_rot_pts
 
-  subroutine rot_pitch(this,theta)  !pitch about pivotLE from LE
+  subroutine rot_pitch(this,theta)
+    ! Rotate blade by pitch angle
     ! pivot point calculated using straight line joining LE of first panel and TE of last panel
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: theta
@@ -668,7 +689,8 @@ contains
     endif
   end subroutine rot_pitch
 
-  subroutine rot_axis(this,theta,axisVec,origin)  !rotate about axis at origin
+  subroutine rot_axis(this,theta,axisVec,origin)
+    ! Rotate about axis at specified origin
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: theta
     real(dp), intent(in), dimension(3) :: axisVec
@@ -728,6 +750,7 @@ contains
   end subroutine rot_axis
 
   function blade_vind_bywing(this,P)  
+    ! Compute induced velocity by blade bound vorticity
   class(blade_class), intent(inout) :: this
     real(dp), intent(in), dimension(3) :: P
     real(dp), dimension(3) :: blade_vind_bywing
@@ -743,6 +766,7 @@ contains
   end function blade_vind_bywing
 
   function blade_vind_bywing_boundVortices(this,P)  
+    ! Compute induced velocity by bound vortices alone
   class(blade_class), intent(inout) :: this
     real(dp), intent(in), dimension(3) :: P
     real(dp), dimension(3) :: blade_vind_bywing_boundVortices
@@ -766,6 +790,7 @@ contains
   end function blade_vind_bywing_boundVortices
 
   function blade_vind_bywake(this,rowNear,rowFar,P,optionalChar) 
+    ! Compute induced velocity by wake vortex rings
   class(blade_class), intent(inout) :: this
     integer, intent(in) :: rowNear,rowFar
     real(dp), intent(in), dimension(3) :: P
@@ -820,6 +845,7 @@ contains
   end function blade_vind_bywake
 
   subroutine convectwake(this,rowNear,rowFar,dt,wakeType)
+    ! Convect wake collocation points using velNwake matrix
   class(blade_class), intent(inout) :: this
     integer, intent(in) :: rowNear, rowFar
     real(dp), intent(in) :: dt
@@ -885,9 +911,9 @@ contains
 
   end subroutine convectwake
 
-  ! Maintain continuity between vortex ring elements after convection
-  ! of vortex ring corners
   subroutine wake_continuity(this,rowNear,rowFar,wakeType)
+    ! Maintain continuity between vortex ring elements after convection
+    ! of wake collocation points
   class(blade_class), intent(inout) :: this
     integer, intent(in) :: rowNear,rowFar
     character(len=1), intent(in) :: wakeType  ! For predicted wake
@@ -972,6 +998,7 @@ contains
   end subroutine wake_continuity
 
   subroutine blade_calc_force_gamma(this,density,invertGammaSign,dt)
+    ! Compute force using blade circulation
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: density, invertGammaSign, dt
     integer :: is, ic, rows, cols
@@ -1061,6 +1088,7 @@ contains
   end function getSectionalArea
 
   subroutine blade_calc_force_alpha(this,density)
+    ! Compute force using sectional alpha
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: density
     integer :: i
@@ -1075,6 +1103,7 @@ contains
   end subroutine blade_calc_force_alpha
 
   subroutine blade_calc_sectionalAlpha(this)
+    ! Compute sectional alpha from local panel alpha
   class(blade_class), intent(inout) :: this
     integer :: is, ic, rows
     real(dp), dimension(size(this%wiP,1)) :: xDist
@@ -1097,6 +1126,8 @@ contains
   end subroutine blade_calc_sectionalAlpha
 
   subroutine calc_sectionalQuarterChord(this)
+    ! Compute coordinates of sectional quarter chord
+    ! at which alpha is calculated
   class(blade_class), intent(inout) :: this
     integer :: is, rows
     real(dp) :: quarterVal
@@ -1315,6 +1346,7 @@ contains
   end subroutine getdata
 
   subroutine rotor_init(this,density,dt,spanSpacingSwitch,fdSchemeSwitch)
+    ! Initialize variables of rotor geometry and wake
   class(rotor_class) :: this
     real(dp), intent(in) :: density, dt
     integer, intent(in) :: spanSpacingSwitch, fdSchemeSwitch
@@ -1612,6 +1644,7 @@ contains
   end subroutine rotor_init
 
   subroutine rotor_deinit(this,fdSchemeSwitch)
+    ! Deinitialise rotor variables
   class(rotor_class) :: this
     integer, intent(in) :: fdSchemeSwitch
     integer :: ib
@@ -1655,6 +1688,7 @@ contains
   end subroutine rotor_deinit
 
   function gettheta(this,psi,ib)
+    ! Get pitch angle corresponding to blade azimuthal location
   class(rotor_class) :: this
     real(dp), intent(in) :: psi
     integer, intent(in) :: ib
@@ -1682,6 +1716,7 @@ contains
   end function getthetadot
 
   subroutine calcAIC(this)
+    ! Compute AIC matrix for rotor
   class(rotor_class), intent(inout) :: this
     integer :: ib,jblade,is,ic,i,j,row,col
     real(dp), dimension(3) :: vec_dummy
@@ -1709,6 +1744,7 @@ contains
   end subroutine calcAIC
 
   subroutine map_gam(this)
+    ! Map gam from vector to matrix format
   class(rotor_class), intent(inout) :: this
     integer :: ib
     do ib=1,this%nb
@@ -1736,6 +1772,7 @@ contains
   end subroutine rotor_move
 
   subroutine rotor_rot_pts(this,pts,origin,order)
+    ! Rotate using pts => phi theta psi
   class(rotor_class), intent(inout) :: this
     real(dp), dimension(3), intent(in) :: pts    ! pts => phi,theta,psi
     real(dp), dimension(3), intent(in) :: origin ! rotation about
@@ -1773,6 +1810,7 @@ contains
   end subroutine rotor_rot_pts
 
   subroutine rotor_rot_advance(this,dpsi)
+    ! Rotate rotos by dpsi angle about axis
   class(rotor_class), intent(inout) :: this
     real(dp), intent(in) :: dpsi
     integer :: ib
@@ -1794,8 +1832,8 @@ contains
   ! -+- | Wake Convection Functions | -+- |
   !-----+---------------------------+-----|
 
-  ! Assigns coordinates to first rowNear of wake from last row of blade
   subroutine assignshed(this,edge)
+    ! Assign coordinates to first rowNear of wake from last row of blade
   class(rotor_class), intent(inout) :: this
     character(len=2), intent(in) :: edge
     integer :: i, ib
@@ -1830,6 +1868,7 @@ contains
   !-----+----------------------------+-----|
 
   subroutine age_wake(this,dt)
+    ! Update age of wake filaments
   class(rotor_class), intent(inout) :: this
     real(dp),intent(in) :: dt
     integer :: ib, ifil
@@ -1899,21 +1938,22 @@ contains
   class(rotor_class), intent(inout) :: this
     integer :: i,ib
 
-  do ib=1,this%nb
-    !$omp parallel do 
-    do i=this%rowFar,this%nFwake
-      call this%blade(ib)%waF(i)%vf%calclength(.FALSE.)    ! Update current length
-      call this%blade(ib)%waF(i)%vf%strain()
-    enddo
-    !$omp end parallel do
+    do ib=1,this%nb
+      !$omp parallel do 
+      do i=this%rowFar,this%nFwake
+        call this%blade(ib)%waF(i)%vf%calclength(.FALSE.)    ! Update current length
+        call this%blade(ib)%waF(i)%vf%strain()
       enddo
-    end subroutine strain_wake
+      !$omp end parallel do
+    enddo
+  end subroutine strain_wake
 
-    function rotor_vind_bywing(this,P)
-    class(rotor_class), intent(inout) :: this
-      real(dp), intent(in), dimension(3) :: P
-      real(dp), dimension(3) :: rotor_vind_bywing
-      integer :: ib
+  function rotor_vind_bywing(this,P)
+    ! Compute induced velocity by all wing vortices at P
+  class(rotor_class), intent(inout) :: this
+    real(dp), intent(in), dimension(3) :: P
+    real(dp), dimension(3) :: rotor_vind_bywing
+    integer :: ib
 
     rotor_vind_bywing=0._dp
     do ib=1,this%nb
@@ -1922,6 +1962,7 @@ contains
   end function rotor_vind_bywing
 
   function rotor_vind_bywing_boundVortices(this,P)
+    ! Compute induced velocity by bound vortices at P
   class(rotor_class), intent(inout) :: this
     real(dp), intent(in), dimension(3) :: P
     real(dp), dimension(3) :: rotor_vind_bywing_boundVortices
@@ -1934,6 +1975,7 @@ contains
   end function rotor_vind_bywing_boundVortices
 
   function rotor_vind_bywake(this,P,optionalChar)
+    ! Compute induced velocity by wake vortices at P
   class(rotor_class), intent(inout) :: this
     real(dp), intent(in), dimension(3) :: P
     character(len=1), optional :: optionalChar
@@ -1955,6 +1997,7 @@ contains
   end function rotor_vind_bywake
 
   subroutine rotor_shiftwake(this)
+    ! Shift wake locations on rollup
   class(rotor_class), intent(inout) :: this
     integer :: ib,i
 
@@ -2062,6 +2105,7 @@ contains
   end subroutine record_gamPrev
 
   subroutine rotor_calc_force_gamma(this,density,dt)
+    ! Compute force from circulation
   class(rotor_class), intent(inout) :: this
     real(dp), intent(in) :: density, dt
     integer :: ib
@@ -2074,6 +2118,7 @@ contains
   end subroutine rotor_calc_force_gamma
 
   subroutine rotor_calc_force_alpha(this,density)
+    ! Compute force from sectional alpha
   class(rotor_class), intent(inout) :: this
     real(dp), intent(in) :: density
     integer :: ib
