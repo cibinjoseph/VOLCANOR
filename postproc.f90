@@ -4,6 +4,7 @@ module postproc
 contains
 
   subroutine init_plots(numOfRotors)
+    ! Initialise headers for plot files
     integer, intent(in) :: numOfRotors
     character(len=24) :: forceFilename
     integer :: rotorNumber
@@ -21,6 +22,7 @@ contains
   end subroutine init_plots
 
   subroutine rotor2file(timestamp,rotor)
+    ! Plot rotor geometry and wake to file
     type(rotor_class), intent(in) :: rotor
     character(len=*), intent(in) :: timestamp
     character(len=5) :: nxChar, nyChar
@@ -139,6 +141,7 @@ contains
   end subroutine rotor2file
 
   subroutine filaments2file(timestamp,rotor)
+    ! Write filaments to file for using with grid-based plots
     type(rotor_class), intent(in), dimension(:) :: rotor
     character(len=*), intent(in) :: timestamp
 
@@ -229,6 +232,7 @@ contains
   end subroutine filaments2file
 
   subroutine mesh2file(wing_array,wake_array,filename)
+    ! Obsolete 
     type(wingpanel_class), intent(in), dimension(:,:) :: wing_array
     type(Nwake_class), intent(in), dimension(:,:) :: wake_array
     character(len=*), intent(in) :: filename
@@ -298,6 +302,7 @@ contains
   end subroutine mesh2file
 
   subroutine wingverify(wing_array)
+    ! Write wing geometry to file in detail
     ! For verifying orientation of wing panels, bound vortex rings and CPs
     type(wingpanel_class), intent(in), dimension(:,:) :: wing_array
     character(len=5) :: nxChar, nyChar
@@ -442,6 +447,7 @@ contains
   ! end subroutine tip2file
 
   subroutine force2file(timestamp,rotor,rotorNumber,directionVector)
+    ! Write sectional and net force to file
     type(rotor_class), intent(in) :: rotor
     character(len=*), intent(in) :: timestamp
     integer, intent(in) :: rotorNumber
@@ -478,7 +484,7 @@ contains
   end subroutine force2file
 
   subroutine inflow2file(timestamp,rotorArray,rotorNumber,directionVector)
-    ! Calculates inflow velocity along directionVector on the blades of rotor(rotorNumber)
+    ! Calculate inflow velocity along directionVector on the blades of rotor(rotorNumber)
     ! at rotor(rotorNumber)%inflowLocations
     character(len=*), intent(in) :: timestamp
     type(rotor_class), intent(inout), dimension(:) :: rotorArray
@@ -518,7 +524,7 @@ contains
   end subroutine inflow2file
 
   subroutine gamma2file(timestamp,rotor,rotorNumber)
-    ! Calculates inflow velocity along directionVector on the blades of rotor(rotorNumber)
+    ! Calculate inflow velocity along directionVector on the blades of rotor(rotorNumber)
     ! at rotor(rotorNumber)%inflowLocations
     character(len=*), intent(in) :: timestamp
     type(rotor_class), intent(in) :: rotor
@@ -552,7 +558,7 @@ contains
   end subroutine gamma2file
 
   subroutine alpha2file(timestamp,rotor,rotorNumber)
-    ! Writes alpha to file
+    ! Write sectional alpha to file
     character(len=*), intent(in) :: timestamp
     type(rotor_class), intent(inout) :: rotor
     integer, intent(in) :: rotorNumber
