@@ -71,7 +71,7 @@ program main
     endif
   enddo
 
-  ! Obtain initial solution
+  ! Obtain initial solution without wake
   call print_status('Computing initial solution')
   if (slowStartSwitch .ne. 0) then
     do ir=1,nr
@@ -87,7 +87,7 @@ program main
   iter=0
   write(timestamp,'(I0.5)') iter
 
-  ! Compute RHS
+  ! Compute RHS for initial solution without wake
   do ir=1,nr
     do ib=1,rotor(ir)%nb
       do is=1,rotor(ir)%ns
@@ -214,12 +214,16 @@ program main
     print*, currentTime,iter,nt
 
     write(timestamp,'(I0.5)') iter
+
+    ! rowNear and rowFar keep track of what row
+    ! the current iteration is in for near wake and far wake
     do ir=1,nr
       rotor(ir)%rowNear=max(rotor(ir)%nNwake-(iter-1),1)
       rotor(ir)%rowFar=nt-(iter-1)
       if (iter<=rotor(ir)%nNwake) rotor(ir)%rowFar=0    ! 0 => no roll up
     enddo
 
+    ! In case of slow start, determine RPM
     select case (slowStartSwitch)
     case (0)    ! No slow start
       do ir=1,nr
@@ -244,7 +248,7 @@ program main
       error stop "Assign correct slowStartSwitch"
     end select
 
-    ! Move wing
+    ! Move wing to next position
     do ir=1,nr
       call rotor(ir)%move(rotor(ir)%velBody*dt)
       call rotor(ir)%rot_pts(rotor(ir)%omegaBody*dt,rotor(ir)%cgCoords,1)
@@ -256,6 +260,7 @@ program main
       call rotor(ir)%assignshed('LE')  ! Store shed vortex as LE
     enddo
 
+    ! Dissipate wake
     if (wakeDissipationSwitch .eq. 1) then
       do ir=1,nr
         ! Wake tip dissipation
@@ -263,6 +268,7 @@ program main
       enddo
     endif
 
+    ! Burst wake 
     do ir=1,nr
       if (wakeBurstSwitch .ne. 0) then
         if (mod(iter,wakeBurstSwitch) .eq. 0) &
@@ -302,12 +308,12 @@ program main
               rotor(ir)%blade(ib)%wiP(ic,is)%CP-rotor(ir)%hubCoords)
 
             do jr=1,nr
-              ! Wake vel due to all rotors
+              ! Wake induced vel due to all rotors
               rotor(ir)%blade(ib)%wiP(ic,is)%velCP= &
                 rotor(ir)%blade(ib)%wiP(ic,is)%velCP+ &
                 rotor(jr)%vind_bywake(rotor(ir)%blade(ib)%wiP(ic,is)%CP)
 
-              ! Wing induced vel due to wing vortices of other rotors
+              ! Wing induced vel due to all rotors except self
               if (ir .ne. jr) then
                 rotor(ir)%blade(ib)%wiP(ic,is)%velCP= &
                   rotor(ir)%blade(ib)%wiP(ic,is)%velCP+ &
@@ -411,7 +417,7 @@ program main
       endif
     endif
 
-    ! Inflow plot
+    ! Plot inflow 
     do ir=1,nr
       if (rotor(ir)%inflowPlotSwitch .ne. 0) then
         if (mod(iter,rotor(ir)%inflowPlotSwitch) .eq. 0) then 
@@ -420,7 +426,7 @@ program main
       endif
     enddo
 
-    ! Gamma plot
+    ! Plot sectional wing bound circulation
     do ir=1,nr
       if (rotor(ir)%gammaPlotSwitch .ne. 0) then
         if (mod(iter,rotor(ir)%gammaPlotSwitch) .eq. 0) then 
@@ -429,14 +435,15 @@ program main
       endif
     enddo
 
-    ! Grid plot computation
+    ! Record filaments for grid plot computation
     if (gridPlotSwitch .ne. 0) then
       if (mod(iter,gridPlotSwitch) .eq. 0) then 
         call filaments2file(timestamp,rotor)
       endif
     endif
 
-    ! Induced vel on wake vortices
+    ! Wake convection 
+    ! Initialise wake velocity matrices
     do ir=1,nr
       do ib=1,rotor(ir)%nb
         rotor(ir)%blade(ib)%velNwake(:,rotor(ir)%rowNear:rotor(ir)%nNwake,:)= &
@@ -448,6 +455,7 @@ program main
       enddo
     enddo
 
+    ! Compute induced velocity due to rotors in domain
     do ir=1,nr
       do ib=1,rotor(ir)%nb
         do jr=1,nr
@@ -462,6 +470,8 @@ program main
               rotor(ir)%blade(ib)%waF(rotor(ir)%rowFar:rotor(ir)%nFwake))
           endif
         enddo
+
+        ! Add initial wake velocity if provided
         if (iter < initWakeVelNt) then
           do i=1,3
             rotor(ir)%blade(ib)%velNwake(i,rotor(ir)%rowNear:rotor(ir)%nNwake,:)= &
@@ -740,6 +750,7 @@ program main
       enddo
     endif
 
+    ! Assign TE of wake and compute rollup
     do ir=1,nr
       if ((rotor(ir)%rowNear .eq. 1) .and. (rotor(ir)%rowFar/=1)) then  
         ! Last step of near wake or later steps
@@ -756,6 +767,7 @@ program main
 
   close(22)  ! Close status.txt
 
+  ! Deinitialize all variables
   do ir=1,nr
     call rotor(ir)%deinit(fdSchemeSwitch)
   enddo
