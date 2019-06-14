@@ -1107,8 +1107,7 @@ contains
   end subroutine blade_calc_sectionalAlpha
 
   function getSectionalChordwiseLocations(this,chordwiseFraction)
-    ! Compute coordinates of a point located at a fraction of chord
-    ! on each section
+    ! Get coordinates of a point located at a fraction of chord on each section
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: chordwiseFraction
     real(dp), dimension(3,size(this%wiP,2)) :: getSectionalChordwiseLocations
@@ -1419,7 +1418,8 @@ contains
         enddo
       enddo
 
-      this%blade(ib)%inflowLocations = getSectionalChordwiseLocations(0.25_dp)
+      ! Inflow calculated at mid-chord
+      this%blade(ib)%inflowLocations = this%blade(ib)%getSectionalChordwiseLocations(0.5_dp)
 
       ! Initialize gamma
       this%blade(ib)%wiP%vr%gam=0._dp
