@@ -514,7 +514,7 @@ contains
     do ib=1,rotorArray(rotorNumber)%nb
       write(bladeNumberChar,'(I0.2)') ib
       write(12,*) '# Blade'//bladeNumberChar
-      do il=1,rotorArray(rotorNumber)%nInflowLocations
+      do il=1,rotorArray(rotorNumber)%ns
         write(12,*) norm2(rotorArray(rotorNumber)%hubCoords-rotorArray(rotorNumber)%blade(ib)%inflowLocations(:,il)), &
           inflowVel(il,ib)
       enddo
