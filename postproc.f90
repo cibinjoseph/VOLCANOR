@@ -494,12 +494,12 @@ contains
     integer :: il,ir,ib
 
     real(dp), dimension(3) :: P
-    real(dp), dimension(rotorArray(rotorNumber)%nInflowLocations,rotorArray(rotorNumber)%nb) :: inflowVel
+    real(dp), dimension(rotorArray(rotorNumber)%ns,rotorArray(rotorNumber)%nb) :: inflowVel
 
     inflowVel=0._dp
     do ir=1,size(rotorArray)
       do ib=1,rotorArray(rotorNumber)%nb
-        do il=1,rotorArray(rotorNumber)%nInflowLocations
+        do il=1,rotorArray(rotorNumber)%ns
           P=rotorArray(rotorNumber)%blade(ib)%inflowLocations(:,il)
           inflowVel(il,ib)=inflowVel(il,ib)+dot_product(rotorArray(ir)%vind_bywing(P),directionVector) 
           inflowVel(il,ib)=inflowVel(il,ib)-dot_product(rotorArray(ir)%vind_bywing_boundVortices(P),directionVector) 
