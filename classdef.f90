@@ -562,7 +562,6 @@ module blade_classdef
     type(Fwake_class), allocatable, dimension(:) :: waFPredicted
     real(dp) :: theta
     real(dp), dimension(3) :: Force
-    real(dp), allocatable, dimension(:,:) :: sectionalQuarterChord
     real(dp), allocatable, dimension(:,:) :: sectionalForce
     real(dp) :: psi
     real(dp) :: pivotLE
@@ -588,7 +587,6 @@ module blade_classdef
     procedure :: wake_continuity
     procedure :: getSectionalDynamicPressure
     procedure :: getSectionalArea
-    procedure :: calc_sectionalQuarterChord
     procedure :: calc_force_gamma => blade_calc_force_gamma
     procedure :: calc_force_alpha => blade_calc_force_alpha
     procedure :: calc_sectionalAlpha => blade_calc_sectionalAlpha
@@ -611,10 +609,6 @@ contains
 
     do i=1,size(this%InflowLocations,2)
       this%inflowLocations(:,i)=this%inflowLocations(:,i)+dshift
-    enddo
-
-    do i=1,size(this%sectionalQuarterChord,2)
-      this%sectionalQuarterChord(:,i)=this%sectionalQuarterChord(:,i)+dshift
     enddo
 
   end subroutine blade_move
@@ -658,13 +652,6 @@ contains
     ! Rotate sectional chordwise vector to align with chord
     do j=1,size(this%sectionalChordwiseVec,2)
       this%sectionalChordwiseVec(:,j)=matmul(TMat,this%sectionalChordwiseVec(:,j))
-    enddo
-
-    ! Rotate sectional quarter chord location
-    do j=1,size(this%sectionalQuarterChord,2)
-      this%sectionalQuarterChord(:,j)=this%sectionalQuarterChord(:,j)-origin
-      this%sectionalQuarterChord(:,j)=matmul(TMat,this%sectionalQuarterChord(:,j))
-      this%sectionalQuarterChord(:,j)=this%sectionalQuarterChord(:,j)+origin
     enddo
 
   end subroutine blade_rot_pts
@@ -738,13 +725,6 @@ contains
       ! Rotate sectional chordwise vector also along with blade
       do j=1,size(this%sectionalChordwiseVec,2)
         this%sectionalChordwiseVec(:,j)=matmul(TMat,this%sectionalChordwiseVec(:,j))
-      enddo
-
-      ! Rotate sectional quarter chord location also along with blade
-      do j=1,size(this%sectionalQuarterChord,2)
-        this%sectionalQuarterChord(:,j)=this%sectionalQuarterChord(:,j)-origin
-        this%sectionalQuarterChord(:,j)=matmul(TMat,this%sectionalQuarterChord(:,j))
-        this%sectionalQuarterChord(:,j)=this%sectionalQuarterChord(:,j)+origin
       enddo
 
     endif
@@ -1116,7 +1096,7 @@ contains
           xDist(ic)=dot_product(this%wiP(ic,is)%CP-this%wiP(1,is)%PC(:,1),  &
             this%sectionalChordwiseVec(:,is))
         enddo
-        this%sectionalAlpha(is)=lsq2(dot_product(this%sectionalQuarterChord(:,is)-  &
+        this%sectionalAlpha(is)=lsq2(dot_product(this%inflowLocations(:,is)-  &
           this%wiP(1,is)%PC(:,1),this%sectionalChordwiseVec(:,is)),xDist,this%wiP(:,is)%alpha)
       enddo
     else  ! Use average of alpha values
@@ -1141,22 +1121,6 @@ contains
         chordwiseFraction*(this%wiP(rows,is)%PC(:,3)+this%wiP(rows,is)%PC(:,2))*0.5_dp
     enddo
   end function getSectionalChordwiseLocations
-
-  subroutine calc_sectionalQuarterChord(this)
-    ! Compute coordinates of sectional quarter chord
-    ! at which alpha is calculated
-  class(blade_class), intent(inout) :: this
-    integer :: is, rows
-    real(dp) :: quarterVal
-
-    quarterVal = 0.25_dp
-    rows=size(this%wiP,1)
-
-    do is=1,size(this%wiP,2)
-      this%sectionalQuarterChord(:,is)=(1._dp-quarterVal)*(this%wiP(1,is)%PC(:,4)+this%wiP(1,is)%PC(:,1))*0.5_dp+  &
-        quarterVal*(this%wiP(rows,is)%PC(:,3)+this%wiP(rows,is)%PC(:,2))*0.5_dp
-    enddo
-  end subroutine calc_sectionalQuarterChord
 
   subroutine blade_burst_wake(this,rowFar,skewLimit,largeCoreRadius)
   class(blade_class), intent(inout) :: this
@@ -1349,7 +1313,6 @@ contains
       allocate(this%blade(ib)%waP(this%nNwake,this%ns))
       allocate(this%blade(ib)%waF(this%nFwake))
       allocate(this%blade(ib)%sectionalChordwiseVec(3,this%ns))
-      allocate(this%blade(ib)%sectionalQuarterChord(3,this%ns))
       allocate(this%blade(ib)%sectionalForce(3,this%ns))
       allocate(this%blade(ib)%sectionalAlpha(this%ns))
       if (this%inflowPlotSwitch > 0) then
@@ -1473,9 +1436,6 @@ contains
           enddo
         endif
       endif
-
-      ! Initialize sectional quarter chord positions
-      call this%blade(ib)%calc_sectionalQuarterChord()
 
       ! Initialize gamma
       this%blade(ib)%wiP%vr%gam=0._dp
