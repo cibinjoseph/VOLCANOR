@@ -593,6 +593,7 @@ module blade_classdef
     procedure :: calc_force_alpha => blade_calc_force_alpha
     procedure :: calc_sectionalAlpha => blade_calc_sectionalAlpha
     procedure :: burst_wake => blade_burst_wake
+    procedure :: getSectionalChordwiseLocations
   end type blade_class
 contains
 
@@ -1124,6 +1125,22 @@ contains
       enddo
     endif
   end subroutine blade_calc_sectionalAlpha
+
+  function getSectionalChordwiseLocations(this,chordwiseFraction)
+    ! Compute coordinates of a point located at a fraction of chord
+    ! on each section
+  class(blade_class), intent(inout) :: this
+    real(dp), intent(in) :: chordwiseFraction
+    real(dp), dimension(3,size(this%wiP,2)) :: getSectionalChordwiseLocations
+    integer :: is, rows
+
+    rows=size(this%wiP,1)
+
+    do is=1,size(this%wiP,2)
+      getSectionalChordwiseLocations(:,is)=(1._dp-chordwiseFraction)*(this%wiP(1,is)%PC(:,4)+this%wiP(1,is)%PC(:,1))*0.5_dp+  &
+        chordwiseFraction*(this%wiP(rows,is)%PC(:,3)+this%wiP(rows,is)%PC(:,2))*0.5_dp
+    enddo
+  end function getSectionalChordwiseLocations
 
   subroutine calc_sectionalQuarterChord(this)
     ! Compute coordinates of sectional quarter chord
