@@ -68,11 +68,11 @@ initWakeVel[m/s]     psiStart[deg]      skewLimit
 ===============================================================
 
  PLOTS OF SPANWISE DISTRIBUTIONS: 
-  inflowPlotSwitch         nInflowLocations
-    [0]Off                      [n] for number of spanwise points at c/4
-    [n]Every nth iteration      [-n] for inflow at coll. point of nth chordwise row
+  inflowPlotSwitch         
+    [0]Off                 
+    [n]Every nth iteration 
 -----------------------------------------------------------------------
-       0                       -1
+       0                       
 
   gammaPlotSwitch   [0]Off   [n]Every nth iteration    
 ---------------------------------------------------------------

@@ -1189,7 +1189,7 @@ module rotor_classdef
     real(dp) :: initWakeVel, psiStart, skewLimit
     real(dp) :: turbulentViscosity
     integer :: rollupStart, rollupEnd
-    integer :: inflowPlotSwitch, nInflowLocations
+    integer :: inflowPlotSwitch
     integer :: gammaPlotSwitch, alphaPlotSwitch
     integer :: rowNear, rowFar
     real(dp) :: nonDimForceDenominator
@@ -1278,7 +1278,7 @@ contains
     call skiplines(12,3)
     read(12,*) this%initWakeVel, this%psiStart, this%skewLimit
     call skiplines(12,7)
-    read(12,*) this%inflowPlotSwitch, this%nInflowLocations
+    read(12,*) this%inflowPlotSwitch
     call skiplines(12,3)
     read(12,*) this%gammaPlotSwitch
     call skiplines(12,3)
@@ -1315,13 +1315,7 @@ contains
       allocate(this%blade(ib)%sectionalChordwiseVec(3,this%ns))
       allocate(this%blade(ib)%sectionalForce(3,this%ns))
       allocate(this%blade(ib)%sectionalAlpha(this%ns))
-      if (this%inflowPlotSwitch > 0) then
-        if (this%nInflowLocations < 0) then 
-          allocate(this%blade(ib)%inflowLocations(3,this%ns))
-        else
-          allocate(this%blade(ib)%inflowLocations(3,this%nInflowLocations))
-        endif
-      endif
+      allocate(this%blade(ib)%inflowLocations(3,this%ns))
     enddo
   end subroutine getdata
 
@@ -1425,17 +1419,7 @@ contains
         enddo
       enddo
 
-      if (this%inflowPlotSwitch > 0) then
-        if (this%nInflowLocations > 0) then
-          this%blade(ib)%inflowLocations(1,:)=0.75_dp*xVec(1)+0.25_dp*xVec(this%nc+1)  ! Quarter chord
-          this%blade(ib)%inflowLocations(2,:)=linspace(this%root_cut*this%radius,this%radius,this%nInflowLocations)
-          this%blade(ib)%inflowLocations(3,:)=0._dp
-        else
-          do i=1,this%ns
-            this%blade(ib)%inflowLocations(:,i)=this%blade(ib)%wiP(abs(this%nInflowLocations),i)%CP
-          enddo
-        endif
-      endif
+      this%blade(ib)%inflowLocations = getSectionalChordwiseLocations(0.25_dp)
 
       ! Initialize gamma
       this%blade(ib)%wiP%vr%gam=0._dp
@@ -1495,11 +1479,6 @@ contains
         read(*,*)
       endif
     enddo
-
-    ! Change value of nInflowLocations to ns if negative for use in postproc
-    if (this%nInflowLocations < 0) then
-      this%nInflowLocations = this%ns
-    endif
 
     ! Move rotor to hub coordinates
     do ib=1,this%nb
