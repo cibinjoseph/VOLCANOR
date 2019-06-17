@@ -16,7 +16,7 @@ contains
 
       ! Add data headers
       open(unit=11,file=forceFilename,action='write')
-      write(11,'(A)') '# timestamp(iters)    CT    rotorThrust    bladeThrust1    bladeThrust2...'
+      write(11,'(A)') 'timestamp(iters)    CT    rotorThrust    bladeThrust1    bladeThrust2...'
     enddo
     close(11)
   end subroutine init_plots

@@ -6,6 +6,8 @@ filename = 'Results/r01forceHist.txt'
 timestamp = []
 CT = []
 with open(filename) as forceFile:
+    # Skip first line
+    next(forceFile)
     for line in forceFile:
         # Handle empty lines and comments
         if line and (line[0][0] != '#'):
