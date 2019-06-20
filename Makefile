@@ -7,7 +7,7 @@ iflagsprof=-traceback -O3 -implicitnone -r8 -g -debug inline-debug-info -paralle
 #### GFORTRAN ####
 gfc=gfortran-7 
 gflags=-O2 -ffree-form -fimplicit-none -fopenmp -ffree-line-length-none #-fmax-stack-var-size=4096
-gflagsdbg=-fbacktrace -O0 -ffree-form -Wall -Wextra -Wimplicit-interface -Wunused-parameter -Wline-truncation -Wcharacter-truncation -Wsurprising -Waliasing -fimplicit-none -fcheck=all -g -ffpe-trap=invalid,zero,overflow,underflow
+gflagsdbg=-fbacktrace -O0 -ffree-form -Wall -Wextra -Wimplicit-interface -Wunused-parameter -Wcharacter-truncation -Wsurprising -Waliasing -fimplicit-none -fcheck=all -g -ffpe-trap=invalid,zero,overflow,underflow
 
 objpath=./obj
 resultspath=./Results
@@ -22,35 +22,35 @@ init:
 
 lib:
 	reset
-	@$(ifc) $(iflags) -c mymathlib.f90       -module $(objpath) -o $(objpath)/mymathlib.o
+	@$(ifc) $(iflags) -c libMath.f90       -module $(objpath) -o $(objpath)/libMath.o
 	@printf '%s' 'Compiled 1/4...'
 	@$(ifc) $(iflags) -c classdef.f90        -module $(objpath) -o $(objpath)/classdef.o
 	@printf '\r%s' 'Compiled 2/4...'
-	@$(ifc) $(iflags) -c library.f90         -module $(objpath) -o $(objpath)/library.o
+	@$(ifc) $(iflags) -c libMain.f90         -module $(objpath) -o $(objpath)/libMain.o
 	@printf '\r%s' 'Compiled 3/4...'
-	@$(ifc) $(iflags) -c postproc.f90        -module $(objpath) -o $(objpath)/postproc.o
+	@$(ifc) $(iflags) -c libPostprocess.f90        -module $(objpath) -o $(objpath)/libPostprocess.o
 	@printf '\r%s\n' 'Compiled 4/4...'
 
 lib_dbg:
 	reset
-	@$(ifc) $(iflagsdbg) -c mymathlib.f90    -module $(objpath) -o $(objpath)/mymathlib.o
+	@$(ifc) $(iflagsdbg) -c libMath.f90    -module $(objpath) -o $(objpath)/libMath.o
 	@printf '%s' 'Compiled 1/4...'
 	@$(ifc) $(iflagsdbg) -c classdef.f90     -module $(objpath) -o $(objpath)/classdef.o
 	@printf '\r%s' 'Compiled 2/4...'
-	@$(ifc) $(iflagsdbg) -c library.f90      -module $(objpath) -o $(objpath)/library.o
+	@$(ifc) $(iflagsdbg) -c libMain.f90      -module $(objpath) -o $(objpath)/libMain.o
 	@printf '\r%s' 'Compiled 3/4...'
-	@$(ifc) $(iflagsdbg) -c postproc.f90     -module $(objpath) -o $(objpath)/postproc.o
+	@$(ifc) $(iflagsdbg) -c libPostprocess.f90     -module $(objpath) -o $(objpath)/libPostprocess.o
 	@printf '\r%s\n' 'Compiled 4/4...'
 
 lib_prof:
 	reset
-	@$(ifc) $(iflagsprof) -c mymathlib.f90   -module $(objpath) -o $(objpath)/mymathlib.o
+	@$(ifc) $(iflagsprof) -c libMath.f90   -module $(objpath) -o $(objpath)/libMath.o
 	@printf '%s' 'Compiled 1/4...'
 	@$(ifc) $(iflagsprof) -c classdef.f90    -module $(objpath) -o $(objpath)/classdef.o
 	@printf '\r%s' 'Compiled 2/4...'
-	@$(ifc) $(iflagsprof) -c library.f90     -module $(objpath) -o $(objpath)/library.o
+	@$(ifc) $(iflagsprof) -c libMain.f90     -module $(objpath) -o $(objpath)/libMain.o
 	@printf '\r%s' 'Compiled 3/4...'
-	@$(ifc) $(iflagsprof) -c postproc.f90    -module $(objpath) -o $(objpath)/postproc.o
+	@$(ifc) $(iflagsprof) -c libPostprocess.f90    -module $(objpath) -o $(objpath)/libPostprocess.o
 	@printf '\r%s\n' 'Compiled 4/4...'
 
 run:
@@ -101,18 +101,18 @@ trial_dbg:
 # Gfortran part
 glib_dbg:
 	reset
-	@$(gfc) $(gflagsdbg) -c mymathlib.f90  -J$(objpath) -o $(objpath)/mymathlib.o
+	@$(gfc) $(gflagsdbg) -c libMath.f90  -J$(objpath) -o $(objpath)/libMath.o
 	@$(gfc) $(gflagsdbg) -c classdef.f90   -J$(objpath) -o $(objpath)/classdef.o
-	@$(gfc) $(gflagsdbg) -c library.f90    -J$(objpath) -o $(objpath)/library.o
-	@$(gfc) $(gflagsdbg) -c postproc.f90   -J$(objpath) -o $(objpath)/postproc.o
+	@$(gfc) $(gflagsdbg) -c libMain.f90    -J$(objpath) -o $(objpath)/libMain.o
+	@$(gfc) $(gflagsdbg) -c libPostprocess.f90   -J$(objpath) -o $(objpath)/libPostprocess.o
 	@$(gfc) -c -I$(objpath) $(gflags) main.f90 $(objpath)/*.o 
 
 glib:
 	reset
-	@$(gfc) $(gflags) -c mymathlib.f90     -J$(objpath) -o $(objpath)/mymathlib.o
+	@$(gfc) $(gflags) -c libMath.f90     -J$(objpath) -o $(objpath)/libMath.o
 	@$(gfc) $(gflags) -c classdef.f90      -J$(objpath) -o $(objpath)/classdef.o
-	@$(gfc) $(gflags) -c library.f90       -J$(objpath) -o $(objpath)/library.o
-	@$(gfc) $(gflags) -c postproc.f90      -J$(objpath) -o $(objpath)/postproc.o
+	@$(gfc) $(gflags) -c libMain.f90       -J$(objpath) -o $(objpath)/libMain.o
+	@$(gfc) $(gflags) -c libPostprocess.f90      -J$(objpath) -o $(objpath)/libPostprocess.o
 
 grun:
 	reset

@@ -1,4 +1,4 @@
-module mymathlib
+module libMath
 
   implicit none
   integer, parameter :: dp = kind(1.d0)
@@ -453,4 +453,4 @@ contains
   end subroutine skiplines
 
 
-end module mymathlib
+end module libMath
