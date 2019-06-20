@@ -23,35 +23,41 @@ init:
 lib:
 	reset
 	@$(ifc) $(iflags) -c libMath.f90       -module $(objpath) -o $(objpath)/libMath.o
-	@printf '%s' 'Compiled 1/4...'
+	@printf '%s' 'Compiled 1/5...'
+	@$(ifc) $(iflags) -c libC81.f90       -module $(objpath) -o $(objpath)/libC81.o
+	@printf '%s' 'Compiled 2/5...'
 	@$(ifc) $(iflags) -c classdef.f90        -module $(objpath) -o $(objpath)/classdef.o
-	@printf '\r%s' 'Compiled 2/4...'
+	@printf '\r%s' 'Compiled 3/5...'
 	@$(ifc) $(iflags) -c libMain.f90         -module $(objpath) -o $(objpath)/libMain.o
-	@printf '\r%s' 'Compiled 3/4...'
+	@printf '\r%s' 'Compiled 4/5...'
 	@$(ifc) $(iflags) -c libPostprocess.f90        -module $(objpath) -o $(objpath)/libPostprocess.o
-	@printf '\r%s\n' 'Compiled 4/4...'
+	@printf '\r%s\n' 'Compiled 5/5...'
 
 lib_dbg:
 	reset
 	@$(ifc) $(iflagsdbg) -c libMath.f90    -module $(objpath) -o $(objpath)/libMath.o
-	@printf '%s' 'Compiled 1/4...'
+	@printf '%s' 'Compiled 1/5...'
+	@$(ifc) $(iflagsdbg) -c libC81.f90    -module $(objpath) -o $(objpath)/libC81.o
+	@printf '%s' 'Compiled 2/5...'
 	@$(ifc) $(iflagsdbg) -c classdef.f90     -module $(objpath) -o $(objpath)/classdef.o
-	@printf '\r%s' 'Compiled 2/4...'
+	@printf '\r%s' 'Compiled 3/5...'
 	@$(ifc) $(iflagsdbg) -c libMain.f90      -module $(objpath) -o $(objpath)/libMain.o
-	@printf '\r%s' 'Compiled 3/4...'
+	@printf '\r%s' 'Compiled 4/5...'
 	@$(ifc) $(iflagsdbg) -c libPostprocess.f90     -module $(objpath) -o $(objpath)/libPostprocess.o
-	@printf '\r%s\n' 'Compiled 4/4...'
+	@printf '\r%s\n' 'Compiled 5/5...'
 
 lib_prof:
 	reset
 	@$(ifc) $(iflagsprof) -c libMath.f90   -module $(objpath) -o $(objpath)/libMath.o
-	@printf '%s' 'Compiled 1/4...'
+	@printf '%s' 'Compiled 1/5...'
+	@$(ifc) $(iflagsprof) -c libC81.f90   -module $(objpath) -o $(objpath)/libC81.o
+	@printf '%s' 'Compiled 2/5...'
 	@$(ifc) $(iflagsprof) -c classdef.f90    -module $(objpath) -o $(objpath)/classdef.o
-	@printf '\r%s' 'Compiled 2/4...'
+	@printf '\r%s' 'Compiled 3/5...'
 	@$(ifc) $(iflagsprof) -c libMain.f90     -module $(objpath) -o $(objpath)/libMain.o
-	@printf '\r%s' 'Compiled 3/4...'
+	@printf '\r%s' 'Compiled 4/5...'
 	@$(ifc) $(iflagsprof) -c libPostprocess.f90    -module $(objpath) -o $(objpath)/libPostprocess.o
-	@printf '\r%s\n' 'Compiled 4/4...'
+	@printf '\r%s\n' 'Compiled 5/5...'
 
 run:
 	reset
@@ -102,6 +108,7 @@ trial_dbg:
 glib_dbg:
 	reset
 	@$(gfc) $(gflagsdbg) -c libMath.f90  -J$(objpath) -o $(objpath)/libMath.o
+	@$(gfc) $(gflagsdbg) -c libC81.f90  -J$(objpath) -o $(objpath)/libC81.o
 	@$(gfc) $(gflagsdbg) -c classdef.f90   -J$(objpath) -o $(objpath)/classdef.o
 	@$(gfc) $(gflagsdbg) -c libMain.f90    -J$(objpath) -o $(objpath)/libMain.o
 	@$(gfc) $(gflagsdbg) -c libPostprocess.f90   -J$(objpath) -o $(objpath)/libPostprocess.o
@@ -110,6 +117,7 @@ glib_dbg:
 glib:
 	reset
 	@$(gfc) $(gflags) -c libMath.f90     -J$(objpath) -o $(objpath)/libMath.o
+	@$(gfc) $(gflags) -c libC81.f90     -J$(objpath) -o $(objpath)/libC81.o
 	@$(gfc) $(gflags) -c classdef.f90      -J$(objpath) -o $(objpath)/classdef.o
 	@$(gfc) $(gflags) -c libMain.f90       -J$(objpath) -o $(objpath)/libMain.o
 	@$(gfc) $(gflags) -c libPostprocess.f90      -J$(objpath) -o $(objpath)/libPostprocess.o
