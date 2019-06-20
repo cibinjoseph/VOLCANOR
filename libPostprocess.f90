@@ -1,4 +1,4 @@
-module postproc
+module libPostprocess
   use rotor_classdef
 
 contains
@@ -580,5 +580,5 @@ contains
 
   end subroutine alpha2file
 
-end module postproc
+end module libPostprocess
 

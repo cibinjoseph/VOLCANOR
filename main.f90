@@ -1,6 +1,6 @@
 program main
-  use library
-  use postproc
+  use libMain
+  use libPostprocess
 
   ! Initialize variables
   include "init_file.f90"

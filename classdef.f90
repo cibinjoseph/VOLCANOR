@@ -2,7 +2,7 @@
 ! ++++ | MODULE DEFINITION | ++++ |
 !------+-------------------+------|
 module vf_classdef
-  use mymathlib
+  use libMath
   implicit none
 
   type vf_class
