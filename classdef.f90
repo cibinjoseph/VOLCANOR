@@ -294,6 +294,7 @@ module wingpanel_classdef
     real(dp), dimension(3) :: velCPTotal  ! local velocity at CP including wing vortices
     real(dp), dimension(3) :: velCPm  ! rel. inertial velocity at CP (due to motion)
     real(dp), dimension(3) :: normalForce  ! panel normalForce vector in inertial frame
+    real(dp), dimension(3) :: chordwiseResultantVel
     real(dp) :: velPitch             ! pitch velocity
     !real(dp) :: dLift, dDrag          ! magnitudes of panel lift and drag
     real(dp) :: delP                  ! Pressure difference at panel
@@ -444,24 +445,41 @@ contains
     endif
   end function isCPinsidecore
 
-  subroutine wingpanel_calc_alpha(this)
-    ! Compute panel alpha using local velocities
+  subroutine wingpanel_calc_chordwiseResultantVel(this)
+    ! Compute panel resultant velocities using local velocities
   class(wingpanel_class), intent(inout) :: this
-    real(dp) :: velCPTotalChordwiseProjectedMagnitude
-    real(dp), dimension(3) :: velCPTotalChordwiseProjected
+    real(dp), dimension(3) :: chordwiseResultantVel
 
-    velCPTotalChordwiseProjected=this%velCPTotal- &
+    chordwiseResultantVel=this%velCPTotal- &
       dot_product(this%velCPTotal,this%tauCapSpan)*this%tauCapSpan
 
-    velCPTotalChordwiseProjectedMagnitude=norm2(velCPTotalChordwiseProjected)
 
-    if (velCPTotalChordwiseProjectedMagnitude .gt. eps) then
-      this%alpha=acos(dot_product(velCPTotalChordwiseProjected,this%tauCapChord) &
-        /velCPTotalChordwiseProjectedMagnitude)
+    if (chordwiseResultantVelMagnitude .gt. eps) then
+      this%alpha=acos(dot_product(chordwiseResultantVel,this%tauCapChord) &
+        /chordwiseResultantVelMagnitude)
     else
       this%alpha=0._dp
     endif
-  end subroutine wingpanel_calc_alpha
+  end subroutine wingpanel_calc_resultantVelocity
+
+  !subroutine wingpanel_calc_alpha(this)
+  !  ! Compute panel alpha using local velocities
+  !class(wingpanel_class), intent(inout) :: this
+  !  real(dp) :: velCPTotalChordwiseProjectedMagnitude
+  !  real(dp), dimension(3) :: velCPTotalChordwiseProjected
+
+  !  velCPTotalChordwiseProjected=this%velCPTotal- &
+  !    dot_product(this%velCPTotal,this%tauCapSpan)*this%tauCapSpan
+
+  !  velCPTotalChordwiseProjectedMagnitude=norm2(velCPTotalChordwiseProjected)
+
+  !  if (velCPTotalChordwiseProjectedMagnitude .gt. eps) then
+  !    this%alpha=acos(dot_product(velCPTotalChordwiseProjected,this%tauCapChord) &
+  !      /velCPTotalChordwiseProjectedMagnitude)
+  !  else
+  !    this%alpha=0._dp
+  !  endif
+  !end subroutine wingpanel_calc_alpha
 
 end module wingpanel_classdef
 
@@ -567,6 +585,7 @@ module blade_classdef
     real(dp) :: pivotLE
     real(dp), allocatable, dimension(:,:) :: sectionalChordwiseVec
     real(dp), allocatable, dimension(:) :: sectionalAlpha
+    real(dp), allocatable, dimension(:,:) :: sectionalResultantVel
     real(dp), allocatable, dimension(:,:) :: inflowLocations
     real(dp), allocatable, dimension(:,:,:) :: velNwake
     real(dp), allocatable, dimension(:,:,:) :: velNwake1, velNwake2, velNwake3
@@ -1084,9 +1103,9 @@ contains
   end subroutine blade_calc_force_alpha
 
   subroutine blade_calc_sectionalAlpha(this)
-    ! Compute sectional alpha from local panel alpha
+    ! Compute sectional alpha by interpolating local panel velocity
   class(blade_class), intent(inout) :: this
-    integer :: is, ic, rows
+    integer :: i, is, ic, rows
     real(dp), dimension(size(this%wiP,1)) :: xDist
 
     rows=size(this%wiP,1)
@@ -1096,8 +1115,10 @@ contains
           xDist(ic)=dot_product(this%wiP(ic,is)%CP-this%wiP(1,is)%PC(:,1),  &
             this%sectionalChordwiseVec(:,is))
         enddo
-        this%sectionalAlpha(is)=lsq2(dot_product(this%inflowLocations(:,is)-  &
-          this%wiP(1,is)%PC(:,1),this%sectionalChordwiseVec(:,is)),xDist,this%wiP(:,is)%alpha)
+        this%sectionalResultantVel(i,is)=lsq2(dot_product(this%inflowLocations(:,is)-  &
+          this%wiP(1,is)%PC(:,1),this%sectionalChordwiseVec(:,is)),xDist,this%wiP(:,is)%ResultantVel(i))
+        !this%sectionalAlpha(is)=lsq2(dot_product(this%inflowLocations(:,is)-  &
+        !  this%wiP(1,is)%PC(:,1),this%sectionalChordwiseVec(:,is)),xDist,this%wiP(:,is)%alpha)
       enddo
     else  ! Use average of alpha values
       do is=1,size(this%sectionalAlpha)
@@ -1105,6 +1126,29 @@ contains
       enddo
     endif
   end subroutine blade_calc_sectionalAlpha
+
+  !subroutine blade_calc_sectionalAlpha(this)
+  !  ! Compute sectional alpha by interpolating local panel alpha
+  !class(blade_class), intent(inout) :: this
+  !  integer :: is, ic, rows
+  !  real(dp), dimension(size(this%wiP,1)) :: xDist
+
+  !  rows=size(this%wiP,1)
+  !  if (rows .ge. 3) then  ! Use least squares fit to get alpha
+  !    do is=1,size(this%sectionalAlpha)
+  !      do ic=1,rows
+  !        xDist(ic)=dot_product(this%wiP(ic,is)%CP-this%wiP(1,is)%PC(:,1),  &
+  !          this%sectionalChordwiseVec(:,is))
+  !      enddo
+  !      this%sectionalAlpha(is)=lsq2(dot_product(this%inflowLocations(:,is)-  &
+  !        this%wiP(1,is)%PC(:,1),this%sectionalChordwiseVec(:,is)),xDist,this%wiP(:,is)%alpha)
+  !    enddo
+  !  else  ! Use average of alpha values
+  !    do is=1,size(this%sectionalAlpha)
+  !      this%sectionalAlpha(is)=sum(this%wiP(:,is)%alpha)/rows
+  !    enddo
+  !  endif
+  !end subroutine blade_calc_sectionalAlpha
 
   function getSectionalChordwiseLocations(this,chordwiseFraction)
     ! Get coordinates of a point located at a fraction of chord on each section
@@ -1314,6 +1358,7 @@ contains
       allocate(this%blade(ib)%sectionalChordwiseVec(3,this%ns))
       allocate(this%blade(ib)%sectionalForce(3,this%ns))
       allocate(this%blade(ib)%sectionalAlpha(this%ns))
+      allocate(this%blade(ib)%sectionalResultantVel(3,this%ns))
       allocate(this%blade(ib)%inflowLocations(3,this%ns))
     enddo
   end subroutine getdata
