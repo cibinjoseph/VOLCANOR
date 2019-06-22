@@ -1,4 +1,4 @@
-module libMain
+module libCommon
   use rotor_classdef
   implicit none
 
@@ -137,4 +137,4 @@ contains
     endif
   end subroutine print_status
 
-end module libMain
+end module libCommon

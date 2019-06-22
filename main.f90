@@ -1,5 +1,5 @@
 program main
-  use libMain
+  use libCommon
   use libPostprocess
 
   ! Initialize variables
