@@ -1102,30 +1102,32 @@ contains
     enddo
   end subroutine blade_calc_force_alpha
 
-  subroutine blade_calc_sectionalAlpha(this)
+  subroutine blade_calc_sectionalResultantVel(this)
     ! Compute sectional alpha by interpolating local panel velocity
   class(blade_class), intent(inout) :: this
     integer :: i, is, ic, rows
     real(dp), dimension(size(this%wiP,1)) :: xDist
 
     rows=size(this%wiP,1)
-    if (rows .ge. 3) then  ! Use least squares fit to get alpha
-      do is=1,size(this%sectionalAlpha)
+    if (rows .ge. 3) then  ! Use least squares fit to get sectional resultant velocity
+      do is=1,size(this%sectionalResultantVel,2)
         do ic=1,rows
           xDist(ic)=dot_product(this%wiP(ic,is)%CP-this%wiP(1,is)%PC(:,1),  &
             this%sectionalChordwiseVec(:,is))
         enddo
-        this%sectionalResultantVel(i,is)=lsq2(dot_product(this%inflowLocations(:,is)-  &
-          this%wiP(1,is)%PC(:,1),this%sectionalChordwiseVec(:,is)),xDist,this%wiP(:,is)%ResultantVel(i))
-        !this%sectionalAlpha(is)=lsq2(dot_product(this%inflowLocations(:,is)-  &
-        !  this%wiP(1,is)%PC(:,1),this%sectionalChordwiseVec(:,is)),xDist,this%wiP(:,is)%alpha)
+        do i=1,3
+          this%sectionalResultantVel(i,is)=lsq2(dot_product(this%inflowLocations(:,is)-  &
+            this%wiP(1,is)%PC(:,1),this%sectionalChordwiseVec(:,is)),xDist,this%wiP(:,is)%ResultantVel(i))
+        enddo
       enddo
-    else  ! Use average of alpha values
-      do is=1,size(this%sectionalAlpha)
-        this%sectionalAlpha(is)=sum(this%wiP(:,is)%alpha)/rows
+    else  ! Use average of resultant velocities
+      do is=1,size(this%sectionalResultantVel,2)
+        do i=1,3
+          this%sectionalResultantVel(i,is)=sum(this%wiP(:,is)%ResultantVel(i))/rows
+        enddo
       enddo
     endif
-  end subroutine blade_calc_sectionalAlpha
+  end subroutine blade_calc_sectionalResultantVel
 
   !subroutine blade_calc_sectionalAlpha(this)
   !  ! Compute sectional alpha by interpolating local panel alpha
