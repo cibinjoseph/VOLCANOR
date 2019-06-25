@@ -609,6 +609,7 @@ module blade_classdef
     procedure :: calc_force_gamma => blade_calc_force_gamma
     procedure :: calc_force_alpha => blade_calc_force_alpha
     procedure :: calc_sectionalAlpha => blade_calc_sectionalAlpha
+    procedure :: calc_sectionalResultantVel => blade_calc_sectionalResultantVel
     procedure :: burst_wake => blade_burst_wake
     procedure :: getSectionalChordwiseLocations
   end type blade_class
@@ -1103,7 +1104,7 @@ contains
   end subroutine blade_calc_force_alpha
 
   subroutine blade_calc_sectionalResultantVel(this)
-    ! Compute sectional alpha by interpolating local panel velocity
+    ! Compute sectional resultant velocity by interpolating local panel velocity
   class(blade_class), intent(inout) :: this
     integer :: i, is, ic, rows
     real(dp), dimension(size(this%wiP,1)) :: xDist
@@ -1128,6 +1129,18 @@ contains
       enddo
     endif
   end subroutine blade_calc_sectionalResultantVel
+
+  subroutine blade_calc_sectionalAlpha
+    ! Compute sectional alpha using sectional resultant velocity
+  class(blade_class), intent(inout) :: this
+    integer :: is
+
+    ! DEBUG
+    do is=1,size(this%sectionalAlpha)
+      this%sectionalAlpha(is)=
+    enddo
+
+  end subroutine blade_calc_sectionalAlpha
 
   !subroutine blade_calc_sectionalAlpha(this)
   !  ! Compute sectional alpha by interpolating local panel alpha
