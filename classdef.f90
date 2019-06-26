@@ -1557,9 +1557,11 @@ contains
 
     ! Compute denominators for non-dimensionalisation
     if (this%omega .ne. 0) then
-      this%nonDimForceDenominator = density*(pi*this%radius**2._dp)*(this%radius*this%omega)**2._dp
+      this%nonDimForceDenominator = density*(pi*this%radius**2._dp)* &
+        (this%radius*this%omega)**2._dp
     else
-      this%nonDimForceDenominator = 0.5_dp*density*(this%radius*(1._dp-this%root_cut)*this%chord)*(dot_product(this%velBody,this%velBody))
+      this%nonDimForceDenominator = 0.5_dp*density*(this%radius*(1._dp-this%root_cut)* &
+        this%chord)*(dot_product(this%velBody,this%velBody))
     endif
 
     ! Allocate vars required for wake convection
@@ -1885,10 +1887,12 @@ contains
     integer :: ib, ifil
     do ib=1,this%nb
       do ifil=1,4
-        this%blade(ib)%waP(this%rowNear:this%nNwake,:)%vr%vf(ifil)%age=this%blade(ib)%waP(this%rowNear:this%nNwake,:)%vr%vf(ifil)%age+dt
+        this%blade(ib)%waP(this%rowNear:this%nNwake,:)%vr%vf(ifil)%age= &
+          this%blade(ib)%waP(this%rowNear:this%nNwake,:)%vr%vf(ifil)%age+dt
       enddo
       if (this%rowFar .ne. 0) then
-        this%blade(ib)%waF(this%rowFar:this%nFwake)%vf%age=this%blade(ib)%waF(this%rowFar:this%nFwake)%vf%age+dt
+        this%blade(ib)%waF(this%rowFar:this%nFwake)%vf%age= &
+          this%blade(ib)%waF(this%rowFar:this%nFwake)%vf%age+dt
       endif
     enddo
   end subroutine age_wake

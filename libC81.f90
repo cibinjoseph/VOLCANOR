@@ -194,7 +194,7 @@ contains
     real(dp), intent(in), dimension(:,:) :: func
     real(dp), intent(in), dimension(:) :: x, y
     real(dp), intent(in) :: xs, ys
-    real :: get2dVal
+    real(dp) :: get2dVal
     integer, dimension(2) :: xindx, yindx
 
     xindx = getInterval(x,xs)
