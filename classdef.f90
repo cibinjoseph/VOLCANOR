@@ -1044,7 +1044,7 @@ contains
         this%wiP(ic,is)%delP=density*this%wiP(ic,is)%delP
         ! Invert direction of force according to sign of omega and collective pitch
         this%wiP(ic,is)%normalForce=this%wiP(ic,is)%delP* &
-          this%wiP(ic,is)%panelArea*this%wiP(ic,is)%nCap*-1._dp*invertGammaSign
+          this%wiP(ic,is)%panelArea*this%wiP(ic,is)%nCap*(-1._dp)*invertGammaSign
         this%sectionalForce(:,is)=this%sectionalForce(:,is)+this%wiP(ic,is)%normalForce
         this%Force=this%Force+this%wiP(ic,is)%normalForce
       enddo
