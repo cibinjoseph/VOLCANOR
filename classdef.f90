@@ -309,7 +309,7 @@ module wingpanel_classdef
     procedure :: calcTau => wingpanel_class_calcTau
     procedure :: rot => wingpanel_class_rot
     procedure :: shiftdP => wingpanel_class_shiftdP
-    procedure :: calc_alpha => wingpanel_calc_alpha
+    procedure :: calc_chordwiseResultantVel => wingpanel_calc_chordwiseResultantVel
     procedure :: calc_area
     procedure :: calc_mean_dimensions
     procedure :: isCPinsidecore
@@ -452,15 +452,7 @@ contains
 
     chordwiseResultantVel=this%velCPTotal- &
       dot_product(this%velCPTotal,this%tauCapSpan)*this%tauCapSpan
-
-
-    if (chordwiseResultantVelMagnitude .gt. eps) then
-      this%alpha=acos(dot_product(chordwiseResultantVel,this%tauCapChord) &
-        /chordwiseResultantVelMagnitude)
-    else
-      this%alpha=0._dp
-    endif
-  end subroutine wingpanel_calc_resultantVelocity
+  end subroutine wingpanel_calc_chordwiseResultantVel
 
   !subroutine wingpanel_calc_alpha(this)
   !  ! Compute panel alpha using local velocities
@@ -1113,31 +1105,35 @@ contains
     if (rows .ge. 3) then  ! Use least squares fit to get sectional resultant velocity
       do is=1,size(this%sectionalResultantVel,2)
         do ic=1,rows
+          call this%wiP(ic,is)%calc_chordwiseResultantVel()
+
           xDist(ic)=dot_product(this%wiP(ic,is)%CP-this%wiP(1,is)%PC(:,1),  &
             this%sectionalChordwiseVec(:,is))
         enddo
         do i=1,3
           this%sectionalResultantVel(i,is)=lsq2(dot_product(this%inflowLocations(:,is)-  &
-            this%wiP(1,is)%PC(:,1),this%sectionalChordwiseVec(:,is)),xDist,this%wiP(:,is)%ResultantVel(i))
+            this%wiP(1,is)%PC(:,1),this%sectionalChordwiseVec(:,is)),xDist,this%wiP(:,is)%chordwiseResultantVel(i))
         enddo
       enddo
     else  ! Use average of resultant velocities
       do is=1,size(this%sectionalResultantVel,2)
         do i=1,3
-          this%sectionalResultantVel(i,is)=sum(this%wiP(:,is)%ResultantVel(i))/rows
+          this%sectionalResultantVel(i,is)=sum(this%wiP(:,is)%chordwiseResultantVel(i))/rows
         enddo
       enddo
     endif
   end subroutine blade_calc_sectionalResultantVel
 
-  subroutine blade_calc_sectionalAlpha
+  subroutine blade_calc_sectionalAlpha(this)
     ! Compute sectional alpha using sectional resultant velocity
   class(blade_class), intent(inout) :: this
     integer :: is
 
-    ! DEBUG
+    call this%calc_sectionalResultantVel()
+
     do is=1,size(this%sectionalAlpha)
-      this%sectionalAlpha(is)=
+      this%sectionalAlpha(is)=acos(dot_product(this%sectionalResultantVel(:,is),this%sectionalChordwiseVec(:,is)) &
+        /norm2(this%sectionalResultantVel(:,is)))
     enddo
 
   end subroutine blade_calc_sectionalAlpha
@@ -1272,7 +1268,6 @@ module rotor_classdef
     procedure :: shiftwake => rotor_shiftwake
     procedure :: rollup => rotor_rollup
     procedure :: record_gamPrev
-    procedure :: calc_alpha => rotor_calc_alpha
     procedure :: calc_force_gamma => rotor_calc_force_gamma
     procedure :: calc_force_alpha => rotor_calc_force_alpha
     procedure :: calc_sectionalAlpha => rotor_calc_sectionalAlpha
@@ -2145,19 +2140,6 @@ contains
       this%Force=this%Force+this%blade(ib)%Force
     enddo
   end subroutine rotor_calc_force_alpha
-
-  subroutine rotor_calc_alpha(this)
-  class(rotor_class), intent(inout) :: this
-    integer :: irow, icol, ib
-
-    do ib=1,this%nb
-      do icol=1,this%ns
-        do irow=1,this%nc
-          call this%blade(ib)%wiP(irow,icol)%calc_alpha()
-        enddo
-      enddo
-    enddo
-  end subroutine rotor_calc_alpha
 
   subroutine rotor_calc_sectionalAlpha(this)
   class(rotor_class), intent(inout) :: this

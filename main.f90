@@ -182,7 +182,6 @@ program main
           enddo
         enddo
 
-        call rotor(ir)%calc_alpha()  ! Use velCPTotal to compute local alpha
         call rotor(ir)%calc_sectionalAlpha()
         call rotor(ir)%calc_force_alpha(density)
 
@@ -355,10 +354,6 @@ program main
           enddo
 
         case (1)  ! Compute using alpha
-          rotor(1)%blade(1)%wiP%velCPTotal(1)=0._dp
-          rotor(1)%blade(1)%wiP%velCPTotal(2)=0._dp
-          rotor(1)%blade(1)%wiP%velCPTotal(3)=0._dp
-          ic=1
           do ir=1,nr
             ! Compute alpha
             do ib=1,rotor(ir)%nb
@@ -383,7 +378,6 @@ program main
               enddo
             enddo
 
-            call rotor(ir)%calc_alpha()  ! Use velCPTotal to compute local alpha
             call rotor(ir)%calc_sectionalAlpha()
             call rotor(ir)%calc_force_alpha(density)
 
