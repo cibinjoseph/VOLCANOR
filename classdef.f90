@@ -1556,7 +1556,7 @@ contains
     call this%rot_pts(this%pts,this%cgCoords,1)
 
     ! Compute denominators for non-dimensionalisation
-    if (this%omega .ne. 0) then
+    if (abs(this%omega) .le. eps) then
       this%nonDimForceDenominator = density*(pi*this%radius**2._dp)* &
         (this%radius*this%omega)**2._dp
     else
