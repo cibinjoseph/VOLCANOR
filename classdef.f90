@@ -1117,9 +1117,6 @@ contains
       do is=1,size(this%sectionalResultantVel,2)
         do ic=1,rows
           call this%wiP(ic,is)%calc_chordwiseResultantVel()
-          ! DEBUG
-          print*,this%wiP(ic,is)%chordwiseResultantVel
-          read*
         enddo
         do i=1,3
           this%sectionalResultantVel(i,is)=sum(this%wiP(:,is)%chordwiseResultantVel(i))/rows
