@@ -1557,10 +1557,12 @@ contains
     call this%rot_pts(this%pts,this%cgCoords,1)
 
     ! Compute denominators for non-dimensionalisation
-    if (abs(this%omega) .le. eps) then
+    if (abs(this%omega) .gt. eps) then
+      ! Rotory-wing
       this%nonDimForceDenominator = density*(pi*this%radius**2._dp)* &
         (this%radius*this%omega)**2._dp
     else
+      ! Fixed-wing
       this%nonDimForceDenominator = 0.5_dp*density*(this%radius*(1._dp-this%root_cut)* &
         this%chord)*(dot_product(this%velBody,this%velBody))
     endif
