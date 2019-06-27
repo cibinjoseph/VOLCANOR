@@ -448,9 +448,8 @@ contains
   subroutine wingpanel_calc_chordwiseResultantVel(this)
     ! Compute panel resultant velocities using local velocities
   class(wingpanel_class), intent(inout) :: this
-    real(dp), dimension(3) :: chordwiseResultantVel
 
-    chordwiseResultantVel=this%velCPTotal- &
+    this%chordwiseResultantVel=this%velCPTotal- &
       dot_product(this%velCPTotal,this%tauCapSpan)*this%tauCapSpan
   end subroutine wingpanel_calc_chordwiseResultantVel
 
@@ -1106,7 +1105,6 @@ contains
       do is=1,size(this%sectionalResultantVel,2)
         do ic=1,rows
           call this%wiP(ic,is)%calc_chordwiseResultantVel()
-
           xDist(ic)=dot_product(this%wiP(ic,is)%CP-this%wiP(1,is)%PC(:,1),  &
             this%sectionalChordwiseVec(:,is))
         enddo
@@ -1117,6 +1115,12 @@ contains
       enddo
     else  ! Use average of resultant velocities
       do is=1,size(this%sectionalResultantVel,2)
+        do ic=1,rows
+          call this%wiP(ic,is)%calc_chordwiseResultantVel()
+          ! DEBUG
+          print*,this%wiP(ic,is)%chordwiseResultantVel
+          read*
+        enddo
         do i=1,3
           this%sectionalResultantVel(i,is)=sum(this%wiP(:,is)%chordwiseResultantVel(i))/rows
         enddo
