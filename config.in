@@ -1,6 +1,6 @@
  NO. OF TIMESTEPS [nt]    TIMESTEP (sec) [dt]    NO. OF ROTORS [nr]
 -----------------------------------------------------------------------
-      160                       0.00625                  1
+      162                       0.00625                  1
 
  SPAN DISCRETIZATION : [1]linear [2]cosine [3]halfsine
  spanSpacingSwitch
@@ -21,13 +21,13 @@
  PLOT FORCES: [0]Off [n]th iteration      using [0]gamma  [1]alpha
   forcePlotSwitch                             forceCalcSwitch
 -----------------------------------------------------------------------
-       1                                          1
+       1                                          0
 =======================================================================
 
  WAKE PROPERTY SWITCHES: [0]Off [1]On  
  wakeDissipationSwitch            wakeStrainSwitch   wakeBurstSwitch
 -----------------------------------------------------------------------
-       1                                0                  0
+       0                                0                  0
 
  SLOW START TO AVOID LARGE STARTING VORTEX: [0]Off [1]linear [2]tanh [3]extended tanh
   slowStartSwitch       slowStartNt
