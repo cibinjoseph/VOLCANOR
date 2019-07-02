@@ -25,7 +25,7 @@ lib:
 	@$(ifc) $(iflags) -c libMath.f90       -module $(objpath) -o $(objpath)/libMath.o
 	@printf '%s' 'Compiled 1/5...'
 	@$(ifc) $(iflags) -c libC81.f90       -module $(objpath) -o $(objpath)/libC81.o
-	@printf '%s' 'Compiled 2/5...'
+	@printf '\r%s' 'Compiled 2/5...'
 	@$(ifc) $(iflags) -c classdef.f90        -module $(objpath) -o $(objpath)/classdef.o
 	@printf '\r%s' 'Compiled 3/5...'
 	@$(ifc) $(iflags) -c libCommon.f90         -module $(objpath) -o $(objpath)/libCommon.o
@@ -38,7 +38,7 @@ lib_dbg:
 	@$(ifc) $(iflagsdbg) -c libMath.f90    -module $(objpath) -o $(objpath)/libMath.o
 	@printf '%s' 'Compiled 1/5...'
 	@$(ifc) $(iflagsdbg) -c libC81.f90    -module $(objpath) -o $(objpath)/libC81.o
-	@printf '%s' 'Compiled 2/5...'
+	@printf '\r%s' 'Compiled 2/5...'
 	@$(ifc) $(iflagsdbg) -c classdef.f90     -module $(objpath) -o $(objpath)/classdef.o
 	@printf '\r%s' 'Compiled 3/5...'
 	@$(ifc) $(iflagsdbg) -c libCommon.f90      -module $(objpath) -o $(objpath)/libCommon.o
@@ -51,7 +51,7 @@ lib_prof:
 	@$(ifc) $(iflagsprof) -c libMath.f90   -module $(objpath) -o $(objpath)/libMath.o
 	@printf '%s' 'Compiled 1/5...'
 	@$(ifc) $(iflagsprof) -c libC81.f90   -module $(objpath) -o $(objpath)/libC81.o
-	@printf '%s' 'Compiled 2/5...'
+	@printf '\r%s' 'Compiled 2/5...'
 	@$(ifc) $(iflagsprof) -c classdef.f90    -module $(objpath) -o $(objpath)/classdef.o
 	@printf '\r%s' 'Compiled 3/5...'
 	@$(ifc) $(iflagsprof) -c libCommon.f90     -module $(objpath) -o $(objpath)/libCommon.o
