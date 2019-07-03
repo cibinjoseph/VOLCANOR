@@ -1454,7 +1454,7 @@ contains
       if (abs(norm2(this%velWind)) < eps) then
         velShed=sign(1._dp,this%Omega)*0.02_dp*this%chord/(dt*this%nc)
       else
-        velShed=0.2_dp*norm2(this%velWind)
+        velShed=0.3_dp*norm2(this%velWind)
       endif
       do j=1,this%ns
         call this%blade(ib)%wiP(this%nc,j)%vr%shiftdP(2,(/velShed*dt,0._dp,0._dp/))
