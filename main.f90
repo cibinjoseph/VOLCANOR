@@ -197,8 +197,6 @@ program main
     do ir=1,nr
       call force2file(timestamp,rotor(ir),ir,zAxis)  
     enddo
-    ! DEBUG
-    stop
   endif
 
   open(unit=22,file='status.txt',status='replace',action='write')
