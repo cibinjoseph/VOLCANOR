@@ -1042,9 +1042,10 @@ contains
       do ic=1,rows
         sigma=(gamElementChord(ic,is)*0.5_dp+gamAhead)
         gamAhead=gamElementChord(ic,is)
-         this%wiP(ic,is)%delP=velTangentialChord(ic,is)*gamElementChord(ic,is)/this%wiP(ic,is)%meanChord &
+
+         this%wiP(ic,is)%delP=density*(velTangentialChord(ic,is)*gamElementChord(ic,is)/this%wiP(ic,is)%meanChord &
            + velTangentialSpan(ic,is)*gamElementSpan(ic,is)/this%wiP(ic,is)%meanSpan &
-           + (sigma-this%wiP(ic,is)%vr%gamPrev)/dt
+           + (sigma-this%wiP(ic,is)%vr%gamPrev)/dt)
         this%wiP(ic,is)%vr%gamPrev=sigma
 
         ! Invert direction of force according to sign of omega and collective pitch
