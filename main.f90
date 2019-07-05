@@ -197,6 +197,8 @@ program main
     do ir=1,nr
       call force2file(timestamp,rotor(ir),ir,zAxis)  
     enddo
+    ! DEBUG
+    stop
   endif
 
   open(unit=22,file='status.txt',status='replace',action='write')
@@ -334,7 +336,8 @@ program main
     enddo
 
     do ir=1,nr
-      call rotor(ir)%record_gamPrev()    ! For calculating dGam/dT
+      ! DEBUG
+      !call rotor(ir)%record_gamPrev()    ! For calculating dGam/dT
       rotor(ir)%gamVec=matmul(rotor(ir)%AIC_inv,rotor(ir)%RHS)
     enddo
 

@@ -996,6 +996,7 @@ contains
     integer :: is, ic, rows, cols
     real(dp), dimension(size(this%wiP,1),size(this%wiP,2)) :: velTangentialChord, velTangentialSpan 
     real(dp), dimension(size(this%wiP,1),size(this%wiP,2)) :: gamElementChord, gamElementSpan
+    real(dp) :: sigma, gamAhead
     rows=size(this%wiP,1)
     cols=size(this%wiP,2)
 
@@ -1036,14 +1037,20 @@ contains
     ! Compute delP
     this%sectionalForce=0._dp
     do is=1,cols
+      gamAhead=0._dp
+      sigma=0._dp
       do ic=1,rows
-        this%wiP(ic,is)%delP=velTangentialChord(ic,is)*gamElementChord(ic,is)/this%wiP(ic,is)%meanChord &
-          + velTangentialSpan(ic,is)*gamElementSpan(ic,is)/this%wiP(ic,is)%meanSpan &
-          + (this%wiP(ic,is)%vr%gam-this%wiP(ic,is)%vr%gamPrev)/dt
-        this%wiP(ic,is)%delP=density*this%wiP(ic,is)%delP
+        sigma=(gamElementChord(ic,is)*0.5_dp+gamAhead)
+        gamAhead=gamElementChord(ic,is)
+         this%wiP(ic,is)%delP=velTangentialChord(ic,is)*gamElementChord(ic,is)/this%wiP(ic,is)%meanChord &
+           + velTangentialSpan(ic,is)*gamElementSpan(ic,is)/this%wiP(ic,is)%meanSpan &
+           + (sigma-this%wiP(ic,is)%vr%gamPrev)/dt
+        this%wiP(ic,is)%vr%gamPrev=sigma
+
         ! Invert direction of force according to sign of omega and collective pitch
         this%wiP(ic,is)%normalForce=this%wiP(ic,is)%delP* &
           this%wiP(ic,is)%panelArea*this%wiP(ic,is)%nCap*(-1._dp)*invertGammaSign
+
         this%sectionalForce(:,is)=this%sectionalForce(:,is)+this%wiP(ic,is)%normalForce
         this%Force=this%Force+this%wiP(ic,is)%normalForce
       enddo
@@ -2111,14 +2118,10 @@ contains
 
   subroutine record_gamPrev(this)
   class(rotor_class), intent(inout) :: this
-    integer :: ib,ic,is
+    integer :: ib
 
     do ib=1,this%nb
-      do is=1,this%ns
-        do ic=1,this%nc
-          this%blade(ib)%wiP%vr%gamPrev=this%blade(ib)%wiP%vr%gam
-        enddo
-      enddo
+      this%blade(ib)%wiP%vr%gamPrev=this%blade(ib)%wiP%vr%gam
     enddo
   end subroutine record_gamPrev
 
