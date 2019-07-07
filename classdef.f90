@@ -1041,24 +1041,20 @@ contains
       sigma=0._dp
       do ic=1,rows
         sigma=(gamElementChord(ic,is)*0.5_dp+gamAhead)
-        gamAhead=gamElementChord(ic,is)
+        gamAhead=this%wiP(ic,is)%vr%gam
 
         ! DEBUG
         velTangentialChord(ic,is)=10._dp*cos(5._dp*pi/180._dp)
         velTangentialSpan(ic,is)=0._dp
 
-        ! DEBUG
-        this%wiP(ic,is)%delP=density*(0._dp*velTangentialChord(ic,is)*gamElementChord(ic,is)/this%wiP(ic,is)%meanChord &
+        this%wiP(ic,is)%delP=density*(velTangentialChord(ic,is)*gamElementChord(ic,is)/this%wiP(ic,is)%meanChord &
           + velTangentialSpan(ic,is)*gamElementSpan(ic,is)/this%wiP(ic,is)%meanSpan &
-          + (sigma-this%wiP(ic,is)%vr%gamPrev/this%wiP(ic,is)%meanChord)/dt)
-        this%wiP(ic,is)%vr%gamPrev=sigma*this%wiP(ic,is)%meanChord
+          + (sigma-this%wiP(ic,is)%vr%gamPrev)/dt)
+        this%wiP(ic,is)%vr%gamPrev=sigma
 
         ! Invert direction of force according to sign of omega and collective pitch
         this%wiP(ic,is)%normalForce=this%wiP(ic,is)%delP* &
           this%wiP(ic,is)%panelArea*this%wiP(ic,is)%nCap*(-1._dp)*invertGammaSign
-        ! DEBUG
-        print*,this%wiP(ic,is)%normalForce(3)
-        read*
 
         this%sectionalForce(:,is)=this%sectionalForce(:,is)+this%wiP(ic,is)%normalForce
         this%Force=this%Force+this%wiP(ic,is)%normalForce
