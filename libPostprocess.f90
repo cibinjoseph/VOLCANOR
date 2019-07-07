@@ -458,8 +458,6 @@ contains
     integer :: ib, ispan
     character(len=24) :: forceFilename
 
-    ! DEBUG
-    !rotorForce = norm2(rotor%Force)
     rotorForce = dot_product(rotor%Force,directionVector)
 
     do ib=1,rotor%nb
