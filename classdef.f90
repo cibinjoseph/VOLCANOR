@@ -1049,8 +1049,8 @@ contains
 
         this%wiP(ic,is)%delP=density*(velTangentialChord(ic,is)*gamElementChord(ic,is)/this%wiP(ic,is)%meanChord &
           + velTangentialSpan(ic,is)*gamElementSpan(ic,is)/this%wiP(ic,is)%meanSpan &
-          + (sigma-this%wiP(ic,is)%vr%gamPrev)/dt)
-        this%wiP(ic,is)%vr%gamPrev=sigma
+          + (sigma-this%wiP(ic,is)%vr%gamPrev/this%wiP(ic,is)%meanChord)/dt)
+        this%wiP(ic,is)%vr%gamPrev=sigma*this%wiP(ic,is)%meanChord
 
         ! Invert direction of force according to sign of omega and collective pitch
         this%wiP(ic,is)%normalForce=this%wiP(ic,is)%delP* &
