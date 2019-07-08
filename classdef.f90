@@ -1280,7 +1280,6 @@ module rotor_classdef
     procedure :: vind_bywake => rotor_vind_bywake
     procedure :: shiftwake => rotor_shiftwake
     procedure :: rollup => rotor_rollup
-    procedure :: record_gamPrev
     procedure :: calc_force_gamma => rotor_calc_force_gamma
     procedure :: calc_force_alpha => rotor_calc_force_alpha
     procedure :: calc_sectionalAlpha => rotor_calc_sectionalAlpha
@@ -2120,15 +2119,6 @@ contains
       endif
     enddo
   end subroutine rotor_rollup
-
-  subroutine record_gamPrev(this)
-  class(rotor_class), intent(inout) :: this
-    integer :: ib
-
-    do ib=1,this%nb
-      this%blade(ib)%wiP%gamPrev=this%blade(ib)%wiP%vr%gam
-    enddo
-  end subroutine record_gamPrev
 
   subroutine rotor_calc_force_gamma(this,density,dt)
     ! Compute force from circulation

@@ -334,8 +334,6 @@ program main
     enddo
 
     do ir=1,nr
-      ! DEBUG
-      !call rotor(ir)%record_gamPrev()    ! For calculating dGam/dT
       rotor(ir)%gamVec=matmul(rotor(ir)%AIC_inv,rotor(ir)%RHS)
     enddo
 
