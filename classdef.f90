@@ -285,6 +285,7 @@ module wingpanel_classdef
   type wingpanel_class
     type(vr_class) :: vr
     real(dp) :: gamPrev
+    real(dp) :: gamTrapz
     real(dp), dimension(3,4) :: pc    ! panel coords
     real(dp), dimension(3) :: cp      ! coll point coords
     real(dp), dimension(3) :: nCap    ! unit normal vector
@@ -996,7 +997,6 @@ contains
     integer :: is, ic, rows, cols
     real(dp), dimension(size(this%wiP,1),size(this%wiP,2)) :: velTangentialChord, velTangentialSpan 
     real(dp), dimension(size(this%wiP,1),size(this%wiP,2)) :: gamElementChord, gamElementSpan
-    real(dp) :: sigma, gamAhead
     rows=size(this%wiP,1)
     cols=size(this%wiP,2)
 
@@ -1037,11 +1037,14 @@ contains
     ! Compute delP
     this%sectionalForce=0._dp
     do is=1,cols
-      gamAhead=0._dp
-      sigma=0._dp
       do ic=1,rows
-        sigma=(gamElementChord(ic,is)*0.5_dp+gamAhead)
-        gamAhead=this%wiP(ic,is)%vr%gam
+        ! Use trapezoidal rule on two points to get current gam
+        ! for computing unsteady lift part
+        if (ic > 1) then
+          this%wiP(ic,is)%gamTrapz=0.5_dp*(this%wiP(ic,is)%vr%gam+this%wiP(ic-1,is)%vr%gam)
+        else
+          this%wiP(1,is)%gamTrapz=0.5_dp*this%wiP(1,is)%vr%gam
+        endif
 
         ! DEBUG
         velTangentialChord(ic,is)=10._dp*cos(5._dp*pi/180._dp)
@@ -1049,8 +1052,8 @@ contains
 
         this%wiP(ic,is)%delP=density*(velTangentialChord(ic,is)*gamElementChord(ic,is)/this%wiP(ic,is)%meanChord &
           + velTangentialSpan(ic,is)*gamElementSpan(ic,is)/this%wiP(ic,is)%meanSpan &
-          + (sigma-this%wiP(ic,is)%gamPrev)/dt)
-        this%wiP(ic,is)%gamPrev=sigma
+          + (this%wiP(ic,is)%gamTrapz-this%wiP(ic,is)%gamPrev)/dt)
+        this%wiP(ic,is)%gamPrev=this%wiP(ic,is)%gamTrapz
 
         ! Invert direction of force according to sign of omega and collective pitch
         this%wiP(ic,is)%normalForce=this%wiP(ic,is)%delP* &
