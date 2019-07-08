@@ -83,7 +83,6 @@ module vr_classdef
   type vr_class
     type(vf_class), dimension(4) :: vf
     real(dp) :: gam
-    real(dp) :: gamPrev
     real(dp) :: skew
   contains
     procedure :: vind => vrclass_vind
@@ -285,6 +284,7 @@ module wingpanel_classdef
   implicit none
   type wingpanel_class
     type(vr_class) :: vr
+    real(dp) :: gamPrev
     real(dp), dimension(3,4) :: pc    ! panel coords
     real(dp), dimension(3) :: cp      ! coll point coords
     real(dp), dimension(3) :: nCap    ! unit normal vector
@@ -1049,8 +1049,8 @@ contains
 
         this%wiP(ic,is)%delP=density*(velTangentialChord(ic,is)*gamElementChord(ic,is)/this%wiP(ic,is)%meanChord &
           + velTangentialSpan(ic,is)*gamElementSpan(ic,is)/this%wiP(ic,is)%meanSpan &
-          + (sigma-this%wiP(ic,is)%vr%gamPrev)/dt)
-        this%wiP(ic,is)%vr%gamPrev=sigma
+          + (sigma-this%wiP(ic,is)%gamPrev)/dt)
+        this%wiP(ic,is)%gamPrev=sigma
 
         ! Invert direction of force according to sign of omega and collective pitch
         this%wiP(ic,is)%normalForce=this%wiP(ic,is)%delP* &
@@ -2126,7 +2126,7 @@ contains
     integer :: ib
 
     do ib=1,this%nb
-      this%blade(ib)%wiP%vr%gamPrev=this%blade(ib)%wiP%vr%gam
+      this%blade(ib)%wiP%gamPrev=this%blade(ib)%wiP%vr%gam
     enddo
   end subroutine record_gamPrev
 
