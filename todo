@@ -17,3 +17,5 @@ Wake smoothening / velocity limiter
 Wake dissipation on extreme straining
 
 When computing inflow, consider contribution from other panel bound vortices
+
+Use interpolation for finding lift from alpha
