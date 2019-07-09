@@ -7,9 +7,6 @@ Make lift integration higher order - unequal intervals
 Check oscillations in inflow - dependent on nInflowLocations
 Check if vortex strain is overriding vortex core changes due to dissipation
 
-- Validation
-Convergence of CT w.r.t nc, ns
-
 Effect of vortex core radius on wake structure
 
 Add provision for CL-alpha tables
