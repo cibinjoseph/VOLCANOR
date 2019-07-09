@@ -1256,12 +1256,15 @@ module rotor_classdef
     real(dp), allocatable, dimension(:) :: streamwiseCoreVec
     real(dp), allocatable, dimension(:,:) :: AIC,AIC_inv  ! Influence coefficient matrix
     real(dp), allocatable, dimension(:) :: gamVec,RHS
+    real(dp), allocatable, dimension(:) :: airfoilSectionLimit
     real(dp) :: initWakeVel, psiStart, skewLimit
     real(dp) :: turbulentViscosity
     integer :: rollupStart, rollupEnd
     integer :: inflowPlotSwitch
     integer :: gammaPlotSwitch, alphaPlotSwitch
     integer :: rowNear, rowFar
+    integer :: nAirfoils
+    character(len=20), allocatable, dimension(:) :: airfoilFile
     real(dp) :: nonDimForceDenominator
   contains
     procedure :: getdata
@@ -1347,10 +1350,16 @@ contains
     read(12,*) this%initWakeVel, this%psiStart, this%skewLimit
     call skiplines(12,7)
     read(12,*) this%inflowPlotSwitch
+    call skiplines(12,5)
+    read(12,*) this%gammaPlotSwitch, this%alphaPlotSwitch
+    call skiplines(12,4)
+    read(12,*) this%nAirfoils
     call skiplines(12,3)
-    read(12,*) this%gammaPlotSwitch
-    call skiplines(12,3)
-    read(12,*) this%alphaPlotSwitch
+    allocate(this%airfoilSectionLimit(this%nAirfoils))
+    allocate(this%airfoilFile(this%nAirfoils))
+    do i=1,this%nAirfoils
+      read(12,*) this%airfoilSectionLimit(i),this%airfoilFile(i)
+    enddo
     close(12)
 
     ! Conversions

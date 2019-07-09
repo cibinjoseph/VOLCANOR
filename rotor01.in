@@ -74,10 +74,17 @@ initWakeVel[m/s]     psiStart[deg]      skewLimit
 -----------------------------------------------------------------------
        0                       -1
 
-  gammaPlotSwitch   [0]Off   [n]Every nth iteration    
+  gammaPlotSwitch                 alphaPlotSwitch  
+    [0]Off                         [0]Off                      
+    [n]Every nth iteration         [n]Every nth iteration      
 ---------------------------------------------------------------
-       0
+       0                                 0
+===============================================================
 
-  alphaPlotSwitch   [0]Off   [n]Every nth iteration    
+No. of airfoil files
 ---------------------------------------------------------------
-       0
+       1
+
+Airfoil section limit(r/R)           Airfoil file names
+---------------------------------------------------------------
+         1.0                              NPL9615.C81
