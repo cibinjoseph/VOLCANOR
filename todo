@@ -17,3 +17,4 @@ Wake dissipation on extreme straining
 When computing inflow, consider contribution from other panel bound vortices
 
 Add provision for CL-alpha tables
+C81 class required? Can have initialization subroutines in it to get matrix
