@@ -575,6 +575,8 @@ module blade_classdef
     real(dp), allocatable, dimension(:,:) :: sectionalForce
     real(dp) :: psi
     real(dp) :: pivotLE
+    character(len=20), allocatable, dimension(:) :: airfoilFile
+    real(dp), allocatable, dimension(:) :: airfoilSectionLimit
     real(dp), allocatable, dimension(:,:) :: sectionalChordwiseVec
     real(dp), allocatable, dimension(:) :: sectionalAlpha
     real(dp), allocatable, dimension(:,:) :: sectionalResultantVel
@@ -1557,6 +1559,17 @@ contains
         print*,'Any key to continue. Ctrl-C to exit'
         read(*,*)
       endif
+    enddo
+
+    ! Allocate and assign section airfoils
+    do ib=this%nb
+      allocate(this%blade(ib)%airfoilFile(this%nAirfoils))
+      allocate(this%blade(ib)%airfoilSectionLimit(this%nAirfoils))
+    enddo
+
+    do ib=this%nb
+      this%blade(ib)%airfoilFile=this%airfoilFile
+      this%blade(ib)%airfoilSectionLimit=this%airfoilSectionLimit
     enddo
 
     ! Move rotor to hub coordinates
