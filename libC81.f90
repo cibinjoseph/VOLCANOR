@@ -1,82 +1,28 @@
 module libC81
-  use libMath
+  use libMath 
   implicit none
+
+  ! Define C81 class
+  type C81_class
+    character(len=30) :: airfoilName
+    integer :: ML, NL, MD, ND, MM, NM
+    real(dp), allocatable, dimension(:) :: MaL, MaD, MaM
+    real(dp), allocatable, dimension(:) :: AL, AD, AM
+    real(dp), allocatable, dimension(:,:) :: CL, CD, CM
+  contains
+    procedure :: writefile
+    procedure :: readfile
+    procedure :: getCL
+    procedure :: getCD
+    procedure :: getCM
+  end type C81_class
+
 contains
 
-  ! Reads from C81 file to allocatable arrays
-  subroutine readC81(C81filename,airfoil_name,MaL,AL,CL,MaD,AD,CD,MaM,AM,CM)
-    character(len=*), intent(in) :: C81filename
-    character(len=30), intent(out) :: airfoil_name
-    real(dp), allocatable, intent(out), dimension(:) :: MaL, MaD, MaM
-    real(dp), allocatable, intent(out), dimension(:) :: AL, AD, AM
-    real(dp), allocatable, intent(out), dimension(:,:) :: CL, CD, CM
-    integer :: ML, NL, MD, ND, MM, NM
-    integer :: i, j
-    integer :: stat
-    character(len=10) :: formatChar
-
-    open(unit=10, file=C81filename, status='old', action='read', iostat=stat)
-    if (stat>0) error stop 'ERROR: File not found'
-
-    read(10,100) airfoil_name,ML,NL,MD,ND,MM,NM
-    allocate(MaL(ML))
-    allocate(MaD(MD))
-    allocate(MaM(MM))
-    allocate(AL(NL))
-    allocate(AD(ND))
-    allocate(AM(NM))
-    allocate(CL(NL,ML))
-    allocate(CD(ND,MD))
-    allocate(CM(NM,MM))
-
-    ! Lift
-    read(10,101) (MaL(i),i=1,min(9,ML))
-    if (ML>9) then 
-      write(formatChar,'(A4,I1,A5)') '(7X,',ML-9,'F7.0)'
-      read(10,formatChar) (MaL(i),i=10,ML)
-    endif
-    do i=1,NL
-      read(10,102) AL(i), (CL(i,j),j=1,min(9,ML))
-      if (ML>9)  read(10,formatChar) (CL(i,j),j=10,ML)
-    enddo
-
-    ! Drag
-    read(10,101) (MaD(i),i=1,min(9,MD))
-    if (MD>9) then 
-      write(formatChar,'(A4,I1,A5)') '(7X,',MD-9,'F7.0)'
-      read(10,formatChar) (MaD(i),i=10,MD)
-    endif
-    do i=1,ND
-      read(10,102) AD(i), (CD(i,j),j=1,min(9,MD))
-      if (MD>9)  read(10,formatChar) (CD(i,j),j=10,MD)
-    enddo
-
-    ! Moment
-    read(10,101) (MaM(i),i=1,min(9,MM))
-    if (MM>9) then 
-      write(formatChar,'(A4,I1,A5)') '(7X,',MM-9,'F7.0)'
-      read(10,formatChar) (MaM(i),i=10,MM)
-    endif
-    do i=1,NM
-      read(10,102) AM(i), (CM(i,j),j=1,min(9,MM))
-      if (MM>9)  read(10,formatChar) (CM(i,j),j=10,MM)
-    enddo
-
-    close(10)
-
-    100 format (A30,6I2)
-    101 format (7X,9F7.0)
-    102 format (10F7.0)
-  end subroutine readC81
-
   ! Writes data arrays to C81 file
-  subroutine writeC81(C81filename,airfoil_name,MaL,AL,CL,MaD,AD,CD,MaM,AM,CM)
+  subroutine writefile(this,C81filename)
+  class(C81_class) :: this
     character(len=*), intent(in) :: C81filename
-    character(len=30), intent(in) :: airfoil_name
-    real(dp), intent(in), dimension(:) :: MaL, MaD, MaM
-    real(dp), intent(in), dimension(:) :: AL, AD, AM
-    real(dp), intent(in), dimension(:,:) :: CL, CD, CM
-    integer :: ML, NL, MD, ND, MM, NM
     integer :: i, j
     integer :: stat
     character(len=10) :: formatChar
@@ -91,45 +37,45 @@ contains
       if (overwriteOption .ne. 'y') stop
     endif
 
-    ML = size(MaL,1)
-    MD = size(MaD,1)
-    MM = size(MaM,1)
-    NL = size(AL,1)
-    ND = size(AD,1)
-    NM = size(AM,1)
+    this%ML = size(this%MaL,1)
+    this%MD = size(this%MaD,1)
+    this%MM = size(this%MaM,1)
+    this%NL = size(this%AL,1)
+    this%ND = size(this%AD,1)
+    this%NM = size(this%AM,1)
 
-    write(10,100) airfoil_name,ML,NL,MD,ND,MM,NM
+    write(10,100) this%airfoilName,this%ML,this%NL,this%MD,this%ND,this%MM,this%NM
     ! Lift
-    write(10,101) (MaL(i),i=1,min(9,ML))
-    if (ML>9) then 
-      write(formatChar,'(A4,I1,A5)') '(7X,',ML-9,'F7.3)'
-      write(10,formatChar) (MaL(i),i=10,ML)
+    write(10,101) (this%MaL(i),i=1,min(9,this%ML))
+    if (this%ML>9) then 
+      write(formatChar,'(A4,I1,A5)') '(7X,',this%ML-9,'F7.3)'
+      write(10,formatChar) (this%MaL(i),i=10,this%ML)
     endif
-    do i=1,NL
-      write(10,102) AL(i), (CL(i,j),j=1,min(9,ML))
-      if (ML>9)  write(10,formatChar) (CL(i,j),j=10,ML)
+    do i=1,this%NL
+      write(10,102) this%AL(i), (this%CL(i,j),j=1,min(9,this%ML))
+      if (this%ML>9)  write(10,formatChar) (this%CL(i,j),j=10,this%ML)
     enddo
 
     ! Drag
-    write(10,101) (MaD(i),i=1,min(9,MD))
-    if (MD>9) then 
-      write(formatChar,'(A4,I1,A5)') '(7X,',MD-9,'F7.3)'
-      write(10,formatChar) (MaD(i),i=10,MD)
+    write(10,101) (this%MaD(i),i=1,min(9,this%MD))
+    if (this%MD>9) then 
+      write(formatChar,'(A4,I1,A5)') '(7X,',this%MD-9,'F7.3)'
+      write(10,formatChar) (this%MaD(i),i=10,this%MD)
     endif
-    do i=1,ND
-      write(10,102) AD(i), (CD(i,j),j=1,min(9,MD))
-      if (MD>9)  write(10,formatChar) (CD(i,j),j=10,MD)
+    do i=1,this%ND
+      write(10,102) this%AD(i), (this%CD(i,j),j=1,min(9,this%MD))
+      if (this%MD>9)  write(10,formatChar) (this%CD(i,j),j=10,this%MD)
     enddo
 
     ! Moment
-    write(10,101) (MaM(i),i=1,min(9,MM))
-    if (MM>9) then 
-      write(formatChar,'(A4,I1,A5)') '(7X,',MM-9,'F7.3)'
-      write(10,formatChar) (MaM(i),i=10,MM)
+    write(10,101) (this%MaM(i),i=1,min(9,this%MM))
+    if (this%MM>9) then 
+      write(formatChar,'(A4,I1,A5)') '(7X,',this%MM-9,'F7.3)'
+      write(10,formatChar) (this%MaM(i),i=10,this%MM)
     endif
-    do i=1,NM
-      write(10,102) AM(i), (CM(i,j),j=1,min(9,MM))
-      if (MM>9)  write(10,formatChar) (CM(i,j),j=10,MM)
+    do i=1,this%NM
+      write(10,102) this%AM(i), (this%CM(i,j),j=1,min(9,this%MM))
+      if (this%MM>9)  write(10,formatChar) (this%CM(i,j),j=10,this%MM)
     enddo
 
     close(10)
@@ -137,23 +83,123 @@ contains
     100 format (A30,6I2)
     101 format (7X,9F7.3)
     102 format (F7.2,9F7.3)
-  end subroutine writeC81
+  end subroutine writefile
 
-  ! Gets data from csv formatted file
-  function getTable(filename,rows,cols)
-    character(len=*), intent(in) :: filename
-    integer, intent(in) :: rows, cols
+  ! Reads from C81 file to allocatable arrays
+  subroutine readfile(this,C81filename)
+  class(C81_class) :: this
+    character(len=*), intent(in) :: C81filename
     integer :: i, j
     integer :: stat
-    real(dp), dimension(rows,cols) :: getTable
+    character(len=10) :: formatChar
 
-    open(unit=10, file=filename, status='old', action='read', iostat=stat)
+    open(unit=10, file=C81filename, status='old', action='read', iostat=stat)
     if (stat>0) error stop 'ERROR: File not found'
-    do i=1,rows
-      read(10,*) (getTable(i,j),j=1,cols)
+
+    read(10,100) this%airfoilName,this%ML,this%NL,this%MD,this%ND,this%MM,this%NM
+    allocate(this%MaL(this%ML))
+    allocate(this%MaD(this%MD))
+    allocate(this%MaM(this%MM))
+    allocate(this%AL(this%NL))
+    allocate(this%AD(this%ND))
+    allocate(this%AM(this%NM))
+    allocate(this%CL(this%NL,this%ML))
+    allocate(this%CD(this%ND,this%MD))
+    allocate(this%CM(this%NM,this%MM))
+
+    ! Lift
+    read(10,101) (this%MaL(i),i=1,min(9,this%ML))
+    if (this%ML>9) then 
+      write(formatChar,'(A4,I1,A5)') '(7X,',this%ML-9,'F7.0)'
+      read(10,formatChar) (this%MaL(i),i=10,this%ML)
+    endif
+    do i=1,this%NL
+      read(10,102) this%AL(i), (this%CL(i,j),j=1,min(9,this%ML))
+      if (this%ML>9)  read(10,formatChar) (this%CL(i,j),j=10,this%ML)
     enddo
+
+    ! Drag
+    read(10,101) (this%MaD(i),i=1,min(9,this%MD))
+    if (this%MD>9) then 
+      write(formatChar,'(A4,I1,A5)') '(7X,',this%MD-9,'F7.0)'
+      read(10,formatChar) (this%MaD(i),i=10,this%MD)
+    endif
+    do i=1,this%ND
+      read(10,102) this%AD(i), (this%CD(i,j),j=1,min(9,this%MD))
+      if (this%MD>9)  read(10,formatChar) (this%CD(i,j),j=10,this%MD)
+    enddo
+
+    ! Moment
+    read(10,101) (this%MaM(i),i=1,min(9,this%MM))
+    if (this%MM>9) then 
+      write(formatChar,'(A4,I1,A5)') '(7X,',this%MM-9,'F7.0)'
+      read(10,formatChar) (this%MaM(i),i=10,this%MM)
+    endif
+    do i=1,this%NM
+      read(10,102) this%AM(i), (this%CM(i,j),j=1,min(9,this%MM))
+      if (this%MM>9)  read(10,formatChar) (this%CM(i,j),j=10,this%MM)
+    enddo
+
     close(10)
-  end function getTable
+
+    100 format (A30,6I2)
+    101 format (7X,9F7.0)
+    102 format (10F7.0)
+  end subroutine readfile
+
+  ! Returns value of 2-d interpolated CL
+  ! for given alphaQuery and machQuery queries
+  function getCL(this,alphaQuery,machQuery)
+  class(C81_class) :: this
+    real(dp), intent(in) :: alphaQuery, machQuery
+    real(dp) :: getCL
+    integer, dimension(2) :: alphaIndx, machIndx
+
+    alphaIndx = getInterval(this%AL,alphaQuery)
+    machIndx = getInterval(this%MaL,machQuery)
+
+    getCL = this%CL(alphaIndx(1),machIndx(1)) + &
+      this%CL(alphaIndx(1),machIndx(2)) + &
+      this%CL(alphaIndx(2),machIndx(1)) + &
+      this%CL(alphaIndx(2),machIndx(2))
+    getCL = getCL*0.25
+  end function getCL
+
+  ! Returns value of 2-d interpolated CD
+  ! for given alphaQuery and machQuery queries
+  function getCD(this,alphaQuery,machQuery)
+  class(C81_class) :: this
+    real(dp), intent(in) :: alphaQuery, machQuery
+    real(dp) :: getCD
+    integer, dimension(2) :: alphaIndx, machIndx
+
+    alphaIndx = getInterval(this%AL,alphaQuery)
+    machIndx = getInterval(this%MaL,machQuery)
+
+    getCD = this%CD(alphaIndx(1),machIndx(1)) + &
+      this%CD(alphaIndx(1),machIndx(2)) + &
+      this%CD(alphaIndx(2),machIndx(1)) + &
+      this%CD(alphaIndx(2),machIndx(2))
+    getCD = getCD*0.25
+  end function getCD
+
+  ! Returns value of 2-d interpolated CM
+  ! for given alphaQuery and machQuery queries
+  function getCM(this,alphaQuery,machQuery)
+  class(C81_class) :: this
+    real(dp), intent(in) :: alphaQuery, machQuery
+    real(dp) :: getCM
+    integer, dimension(2) :: alphaIndx, machIndx
+
+    alphaIndx = getInterval(this%AL,alphaQuery)
+    machIndx = getInterval(this%MaL,machQuery)
+
+    getCM = this%CM(alphaIndx(1),machIndx(1)) + &
+      this%CM(alphaIndx(1),machIndx(2)) + &
+      this%CM(alphaIndx(2),machIndx(1)) + &
+      this%CM(alphaIndx(2),machIndx(2))
+    getCM = getCM*0.25
+  end function getCM
 
   ! Returns upper and lower indices of a 1-d sorted array 
   ! using binary search in which a search value lies 
@@ -188,23 +234,20 @@ contains
     endif
   end function getInterval
 
-  ! Returns value of 2-d interpolated value
-  ! for given xs and ys queries
-  function get2dVal(func,x,y,xs,ys)
-    real(dp), intent(in), dimension(:,:) :: func
-    real(dp), intent(in), dimension(:) :: x, y
-    real(dp), intent(in) :: xs, ys
-    real(dp) :: get2dVal
-    integer, dimension(2) :: xindx, yindx
+  ! Gets data from csv formatted file
+  function getTable(filename,rows,cols)
+    character(len=*), intent(in) :: filename
+    integer, intent(in) :: rows, cols
+    integer :: i, j
+    integer :: stat
+    real(dp), dimension(rows,cols) :: getTable
 
-    xindx = getInterval(x,xs)
-    yindx = getInterval(y,ys)
-
-    get2dVal = func(xindx(1),yindx(1)) + &
-      func(xindx(1),yindx(2)) + &
-      func(xindx(2),yindx(1)) + &
-      func(xindx(2),yindx(2))
-    get2dVal = get2dVal*0.25
-  end function get2dVal
+    open(unit=10, file=filename, status='old', action='read', iostat=stat)
+    if (stat>0) error stop 'ERROR: File not found'
+    do i=1,rows
+      read(10,*) (getTable(i,j),j=1,cols)
+    enddo
+    close(10)
+  end function getTable
 
 end module libC81
