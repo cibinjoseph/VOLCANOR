@@ -1562,12 +1562,12 @@ contains
     enddo
 
     ! Allocate and assign section airfoils
-    do ib=this%nb
+    do ib=1,this%nb
       allocate(this%blade(ib)%airfoilFile(this%nAirfoils))
       allocate(this%blade(ib)%airfoilSectionLimit(this%nAirfoils))
     enddo
 
-    do ib=this%nb
+    do ib=1,this%nb
       this%blade(ib)%airfoilFile=this%airfoilFile
       this%blade(ib)%airfoilSectionLimit=this%airfoilSectionLimit
     enddo
