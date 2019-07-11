@@ -15,5 +15,3 @@ Wake smoothening / velocity limiter
 Wake dissipation on extreme straining
 
 When computing inflow, consider contribution from other panel bound vortices
-
-Verify lift computation using CL-alpha tables against gamma lift
