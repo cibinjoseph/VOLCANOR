@@ -81,7 +81,7 @@ initWakeVel[m/s]     psiStart[deg]      skewLimit
        0                                 0
 ===============================================================
 
-No. of airfoil files
+No. of airfoil files ***Assumed 1 in code***
 ---------------------------------------------------------------
        1
 

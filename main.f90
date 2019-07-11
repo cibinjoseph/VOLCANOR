@@ -14,7 +14,7 @@ program main
   call skiplines(11,4)
   read(11,*) spanSpacingSwitch
   call skiplines(11,4)
-  read(11,*) density
+  read(11,*) density, velSound
   call skiplines(11,5)
   read(11,*) wakePlotSwitch, gridPlotSwitch
   call skiplines(11,4)
@@ -183,7 +183,7 @@ program main
         enddo
 
         call rotor(ir)%calc_sectionalAlpha()
-        call rotor(ir)%calc_force_alpha(density)
+        call rotor(ir)%calc_force_alpha(density,velSound)
 
         ! Plot alpha
         if (rotor(ir)%alphaPlotSwitch .ne. 0) then
@@ -378,7 +378,7 @@ program main
             enddo
 
             call rotor(ir)%calc_sectionalAlpha()
-            call rotor(ir)%calc_force_alpha(density)
+            call rotor(ir)%calc_force_alpha(density,velSound)
 
             ! Plot alpha
             if (rotor(ir)%alphaPlotSwitch .ne. 0) then

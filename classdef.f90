@@ -563,6 +563,7 @@ module blade_classdef
   use wingpanel_classdef
   use Nwake_classdef
   use Fwake_classdef
+  use libC81
   implicit none
   type blade_class
     type(wingpanel_class), allocatable, dimension(:,:) :: wiP
@@ -580,6 +581,7 @@ module blade_classdef
     real(dp), allocatable, dimension(:) :: airfoilSectionLimit
     real(dp), allocatable, dimension(:,:) :: sectionalChordwiseVec
     real(dp), allocatable, dimension(:) :: sectionalAlpha
+    real(dp), allocatable, dimension(:) :: sectionalCL
     real(dp), allocatable, dimension(:,:) :: sectionalResultantVel
     real(dp), allocatable, dimension(:,:) :: inflowLocations
     real(dp), allocatable, dimension(:,:,:) :: velNwake
@@ -607,6 +609,7 @@ module blade_classdef
     procedure :: calc_sectionalResultantVel => blade_calc_sectionalResultantVel
     procedure :: burst_wake => blade_burst_wake
     procedure :: getSectionalChordwiseLocations
+    procedure :: calc_sectionalCL
   end type blade_class
 contains
 
@@ -1097,20 +1100,34 @@ contains
     enddo
   end function getSectionalArea
 
-  subroutine blade_calc_force_alpha(this,density)
+  subroutine blade_calc_force_alpha(this,density,velSound)
     ! Compute force using sectional alpha
   class(blade_class), intent(inout) :: this
-    real(dp), intent(in) :: density
+    real(dp), intent(in) :: density, velSound
     integer :: i
 
     this%sectionalForce=0._dp
     ! Lift in positive Z-direction assumption made
     this%sectionalForce(3,:)=this%getSectionalDynamicPressure(density)* &
-      this%getSectionalArea()*(2._dp*pi)*this%sectionalAlpha
+      this%getSectionalArea()*this%sectionalCL(velSound)
     do i=1,3
       this%Force(i)=sum(this%sectionalForce(i,:))
     enddo
   end subroutine blade_calc_force_alpha
+
+  subroutine calc_sectionalCL(this,velSound)
+    ! Compute sectional CL from C81 tables and sectional resultant velocity
+    ! Assumes only one airfoil section present
+  class(blade_class), intent(inout) :: this
+    real(dp), intent(in) :: velSound
+    real(dp) :: sectionalMach
+    integer :: is
+
+    do is=1,size(this%sectionalAlpha,1)
+      sectionalMach=norm2(this%sectionalResultantVel)/velSound
+      this%sectionalCL(is)=this%C81(1)%getCL(this%sectionalAlpha(is),sectionalMach)
+    enddo
+  end subroutine calc_sectionalCL
 
   subroutine blade_calc_sectionalResultantVel(this)
     ! Compute sectional resultant velocity by interpolating local panel velocity
@@ -1395,6 +1412,7 @@ contains
       allocate(this%blade(ib)%sectionalChordwiseVec(3,this%ns))
       allocate(this%blade(ib)%sectionalForce(3,this%ns))
       allocate(this%blade(ib)%sectionalAlpha(this%ns))
+      allocate(this%blade(ib)%sectionalCL(this%ns))
       allocate(this%blade(ib)%sectionalResultantVel(3,this%ns))
       allocate(this%blade(ib)%inflowLocations(3,this%ns))
     enddo
@@ -1597,7 +1615,7 @@ contains
     do ib=1,this%nb
       allocate(this%blade(ib)%C81(this%nAirfoils))
       do i=1,this%nAirfoils
-        call this%blade(ib)%C81(i)%readfile(this%airfoilFile)
+        call this%blade(ib)%C81(i)%readfile('airfoils/'//this%airfoilFile(i))
       enddo
 
       allocate(this%blade(ib)%airfoilSectionLimit(this%nAirfoils))
@@ -2159,15 +2177,15 @@ contains
     enddo
   end subroutine rotor_calc_force_gamma
 
-  subroutine rotor_calc_force_alpha(this,density)
+  subroutine rotor_calc_force_alpha(this,density,velSound)
     ! Compute force from sectional alpha
   class(rotor_class), intent(inout) :: this
-    real(dp), intent(in) :: density
+    real(dp), intent(in) :: density, velSound
     integer :: ib
 
     this%Force=0._dp
     do ib=1,this%nb
-      call this%blade(ib)%calc_force_alpha(density)
+      call this%blade(ib)%calc_force_alpha(density,velSound)
       this%Force=this%Force+this%blade(ib)%Force
     enddo
   end subroutine rotor_calc_force_alpha
