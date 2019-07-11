@@ -1107,9 +1107,11 @@ contains
     integer :: i
 
     this%sectionalForce=0._dp
+    call this%calc_sectionalCL(velSound)
+
     ! Lift in positive Z-direction assumption made
     this%sectionalForce(3,:)=this%getSectionalDynamicPressure(density)* &
-      this%getSectionalArea()*this%sectionalCL(velSound)
+      this%getSectionalArea()*this%sectionalCL
     do i=1,3
       this%Force(i)=sum(this%sectionalForce(i,:))
     enddo
