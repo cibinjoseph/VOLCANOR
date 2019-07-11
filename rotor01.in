@@ -87,4 +87,4 @@ No. of airfoil files ***Assumed 1 in code***
 
 Airfoil section limit(r/R)           Airfoil file names
 ---------------------------------------------------------------
-         1.0                              NPL9615.C81
+         1.0                              flatPlate.C81
