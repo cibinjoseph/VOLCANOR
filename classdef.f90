@@ -1111,6 +1111,8 @@ contains
 
     ! Lift in positive Z-direction assumption made
     this%sectionalForce(3,:)=this%getSectionalDynamicPressure(density)* &
+      ! DEBUG
+      !this%getSectionalArea()*(2._dp*pi)*this%sectionalAlpha
       this%getSectionalArea()*this%sectionalCL
     do i=1,3
       this%Force(i)=sum(this%sectionalForce(i,:))
@@ -1127,7 +1129,7 @@ contains
 
     do is=1,size(this%sectionalAlpha,1)
       sectionalMach=norm2(this%sectionalResultantVel)/velSound
-      this%sectionalCL(is)=this%C81(1)%getCL(this%sectionalAlpha(is),sectionalMach)
+      this%sectionalCL(is)=this%C81(1)%getCL(this%sectionalAlpha(is)*180._dp/pi,sectionalMach)
     enddo
   end subroutine calc_sectionalCL
 
