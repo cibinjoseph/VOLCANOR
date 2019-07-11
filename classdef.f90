@@ -570,6 +570,7 @@ module blade_classdef
     type(Fwake_class), allocatable, dimension(:) :: waF
     type(Nwake_class), allocatable, dimension(:,:) :: waPPredicted
     type(Fwake_class), allocatable, dimension(:) :: waFPredicted
+    type(C81_class), allocatable, dimension(:) :: C81
     real(dp) :: theta
     real(dp), dimension(3) :: Force
     real(dp), allocatable, dimension(:,:) :: sectionalForce
@@ -1341,7 +1342,7 @@ contains
       do i=2,this%ns+1
         this%streamwiseCoreVec(i)=this%streamwiseCoreVec(1)
       enddo
-    elseif (this%streamwiseCoreSwitch .eq. 's') then  ![s]ectional
+    elseif (this%streamwiseCoreSwitch .eq. 's') then  ! [s]ectional
       read(12,*) (this%streamwiseCoreVec(i),i=1,this%ns+1)
     else
       error stop 'ERROR: Wrong input for streamwiseCoreSwitch in rotorXX.in'
@@ -1561,17 +1562,6 @@ contains
       endif
     enddo
 
-    ! Allocate and assign section airfoils
-    do ib=1,this%nb
-      allocate(this%blade(ib)%airfoilFile(this%nAirfoils))
-      allocate(this%blade(ib)%airfoilSectionLimit(this%nAirfoils))
-    enddo
-
-    do ib=1,this%nb
-      this%blade(ib)%airfoilFile=this%airfoilFile
-      this%blade(ib)%airfoilSectionLimit=this%airfoilSectionLimit
-    enddo
-
     ! Move rotor to hub coordinates
     do ib=1,this%nb
       call this%blade(ib)%move(this%hubCoords)
@@ -1602,6 +1592,17 @@ contains
       this%nonDimForceDenominator = 0.5_dp*density*(this%radius*(1._dp-this%root_cut)* &
         this%chord)*(dot_product(this%velBody,this%velBody))
     endif
+
+    ! Allocate and assign section airfoils
+    do ib=1,this%nb
+      allocate(this%blade(ib)%C81(this%nAirfoils))
+      do i=1,this%nAirfoils
+        call this%blade(ib)%C81(i)%readfile(this%airfoilFile)
+      enddo
+
+      allocate(this%blade(ib)%airfoilSectionLimit(this%nAirfoils))
+      this%blade(ib)%airfoilSectionLimit=this%airfoilSectionLimit
+    enddo
 
     ! Allocate vars required for wake convection
     ! on the basis of finite diff scheme
