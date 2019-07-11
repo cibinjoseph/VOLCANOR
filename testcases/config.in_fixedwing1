@@ -1,6 +1,6 @@
  NO. OF TIMESTEPS [nt]    TIMESTEP (sec) [dt]    NO. OF ROTORS [nr]
 -----------------------------------------------------------------------
-      160                       0.00625                  1
+      52                       0.00625                  1
 
  SPAN DISCRETIZATION : [1]linear [2]cosine [3]halfsine
  spanSpacingSwitch
@@ -8,9 +8,9 @@
        1
 =======================================================================
 
-   DENSITY [kg/m3] 
+   DENSITY [kg/m3]    SOUND VEL. [m/s]
 -----------------------------------------------------------------------
-      1.2         
+      1.0                330.0
 =======================================================================
 
  PLOT WAKE: [0]Off [n]Every nth iteration
@@ -21,13 +21,13 @@
  PLOT FORCES: [0]Off [n]th iteration      using [0]gamma  [1]alpha
   forcePlotSwitch                             forceCalcSwitch
 -----------------------------------------------------------------------
-       1                                          0
+       1                                          1
 =======================================================================
 
  WAKE PROPERTY SWITCHES: [0]Off [1]On  
  wakeDissipationSwitch            wakeStrainSwitch   wakeBurstSwitch
 -----------------------------------------------------------------------
-       1                                0                  0
+       0                                0                  0
 
  SLOW START TO AVOID LARGE STARTING VORTEX: [0]Off [1]linear [2]tanh [3]extended tanh
   slowStartSwitch       slowStartNt
@@ -37,7 +37,7 @@
  WAKE CONVECTION FINITE-DIFFERENCE SCHEME: [0]FT1 [1]PC2 [2]AB2 [3]AB4
   fdSchemeSwitch
 -----------------------------------------------------------------------
-       2
+       0
 
  IGNORE WAKE WAKE INTERACTION: [0]Off [1..]timesteps
   wakeIgnoreNt  *** NOT IMPLEMENTED ***
