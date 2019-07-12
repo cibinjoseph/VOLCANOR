@@ -18,7 +18,7 @@ program main
   call skiplines(11,5)
   read(11,*) wakePlotSwitch, gridPlotSwitch
   call skiplines(11,4)
-  read(11,*) forcePlotSwitch, forceCalcSwitch
+  read(11,*) rotorForcePlotSwitch, forceCalcSwitch
   call skiplines(11,5)
   read(11,*) wakeDissipationSwitch, wakeStrainSwitch, wakeBurstSwitch
   call skiplines(11,4)
@@ -148,7 +148,7 @@ program main
   enddo
 
   ! Compute forces
-  if (forcePlotSwitch .ne. 0) then
+  if (rotorForcePlotSwitch .ne. 0) then
     call init_plots(nr)    ! Create headers for plot files
     select case (forceCalcSwitch)
 
@@ -343,8 +343,8 @@ program main
     enddo
 
     ! Compute forces
-    if (forcePlotSwitch .ne. 0) then
-      if (mod(iter,forcePlotSwitch) .eq. 0) then 
+    if (rotorForcePlotSwitch .ne. 0) then
+      if (mod(iter,rotorForcePlotSwitch) .eq. 0) then 
         select case (forceCalcSwitch)
 
         case (0)  ! Compute using wing circulation
