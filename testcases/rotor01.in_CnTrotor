@@ -4,7 +4,7 @@
 
 Spanwise panels,ns   Chordwise panels,nc   Near wake panels,nNwake
 ---------------------------------------------------------------
-       6                      4                   30
+       13                      4                   30
 ===============================================================
 
 X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
@@ -22,7 +22,7 @@ X-cgCoords      Y-cgCoords      Z-cgCoords     [all in m]
 
 Radius[m]      root_cut[r/R]      chord[m]    coningAngle[deg]
 ---------------------------------------------------------------
-    1.143           0.1905            0.1905          0.0
+    1.143           0.1905           0.1905          0.0
 ===============================================================
 
  Omega[rad/s]   X-shaftAxis     Y-shaftAxis     Z-shaftAxis 
@@ -68,16 +68,23 @@ initWakeVel[m/s]     psiStart[deg]      skewLimit
 ===============================================================
 
  PLOTS OF SPANWISE DISTRIBUTIONS: 
-  inflowPlotSwitch         nInflowLocations
-    [0]Off                      [n] for number of spanwise points at c/4
-    [n]Every nth iteration      [-n] for inflow at coll. point of nth chordwise row
+  inflowPlotSwitch         
+    [0]Off                
+    [n]Every nth iteration
 -----------------------------------------------------------------------
        0                       -1
 
-  gammaPlotSwitch   [0]Off   [n]Every nth iteration    
+  gammaPlotSwitch                 alphaPlotSwitch  
+    [0]Off                         [0]Off                      
+    [n]Every nth iteration         [n]Every nth iteration      
 ---------------------------------------------------------------
-       0
+       0                                 0
+===============================================================
 
-  alphaPlotSwitch   [0]Off   [n]Every nth iteration    
+No. of airfoil files ***Assumed 1 in code***
 ---------------------------------------------------------------
-       0
+       1
+
+Airfoil section limit(r/R)           Airfoil file names
+---------------------------------------------------------------
+         1.0                              flatPlate.C81
