@@ -168,17 +168,12 @@ program main
               rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal= &
                 rotor(ir)%blade(ib)%wiP(ic,is)%velCP
               ! Neglect velocity due to spanwise vortices for all wings
-              ! DEBUG
-              !do jr=1,nr  
-              !  rotor(ir)%blade(ib)%wip(ic,is)%velcptotal= &
-              !    rotor(ir)%blade(ib)%wip(ic,is)%velcptotal- &
-              !    rotor(jr)%vind_bywing_boundVortices( &
-              !    rotor(ir)%blade(ib)%wiP(ic,is)%CP)
-              !enddo
+              do jr=1,nr  
                 rotor(ir)%blade(ib)%wip(ic,is)%velCPTotal= &
                   rotor(ir)%blade(ib)%wip(ic,is)%velCPTotal- &
-                  rotor(ir)%blade(ib)%wiP(ic,is)%vr%vf(4)%vind( &
+                  rotor(jr)%vind_bywing_boundVortices( &
                   rotor(ir)%blade(ib)%wiP(ic,is)%CP)
+              enddo
               ! Add self induced velocity due to wing vortices
               rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal= &
                 rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal+ &
@@ -368,18 +363,13 @@ program main
                   ! (excluding induced velocities from wing bound vortices)
                   rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal= &
                     rotor(ir)%blade(ib)%wiP(ic,is)%velCP
-                  ! DEBUG
-                  !do jr=1,nr 
-                  !  ! Neglect velocity due to spanwise vortices for all wings
-                  !  rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal= &
-                  !    rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal- &
-                  !    rotor(jr)%vind_bywing_boundVortices( &
-                  !    rotor(ir)%blade(ib)%wiP(ic,is)%CP)
-                  !enddo
-                  rotor(ir)%blade(ib)%wip(ic,is)%velCPTotal= &
-                    rotor(ir)%blade(ib)%wip(ic,is)%velCPTotal- &
-                    rotor(ir)%blade(ib)%wiP(ic,is)%vr%vf(4)%vind( &
-                    rotor(ir)%blade(ib)%wiP(ic,is)%CP)
+                  do jr=1,nr 
+                    ! Neglect velocity due to spanwise vortices for all wings
+                    rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal= &
+                      rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal- &
+                      rotor(jr)%vind_bywing_boundVortices( &
+                      rotor(ir)%blade(ib)%wiP(ic,is)%CP)
+                  enddo
                   ! Add self induced velocity due to wing vortices
                   rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal= &
                     rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal+ &
