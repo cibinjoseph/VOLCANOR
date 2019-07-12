@@ -1284,7 +1284,7 @@ module rotor_classdef
     real(dp) :: initWakeVel, psiStart, skewLimit
     real(dp) :: turbulentViscosity
     integer :: rollupStart, rollupEnd
-    integer :: inflowPlotSwitch
+    integer :: inflowPlotSwitch, bladeForcePlotSwitch
     integer :: gammaPlotSwitch, alphaPlotSwitch
     integer :: rowNear, rowFar
     integer :: nAirfoils
@@ -1373,7 +1373,7 @@ contains
     call skiplines(12,3)
     read(12,*) this%initWakeVel, this%psiStart, this%skewLimit
     call skiplines(12,7)
-    read(12,*) this%inflowPlotSwitch
+    read(12,*) this%inflowPlotSwitch, this%bladeForcePlotSwitch
     call skiplines(12,5)
     read(12,*) this%gammaPlotSwitch, this%alphaPlotSwitch
     call skiplines(12,4)
