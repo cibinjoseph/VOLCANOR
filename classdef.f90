@@ -1111,8 +1111,9 @@ contains
 
     ! Lift in positive Z-direction assumption made
     this%sectionalForce(3,:)=this%getSectionalDynamicPressure(density)* &
-      !this%getSectionalArea()*(2._dp*pi)*this%sectionalAlpha
-      this%getSectionalArea()*this%sectionalCL
+      this%getSectionalArea()*(2._dp*pi)*this%sectionalAlpha
+    ! DEBUG
+    !this%getSectionalArea()*this%sectionalCL
     do i=1,3
       this%Force(i)=sum(this%sectionalForce(i,:))
     enddo
