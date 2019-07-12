@@ -70,8 +70,9 @@ elif pyFilename == 'plot_drag.py':
     wait4file(resultsDir+'drag.curve')
 
 if pyFilename == 'plot_force.py':
-    sys.path.insert(0, src_plotDir)  # Append src_plot/ to search path
-    import plot_force
+    call(['gnuplot',src_plotDir+'plot_force.py'])
+    # sys.path.insert(0, src_plotDir)  # Append src_plot/ to search path
+    # import plot_force
 
 else:
     call(['visit', '-np', '4', '-s', '{}/{}'.format(src_plotDir, pyFilename)])
