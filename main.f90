@@ -195,7 +195,8 @@ program main
 
     end select
     do ir=1,nr
-      call force2file(timestamp,rotor(ir),ir,zAxis)  
+      ! DEBUG
+      !call force2file(timestamp,rotor(ir),ir,zAxis)  
     enddo
   endif
 
