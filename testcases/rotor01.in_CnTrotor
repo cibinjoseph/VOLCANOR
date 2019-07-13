@@ -1,10 +1,10 @@
   No.of blades,nb     
 ------------------------
-       2
+       1
 
 Spanwise panels,ns   Chordwise panels,nc   Near wake panels,nNwake
 ---------------------------------------------------------------
-       13                      4                   30
+       13                      1                   80
 ===============================================================
 
 X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
@@ -22,21 +22,21 @@ X-cgCoords      Y-cgCoords      Z-cgCoords     [all in m]
 
 Radius[m]      root_cut[r/R]      chord[m]    coningAngle[deg]
 ---------------------------------------------------------------
-    1.143           0.1905           0.1905          0.0
+    8.0           0.0                1.0          0.0
 ===============================================================
 
  Omega[rad/s]   X-shaftAxis     Y-shaftAxis     Z-shaftAxis 
 ---------------------------------------------------------------
-   130.90             0.0              0.0              1.0
+   0.0             0.0              0.0              1.0
 
  theta0[deg]    thetaC[deg]    thetaS[deg]    thetaTwist[deg]
 ---------------------------------------------------------------
-    8.0            0.0              0.0           0.0
+    5.0            0.0              0.0           0.0
 ===============================================================
 
 u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]    
 ----------------------------------------------------------------
-  0.0         0.0        0.0       0.0        0.0         0.0
+  -10.0         0.0        0.0       0.0        0.0         0.0
 ===============================================================
 
 pivot point from LE[x/chord]    flapHinge from centre[r/R]
@@ -46,16 +46,16 @@ pivot point from LE[x/chord]    flapHinge from centre[r/R]
 
 turbulentViscosity parameter (10-10000)
 ----------------------------------------------------------------
-        2000
+        000
 ===============================================================
 spanwise core radius[x/c]       streamwise core_switch
                                  [s]ectional  [i]dentical
 ----------------------------------------------------------------
-        0.14                            i
+        0.00                            i
 
 streamwise core radius[x/c]   root <----> tip  (ns+1 entries)
 ----------------------------------------------------------------
-0.14 
+0.00 
 ===============================================================
 
 Spanwise start[r/R]  &  end[r/R] for centroid of tip vorticity
@@ -68,11 +68,11 @@ initWakeVel[m/s]     psiStart[deg]      skewLimit
 ===============================================================
 
  PLOTS OF SPANWISE DISTRIBUTIONS: 
-  inflowPlotSwitch         
-    [0]Off                
-    [n]Every nth iteration
+  inflowPlotSwitch            bladeForcePlotSwitch
+    [0]Off                    [0]Off                
+    [n]Every nth iteration    [n]Every nth iteration
 -----------------------------------------------------------------------
-       0                       -1
+       0                       0
 
   gammaPlotSwitch                 alphaPlotSwitch  
     [0]Off                         [0]Off                      
