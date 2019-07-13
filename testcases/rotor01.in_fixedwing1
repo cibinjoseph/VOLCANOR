@@ -68,11 +68,11 @@ initWakeVel[m/s]     psiStart[deg]      skewLimit
 ===============================================================
 
  PLOTS OF SPANWISE DISTRIBUTIONS: 
-  inflowPlotSwitch         
-    [0]Off                
-    [n]Every nth iteration
+  inflowPlotSwitch            bladeForcePlotSwitch          
+    [0]Off                    [0]Off                
+    [n]Every nth iteration    [n]Every nth iteration
 -----------------------------------------------------------------------
-       0                       -1
+       0                              0
 
   gammaPlotSwitch                 alphaPlotSwitch  
     [0]Off                         [0]Off                      
