@@ -14,6 +14,4 @@ Comparison of centroids of vorticity for rollup model
 Wake smoothening / velocity limiter
 Wake dissipation on extreme straining
 
-Check why alpha saturates when using lookup tables
 Check why offset present between alpha and gamma computed lifts
-
