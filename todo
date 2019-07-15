@@ -15,3 +15,4 @@ Wake smoothening / velocity limiter
 Wake dissipation on extreme straining
 
 Check why offset present between alpha and gamma computed lifts
+Why is steady lift trend drastically different between alpha and gamma computations?
