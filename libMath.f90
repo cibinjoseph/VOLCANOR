@@ -285,7 +285,7 @@ contains
 
     productMat=matmul(A,Ainv)
     isInverse=.TRUE.
-    tol=eps*1000._dp
+    tol=1E-08
 
     do j=1,size(A,2)
       do i=1,size(A,1)
