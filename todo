@@ -15,5 +15,3 @@ Wake smoothening / velocity limiter
 Wake dissipation on extreme straining
 
 Check why offset present between alpha and gamma computed lifts
-Why does induced velocity blow up for certain combinations of panel
-dimensions and core radii
