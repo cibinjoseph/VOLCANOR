@@ -156,4 +156,5 @@ fileclean:
 	-rm -f $(resultspath)/*.curve
 	-rm -f $(resultspath)/*.dat
 	-rm -f $(resultspath)/*.txt
+	-rm -f status.txt
 
