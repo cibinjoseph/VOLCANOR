@@ -1536,26 +1536,14 @@ contains
 
       this%blade(ib)%waF%vf%age = 0._dp
 
-      ! Initialize spanwise vortex core radius
-      do i=2,4,2
-        this%blade(ib)%wiP%vr%vf(i)%rVc0= this%spanwiseCore
-        this%blade(ib)%wiP%vr%vf(i)%rVc = this%spanwiseCore
-      enddo
+      ! Initialize all core radius of wing vortices to zero
+      this%blade(ib)%wiP%vr%vf%rVc0 = 1.0D-6
 
-      ! Initialize streamwise vortex core radius
-      do j=1,this%ns
-        do i=1,this%nc
-          this%blade(ib)%wiP(i,j)%vr%vf(1)%rVc0 = this%streamwiseCoreVec(j)
-          this%blade(ib)%wiP(i,j)%vr%vf(1)%rVc  = this%streamwiseCoreVec(j)
-        enddo
-      enddo
+      ! Initialize spanwise vortex core radius for last row of wing to that of wake
+      this%blade(ib)%wiP%vr%vf(2)%rVc0 = this%spanwiseCore
 
-      do j=1,this%ns
-        do i=1,this%nc
-          this%blade(ib)%wiP(i,j)%vr%vf(3)%rVc0 = this%streamwiseCoreVec(j+1)
-          this%blade(ib)%wiP(i,j)%vr%vf(3)%rVc  = this%streamwiseCoreVec(j+1)
-        enddo
-      enddo
+      ! Initialize all current core radius of wing vortices to initial core radius
+      this%blade(ib)%wiP%vr%vf%rVc = this%blade(ib)%wiP%vr%vf%rVc0
 
       ! Verify CP is outside vortex core for boundary panels
       warnUser = .FALSE.
