@@ -1,5 +1,5 @@
 program gridgen
-  use library
+  use libCommon
 
   integer :: nx,ny,nz
   real(dp), dimension(3) :: cMin, cMax    ! Coordinates of corners
