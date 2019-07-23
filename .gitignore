@@ -1,6 +1,6 @@
 Results/*
-obj/*.o
-obj/*.mod
+build/*.o
+build/*.mod
 *.out
 *.swp
 visitlog.py
