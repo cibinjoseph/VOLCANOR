@@ -71,7 +71,7 @@ add_custom_target(run
   COMMAND ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=Release ${CMAKE_SOURCE_DIR}
   COMMAND reset
   COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target fileclean
-  COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}
+  COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target main.out
   )
 
 # Target debug/run_dbg to regenerate Makefile
@@ -79,7 +79,5 @@ add_custom_target(run_dbg
   COMMAND ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=Build ${CMAKE_SOURCE_DIR}
   COMMAND reset
   COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target fileclean
-  COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}
+  COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target main.out
   )
-
-# 
