@@ -1,4 +1,5 @@
 Results/*
+build/*
 build/*.o
 build/*.mod
 *.out
