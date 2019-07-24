@@ -5,7 +5,7 @@ iflagsdbg=-traceback -O0 -warn all -implicitnone -r8 -check bounds -g -fpe0 -deb
 iflagsprof=-traceback -O3 -implicitnone -r8 -g -debug inline-debug-info -parallel-source-info=2 -qopenmp -xcore-avx2 #-pg
 
 #### GFORTRAN ####
-gfc=gfortran-7 
+gfc=gfortran-9
 gflags=-O2 -ffree-form -fimplicit-none -fopenmp -ffree-line-length-none #-fmax-stack-var-size=4096
 gflagsdbg=-fbacktrace -O0 -ffree-form -Wall -Wextra -Wimplicit-interface -Wunused-parameter -Wcharacter-truncation -Wsurprising -Waliasing -fimplicit-none -fcheck=all -g -ffpe-trap=invalid,zero,overflow,underflow
 
