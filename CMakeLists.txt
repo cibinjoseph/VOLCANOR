@@ -49,16 +49,10 @@ target_link_libraries(main.out Common Postprocess)
 add_executable(gridgen.out ${CMAKE_SOURCE_DIR}/gridgen.f90)
 target_link_libraries(gridgen.out Common)
 
-# Command for target init target 
-add_custom_command(
-  OUTPUT ${CMAKE_SOURCE_DIR}/Results
+# Target init
+add_custom_target(init
   COMMAND echo "Creating Results/"
   COMMAND mkdir -p ${CMAKE_SOURCE_DIR}/Results)
-
-# Target init
-add_custom_target(init ALL
-  DEPENDS ${CMAKE_SOURCE_DIR}/Results
-  )
 
 # Target fileclean 
 add_custom_target(fileclean
@@ -71,13 +65,13 @@ add_custom_target(run
   COMMAND ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=Release ${CMAKE_SOURCE_DIR}
   COMMAND reset
   COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target fileclean
-  COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target main.out
-  )
+  COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target init
+  COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target main.out)
 
 # Target debug/run_dbg to regenerate Makefile
 add_custom_target(run_dbg
   COMMAND ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=Build ${CMAKE_SOURCE_DIR}
   COMMAND reset
   COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target fileclean
-  COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target main.out
-  )
+  COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target init
+  COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target main.out)
