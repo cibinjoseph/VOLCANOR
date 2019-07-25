@@ -4,7 +4,7 @@
 
 Spanwise panels,ns   Chordwise panels,nc   Near wake panels,nNwake
 ---------------------------------------------------------------
-       42                      12                   10
+       42                      12                   140
 ===============================================================
 
 X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
@@ -46,7 +46,7 @@ pivot point from LE[x/chord]    flapHinge from centre[r/R]
 
 turbulentViscosity parameter (10-10000)
 ----------------------------------------------------------------
-        1000
+          2000
 ===============================================================
 spanwise core radius[x/c]       streamwise core_switch
                                  [s]ectional  [i]dentical
