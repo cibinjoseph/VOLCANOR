@@ -4,7 +4,7 @@
 
 Spanwise panels,ns   Chordwise panels,nc   Near wake panels,nNwake
 ---------------------------------------------------------------
-       42                      12                   113
+       42                      12                   10
 ===============================================================
 
 X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
@@ -51,11 +51,11 @@ turbulentViscosity parameter (10-10000)
 spanwise core radius[x/c]       streamwise core_switch
                                  [s]ectional  [i]dentical
 ----------------------------------------------------------------
-        0.50                            i
+        0.04                            i
 
 streamwise core radius[x/c]   root <----> tip  (ns+1 entries)
 ----------------------------------------------------------------
-  0.50 
+  0.04
 ===============================================================
 
 Spanwise start[r/R]  &  end[r/R] for centroid of tip vorticity
