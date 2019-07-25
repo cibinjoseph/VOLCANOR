@@ -20,4 +20,4 @@ octave-workspace
 src_plot/*.pyc
 *_copy
 status.txt
-force_????.txt
+r01forceHist.txt
