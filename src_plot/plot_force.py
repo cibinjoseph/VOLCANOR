@@ -1,6 +1,7 @@
 # Plot using gnuplot
-plot 'Results/r01forceHist.txt'
-pause -1
+plot 'Results/r01forceHist.txt' w l
+pause 1
+reread
 
 ## Plot using matplotlib
 # import matplotlib.pyplot as plt
