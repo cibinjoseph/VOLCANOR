@@ -1075,19 +1075,11 @@ contains
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: density
     real(dp), dimension(size(this%wiP,2)) :: magSectionalVelCPTotal
-    real(dp), dimension(3,size(this%wiP,2)) :: sumSectionalVelCPTotal
     real(dp), dimension(size(this%wiP,2)) :: getSectionalDynamicPressure
     integer :: is,ic,rows
 
     rows=size(this%wiP,1)
-    sumSectionalVelCPTotal=0._dp
     do is=1,size(this%wiP,2)
-      ! DEBUG
-      ! Try using interpolated sectionalResultantVelocity to calculate norm here
-      !do ic=1,rows
-      !  sumSectionalVelCPTotal(:,is)=sumSectionalVelCPTotal(:,is)+this%wiP(ic,is)%velCPTotal
-      !enddo
-      !magSectionalVelCPTotal(is)=norm2(sumSectionalVelCPTotal(:,is)/rows)
       magSectionalVelCPTotal(is)=norm2(this%sectionalResultantVel(:,is))
     enddo
     getSectionalDynamicPressure=0.5_dp*density*magSectionalVelCPTotal**2._dp
