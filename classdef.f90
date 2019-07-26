@@ -1076,7 +1076,7 @@ contains
     real(dp), intent(in) :: density
     real(dp), dimension(size(this%wiP,2)) :: magSectionalVelCPTotal
     real(dp), dimension(size(this%wiP,2)) :: getSectionalDynamicPressure
-    integer :: is,ic,rows
+    integer :: is,rows
 
     rows=size(this%wiP,1)
     do is=1,size(this%wiP,2)
@@ -1423,7 +1423,10 @@ contains
 
     real(dp), dimension(this%nc+1) :: xVec
     real(dp), dimension(this%ns+1) :: yVec
-    integer :: i,j,ib
+    real(dp), dimension(this%nc) :: dx
+    real(dp), dimension(this%ns) :: dy
+    real(dp) :: dxdymin
+    integer :: i,j,ib,is,ic
     real(dp) :: bladeOffset
     real(dp) :: xshiftLE,xshiftTE,velShed
     logical :: warnUser
@@ -1535,9 +1538,20 @@ contains
 
       this%blade(ib)%waF%vf%age = 0._dp
 
+      ! Find dx and dy vectors
+      do ic=1,this%nc
+        dx(ic)=xVec(ic+1)-xVec(ic)
+      enddo
+      dx=abs(dx)
+      do is=1,this%ns
+        dy(is)=yVec(is+1)-yVec(is)
+      enddo
+      dy=abs(dy)
+      dxdymin=min(minval(dx),minval(dy))
+
       ! Initialize all core radius of wing vortices to zero
       do i=1,4
-        this%blade(ib)%wiP%vr%vf(i)%rVc0 = 1.0D-6
+        this%blade(ib)%wiP%vr%vf(i)%rVc0 = dxdymin*0.1_dp
       enddo
 
       ! Initialize spanwise vortex core radius for last row of wing to that of wake
