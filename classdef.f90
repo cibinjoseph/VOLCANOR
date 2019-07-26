@@ -1082,10 +1082,13 @@ contains
     rows=size(this%wiP,1)
     sumSectionalVelCPTotal=0._dp
     do is=1,size(this%wiP,2)
-      do ic=1,rows
-        sumSectionalVelCPTotal(:,is)=sumSectionalVelCPTotal(:,is)+this%wiP(ic,is)%velCPTotal
-      enddo
-      magSectionalVelCPTotal(is)=norm2(sumSectionalVelCPTotal(:,is)/rows)
+      ! DEBUG
+      ! Try using interpolated sectionalResultantVelocity to calculate norm here
+      !do ic=1,rows
+      !  sumSectionalVelCPTotal(:,is)=sumSectionalVelCPTotal(:,is)+this%wiP(ic,is)%velCPTotal
+      !enddo
+      !magSectionalVelCPTotal(is)=norm2(sumSectionalVelCPTotal(:,is)/rows)
+      magSectionalVelCPTotal(is)=norm2(this%sectionalResultantVel(:,is))
     enddo
     getSectionalDynamicPressure=0.5_dp*density*magSectionalVelCPTotal**2._dp
   end function getSectionalDynamicPressure
@@ -1111,7 +1114,7 @@ contains
 
     ! Lift in positive Z-direction assumption made
     this%sectionalForce(3,:)=this%getSectionalDynamicPressure(density)* &
-    this%getSectionalArea()*this%sectionalCL
+      this%getSectionalArea()*this%sectionalCL
     do i=1,3
       this%Force(i)=sum(this%sectionalForce(i,:))
     enddo
