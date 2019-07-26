@@ -1493,14 +1493,19 @@ contains
 
       ! Shed last row of vortices
       if (abs(norm2(this%velWind)) < eps) then
-        velShed=sign(1._dp,this%Omega)*0.02_dp*this%chord/(dt*this%nc)
+        !velShed=sign(1._dp,this%Omega)*0.02_dp*this%chord/(dt*this%nc)
+        do j=1,this%ns
+        velShed=0.3_dp*this%Omega*norm2(this%blade(ib)%wiP(this%nc,j)%vr%vf(2)%fc(:,1)-this%hubCoords)
+          call this%blade(ib)%wiP(this%nc,j)%vr%shiftdP(2,(/velShed*dt,0._dp,0._dp/))
+          call this%blade(ib)%wiP(this%nc,j)%vr%shiftdP(3,(/velShed*dt,0._dp,0._dp/))
+        enddo
       else
         velShed=0.3_dp*norm2(this%velWind)
+        do j=1,this%ns
+          call this%blade(ib)%wiP(this%nc,j)%vr%shiftdP(2,(/velShed*dt,0._dp,0._dp/))
+          call this%blade(ib)%wiP(this%nc,j)%vr%shiftdP(3,(/velShed*dt,0._dp,0._dp/))
+        enddo
       endif
-      do j=1,this%ns
-        call this%blade(ib)%wiP(this%nc,j)%vr%shiftdP(2,(/velShed*dt,0._dp,0._dp/))
-        call this%blade(ib)%wiP(this%nc,j)%vr%shiftdP(3,(/velShed*dt,0._dp,0._dp/))
-      enddo
 
       ! Initialize CP coords, nCap, panelArea and pivotLE
       do j=1,this%ns

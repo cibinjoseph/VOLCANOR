@@ -1,6 +1,6 @@
  NO. OF TIMESTEPS [nt]    TIMESTEP (sec) [dt]    NO. OF ROTORS [nr]
 -----------------------------------------------------------------------
-      202                       0.00625                  1
+      1440                       0.00052                  1
 
  SPAN DISCRETIZATION : [1]linear [2]cosine [3]halfsine
  spanSpacingSwitch
@@ -10,7 +10,7 @@
 
    DENSITY [kg/m3]    SOUND VEL. [m/s]
 -----------------------------------------------------------------------
-      1.0                330.0
+      1.2                330.0
 =======================================================================
 
  PLOT WAKE: [0]Off [n]Every nth iteration
@@ -27,7 +27,7 @@
  WAKE PROPERTY SWITCHES: [0]Off [1]On  
  wakeDissipationSwitch            wakeStrainSwitch   wakeBurstSwitch
 -----------------------------------------------------------------------
-       0                                0                  0
+       1                                0                  0
 
  SLOW START TO AVOID LARGE STARTING VORTEX: [0]Off [1]linear [2]tanh [3]extended tanh
   slowStartSwitch       slowStartNt
