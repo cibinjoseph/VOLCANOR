@@ -1,6 +1,6 @@
  NO. OF TIMESTEPS [nt]    TIMESTEP (sec) [dt]    NO. OF ROTORS [nr]
 -----------------------------------------------------------------------
-      1440                       0.00052                  1
+      720                       0.0013                  1
 
  SPAN DISCRETIZATION : [1]linear [2]cosine [3]halfsine
  spanSpacingSwitch
