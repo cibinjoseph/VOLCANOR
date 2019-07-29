@@ -1,6 +1,6 @@
  NO. OF TIMESTEPS [nt]    TIMESTEP (sec) [dt]    NO. OF ROTORS [nr]
 -----------------------------------------------------------------------
-      160                       0.00625                  1
+      242                       0.00625                  1
 
  SPAN DISCRETIZATION : [1]linear [2]cosine [3]halfsine
  spanSpacingSwitch
@@ -10,7 +10,7 @@
 
    DENSITY [kg/m3]    SOUND VEL. [m/s]
 -----------------------------------------------------------------------
-      1.0                330.0
+      1.2                330.0
 =======================================================================
 
  PLOT WAKE: [0]Off [n]Every nth iteration
