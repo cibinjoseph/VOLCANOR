@@ -1280,7 +1280,7 @@ module rotor_classdef
     integer :: inflowPlotSwitch, bladeForcePlotSwitch
     integer :: gammaPlotSwitch, alphaPlotSwitch
     integer :: rowNear, rowFar
-    integer :: nAirfoils
+    integer :: nAirfoils, wingFromFile
     character(len=20), allocatable, dimension(:) :: airfoilFile
     real(dp) :: nonDimForceDenominator
   contains
@@ -1324,7 +1324,7 @@ contains
 
     open(unit=12,file=filename)
     call skiplines(12,2)
-    read(12,*) this%nb
+    read(12,*) this%nb, this%wingFromFile
     call skiplines(12,3)
     read(12,*) this%ns,this%nc,this%nNwake
     if (this%nNwake<2)  error stop 'ERROR: Atleast 2 near wake rows mandatory'
@@ -1423,40 +1423,47 @@ contains
 
     real(dp), dimension(this%nc+1) :: xVec
     real(dp), dimension(this%ns+1) :: yVec
-    real(dp), dimension(this%nc) :: dx
-    real(dp), dimension(this%ns) :: dy
+    real(dp), dimension(this%nc,this%ns) :: dx,dy
     real(dp) :: dxdymin
     integer :: i,j,ib,is,ic
     real(dp) :: bladeOffset
-    real(dp) :: xshiftLE,xshiftTE,velShed
+    real(dp) :: velShed
+    real(dp), dimension(4) :: xshift
     logical :: warnUser
 
     ! Blade initialization
-    if (this%Omega .ge. 0) then
-      xVec=linspace(-this%chord,0._dp,this%nc+1)
-    else
-      xVec=linspace(this%chord,0._dp,this%nc+1)
-    endif
-    select case (spanSpacingSwitch)
-    case (1)
-      yVec=linspace(this%root_cut*this%radius,this%radius,this%ns+1)
-    case (2)
-      yVec=cosspace(this%root_cut*this%radius,this%radius,this%ns+1)
-    case (3)
-      yVec=halfsinspace(this%root_cut*this%radius,this%radius,this%ns+1)
-    end select
+    if (this%wingFromFile .eq. 0) then
+      if (this%Omega .ge. 0) then
+        xVec=linspace(-this%chord,0._dp,this%nc+1)
+      else
+        xVec=linspace(this%chord,0._dp,this%nc+1)
+      endif
+      select case (spanSpacingSwitch)
+      case (1)
+        yVec=linspace(this%root_cut*this%radius,this%radius,this%ns+1)
+      case (2)
+        yVec=cosspace(this%root_cut*this%radius,this%radius,this%ns+1)
+      case (3)
+        yVec=halfsinspace(this%root_cut*this%radius,this%radius,this%ns+1)
+      end select
 
-    do ib=1,this%nb
-      ! Initialize panel coordinates
-      do j=1,this%ns
-        do i=1,this%nc
-          call this%blade(ib)%wiP(i,j)%assignP(1,(/xVec(i  ),yVec(j  ),0._dp/))
-          call this%blade(ib)%wiP(i,j)%assignP(2,(/xVec(i+1),yVec(j  ),0._dp/))
-          call this%blade(ib)%wiP(i,j)%assignP(3,(/xVec(i+1),yVec(j+1),0._dp/))
-          call this%blade(ib)%wiP(i,j)%assignP(4,(/xVec(i  ),yVec(j+1),0._dp/))
+      do ib=1,this%nb
+        ! Initialize panel coordinates
+        do j=1,this%ns
+          do i=1,this%nc
+            call this%blade(ib)%wiP(i,j)%assignP(1,(/xVec(i  ),yVec(j  ),0._dp/))
+            call this%blade(ib)%wiP(i,j)%assignP(2,(/xVec(i+1),yVec(j  ),0._dp/))
+            call this%blade(ib)%wiP(i,j)%assignP(3,(/xVec(i+1),yVec(j+1),0._dp/))
+            call this%blade(ib)%wiP(i,j)%assignP(4,(/xVec(i  ),yVec(j+1),0._dp/))
+          enddo
         enddo
       enddo
+    else
+      print*,'NOT IMPLEMENTED'
+      stop
+    endif
 
+    do ib=1,this%nb
       ! Initialize sectional chordwise vector
       do j=1,this%ns
         this%blade(ib)%sectionalChordwiseVec(:,j) =  &
@@ -1468,26 +1475,32 @@ contains
           norm2(this%blade(ib)%sectionalChordwiseVec(:,j))
       enddo
 
-      ! Initialize vr coords of all panels except last row (to accomodate mismatch of vr coords when usi    ng unequal spacing)
-      do i=1,this%nc-1
-        xshiftLE=(xVec(i+1)-xVec(i))*0.25_dp  ! Shift x coord by dx/4
-        xshiftTE=(xVec(i+2)-xVec(i+1))*0.25_dp  ! Shift x coord by dx/4
-        do j=1,this%ns
-          call this%blade(ib)%wiP(i,j)%vr%assignP(1,(/xVec(i  )+xshiftLE,yVec(j  ),0._dp/))
-          call this%blade(ib)%wiP(i,j)%vr%assignP(2,(/xVec(i+1)+xshiftTE,yVec(j  ),0._dp/))
-          call this%blade(ib)%wiP(i,j)%vr%assignP(3,(/xVec(i+1)+xshiftTE,yVec(j+1),0._dp/))
-          call this%blade(ib)%wiP(i,j)%vr%assignP(4,(/xVec(i  )+xshiftLE,yVec(j+1),0._dp/))
+      ! Initialize vr coords of all panels except last row (to accomodate mismatch of vr coords when using unequal spacing)
+      do j=1,this%ns
+        do i=1,this%nc-1
+          xshift(1)=(this%blade(ib)%wiP(i,j)%PC(1,2)-this%blade(ib)%wiP(i,j)%PC(1,1))*0.25_dp    ! Shift x coord by dx/4
+          xshift(2)=(this%blade(ib)%wiP(i+1,j)%PC(1,2)-this%blade(ib)%wiP(i,j)%PC(1,2))*0.25_dp  ! Shift x coord by dx/4
+          xshift(3)=(this%blade(ib)%wiP(i+1,j)%PC(1,3)-this%blade(ib)%wiP(i,j)%PC(1,3))*0.25_dp  ! Shift x coord by dx/4
+          xshift(4)=(this%blade(ib)%wiP(i,j)%PC(1,3)-this%blade(ib)%wiP(i,j)%PC(1,4))*0.25_dp    ! Shift x coord by dx/4
+
+          call this%blade(ib)%wiP(i,j)%vr%assignP(1,(/this%blade(ib)%wiP(i,j)%PC(1,1)+xshift(1),this%blade(ib)%wiP(i,j)%PC(2,1),0._dp/))
+          call this%blade(ib)%wiP(i,j)%vr%assignP(2,(/this%blade(ib)%wiP(i,j)%PC(1,2)+xshift(2),this%blade(ib)%wiP(i,j)%PC(2,2),0._dp/))
+          call this%blade(ib)%wiP(i,j)%vr%assignP(3,(/this%blade(ib)%wiP(i,j)%PC(1,3)+xshift(3),this%blade(ib)%wiP(i,j)%PC(2,3),0._dp/))
+          call this%blade(ib)%wiP(i,j)%vr%assignP(4,(/this%blade(ib)%wiP(i,j)%PC(1,4)+xshift(4),this%blade(ib)%wiP(i,j)%PC(2,4),0._dp/))
         enddo
       enddo
 
-      ! Initializing vr coords of last row
-      xshiftLE=(xVec(this%nc+1)-xVec(this%nc))*0.25_dp  ! Shift x coord by dx/4
-      xshiftTE=0._dp
+      ! Initialize vr coords of last row
       do j=1,this%ns
-        call this%blade(ib)%wiP(this%nc,j)%vr%assignP(1,(/xVec(this%nc  )+xshiftLE,yVec(j  ),0._dp/))
-        call this%blade(ib)%wiP(this%nc,j)%vr%assignP(2,(/xVec(this%nc+1)+xshiftTE,yVec(j  ),0._dp/))
-        call this%blade(ib)%wiP(this%nc,j)%vr%assignP(3,(/xVec(this%nc+1)+xshiftTE,yVec(j+1),0._dp/))
-        call this%blade(ib)%wiP(this%nc,j)%vr%assignP(4,(/xVec(this%nc  )+xshiftLE,yVec(j+1),0._dp/))
+        xshift(1)=(this%blade(ib)%wiP(this%nc,j)%PC(1,2)-this%blade(ib)%wiP(this%nc,j)%PC(1,1))*0.25_dp  ! Shift x coord by dx/4
+        xshift(2)=0._dp
+        xshift(3)=0._dp
+        xshift(4)=(this%blade(ib)%wiP(this%nc,j)%PC(1,3)-this%blade(ib)%wiP(this%nc,j)%PC(1,4))*0.25_dp  ! Shift x coord by dx/4
+
+        call this%blade(ib)%wiP(this%nc,j)%vr%assignP(1,(/this%blade(ib)%wiP(i,j)%PC(1,1)+xshift(1),this%blade(ib)%wiP(i,j)%PC(2,1),0._dp/))
+        call this%blade(ib)%wiP(this%nc,j)%vr%assignP(2,(/this%blade(ib)%wiP(i,j)%PC(1,2)+xshift(2),this%blade(ib)%wiP(i,j)%PC(2,2),0._dp/))
+        call this%blade(ib)%wiP(this%nc,j)%vr%assignP(3,(/this%blade(ib)%wiP(i,j)%PC(1,3)+xshift(3),this%blade(ib)%wiP(i,j)%PC(2,3),0._dp/))
+        call this%blade(ib)%wiP(this%nc,j)%vr%assignP(4,(/this%blade(ib)%wiP(i,j)%PC(1,4)+xshift(4),this%blade(ib)%wiP(i,j)%PC(2,4),0._dp/))
       enddo
 
       ! Assign wind velocities
@@ -1497,7 +1510,7 @@ contains
       ! Shed last row of vortices
       if (abs(norm2(this%velWind)) < eps) then
         do j=1,this%ns
-        velShed=0.3_dp*this%Omega*norm2(this%blade(ib)%wiP(this%nc,j)%vr%vf(2)%fc(:,1)-this%hubCoords)
+          velShed=0.3_dp*this%Omega*norm2(this%blade(ib)%wiP(this%nc,j)%vr%vf(2)%fc(:,1)-this%hubCoords)
           call this%blade(ib)%wiP(this%nc,j)%vr%shiftdP(2,(/velShed*dt,0._dp,0._dp/))
           call this%blade(ib)%wiP(this%nc,j)%vr%shiftdP(3,(/velShed*dt,0._dp,0._dp/))
         enddo
@@ -1539,13 +1552,13 @@ contains
       this%blade(ib)%waF%vf%age = 0._dp
 
       ! Find dx and dy vectors
-      do ic=1,this%nc
-        dx(ic)=xVec(ic+1)-xVec(ic)
+      do is=1,this%ns
+        do ic=1,this%nc
+          dx(ic,is) = norm2(this%blade(ib)%wiP(ic,is)%PC(:,2)-this%blade(ib)%wiP(ic,is)%PC(:,1))
+          dy(ic,is) = norm2(this%blade(ib)%wiP(ic,is)%PC(:,3)-this%blade(ib)%wiP(ic,is)%PC(:,2))
+        enddo
       enddo
       dx=abs(dx)
-      do is=1,this%ns
-        dy(is)=yVec(is+1)-yVec(is)
-      enddo
       dy=abs(dy)
       dxdymin=min(minval(dx),minval(dy))
 
