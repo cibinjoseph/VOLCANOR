@@ -1282,11 +1282,13 @@ module rotor_classdef
     integer :: rowNear, rowFar
     integer :: nAirfoils, wingFromFile
     character(len=20), allocatable, dimension(:) :: airfoilFile
+    character(len=20), :: geometryFile
     real(dp) :: nonDimForceDenominator
   contains
     procedure :: getdata
     procedure :: init => rotor_init
     procedure :: deinit => rotor_deinit
+    procedure :: plot3d2blade
     procedure :: gettheta
     procedure :: getthetadot
     procedure :: move => rotor_move
@@ -1459,8 +1461,7 @@ contains
         enddo
       enddo
     else
-      print*,'NOT IMPLEMENTED'
-      stop
+      this%plot3d2blade(this,trim(this%geometryFile))
     endif
 
     do ib=1,this%nb
@@ -1777,6 +1778,50 @@ contains
     enddo
 
   end subroutine rotor_deinit
+
+  subroutine plot3d2blade(this,PLOT3Dfilename)
+    ! Read blade geometry from PLOT3D formatted file 
+  class(rotor_class) :: this
+    character(len=*), intent(in) :: PLOT3Dfilename
+    integer :: nx,ny,nz
+    real(dp), dimension(:,:,:) :: wingGrid
+    integer :: i,j,ic,is,ib
+    logical :: dataMismatch
+
+    open(unit=10,file=PLOT3Dfilename)
+    read(10,*) nx,ny,nz
+
+    ! Verify with rotor parameters
+    dataMismatch = .FALSE.
+    if (nz .gt. 1) dataMismatch = .TRUE.
+    if (nx .ne. (this%nc+1)) dataMismatch = .TRUE.
+    if (ny .ne. (this%ns+1)) dataMismatch = .TRUE.
+
+    if (dataMismatch) then
+      error stop 'Error: Wrong or conflicting data in PLOT3D file'
+      close(10)
+    else
+      allocate(grid(3,nx,ny))
+      read(10,*) &
+        ((grid(1,i,j),i=1,nx),j=1,ny), &
+        ((grid(2,i,j),i=1,nx),j=1,ny), &
+        ((grid(3,i,j),i=1,nx),j=1,ny)
+      close(10)
+    endif
+
+    ! Assign to blades
+    do ib=1,this%nb
+      do is=1,this%ns
+        do ic=1,this%nc
+          call this%blade(ib)%wiP(ic,is)%assignP(1,grid(:,ic,is))
+          call this%blade(ib)%wiP(ic,is)%assignP(2,grid(:,ic+1,is))
+          call this%blade(ib)%wiP(ic,is)%assignP(3,grid(:,ic+1,is+1))
+          call this%blade(ib)%wiP(ic,is)%assignP(4,grid(:,ic,is+1))
+        enddo
+      enddo
+    enddo
+
+  end subroutine plot3d2blade
 
   function gettheta(this,psi,ib)
     ! Get pitch angle corresponding to blade azimuthal location

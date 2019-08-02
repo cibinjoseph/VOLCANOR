@@ -39,6 +39,7 @@ program main
   do ir=1,nr
     write(rotorChar,'(I0.2)') ir
     rotorFile='rotor'//rotorChar//'.in'
+    rotor(ir)%geometryFile='rotor'//rotorChar//'geometry'//'.xyz'
     call print_status('Reading file '//rotorFile)
     call rotor(ir)%getdata(rotorFile,nt)
     call print_status()    ! SUCCESS
