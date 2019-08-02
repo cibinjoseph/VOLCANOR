@@ -39,7 +39,8 @@ program main
   do ir=1,nr
     write(rotorChar,'(I0.2)') ir
     rotorFile='rotor'//rotorChar//'.in'
-    rotor(ir)%geometryFile='geometry/rotor'//rotorChar//'.xyz'
+    ! Wing geometry file in PLOT3D format
+    rotor(ir)%geometryFile='geometry/rotor'//rotorChar//'.p3d'
     call print_status('Reading file '//rotorFile)
     call rotor(ir)%getdata(rotorFile,nt)
     call print_status()    ! SUCCESS
