@@ -1282,7 +1282,7 @@ module rotor_classdef
     integer :: rowNear, rowFar
     integer :: nAirfoils, wingFromFile
     character(len=20), allocatable, dimension(:) :: airfoilFile
-    character(len=20), :: geometryFile
+    character(len=20) :: geometryFile
     real(dp) :: nonDimForceDenominator
   contains
     procedure :: getdata
@@ -1461,7 +1461,7 @@ contains
         enddo
       enddo
     else
-      this%plot3d2blade(this,trim(this%geometryFile))
+      call this%plot3d2blade(trim(this%geometryFile))
     endif
 
     do ib=1,this%nb
@@ -1784,7 +1784,7 @@ contains
   class(rotor_class) :: this
     character(len=*), intent(in) :: PLOT3Dfilename
     integer :: nx,ny,nz
-    real(dp), dimension(:,:,:) :: wingGrid
+    real(dp), allocatable, dimension(:,:,:) :: grid
     integer :: i,j,ic,is,ib
     logical :: dataMismatch
 
