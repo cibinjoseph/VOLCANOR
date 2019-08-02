@@ -348,10 +348,7 @@ contains
   subroutine wingpanel_class_calcCP(this)
     ! Compute collocation point location
   class(wingpanel_class) :: this
-
-    this%CP(1)=this%pc(1,1)+(this%pc(1,2)-this%pc(1,1))*0.75_dp
-    this%CP(2)=this%pc(2,1)+(this%pc(2,4)-this%pc(2,1))*0.50_dp
-    this%CP(3)=0._dp
+    this%CP=((this%PC(:,1)+this%PC(:,4))*0.25_dp+(this%PC(:,2)+this%PC(:,3))*0.75_dp)*0.5_dp
   end subroutine wingpanel_class_calcCP
 
   subroutine wingpanel_class_calcN(this)
