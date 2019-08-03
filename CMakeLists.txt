@@ -24,6 +24,7 @@ endif()
 set(CMAKE_Fortran_FLAGS "${common_flags}")
 set(CMAKE_Fortran_FLAGS_DEBUG "${dbg_flags}")
 set(CMAKE_Fortran_FLAGS_RELEASE "${rls_flags}")
+set(CMAKE_BUILD_PARALLEL_LEVEL 4)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
 
