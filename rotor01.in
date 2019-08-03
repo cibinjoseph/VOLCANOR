@@ -22,7 +22,7 @@ X-cgCoords      Y-cgCoords      Z-cgCoords     [all in m]
 
 Radius[m]      root_cut[r/R]      chord[m]    coningAngle[deg]
 ---------------------------------------------------------------
-    6.0           0.0                1.0          0.0
+    10.0           0.0                2.0          0.0
 ===============================================================
 
  Omega[rad/s]   X-shaftAxis     Y-shaftAxis     Z-shaftAxis 
@@ -31,7 +31,7 @@ Radius[m]      root_cut[r/R]      chord[m]    coningAngle[deg]
 
  theta0[deg]    thetaC[deg]    thetaS[deg]    thetaTwist[deg]
 ---------------------------------------------------------------
-    5.0            0.0              0.0           0.0
+    2.0            0.0              0.0           0.0
 ===============================================================
 
 u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]    
