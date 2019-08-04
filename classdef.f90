@@ -1277,7 +1277,7 @@ module rotor_classdef
     integer :: inflowPlotSwitch, bladeForcePlotSwitch
     integer :: gammaPlotSwitch, alphaPlotSwitch
     integer :: rowNear, rowFar
-    integer :: nAirfoils, wingFromFile
+    integer :: nAirfoils
     character(len=20), allocatable, dimension(:) :: airfoilFile
     character(len=20) :: geometryFile
     real(dp) :: nonDimForceDenominator
@@ -1323,7 +1323,7 @@ contains
 
     open(unit=12,file=filename)
     call skiplines(12,2)
-    read(12,*) this%nb, this%wingFromFile
+    read(12,*) this%nb, this%geometryFile
     call skiplines(12,3)
     read(12,*) this%ns,this%nc,this%nNwake
     if (this%nNwake<2)  error stop 'ERROR: Atleast 2 near wake rows mandatory'
@@ -1431,7 +1431,7 @@ contains
     logical :: warnUser
 
     ! Blade initialization
-    if (this%wingFromFile .eq. 0) then
+    if (this%geometryFile(1:1) .eq. '0') then
       if (this%Omega .ge. 0) then
         xVec=linspace(-this%chord,0._dp,this%nc+1)
       else
@@ -1458,7 +1458,7 @@ contains
         enddo
       enddo
     else
-      call this%plot3d2blade(trim(this%geometryFile))
+      call this%plot3d2blade('geometry/'//trim(this%geometryFile))
     endif
 
     do ib=1,this%nb
@@ -1633,7 +1633,7 @@ contains
     do ib=1,this%nb
       allocate(this%blade(ib)%C81(this%nAirfoils))
       do i=1,this%nAirfoils
-        call this%blade(ib)%C81(i)%readfile('airfoils/'//this%airfoilFile(i))
+        call this%blade(ib)%C81(i)%readfile('airfoils/'//trim(this%airfoilFile(i)))
       enddo
 
       allocate(this%blade(ib)%airfoilSectionLimit(this%nAirfoils))
