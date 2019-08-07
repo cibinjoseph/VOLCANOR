@@ -677,18 +677,22 @@ contains
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: theta
     real(dp), dimension(3) :: axis  
-    real(dp), dimension(3) :: origin
-    integer :: rows
+    real(dp), dimension(3) :: axisOrigin, axisEnd
+    integer :: rows, cols
 
     if (abs(theta)>eps) then
       rows=size(this%wiP,1)
-      origin=this%wiP(1,1)%pc(:,1)*(1._dp-this%pivotLE)+this%wiP(rows,1)%pc(:,2)*this%pivotLE
+      cols=size(this%wiP,2)
+      axisOrigin=this%wiP(1,1)%PC(:,1)*(1._dp-this%pivotLE) &
+        +this%wiP(rows,1)%PC(:,2)*this%pivotLE
+      axisEnd=this%wiP(1,cols)%PC(:,4)*(1._dp-this%pivotLE) &
+        +this%wiP(rows,cols)%PC(:,3)*this%pivotLE
 
       ! Construct axes of rotation from LE of first panel
-      axis=this%wiP(1,1)%pc(:,4)-this%wiP(1,1)%pc(:,1)
+      axis=axisEnd-axisOrigin
       axis=axis/norm2(axis)
 
-      call this%rot_axis(theta,axis,origin)
+      call this%rot_axis(theta,axis,axisOrigin)
     endif
   end subroutine rot_pitch
 
