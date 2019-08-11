@@ -1,10 +1,10 @@
   No.of blades,nb     Read wing from file 
 ---------------------------------------------------------------
-       1                  sweptWing.xyz
+       1                  sweptWingTR-1208.xyz
 
 Spanwise panels,ns   Chordwise panels,nc   Near wake panels,nNwake
 ---------------------------------------------------------------
-       8                     1                   340
+       46                     1                   340
 ===============================================================
 
 X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
@@ -22,7 +22,7 @@ X-cgCoords      Y-cgCoords      Z-cgCoords     [all in m]
 
 Radius[m]      root_cut[r/R]      chord[m]    coningAngle[deg]
 ---------------------------------------------------------------
-    10.0           0.0                2.0          0.0
+    127.26           0.0            16.672          0.0
 ===============================================================
 
  Omega[rad/s]   X-shaftAxis     Y-shaftAxis     Z-shaftAxis 
@@ -31,7 +31,7 @@ Radius[m]      root_cut[r/R]      chord[m]    coningAngle[deg]
 
  theta0[deg]    thetaC[deg]    thetaS[deg]    thetaTwist[deg]
 ---------------------------------------------------------------
-    2.0            0.0              0.0           0.0
+    8.0            0.0              0.0           0.0
 ===============================================================
 
 u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]    

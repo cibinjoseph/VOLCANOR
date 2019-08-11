@@ -1058,7 +1058,7 @@ contains
         !velTangentialSpan(ic,is)=0._dp
 
         this%wiP(ic,is)%delP=density*(velTangentialChord(ic,is)*gamElementChord(ic,is)/this%wiP(ic,is)%meanChord &
-          + velTangentialSpan(ic,is)*gamElementSpan(ic,is)/this%wiP(ic,is)%meanSpan &
+          !+ velTangentialSpan(ic,is)*gamElementSpan(ic,is)/this%wiP(ic,is)%meanSpan &
           + (this%wiP(ic,is)%gamTrapz-this%wiP(ic,is)%gamPrev)/dt)
         this%wiP(ic,is)%gamPrev=this%wiP(ic,is)%gamTrapz
 
