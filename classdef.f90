@@ -587,6 +587,7 @@ module blade_classdef
     real(dp), allocatable, dimension(:,:) :: velFwake
     real(dp), allocatable, dimension(:,:) :: velFwake1, velFwake2, velFwake3
     real(dp), allocatable, dimension(:,:) :: velFwakePredicted, velFwakeStep
+    real(dp), dimension(3) :: xAxis, yAxis, zAxis
 
   contains
     procedure :: move => blade_move
@@ -658,6 +659,10 @@ contains
       enddo
     enddo
 
+    this%xAxis=matmul(Tmat,this%xAxis)
+    this%yAxis=matmul(Tmat,this%yAxis)
+    this%zAxis=matmul(Tmat,this%zAxis)
+
     do i=1,size(this%inflowLocations,2)
       this%inflowLocations(:,i)=this%inflowLocations(:,i)-origin
       this%inflowLocations(:,i)=matmul(TMat,this%inflowLocations(:,i))
@@ -677,7 +682,7 @@ contains
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: theta
     real(dp), dimension(3) :: axis  
-    real(dp), dimension(3) :: axisOrigin, axisEnd
+    real(dp), dimension(3) :: axisOrigin!, axisEnd
     integer :: rows, cols
 
     if (abs(theta)>eps) then
@@ -685,12 +690,15 @@ contains
       cols=size(this%wiP,2)
       axisOrigin=this%wiP(1,1)%PC(:,1)*(1._dp-this%pivotLE) &
         +this%wiP(rows,1)%PC(:,2)*this%pivotLE
-      axisEnd=this%wiP(1,cols)%PC(:,4)*(1._dp-this%pivotLE) &
-        +this%wiP(rows,cols)%PC(:,3)*this%pivotLE
+      !axisEnd=this%wiP(1,cols)%PC(:,4)*(1._dp-this%pivotLE) &
+      !  +this%wiP(rows,cols)%PC(:,3)*this%pivotLE
+      !
+      !! Construct axes of rotation from LE of first panel
+      !axis=axisEnd-axisOrigin
+      !axis=axis/norm2(axis)
 
-      ! Construct axes of rotation from LE of first panel
-      axis=axisEnd-axisOrigin
-      axis=axis/norm2(axis)
+      ! Use blade X axis for rotation
+      axis=this%xAxis
 
       call this%rot_axis(theta,axis,axisOrigin)
     endif

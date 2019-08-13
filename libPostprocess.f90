@@ -478,7 +478,7 @@ contains
         write(bladeNumberChar,'(I0.2)') ib
         write(12,*) '# Blade'//bladeNumberChar
         do ispan=1,rotor%ns
-          write(12,*) norm2(rotor%hubCoords-rotor%blade(ib)%wiP(1,ispan)%CP), &
+          write(12,*) dot_product(rotor%blade(ib)%wiP(1,ispan)%CP-rotor%hubCoords,rotor%blade(ib)%yAxis), &
             dot_product(rotor%blade(ib)%sectionalForce(:,ispan),directionVector)
         enddo
       enddo
