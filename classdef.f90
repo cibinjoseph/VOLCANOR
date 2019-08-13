@@ -1058,7 +1058,7 @@ contains
         !velTangentialSpan(ic,is)=0._dp
 
         this%wiP(ic,is)%delP=density*(velTangentialChord(ic,is)*gamElementChord(ic,is)/this%wiP(ic,is)%meanChord &
-          !+ velTangentialSpan(ic,is)*gamElementSpan(ic,is)/this%wiP(ic,is)%meanSpan &
+          + velTangentialSpan(ic,is)*gamElementSpan(ic,is)/this%wiP(ic,is)%meanSpan &
           + (this%wiP(ic,is)%gamTrapz-this%wiP(ic,is)%gamPrev)/dt)
         this%wiP(ic,is)%gamPrev=this%wiP(ic,is)%gamTrapz
 
@@ -1108,6 +1108,7 @@ contains
     ! Lift in positive Z-direction assumption made
     this%sectionalForce(3,:)=this%getSectionalDynamicPressure(density)* &
       this%getSectionalArea()*this%sectionalCL
+
     do i=1,3
       this%Force(i)=sum(this%sectionalForce(i,:))
     enddo
@@ -1534,6 +1535,21 @@ contains
             + this%blade(ib)%wiP(1,j)%pc(:,4))*0.5_dp,this%blade(ib)%wiP(i,j)%CP)
           call this%blade(ib)%wiP(i,j)%calc_area()
           call this%blade(ib)%wiP(i,j)%calc_mean_dimensions()
+        enddo
+      enddo
+
+      ! DEBUG
+      ! Overwrite tau vectors for symmetric or swept wings
+      do j=1,(this%ns/2)
+        do i=1,this%nc
+          this%blade(ib)%wiP(i,j)%tauCapSpan =(/0._dp,-1._dp,0._dp/)
+          this%blade(ib)%wiP(i,j)%tauCapChord =(/1._dp,0._dp,0._dp/)
+        enddo
+      enddo
+      do j=(this%ns/2)+1,this%ns
+        do i=1,this%nc
+          this%blade(ib)%wiP(i,j)%tauCapSpan = (/0._dp,1._dp,0._dp/)
+          this%blade(ib)%wiP(i,j)%tauCapChord =(/1._dp,0._dp,0._dp/)
         enddo
       enddo
 
