@@ -567,7 +567,7 @@ contains
       write(bladeNumberChar,'(I0.2)') ib
       write(12,*) '# Blade'//bladeNumberChar
       do is=1,rotor%ns
-        write(12,*) norm2(rotor%hubCoords-rotor%blade(ib)%wiP(1,is)%cp), &
+        write(12,*) dot_product(rotor%blade(ib)%wiP(1,is)%CP-rotor%hubCoords,rotor%blade(ib)%yAxis), &
           rotor%blade(ib)%sectionalAlpha(is)*180._dp/pi
       enddo
     enddo
