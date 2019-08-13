@@ -698,7 +698,7 @@ contains
       !axis=axis/norm2(axis)
 
       ! Use blade X axis for rotation
-      axis=this%xAxis
+      axis=this%yAxis
 
       call this%rot_axis(theta,axis,axisOrigin)
     endif
@@ -1078,6 +1078,7 @@ contains
         this%Force=this%Force+this%wiP(ic,is)%normalForce
       enddo
     enddo
+
   end subroutine blade_calc_force_gamma
 
   function getSectionalDynamicPressure(this,density)
@@ -1475,6 +1476,11 @@ contains
     endif
 
     do ib=1,this%nb
+      ! Initialize blade axes
+      this%blade(ib)%xAxis=xAxis
+      this%blade(ib)%yAxis=yAxis
+      this%blade(ib)%ZAxis=zAxis
+
       ! Initialize sectional chordwise vector
       do j=1,this%ns
         this%blade(ib)%sectionalChordwiseVec(:,j) =  &
@@ -1550,14 +1556,14 @@ contains
       ! Overwrite tau vectors for symmetric or swept wings
       do j=1,(this%ns/2)
         do i=1,this%nc
-          this%blade(ib)%wiP(i,j)%tauCapSpan =(/0._dp,-1._dp,0._dp/)
-          this%blade(ib)%wiP(i,j)%tauCapChord =(/1._dp,0._dp,0._dp/)
+          this%blade(ib)%wiP(i,j)%tauCapSpan = -1._dp*this%blade(ib)%yAxis
+          this%blade(ib)%wiP(i,j)%tauCapChord = this%blade(ib)%xAxis
         enddo
       enddo
       do j=(this%ns/2)+1,this%ns
         do i=1,this%nc
-          this%blade(ib)%wiP(i,j)%tauCapSpan = (/0._dp,1._dp,0._dp/)
-          this%blade(ib)%wiP(i,j)%tauCapChord =(/1._dp,0._dp,0._dp/)
+          this%blade(ib)%wiP(i,j)%tauCapSpan = this%blade(ib)%yAxis
+          this%blade(ib)%wiP(i,j)%tauCapChord = this%blade(ib)%xAxis
         enddo
       enddo
 
