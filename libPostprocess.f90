@@ -543,18 +543,26 @@ contains
       ic=1
       write(rowNumberChar,'(I0.2)') ic
       write(12,*) '# Blade'//bladeNumberChar//'Row'//rowNumberChar
+      ! DEBUG
       do is=1,rotor%ns
-        write(12,*) norm2(rotor%hubCoords-rotor%blade(ib)%wiP(ic,is)%cp), &
-          -1._dp*rotor%blade(ib)%wiP(ic,is)%vr%gam
+        write(12,*) rotor%blade(ib)%wiP(1,is)%CP(2), -1._dp*sum(rotor%blade(ib)%wiP(:,is)%vr%gam)
       enddo
-      do ic=2,rotor%nc
-        write(rowNumberChar,'(I0.2)') ic
-        write(12,*) '# Blade'//bladeNumberChar//'Row'//rowNumberChar
-        do is=1,rotor%ns
-          write(12,*) norm2(rotor%hubCoords-rotor%blade(ib)%wiP(ic,is)%cp), &
-            -1._dp*(rotor%blade(ib)%wiP(ic,is)%vr%gam-rotor%blade(ib)%wiP(ic-1,is)%vr%gam)
-        enddo
-      enddo
+
+      !ic=1
+      !write(rowNumberChar,'(I0.2)') ic
+      !write(12,*) '# Blade'//bladeNumberChar//'Row'//rowNumberChar
+      !do is=1,rotor%ns
+      !  write(12,*) norm2(rotor%hubCoords-rotor%blade(ib)%wiP(ic,is)%cp), &
+      !    -1._dp*rotor%blade(ib)%wiP(ic,is)%vr%gam
+      !enddo
+      !do ic=2,rotor%nc
+      !  write(rowNumberChar,'(I0.2)') ic
+      !  write(12,*) '# Blade'//bladeNumberChar//'Row'//rowNumberChar
+      !  do is=1,rotor%ns
+      !    write(12,*) norm2(rotor%hubCoords-rotor%blade(ib)%wiP(ic,is)%cp), &
+      !      -1._dp*(rotor%blade(ib)%wiP(ic,is)%vr%gam-rotor%blade(ib)%wiP(ic-1,is)%vr%gam)
+      !  enddo
+      !enddo
     enddo
     close(12)
 
