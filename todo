@@ -14,5 +14,10 @@ Comparison of centroids of vorticity for rollup model
 Wake smoothening / velocity limiter
 Wake dissipation on extreme straining
 
-Check why offset present between alpha and gamma computed lifts
 Why does roll up cause instability in near wake?
+
+Validation cases:
+* Warren 12 planform
+* TR-1208 Swept wing with taper NACA63A012
+* TN-1422 Swept wing with washout
+
