@@ -1132,7 +1132,7 @@ contains
     integer :: is
 
     do is=1,size(this%sectionalAlpha,1)
-      sectionalMach=norm2(this%sectionalResultantVel)/velSound
+      sectionalMach=norm2(this%sectionalResultantVel(:,is))/velSound
       this%sectionalCL(is)=this%C81(1)%getCL(this%sectionalAlpha(is)*180._dp/pi,sectionalMach)
     enddo
   end subroutine calc_sectionalCL
