@@ -574,7 +574,7 @@ module blade_classdef
     real(dp), allocatable, dimension(:,:) :: sectionalForce
     real(dp) :: psi
     real(dp) :: pivotLE
-    character(len=20), allocatable, dimension(:) :: airfoilFile
+    character(len=30), allocatable, dimension(:) :: airfoilFile
     real(dp), allocatable, dimension(:) :: airfoilSectionLimit
     real(dp), allocatable, dimension(:,:) :: sectionalChordwiseVec
     real(dp), allocatable, dimension(:) :: sectionalAlpha
@@ -596,6 +596,7 @@ module blade_classdef
     procedure :: rot_pts => blade_rot_pts
     procedure :: vind_bywing => blade_vind_bywing
     procedure :: vind_bywing_boundVortices => blade_vind_bywing_boundVortices
+    procedure :: vind_bywing_lastRow => blade_vind_bywing_lastRow
     procedure :: vind_bywake => blade_vind_bywake
     procedure :: convectwake
     procedure :: wake_continuity
@@ -797,6 +798,21 @@ contains
     enddo
   end function blade_vind_bywing_boundVortices
 
+  function blade_vind_bywing_lastRow(this,P)
+    ! Compute induced velocity by last row(shed wake row) alone
+  class(blade_class), intent(inout) :: this
+    real(dp), intent(in), dimension(3) :: P
+    real(dp), dimension(3) :: blade_vind_bywing_lastRow
+    integer :: j,rows
+
+    rows=size(this%wiP,1)
+      blade_vind_bywing_lastRow=0._dp
+    do j=1,size(this%wiP,2)
+      blade_vind_bywing_lastRow=blade_vind_bywing_lastRow+ &
+        this%wiP(rows,j)%vr%vf(2)%vind(P)*this%wiP(rows,j)%vr%gam
+    enddo
+  end function blade_vind_bywing_lastRow
+
   function blade_vind_bywake(this,rowNear,rowFar,P,optionalChar) 
     ! Compute induced velocity by wake vortex rings
   class(blade_class), intent(inout) :: this
@@ -811,7 +827,7 @@ contains
     if (.not. present(optionalChar)) then
       do j=1,size(this%waP,2)
         do i=rowNear,nNwake
-          if (abs(this%waP(i,j)%vr%gam) .gt. eps ) &
+          if (abs(this%waP(i,j)%vr%gam) .gt. eps) &
             blade_vind_bywake=blade_vind_bywake+this%waP(i,j)%vr%vind(P)*this%waP(i,j)%vr%gam
         enddo
       enddo
@@ -1294,8 +1310,8 @@ module rotor_classdef
     integer :: gammaPlotSwitch, alphaPlotSwitch
     integer :: rowNear, rowFar
     integer :: nAirfoils
-    character(len=20), allocatable, dimension(:) :: airfoilFile
-    character(len=20) :: geometryFile
+    character(len=30), allocatable, dimension(:) :: airfoilFile
+    character(len=30) :: geometryFile
     real(dp) :: nonDimForceDenominator
   contains
     procedure :: getdata
