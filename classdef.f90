@@ -596,7 +596,6 @@ module blade_classdef
     procedure :: rot_pts => blade_rot_pts
     procedure :: vind_bywing => blade_vind_bywing
     procedure :: vind_bywing_boundVortices => blade_vind_bywing_boundVortices
-    procedure :: vind_bywing_lastRow => blade_vind_bywing_lastRow
     procedure :: vind_bywake => blade_vind_bywake
     procedure :: convectwake
     procedure :: wake_continuity
@@ -797,21 +796,6 @@ contains
         this%wiP(rows,j)%vr%vf(2)%vind(P)*this%wiP(rows,j)%vr%gam
     enddo
   end function blade_vind_bywing_boundVortices
-
-  function blade_vind_bywing_lastRow(this,P)
-    ! Compute induced velocity by last row(shed wake row) alone
-  class(blade_class), intent(inout) :: this
-    real(dp), intent(in), dimension(3) :: P
-    real(dp), dimension(3) :: blade_vind_bywing_lastRow
-    integer :: j,rows
-
-    rows=size(this%wiP,1)
-      blade_vind_bywing_lastRow=0._dp
-    do j=1,size(this%wiP,2)
-      blade_vind_bywing_lastRow=blade_vind_bywing_lastRow+ &
-        this%wiP(rows,j)%vr%vf(2)%vind(P)*this%wiP(rows,j)%vr%gam
-    enddo
-  end function blade_vind_bywing_lastRow
 
   function blade_vind_bywake(this,rowNear,rowFar,P,optionalChar) 
     ! Compute induced velocity by wake vortex rings
