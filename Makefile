@@ -14,7 +14,7 @@
 #gflagsdbg=-fbacktrace -O0 -ffree-form -Wall -Wextra -Wimplicit-interface -Wunused-parameter -Wcharacter-truncation -Wsurprising -Waliasing -fimplicit-none -fcheck=all -g -ffpe-trap=invalid,zero,overflow,underflow
 #
 #objpath=./build
-#resultspath=./Results
+resultspath=./Results
 #
 #
 #all:
