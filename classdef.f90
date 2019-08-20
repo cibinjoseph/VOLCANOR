@@ -596,7 +596,7 @@ module blade_classdef
     procedure :: rot_pts => blade_rot_pts
     procedure :: vind_bywing => blade_vind_bywing
     procedure :: vind_bywing_boundVortices => blade_vind_bywing_boundVortices
-    procedure :: vind_bywing_boundVortex => blade_vind_bywing_boundVortex
+    procedure :: vind_boundVortex => blade_vind_boundVortex
     procedure :: vind_bywake => blade_vind_bywake
     procedure :: convectwake
     procedure :: wake_continuity
@@ -798,15 +798,22 @@ contains
     enddo
   end function blade_vind_bywing_boundVortices
 
-  function blade_vind_bywing_boundVortex(this,ic,is,P)  
+  function blade_vind_boundVortex(this,ic,is,P)  
     ! Compute induced velocity by bound vortices alone
   class(blade_class), intent(inout) :: this
     integer, intent(in) :: ic, is
     real(dp), intent(in), dimension(3) :: P
-    real(dp), dimension(3) :: blade_vind_bywing_boundVortex
-    integer :: i,j,rows,cols
+    real(dp), dimension(3) :: blade_vind_boundVortex
 
-    end function blade_vind_bywing_boundVortex
+    if (ic > 1) then
+      blade_vind_boundVortex=this%wiP(ic,is)%vr%vf(4)%vind(P) &
+        *this%wiP(ic,is)%vr%gam &
+        -this%wiP(ic-1,is)%vr%vf(2)%vind(P)*this%wiP(ic-1,is)%vr%gam
+    else
+      blade_vind_boundVortex=this%wiP(ic,is)%vr%vf(4)%vind(P) &
+        *this%wiP(ic,is)%vr%gam
+    endif
+  end function blade_vind_boundVortex
 
   function blade_vind_bywake(this,rowNear,rowFar,P,optionalChar) 
     ! Compute induced velocity by wake vortex rings
