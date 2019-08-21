@@ -1135,8 +1135,6 @@ contains
     ! Lift in positive Z-direction assumption made
     this%sectionalForce(3,:)=this%getSectionalDynamicPressure(density)* &
       this%getSectionalArea()*this%sectionalCL
-    ! DEBUG
-    ! this%sectionalCL=this%sectionalForce
 
     do i=1,3
       this%Force(i)=sum(this%sectionalForce(i,:))
@@ -1199,6 +1197,9 @@ contains
       this%sectionalAlpha(is)=acos(dot_product(this%sectionalResultantVel(:,is),this%sectionalChordwiseVec(:,is)) &
         /norm2(this%sectionalResultantVel(:,is)))
     enddo
+    ! DEBUG
+    print*,this%sectionalAlpha*180._dp/pi
+    read*
 
   end subroutine blade_calc_sectionalAlpha
 
