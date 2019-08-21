@@ -366,14 +366,20 @@ program main
                   ! Compute local velocity vector
                   ! (excluding induced velocities from wing bound vortices)
                   rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal= &
-                    rotor(ir)%blade(ib)%wiP(ic,is)%velCP
-                  do jr=1,nr 
-                    ! Neglect velocity due to spanwise vortices for all wings
-                    rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal= &
-                      rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal- &
-                      rotor(jr)%vind_bywing_boundVortices( &
-                      rotor(ir)%blade(ib)%wiP(ic,is)%CP)
-                  enddo
+                    rotor(ir)%blade(ib)%wiP(ic,is)%velCP &
+                    ! Neglect velocity due to bound vortex of panel
+                  -rotor(ir)%blade(ib)%vind_boundVortex(ic,is, &
+                    rotor(ir)%blade(ib)%wiP(ic,is)%CP)
+
+                  ! DEBUG
+                  !! Neglect velocity due to spanwise vortices for all wings
+                  !do jr=1,nr  
+                  !  rotor(ir)%blade(ib)%wip(ic,is)%velCPTotal= &
+                  !    rotor(ir)%blade(ib)%wip(ic,is)%velCPTotal- &
+                  !    rotor(jr)%vind_bywing_boundVortices( &
+                  !    rotor(ir)%blade(ib)%wiP(ic,is)%CP)
+                  !enddo
+
                   ! Add self induced velocity due to wing vortices
                   rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal= &
                     rotor(ir)%blade(ib)%wiP(ic,is)%velCPTotal+ &
