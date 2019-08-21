@@ -359,7 +359,7 @@ contains
   end subroutine wingpanel_class_calcN
 
   subroutine wingpanel_class_calcTau(this)
-    ! Compute chordwise and streamwise tangential vectors
+    ! Compute chordwise and spanwise tangential vectors
   class(wingpanel_class) :: this
     this%tauCapChord=0.5_dp*((this%pc(:,2)+this%pc(:,3))-(this%pc(:,1)+this%pc(:,4)))
     this%tauCapSpan=0.5_dp*((this%pc(:,3)+this%pc(:,4))-(this%pc(:,2)+this%pc(:,1)))
@@ -1505,7 +1505,7 @@ contains
       do j=1,this%ns
         this%blade(ib)%sectionalChordwiseVec(:,j) =  &
           (this%blade(ib)%wiP(this%nc,j)%PC(:,3)+this%blade(ib)%wiP(this%nc,j)%PC(:,2)- &
-          this%blade(ib)%wiP(1,j)%PC(:,4)-this%blade(ib)%wiP(1,j)%PC(:,1))*0.5_dp
+          this%blade(ib)%wiP(1,j)%PC(:,4)+this%blade(ib)%wiP(1,j)%PC(:,1))*0.5_dp
 
         ! Normalize
         this%blade(ib)%sectionalChordwiseVec(:,j) = this%blade(ib)%sectionalChordwiseVec(:,j)/ &
