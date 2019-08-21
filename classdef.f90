@@ -1505,7 +1505,7 @@ contains
       do j=1,this%ns
         this%blade(ib)%sectionalChordwiseVec(:,j) =  &
           (this%blade(ib)%wiP(this%nc,j)%PC(:,3)+this%blade(ib)%wiP(this%nc,j)%PC(:,2)- &
-          this%blade(ib)%wiP(1,j)%PC(:,4)+this%blade(ib)%wiP(1,j)%PC(:,1))*0.5_dp
+          (this%blade(ib)%wiP(1,j)%PC(:,4)+this%blade(ib)%wiP(1,j)%PC(:,1)))*0.5_dp
 
         ! Normalize
         this%blade(ib)%sectionalChordwiseVec(:,j) = this%blade(ib)%sectionalChordwiseVec(:,j)/ &
