@@ -808,7 +808,7 @@ contains
     if (ic > 1) then
       blade_vind_boundVortex=this%wiP(ic,is)%vr%vf(4)%vind(P) &
         *this%wiP(ic,is)%vr%gam &
-        -this%wiP(ic-1,is)%vr%vf(2)%vind(P)*this%wiP(ic-1,is)%vr%gam
+        +this%wiP(ic-1,is)%vr%vf(2)%vind(P)*this%wiP(ic-1,is)%vr%gam
     else
       blade_vind_boundVortex=this%wiP(ic,is)%vr%vf(4)%vind(P) &
         *this%wiP(ic,is)%vr%gam
