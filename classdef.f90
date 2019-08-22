@@ -1197,9 +1197,6 @@ contains
       this%sectionalAlpha(is)=acos(dot_product(this%sectionalResultantVel(:,is),this%sectionalChordwiseVec(:,is)) &
         /norm2(this%sectionalResultantVel(:,is)))
     enddo
-    ! DEBUG
-    print*,this%sectionalAlpha*180._dp/pi
-    read*
 
   end subroutine blade_calc_sectionalAlpha
 
