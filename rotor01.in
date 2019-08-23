@@ -1,10 +1,10 @@
   No.of blades,nb     Read wing from file 
 ---------------------------------------------------------------
-       1               rectangularSwept_15x26.xyz
+       1               AR06sweptH45_15x26.xyz
 
 Spanwise panels,ns   Chordwise panels,nc   Near wake panels,nNwake
 ---------------------------------------------------------------
-       52                    15                   340
+       26                    15                   170
 ===============================================================
 
 X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
