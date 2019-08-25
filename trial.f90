@@ -1,26 +1,28 @@
 program trial
-  use vf_classdef
+  use vr_classdef
   implicit none 
-  integer, parameter :: n = 100
-  type(vf_class) :: vf
-  real(dp), dimension(3,n) :: r,v
-  real(dp) :: a
-  integer :: i
+  type(vr_class) :: vr
+  type(vf_class) :: vfx, vfy
 
-  r=0._dp
-  r(1,:)=linspace(0._dp,1._dp,n)
+  ! Rectangular
+  call vr%assignP(1,(/0.0000_dp,0.0000_dp,0.0_dp/))
+  call vr%assignP(2,(/0.3048_dp,0.0000_dp,0.0_dp/))
+  call vr%assignP(3,(/0.3048_dp,0.3048_dp,0.0_dp/))
+  call vr%assignP(4,(/0.3048_dp,0.0000_dp,0.0_dp/))
+  P = (/0.2286_dp,0.1524_dp,0.0_dp/)
 
-  vf%fc(:,1)=(/0._dp, 20._dp,0._dp/)
-  vf%fc(:,2)=(/0._dp,-20._dp,0._dp/)
-  vf%rVc0=0.14_dp
-  vf%rVc=vf%rVc0
+  ! Swept
+  call vr%assignP(1,(/0.0000_dp,0.0000_dp,0.0_dp/))
+  call vr%assignP(2,(/0.3048_dp,0.0000_dp,0.0_dp/))
+  call vr%assignP(3,(/0.3048_dp,0.6096_dp,0.0_dp/))
+  call vr%assignP(4,(/0.3048_dp,0.3048_dp,0.0_dp/))
+  P = (/0.3810_dp,0.1524_dp,0.0_dp/)
 
-  do i=1,n
-    v(:,i)=vf%vind(r(:,i))
-  enddo
+  vfx%fc(:,1) = (/100._dp,0._dp,0._dp/)
+  vfx%fc(:,2) = vr%vf(2)%fc(:,1)
 
-  do i=1,n
-    print*,r(1,i),v(3,i)
-  enddo
+  vfy%fc(:,1) = vr%vf(3)%fc(:,1)
+  vfy%fc(:,2) = (/100._dp,0.3048_dp,0._dp/)
 
+  print*, vr%vind(P)
 end program trial
