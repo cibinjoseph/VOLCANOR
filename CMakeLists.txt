@@ -50,6 +50,9 @@ target_link_libraries(main.out Common Postprocess)
 add_executable(gridgen.out ${CMAKE_SOURCE_DIR}/gridgen.f90)
 target_link_libraries(gridgen.out Common)
 
+add_executable(trial.out ${CMAKE_SOURCE_DIR}/trial.f90)
+target_link_libraries(trial.out Common Postprocess)
+
 # Target init
 add_custom_target(init
   COMMAND echo "Creating Results/"
