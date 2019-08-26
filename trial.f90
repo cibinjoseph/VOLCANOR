@@ -7,18 +7,18 @@ program trial
   real(dp) :: gam, alpha
 
   ! Rectangular
-  !call vr%assignP(1,(/0.0000_dp,0.0000_dp,0.0_dp/))
-  !call vr%assignP(2,(/0.3048_dp,0.0000_dp,0.0_dp/))
-  !call vr%assignP(3,(/0.3048_dp,0.3048_dp,0.0_dp/))
-  !call vr%assignP(4,(/0.3048_dp,0.0000_dp,0.0_dp/))
-  !P = (/0.2286_dp,0.1524_dp,0.0_dp/)
-
-  ! Swept
   call vr%assignP(1,(/0.0000_dp,0.0000_dp,0.0_dp/))
   call vr%assignP(2,(/0.3048_dp,0.0000_dp,0.0_dp/))
-  call vr%assignP(3,(/0.6096_dp,0.3048_dp,0.0_dp/))
-  call vr%assignP(4,(/0.3048_dp,0.3048_dp,0.0_dp/))
-  P = (/0.3810_dp,0.1524_dp,0.0_dp/)
+  call vr%assignP(3,(/0.3048_dp,0.3048_dp,0.0_dp/))
+  call vr%assignP(4,(/0.3048_dp,0.0000_dp,0.0_dp/))
+  P = (/0.2286_dp,0.1524_dp,0.0_dp/)
+
+  ! Swept
+  !call vr%assignP(1,(/0.0000_dp,0.0000_dp,0.0_dp/))
+  !call vr%assignP(2,(/0.3048_dp,0.0000_dp,0.0_dp/))
+  !call vr%assignP(3,(/0.6096_dp,0.3048_dp,0.0_dp/))
+  !call vr%assignP(4,(/0.3048_dp,0.3048_dp,0.0_dp/))
+  !P = (/0.3810_dp,0.1524_dp,0.0_dp/)
 
   vfx%fc(:,1) = vr%vf(2)%fc(:,1)
   vfx%fc(:,2) = (/100._dp,0._dp,0._dp/)
@@ -38,6 +38,7 @@ program trial
 
   print*, 'velRel = ', velRel
   print*, 'alpha = ', alpha*180._dp/pi
-  print*, 'CL = ', alpha*2._dp*pi
+  print*, 'CL_alpha = ', alpha*2._dp*pi
+  print*, 'CL_gamma = ', 2._dp*abs(gam)/10._dp/0.3048_dp*cos(10._dp*pi/180._dp)
 
 end program trial
