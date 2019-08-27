@@ -16,6 +16,8 @@ Wake dissipation on extreme straining
 
 Why does roll up cause instability in near wake?
 
+Implement angle of attack estimation from sectional circulation
+
 Validation cases:
 * Warren 12 planform
 * TR-1208 Swept wing with taper NACA63A012
