@@ -18,8 +18,8 @@
 -----------------------------------------------------------------------
        1                       0
 
- PLOT FORCES: [0]Off [n]th iteration      using [0]gamma  [1]alpha
-  forcePlotSwitch                             forceCalcSwitch
+ PLOT FORCES: [0]Off [n]th iteration  using [0]gamma  [1]alpha [2]alfGam
+  forcePlotSwitch                          forceCalcSwitch
 -----------------------------------------------------------------------
        1                                          1
 =======================================================================

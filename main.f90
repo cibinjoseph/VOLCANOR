@@ -192,7 +192,12 @@ program main
           if (mod(iter,rotor(ir)%alphaPlotSwitch) .eq. 0) then 
             call alpha2file(timestamp,rotor(ir),ir)
           endif
-        endif
+        endif 
+      enddo
+
+    case (2)  ! Compute lift using alpha approximated from sectional circulation
+      do ir=1,nr
+        call rotor(ir)%calc_force_alphaGamma(density,velSound)
       enddo
 
     end select
@@ -393,6 +398,10 @@ program main
             endif
           enddo
 
+        case (2)  ! Compute lift using alpha approximated from sectional circulation
+          do ir=1,nr
+            call rotor(ir)%calc_force_alphaGamma(density,velSound)
+          enddo
         end select
 
         do ir=1,nr

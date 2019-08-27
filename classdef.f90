@@ -604,6 +604,7 @@ module blade_classdef
     procedure :: getSectionalArea
     procedure :: calc_force_gamma => blade_calc_force_gamma
     procedure :: calc_force_alpha => blade_calc_force_alpha
+    procedure :: calc_force_alphaGamma => blade_calc_force_alphaGamma
     procedure :: calc_sectionalAlpha => blade_calc_sectionalAlpha
     procedure :: calc_sectionalResultantVel => blade_calc_sectionalResultantVel
     procedure :: burst_wake => blade_burst_wake
@@ -1141,6 +1142,12 @@ contains
     enddo
   end subroutine blade_calc_force_alpha
 
+  subroutine blade_calc_force_alphaGamma(this,density,velSound)
+    ! Compute force using alpha approximated from sectional circulation
+  class(blade_class), intent(inout) :: this
+    real(dp), intent(in) :: density, velSound
+  end subroutine blade_calc_force_alphaGamma
+
   subroutine calc_sectionalCL(this,velSound)
     ! Compute sectional CL from C81 tables and sectional resultant velocity
     ! Assumes only one airfoil section present
@@ -1336,6 +1343,7 @@ module rotor_classdef
     procedure :: rollup => rotor_rollup
     procedure :: calc_force_gamma => rotor_calc_force_gamma
     procedure :: calc_force_alpha => rotor_calc_force_alpha
+    procedure :: calc_force_alphaGamma => rotor_calc_force_alphaGamma
     procedure :: calc_sectionalAlpha => rotor_calc_sectionalAlpha
     procedure :: burst_wake => rotor_burst_wake
   end type rotor_class
@@ -2303,6 +2311,19 @@ contains
       this%Force=this%Force+this%blade(ib)%Force
     enddo
   end subroutine rotor_calc_force_alpha
+
+  subroutine rotor_calc_force_alphaGamma(this,density,velSound)
+    ! Compute force from sectional alpha
+  class(rotor_class), intent(inout) :: this
+    real(dp), intent(in) :: density, velSound
+    integer :: ib
+
+    this%Force=0._dp
+    do ib=1,this%nb
+      call this%blade(ib)%calc_force_alphaGamma(density,velSound)
+      this%Force=this%Force+this%blade(ib)%Force
+    enddo
+  end subroutine rotor_calc_force_alphaGamma
 
   subroutine rotor_calc_sectionalAlpha(this)
   class(rotor_class), intent(inout) :: this
