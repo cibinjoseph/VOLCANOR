@@ -1142,10 +1142,13 @@ contains
     enddo
   end subroutine blade_calc_force_alpha
 
-  subroutine blade_calc_force_alphaGamma(this,density,velSound)
+  subroutine blade_calc_force_alphaGamma(this,density,invertGammaSign,velSound)
     ! Compute force using alpha approximated from sectional circulation
   class(blade_class), intent(inout) :: this
-    real(dp), intent(in) :: density, velSound
+    real(dp), intent(in) :: density, invertGammaSign, velSound
+
+    ! Find sectional lift
+
   end subroutine blade_calc_force_alphaGamma
 
   subroutine calc_sectionalCL(this,velSound)
@@ -2320,7 +2323,7 @@ contains
 
     this%Force=0._dp
     do ib=1,this%nb
-      call this%blade(ib)%calc_force_alphaGamma(density,velSound)
+      call this%blade(ib)%calc_force_alphaGamma(density,sign(1._dp,this%Omega*this%controlPitch(1)),velSound)
       this%Force=this%Force+this%blade(ib)%Force
     enddo
   end subroutine rotor_calc_force_alphaGamma
