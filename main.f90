@@ -197,7 +197,7 @@ program main
 
     case (2)  ! Compute lift using alpha approximated from sectional circulation
       do ir=1,nr
-        call rotor(ir)%calc_force_alphaGamma(density,velSound)
+        call rotor(ir)%calc_force_alphaGamma(density,velSound,dt)
       enddo
 
     end select
@@ -400,7 +400,7 @@ program main
 
         case (2)  ! Compute lift using alpha approximated from sectional circulation
           do ir=1,nr
-            call rotor(ir)%calc_force_alphaGamma(density,velSound)
+            call rotor(ir)%calc_force_alphaGamma(density,velSound,dt)
           enddo
         end select
 
