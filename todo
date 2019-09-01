@@ -19,9 +19,9 @@ Why does roll up cause instability in near wake?
 Implement angle of attack estimation from sectional circulation
 
 Validation cases:
-* Anderson rectangular wing at multiple aspect ratios against expts
-* Unsteady lift, Wagner function against Katz's code
-* Bertin & Smith simple testcase for code accuracy
+* Anderson rectangular wing at multiple aspect ratios against expts  [DONE]
+* Unsteady lift, Wagner function against Katz's code  [DONE]
+* Bertin & Smith simple testcase for code accuracy  [DONE]
 * Warren 12 planform for sweep case
 * TR-1208 Swept wing with taper NACA63A012
 * TN-1422 Swept wing with washout
