@@ -24,5 +24,5 @@ Validation cases:
 * Bertin & Smith simple testcase for code accuracy  [DONE]
 * Warren 12 planform for sweep case
 * TR-1208 Swept wing with taper NACA63A012
-* TN-1422 Swept wing with washout NACA 65-210
+* TN-1422 with washout NACA 65-210
 
