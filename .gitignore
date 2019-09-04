@@ -21,3 +21,4 @@ src_plot/*.pyc
 *_copy
 status.txt
 r01forceHist.txt
+.vsptime
