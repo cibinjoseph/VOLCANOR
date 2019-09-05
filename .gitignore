@@ -22,3 +22,5 @@ src_plot/*.pyc
 status.txt
 r01forceHist.txt
 .vsptime
+tools/*.xyz
+tools/*.vsp3
