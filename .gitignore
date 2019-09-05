@@ -24,3 +24,4 @@ r01forceHist.txt
 .vsptime
 tools/*.xyz
 tools/*.vsp3
+geometry/*.m
