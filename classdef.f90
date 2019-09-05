@@ -1864,8 +1864,10 @@ contains
     if (ny .ne. (this%ns+1)) dataMismatch = .TRUE.
 
     if (dataMismatch) then
-      error stop 'Error: Wrong or conflicting data in PLOT3D file'
       close(10)
+      print*,'(nx,ny)    =',nx,ny
+      print*,'(nc+1,ns+1)=',this%nc+1,this%ns+1
+      error stop 'Error: Wrong or conflicting data in PLOT3D file '
     else
       allocate(grid(3,nx,ny))
       read(10,*) &
