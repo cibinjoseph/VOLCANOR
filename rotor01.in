@@ -27,11 +27,11 @@ Radius[m]      root_cut[r/R]      chord[m]    coningAngle[deg]
 
 Omega[rad/s]   X-shaftAxis     Y-shaftAxis     Z-shaftAxis 
 ---------------------------------------------------------------
-0.0             0.0              0.0              1.0
+  0.0             0.0              0.0              1.0
 
 theta0[deg]    thetaC[deg]    thetaS[deg]    thetaTwist[deg]
 ---------------------------------------------------------------
- 8.0            0.0              0.0           0.0
+  -0.5            0.0              0.0           0.0
 ===============================================================
 
 u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]    
@@ -87,4 +87,4 @@ No. of airfoil files ***Assumed 1 in code***
 
 Airfoil section limit(r/R)           Airfoil file names
 ---------------------------------------------------------------
-         1.0                              flatPlate.C81
+         1.0                           NACA23012.C81
