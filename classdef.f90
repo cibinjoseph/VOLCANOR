@@ -1213,6 +1213,10 @@ contains
       this%sectionalAlpha(is)=acos(dot_product(this%sectionalResultantVel(:,is),this%sectionalChordwiseVec(:,is)) &
         /norm2(this%sectionalResultantVel(:,is)))
     enddo
+    
+    ! DEBUG
+    print*,this%sectionalResultantVel
+    !print*,this%sectionalAlpha*180._dp/pi
 
   end subroutine blade_calc_sectionalAlpha
 
