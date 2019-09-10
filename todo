@@ -18,9 +18,6 @@ Why does roll up cause instability in near wake?
 
 Implement angle of attack estimation from sectional circulation
 
-Negative theta in cambered airfoils causing trouble in look up tables
-because of acos returning only positive values
-
 Validation cases:
 - Fixed Wing
   * Anderson rectangular wing at multiple aspect ratios against expts  [DONE]
