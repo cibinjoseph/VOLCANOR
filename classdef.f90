@@ -1223,7 +1223,6 @@ contains
       this%sectionalAlpha(is)=atan2(dot_product(this%sectionalResultantVel(:,is),this%sectionalNormalVec(:,is)), &
         dot_product(this%sectionalResultantVel(:,is),this%sectionalChordwiseVec(:,is)))
     enddo
-
   end subroutine blade_calc_sectionalAlpha
 
   !subroutine blade_calc_sectionalAlpha(this)
