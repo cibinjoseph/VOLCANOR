@@ -577,6 +577,7 @@ module blade_classdef
     character(len=30), allocatable, dimension(:) :: airfoilFile
     real(dp), allocatable, dimension(:) :: airfoilSectionLimit
     real(dp), allocatable, dimension(:,:) :: sectionalChordwiseVec
+    real(dp), allocatable, dimension(:,:) :: sectionalNormalVec
     real(dp), allocatable, dimension(:) :: sectionalAlpha
     real(dp), allocatable, dimension(:) :: sectionalCL
     real(dp), allocatable, dimension(:,:) :: sectionalResultantVel
@@ -671,9 +672,10 @@ contains
       this%inflowLocations(:,i)=this%inflowLocations(:,i)+origin
     enddo
 
-    ! Rotate sectional chordwise vector to align with chord
-    do j=1,size(this%sectionalChordwiseVec,2)
+    ! Rotate sectional vectors 
+    do j=1,size(this%wiP,2)
       this%sectionalChordwiseVec(:,j)=matmul(TMat,this%sectionalChordwiseVec(:,j))
+      this%sectionalNormalVec(:,j)=matmul(TMat,this%sectionalNormalVec(:,j))
     enddo
 
   end subroutine blade_rot_pts
@@ -751,9 +753,10 @@ contains
         this%inflowLocations(:,i)=this%inflowLocations(:,i)+origin
       enddo
 
-      ! Rotate sectional chordwise vector also along with blade
-      do j=1,size(this%sectionalChordwiseVec,2)
+      ! Rotate sectional vectors also along with blade
+      do j=1,size(this%wiP,2)
         this%sectionalChordwiseVec(:,j)=matmul(TMat,this%sectionalChordwiseVec(:,j))
+        this%sectionalNormalVec(:,j)=matmul(TMat,this%sectionalNormalVec(:,j))
       enddo
 
     endif
@@ -1209,14 +1212,17 @@ contains
 
     call this%calc_sectionalResultantVel()
 
+    !! Use acos() to find angle
+    !do is=1,size(this%sectionalAlpha)
+    !  this%sectionalAlpha(is)=acos(dot_product(this%sectionalResultantVel(:,is),this%sectionalChordwiseVec(:,is)) &
+    !    /norm2(this%sectionalResultantVel(:,is)))
+    !enddo
+
+    ! Use atan2() to find angle
     do is=1,size(this%sectionalAlpha)
-      this%sectionalAlpha(is)=acos(dot_product(this%sectionalResultantVel(:,is),this%sectionalChordwiseVec(:,is)) &
-        /norm2(this%sectionalResultantVel(:,is)))
+      this%sectionalAlpha(is)=atan2(dot_product(this%sectionalResultantVel(:,is),this%sectionalNormalVec(:,is)), &
+        dot_product(this%sectionalResultantVel(:,is),this%sectionalChordwiseVec(:,is)))
     enddo
-    
-    ! DEBUG
-    print*,this%sectionalResultantVel
-    !print*,this%sectionalAlpha*180._dp/pi
 
   end subroutine blade_calc_sectionalAlpha
 
@@ -1459,6 +1465,7 @@ contains
       allocate(this%blade(ib)%waP(this%nNwake,this%ns))
       allocate(this%blade(ib)%waF(this%nFwake))
       allocate(this%blade(ib)%sectionalChordwiseVec(3,this%ns))
+      allocate(this%blade(ib)%sectionalNormalVec(3,this%ns))
       allocate(this%blade(ib)%sectionalForce(3,this%ns))
       allocate(this%blade(ib)%sectionalAlpha(this%ns))
       allocate(this%blade(ib)%sectionalCL(this%ns))
@@ -1520,15 +1527,22 @@ contains
       this%blade(ib)%yAxis=yAxis
       this%blade(ib)%ZAxis=zAxis
 
-      ! Initialize sectional chordwise vector
+      ! Initialize sectional vectors
       do j=1,this%ns
         this%blade(ib)%sectionalChordwiseVec(:,j) =  &
           (this%blade(ib)%wiP(this%nc,j)%PC(:,3)+this%blade(ib)%wiP(this%nc,j)%PC(:,2)- &
           (this%blade(ib)%wiP(1,j)%PC(:,4)+this%blade(ib)%wiP(1,j)%PC(:,1)))*0.5_dp
 
+        this%blade(ib)%sectionalNormalVec(:,j) = &
+          cross3(this%blade(ib)%wiP(this%nc,j)%PC(:,2)-this%blade(ib)%wiP(1,j)%PC(:,4), &
+          this%blade(ib)%wiP(this%nc,j)%PC(:,3)-this%blade(ib)%wiP(1,j)%PC(:,1))
+
         ! Normalize
         this%blade(ib)%sectionalChordwiseVec(:,j) = this%blade(ib)%sectionalChordwiseVec(:,j)/ &
           norm2(this%blade(ib)%sectionalChordwiseVec(:,j))
+
+        this%blade(ib)%sectionalNormalVec(:,j) = this%blade(ib)%sectionalNormalVec(:,j)/ &
+          norm2(this%blade(ib)%sectionalNormalVec(:,j))
       enddo
 
       ! Initialize vr coords of all panels except last row (to accomodate mismatch of vr coords when using unequal spacing)
