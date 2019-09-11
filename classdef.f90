@@ -1383,7 +1383,7 @@ contains
     call skiplines(12,2)
     read(12,*) this%nb, this%geometryFile
     call skiplines(12,3)
-    read(12,*) this%ns,this%nc,this%nNwake
+    read(12,*) this%nc,this%ns,this%nNwake
     if (this%nNwake<2)  error stop 'ERROR: Atleast 2 near wake rows mandatory'
     call skiplines(12,4)
     read(12,*) this%hubCoords(1),this%hubCoords(2),this%hubCoords(3)
