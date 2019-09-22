@@ -1342,7 +1342,7 @@ module rotor_classdef
     procedure :: getdata
     procedure :: init => rotor_init
     procedure :: deinit => rotor_deinit
-    procedure :: plot3d2blade
+    procedure :: plot3dtoblade
     procedure :: gettheta
     procedure :: getthetadot
     procedure :: move => rotor_move
@@ -1517,7 +1517,7 @@ contains
         enddo
       enddo
     else
-      call this%plot3d2blade('geometry/'//trim(this%geometryFile))
+      call this%plot3dtoblade('geometry/'//trim(this%geometryFile))
     endif
 
     do ib=1,this%nb
@@ -1862,7 +1862,7 @@ contains
 
   end subroutine rotor_deinit
 
-  subroutine plot3d2blade(this,PLOT3Dfilename)
+  subroutine plot3dtoblade(this,PLOT3Dfilename)
     ! Read blade geometry from PLOT3D formatted file 
   class(rotor_class) :: this
     character(len=*), intent(in) :: PLOT3Dfilename
@@ -1906,7 +1906,7 @@ contains
       enddo
     enddo
 
-  end subroutine plot3d2blade
+  end subroutine plot3dtoblade
 
   function gettheta(this,psi,ib)
     ! Get pitch angle corresponding to blade azimuthal location
