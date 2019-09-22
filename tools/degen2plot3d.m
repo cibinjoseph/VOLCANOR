@@ -49,7 +49,7 @@ if (nGeo == 2)
    Xleft = flip(Xleft,1);
    Zleft = flip(Zleft,1);
 
-   %   % Flip order of Y coordinates of left wing
+   % Flip order of Y coordinates of left wing
    Yleft = flip(Yleft,2);
    Xleft = flip(Xleft,2);
    Zleft = flip(Zleft,2);
@@ -57,19 +57,18 @@ if (nGeo == 2)
    X = [Xleft(:,1:end-1) X];
    Y = [Yleft(:,1:end-1) Y];
    Z = [Zleft(:,1:end-1) Z];
+end
 
- end
+nx = size(X,1);
+ny = size(X,2);
+nz = 1;
 
- nx = size(X,1);
- ny = size(X,2);
- nz = 1;
+% Write to PLOT3D format
+fileID = fopen([commandName '.xyz'],'w');
+fprintf(fileID,'%u %u %u\n',nx,ny,nz)
+fprintf(fileID,'%15.7f',X)
+fprintf(fileID,'%15.7f',Y)
+fprintf(fileID,'%15.7f',Z)
+fclose(fileID);
 
- % Write to PLOT3D format
- fileID = fopen([commandName '.xyz'],'w');
- fprintf(fileID,'%u %u %u\n',nx,ny,nz)
- fprintf(fileID,'%15.7f',X)
- fprintf(fileID,'%15.7f',Y)
- fprintf(fileID,'%15.7f',Z)
- fclose(fileID);
-
- return;
+return;
