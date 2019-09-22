@@ -1882,8 +1882,8 @@ contains
 
     if (dataMismatch) then
       close(10)
-      print*,'(nx,ny)    =',nx,ny
-      print*,'(nc+1,ns+1)=',this%nc+1,this%ns+1
+      print*,'PLOT3D file   (nx,ny)    =',nx,ny
+      print*,'ROTOR file    (nc+1,ns+1)=',this%nc+1,this%ns+1
       error stop 'Error: Wrong or conflicting data in PLOT3D file '
     else
       allocate(grid(3,nx,ny))
