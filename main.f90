@@ -140,11 +140,6 @@ program main
     call rotor(ir)%map_gam()
   enddo
 
-  ! DEBUG 
-  !print*,rotor(1)%gamVec
-  call wingverify(rotor(1)%blade(1)%wiP)
-  stop
-
   do ir=1,nr
     rotor(ir)%rowFar=0
     ! Since assignshed TE assigns to rowNear-1 panel

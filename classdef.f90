@@ -1570,10 +1570,14 @@ contains
         xshift(3)=0._dp
         xshift(4)=(this%blade(ib)%wiP(this%nc,j)%PC(1,3)-this%blade(ib)%wiP(this%nc,j)%PC(1,4))*0.25_dp  ! Shift x coord by dx/4
 
-        call this%blade(ib)%wiP(this%nc,j)%vr%assignP(1,(/this%blade(ib)%wiP(i,j)%PC(1,1)+xshift(1),this%blade(ib)%wiP(i,j)%PC(2,1),0._dp/))
-        call this%blade(ib)%wiP(this%nc,j)%vr%assignP(2,(/this%blade(ib)%wiP(i,j)%PC(1,2)+xshift(2),this%blade(ib)%wiP(i,j)%PC(2,2),0._dp/))
-        call this%blade(ib)%wiP(this%nc,j)%vr%assignP(3,(/this%blade(ib)%wiP(i,j)%PC(1,3)+xshift(3),this%blade(ib)%wiP(i,j)%PC(2,3),0._dp/))
-        call this%blade(ib)%wiP(this%nc,j)%vr%assignP(4,(/this%blade(ib)%wiP(i,j)%PC(1,4)+xshift(4),this%blade(ib)%wiP(i,j)%PC(2,4),0._dp/))
+        call this%blade(ib)%wiP(this%nc,j)%vr%assignP(1, &
+          (/this%blade(ib)%wiP(i,j)%PC(1,1)+xshift(1),this%blade(ib)%wiP(i,j)%PC(2,1),this%blade(ib)%wiP(i,j)%PC(3,1)/))
+        call this%blade(ib)%wiP(this%nc,j)%vr%assignP(2, &
+          (/this%blade(ib)%wiP(i,j)%PC(1,2)+xshift(2),this%blade(ib)%wiP(i,j)%PC(2,2),this%blade(ib)%wiP(i,j)%PC(3,2)/))
+        call this%blade(ib)%wiP(this%nc,j)%vr%assignP(3, &
+          (/this%blade(ib)%wiP(i,j)%PC(1,3)+xshift(3),this%blade(ib)%wiP(i,j)%PC(2,3),this%blade(ib)%wiP(i,j)%PC(3,3)/))
+        call this%blade(ib)%wiP(this%nc,j)%vr%assignP(4, &
+          (/this%blade(ib)%wiP(i,j)%PC(1,4)+xshift(4),this%blade(ib)%wiP(i,j)%PC(2,4),this%blade(ib)%wiP(i,j)%PC(3,4)/))
       enddo
 
       ! Assign wind velocities
