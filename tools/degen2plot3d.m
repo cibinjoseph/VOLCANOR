@@ -18,9 +18,9 @@ run(commandName);
 nGeo = size(degenGeom,2);
 
 % Extract camber surface coordinates of right wing
-Xright = degenGeom(1).plate.x;
-Yright = degenGeom(1).plate.y;
-Zright = degenGeom(1).plate.zCamber;
+Xright = degenGeom(1).plate.x + degenGeom(1).plate.zCamber.*degenGeom(1).plate.nCamberx;
+Yright = degenGeom(1).plate.y + degenGeom(1).plate.zCamber.*degenGeom(1).plate.nCambery;
+Zright = degenGeom(1).plate.z + degenGeom(1).plate.zCamber.*degenGeom(1).plate.nCamberz;
 
 % Transpose to make rows chordwise and columns spanwise
 Xright = Xright';
@@ -37,9 +37,9 @@ Z = Zright;
 
 if (nGeo == 2)
    % Extract camber surface coordinates of left wing
-   Xleft = degenGeom(2).plate.x;
-   Yleft = degenGeom(2).plate.y;
-   Zleft = degenGeom(2).plate.zCamber;
+   Xleft = degenGeom(2).plate.x + degenGeom(2).plate.zCamber.*degenGeom(2).plate.nCamberx;
+   Yleft = degenGeom(2).plate.y + degenGeom(2).plate.zCamber.*degenGeom(2).plate.nCambery;
+   Zleft = degenGeom(2).plate.z + degenGeom(2).plate.zCamber.*degenGeom(2).plate.nCamberz;
 
    % Transpose to make rows chordwise and columns spanwise
    Xleft = Xleft';
