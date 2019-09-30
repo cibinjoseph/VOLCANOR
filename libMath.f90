@@ -285,7 +285,7 @@ contains
 
     productMat=matmul(A,Ainv)
     isInverse=.TRUE.
-    tol=1E-08
+    tol=1E-04
 
     do j=1,size(A,2)
       do i=1,size(A,1)
@@ -293,11 +293,13 @@ contains
           ! Check if off-diagonal values are 0._dp
           if (productMat(i,j) > tol) then
             isInverse=.FALSE.
+            !print*,i,j,'Off-diagonal values non-zero',productMat(i,j)
           endif
         else
           ! Check if on-diagonal values are 1._dp
           if (productMat(i,j)-1._dp > tol) then
             isInverse=.FALSE.
+            !print*,i,'Diagonal values non-unity',productMat(i,j)
           endif
         endif
       enddo
