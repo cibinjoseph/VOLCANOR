@@ -1879,7 +1879,7 @@ contains
     integer :: i,j,ic,is,ib
     logical :: dataMismatch
 
-    open(unit=10,file=PLOT3Dfilename)
+    open(unit=10,file=PLOT3Dfilename,action='read',status='old')
     read(10,*) nx,ny,nz
 
     ! Verify with rotor parameters
