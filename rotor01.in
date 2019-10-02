@@ -31,7 +31,7 @@ Omega[rad/s]   X-shaftAxis     Y-shaftAxis     Z-shaftAxis
 
 theta0[deg]    thetaC[deg]    thetaS[deg]    thetaTwist[deg]
 ---------------------------------------------------------------
-  24.0            0.0              0.0           0.0
+  4.7            0.0              0.0           0.0
 ===============================================================
 
 u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]    
@@ -71,7 +71,7 @@ initWakeVel[m/s]     psiStart[deg]      skewLimit
   inflowPlotSwitch            bladeForcePlotSwitch          
     [0]Off                    [0]Off                
     [n]Every nth iteration    [n]Every nth iteration
------------------------------------------------------------------------
+----------------------------------------------------------------
        0                              1
 
   gammaPlotSwitch                 alphaPlotSwitch  
