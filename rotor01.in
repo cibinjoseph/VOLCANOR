@@ -17,7 +17,7 @@ X-cgCoords      Y-cgCoords      Z-cgCoords     [all in m]
 
 Phi             Theta             Psi     [all in deg]
 ---------------------------------------------------------------
- 0.0              -2.0              0.0
+ 0.0              2.0              0.0
 ===============================================================
 
 Span[m]      root_cut[r/R]      chord[m]    coningAngle[deg]
