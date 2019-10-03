@@ -14,14 +14,15 @@ contains
     type(Nwake_class), intent(in), dimension(:,:) :: Nwake
     character(len=1), optional :: optionalChar
     real(dp), dimension(3,size(Nwake,1),size(Nwake,2)+1) :: vindArray
-    integer :: i,j,rows
+    integer :: i,j,rows,cols
 
     rows=size(Nwake,1)
+    cols=size(Nwake,2)
 
     if (.not. present(optionalChar)) then
       ! Induced velocity due to all blades and wake
       !$omp parallel do collapse(2) 
-      do j=1,rotor%ns
+      do j=1,cols
         do i=1,rows
           vindArray(:,i,j)=rotor%vind_bywing(Nwake(i,j)%vr%vf(2)%fc(:,1))  &
             +               rotor%vind_bywake(Nwake(i,j)%vr%vf(2)%fc(:,1))
@@ -31,8 +32,8 @@ contains
 
       !$omp parallel do 
       do i=1,rows
-        vindArray(:,i,rotor%ns+1)=rotor%vind_bywing(Nwake(i,rotor%ns)%vr%vf(3)%fc(:,1))  &
-          +                        rotor%vind_bywake(Nwake(i,rotor%ns)%vr%vf(3)%fc(:,1))
+        vindArray(:,i,cols+1)=rotor%vind_bywing(Nwake(i,cols)%vr%vf(3)%fc(:,1))  &
+          +                        rotor%vind_bywake(Nwake(i,cols)%vr%vf(3)%fc(:,1))
       enddo
       !$omp end parallel do
 
@@ -40,7 +41,7 @@ contains
 
       ! Induced velocity due to all blades and Pwake
       !$omp parallel do collapse(2) 
-      do j=1,rotor%ns
+      do j=1,cols
         do i=1,rows
           vindArray(:,i,j)=rotor%vind_bywing(Nwake(i,j)%vr%vf(2)%fc(:,1))  &
             +               rotor%vind_bywake(Nwake(i,j)%vr%vf(2)%fc(:,1),'P')
@@ -50,8 +51,8 @@ contains
 
       !$omp parallel do 
       do i=1,rows
-        vindArray(:,i,rotor%ns+1)=rotor%vind_bywing(Nwake(i,rotor%ns)%vr%vf(3)%fc(:,1))  &
-          +                        rotor%vind_bywake(Nwake(i,rotor%ns)%vr%vf(3)%fc(:,1),'P')
+        vindArray(:,i,cols+1)=rotor%vind_bywing(Nwake(i,cols)%vr%vf(3)%fc(:,1))  &
+          +                        rotor%vind_bywake(Nwake(i,cols)%vr%vf(3)%fc(:,1),'P')
       enddo
       !$omp end parallel do
 
