@@ -1,10 +1,10 @@
 No.of blades,nb     Read wing from file 
 ---------------------------------------------------------------
-     1                    tandemWing2.xyz
+     1                    tandemWing.xyz
 
 Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 ---------------------------------------------------------------
-   24                       30                   300
+   24                       22                   250
 ===============================================================
 
 X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
@@ -17,7 +17,7 @@ X-cgCoords      Y-cgCoords      Z-cgCoords     [all in m]
 
 Phi             Theta             Psi     [all in deg]
 ---------------------------------------------------------------
- 0.0              2.0              0.0
+ 0.0              12.0              0.0
 ===============================================================
 
 Span[m]      root_cut[r/R]      chord[m]    coningAngle[deg]
@@ -87,4 +87,4 @@ No. of airfoil files ***Assumed 1 in code***
 
 Airfoil section limit(r/R)           Airfoil file names
 ---------------------------------------------------------------
-         1.0                           NACA63A012.C81
+         1.0                           GAW-2.C81
