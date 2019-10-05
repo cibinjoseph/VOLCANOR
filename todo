@@ -29,7 +29,7 @@ Validation cases:
   * Warren 12 planform for sweep case 
   * TR-1208 Swept wing with taper NACA63A012 [DONE]
   * TN-1422 with washout NACA 65-210  [DONE]
-  * Tandem wing configuration
+  * Tandem wing configuration [DONE]
 
 - Rotary Wing
   * Caradonna and Tung rotor - hover and climb cases
