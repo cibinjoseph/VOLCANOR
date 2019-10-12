@@ -15,6 +15,8 @@ Wake smoothening / velocity limiter
 Wake dissipation on extreme straining
 
 Why does roll up cause instability in near wake?
+- nWake - nWake interaction
+- why not occuring before roll-up?
 
 Implement option to switch lift from alpha computation to postprocessing
 Implement angle of attack estimation from sectional circulation
