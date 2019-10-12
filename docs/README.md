@@ -16,7 +16,6 @@ A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method
 
 ## Known Issues
 1. Overprediction of induced drag
-2. Unequal spacing of panels causes instability when CP falls inside viscous core region
 
 ## Improvements (To be made)
 ### Stability Improvements
@@ -35,7 +34,6 @@ A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method
 - Include Trim algorithm
 
 ### Performance Improvements
-- Verify wake array is used as a shared variable in OpenMP part
 - Implement recording to array before writing
 - Implement free wake relaxation
 
