@@ -1612,7 +1612,7 @@ contains
         enddo
       enddo
 
-      ! DEBUG
+      ! DEBUG for tau vectors
       ! Overwrite tau vectors for symmetric or swept wings
       do j=1,(this%ns/2)
         do i=1,this%nc
