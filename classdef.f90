@@ -821,6 +821,7 @@ contains
     endif
   end function blade_vind_boundVortex
 
+  ! DEBUG
   function blade_vind_byNwake(this,rowNear,rowFar,P,optionalChar) 
     ! Compute induced velocity by wake vortex rings
   class(blade_class), intent(inout) :: this
@@ -852,6 +853,7 @@ contains
 
   end function blade_vind_byNwake
 
+  ! DEBUG
   function blade_vind_byFwake(this,rowNear,rowFar,P,optionalChar) 
     ! Compute induced velocity by wake vortex rings
   class(blade_class), intent(inout) :: this
