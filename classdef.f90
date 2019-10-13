@@ -835,16 +835,22 @@ contains
     blade_vind_byNwake=0._dp
     if (.not. present(optionalChar)) then
       do j=1,size(this%waP,2)
-        do i=rowNear,nNwake
+        ! DEBUG
+        !do i=rowNear,nNwake
+        do i=30,nNwake
           if (abs(this%waP(i,j)%vr%gam) .gt. eps) &
             blade_vind_byNwake=blade_vind_byNwake+this%waP(i,j)%vr%vind(P)*this%waP(i,j)%vr%gam
         enddo
       enddo
 
-      if (rowFar .ne. 0) then
+      ! DEBUG
+      !if (rowFar .ne. 0) then
+      if (rowNear < 30) then
         ! Last row of Nwake is made of horseshoe vortices, if Fwake is generated
         do j=1,size(this%waP,2)
-          blade_vind_byNwake=blade_vind_byNwake-this%waP(nNwake,j)%vr%vf(2)%vind(P)*this%waP(nNwake,j)%vr%gam
+          ! DEBUG
+          !blade_vind_byNwake=blade_vind_byNwake-this%waP(nNwake,j)%vr%vf(2)%vind(P)*this%waP(nNwake,j)%vr%gam
+          blade_vind_byNwake=blade_vind_byNwake-this%waP(29,j)%vr%vf(2)%vind(P)*this%waP(29,j)%vr%gam
         enddo
       endif
     else

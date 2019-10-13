@@ -4,7 +4,7 @@ No.of blades,nb     Read wing from file
 
 Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 ---------------------------------------------------------------
-   4                       13                   30
+   4                       13                   50
 ===============================================================
 
 X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
@@ -78,7 +78,7 @@ initWakeVel[m/s]     psiStart[deg]      skewLimit
     [0]Off                         [0]Off                      
     [n]Every nth iteration         [n]Every nth iteration      
 ---------------------------------------------------------------
-       0                                 0
+       1                                 0
 ===============================================================
 
 No. of airfoil files ***Assumed 1 in code***

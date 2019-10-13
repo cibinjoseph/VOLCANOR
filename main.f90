@@ -319,6 +319,7 @@ program main
               rotor(ir)%blade(ib)%wiP(ic,is)%velCP= &
                 rotor(ir)%blade(ib)%wiP(ic,is)%velCP+ &
                 ! DEBUG
+                !rotor(jr)%vind_bywake(rotor(ir)%blade(ib)%wiP(ic,is)%CP)
                 rotor(jr)%blade(1)%vind_byNwake(rotor(jr)%rowNear,rotor(jr)%rowFar,rotor(ir)%blade(ib)%wiP(ic,is)%CP)
 
               ! Wing induced vel due to all rotors except self
