@@ -609,7 +609,62 @@ program main
       endif
 
 
-    case (3)    ! Predictor-Corrector Adam-Bashforth (4th order)
+    case (3)    ! Adam-Bashforth (3rd order)
+      if (iter == 1) then
+        do ir=1,nr
+          do ib=1,rotor(ir)%nb
+            call rotor(ir)%blade(ib)%convectwake(rotor(ir)%rowNear, &
+              rotor(ir)%rowFar,dt,'C')
+            rotor(ir)%blade(ib)%velNwake1=rotor(ir)%blade(ib)%velNwake
+            if (rotor(ir)%rowFar .ne. 0) then
+              rotor(ir)%blade(ib)%velFwake1=rotor(ir)%blade(ib)%velFwake
+            endif
+          enddo
+        enddo
+      elseif (iter == 2) then
+        do ir=1,nr
+          do ib=1,rotor(ir)%nb
+            call rotor(ir)%blade(ib)%convectwake(rotor(ir)%rowNear, &
+              rotor(ir)%rowFar,dt,'C')
+            rotor(ir)%blade(ib)%velNwake2=rotor(ir)%blade(ib)%velNwake
+            if (rotor(ir)%rowFar .ne. 0) then
+              rotor(ir)%blade(ib)%velFwake2=rotor(ir)%blade(ib)%velFwake
+            endif
+          enddo
+        enddo
+      else
+        do ir=1,nr
+          do ib=1,rotor(ir)%nb
+            rotor(ir)%blade(ib)%velNwakeStep= &
+              (23._dp*rotor(ir)%blade(ib)%velNwake- &
+              16._dp*rotor(ir)%blade(ib)%velNwake2+ &
+              5._dp*rotor(ir)%blade(ib)%velNwake1)/12._dp
+            if (rotor(ir)%rowFar .ne. 0) then
+              rotor(ir)%blade(ib)%velFwakeStep= &
+                (23._dp*rotor(ir)%blade(ib)%velFwake- &
+                16._dp*rotor(ir)%blade(ib)%velFwake2+ &
+                5._dp*rotor(ir)%blade(ib)%velFwake1)/12._dp
+            endif
+
+            ! For next step
+            rotor(ir)%blade(ib)%velNwake1=rotor(ir)%blade(ib)%velNwake2
+            rotor(ir)%blade(ib)%velNwake2=rotor(ir)%blade(ib)%velNwakeStep
+
+            rotor(ir)%blade(ib)%velFwake1=rotor(ir)%blade(ib)%velFwake2
+            rotor(ir)%blade(ib)%velFwake2=rotor(ir)%blade(ib)%velFwakeStep
+
+            ! For convection
+            rotor(ir)%blade(ib)%velNwake=rotor(ir)%blade(ib)%velNwakeStep
+            rotor(ir)%blade(ib)%velFwake=rotor(ir)%blade(ib)%velFwakeStep
+
+            call rotor(ir)%blade(ib)%convectwake(rotor(ir)%rowNear, &
+              rotor(ir)%rowFar,dt,'C')
+          enddo
+        enddo
+      endif
+
+
+    case (4)    ! Predictor-Corrector Adam-Bashforth (4th order)
       if (iter == 1) then
         do ir=1,nr
           do ib=1,rotor(ir)%nb
