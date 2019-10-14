@@ -609,7 +609,7 @@ program main
       endif
 
 
-    case (3)    ! Adam-Bashforth (3rd order)
+    case (3)    ! Predictor-Corrector Adam-Moulton (3rd order)
       if (iter == 1) then
         do ir=1,nr
           do ib=1,rotor(ir)%nb
@@ -718,7 +718,7 @@ program main
       endif
 
 
-    case (4)    ! Predictor-Corrector Adam-Bashforth (4th order)
+    case (4)    ! Predictor-Corrector Adam-Moulton (4th order)
       if (iter == 1) then
         do ir=1,nr
           do ib=1,rotor(ir)%nb
