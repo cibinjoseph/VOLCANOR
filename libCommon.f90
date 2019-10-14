@@ -25,9 +25,7 @@ contains
       do j=1,cols
         do i=1,rows
           vindArray(:,i,j)=rotor%vind_bywing(Nwake(i,j)%vr%vf(2)%fc(:,1))  &
-            ! DEBUG
-            !+               rotor%vind_bywake(Nwake(i,j)%vr%vf(2)%fc(:,1))
-            +rotor%blade(1)%vind_byNwake(rotor%rowNear,rotor%rowFar,Nwake(i,j)%vr%vf(2)%fc(:,1))
+            +               rotor%vind_bywake(Nwake(i,j)%vr%vf(2)%fc(:,1))
         enddo
       enddo
       !$omp end parallel do

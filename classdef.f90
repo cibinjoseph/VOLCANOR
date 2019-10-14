@@ -599,8 +599,6 @@ module blade_classdef
     procedure :: vind_bywing_boundVortices => blade_vind_bywing_boundVortices
     procedure :: vind_boundVortex => blade_vind_boundVortex
     procedure :: vind_bywake => blade_vind_bywake
-    procedure :: vind_byNwake => blade_vind_byNwake
-    procedure :: vind_byFwake => blade_vind_byFwake
     procedure :: convectwake
     procedure :: wake_continuity
     procedure :: getSectionalDynamicPressure
@@ -820,69 +818,6 @@ contains
         *this%wiP(ic,is)%vr%gam
     endif
   end function blade_vind_boundVortex
-
-  ! DEBUG
-  function blade_vind_byNwake(this,rowNear,rowFar,P,optionalChar) 
-    ! Compute induced velocity by wake vortex rings
-  class(blade_class), intent(inout) :: this
-    integer, intent(in) :: rowNear,rowFar
-    real(dp), intent(in), dimension(3) :: P
-    character(len=1), optional :: optionalChar
-    real(dp), dimension(3) :: blade_vind_byNwake
-    integer :: i,j,nNwake
-
-    nNwake=size(this%waP,1)
-    blade_vind_byNwake=0._dp
-    if (.not. present(optionalChar)) then
-      do j=1,size(this%waP,2)
-        ! DEBUG
-        !do i=rowNear,nNwake
-        do i=30,nNwake
-          if (abs(this%waP(i,j)%vr%gam) .gt. eps) &
-            blade_vind_byNwake=blade_vind_byNwake+this%waP(i,j)%vr%vind(P)*this%waP(i,j)%vr%gam
-        enddo
-      enddo
-
-      ! DEBUG
-      !if (rowFar .ne. 0) then
-      if (rowNear < 30) then
-        ! Last row of Nwake is made of horseshoe vortices, if Fwake is generated
-        do j=1,size(this%waP,2)
-          ! DEBUG
-          !blade_vind_byNwake=blade_vind_byNwake-this%waP(nNwake,j)%vr%vf(2)%vind(P)*this%waP(nNwake,j)%vr%gam
-          blade_vind_byNwake=blade_vind_byNwake-this%waP(29,j)%vr%vf(2)%vind(P)*this%waP(29,j)%vr%gam
-        enddo
-      endif
-    else
-      error stop 'ERROR: Wrong character flag for blade_vind_bywake()'
-    endif
-
-  end function blade_vind_byNwake
-
-  ! DEBUG
-  function blade_vind_byFwake(this,rowNear,rowFar,P,optionalChar) 
-    ! Compute induced velocity by wake vortex rings
-  class(blade_class), intent(inout) :: this
-    integer, intent(in) :: rowNear,rowFar
-    real(dp), intent(in), dimension(3) :: P
-    character(len=1), optional :: optionalChar
-    real(dp), dimension(3) :: blade_vind_byFwake
-    integer :: i,j,nNwake
-
-    nNwake=size(this%waP,1)
-    blade_vind_byFwake=0._dp
-    if (.not. present(optionalChar)) then
-      if (rowFar .ne. 0) then
-        do i=rowFar,size(this%waF,1)
-          if (abs(this%waF(i)%gam) .gt. eps ) &
-            blade_vind_byFwake=blade_vind_byFwake+this%waF(i)%vf%vind(P)*this%waF(i)%gam
-        enddo
-      endif
-    else
-      error stop 'ERROR: Wrong character flag for blade_vind_bywake()'
-    endif
-
-  end function blade_vind_byFwake
 
   function blade_vind_bywake(this,rowNear,rowFar,P,optionalChar) 
     ! Compute induced velocity by wake vortex rings
