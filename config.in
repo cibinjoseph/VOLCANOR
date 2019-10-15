@@ -34,8 +34,8 @@
 -----------------------------------------------------------------------
        0                      0
 
- WAKE CONVECTION FINITE-DIFFERENCE SCHEME: [0]FT1 [1]PC2 [2]AB2 [3]AM3 [4]AM4
-  fdSchemeSwitch
+ WAKE CONVECTION FINITE-DIFFERENCE SCHEME:
+  fdSchemeSwitch  [0]FT1 [1]PC2 [2]AB2 [3]AM2 [4]AM3 [5]AM4
 -----------------------------------------------------------------------
        3
 
