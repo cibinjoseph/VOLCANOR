@@ -485,7 +485,7 @@ program main
     ! Update wake vortex locations
     select case (fdSchemeSwitch)
 
-    case (0)    ! Explicit forward diff (1st order)
+    case (0)    ! Explicit Forward Diff (1st order)
       do ir=1,nr
         do ib=1,rotor(ir)%nb
           call rotor(ir)%blade(ib)%convectwake( &
@@ -570,7 +570,7 @@ program main
       enddo
 
 
-    case (2)    ! Adam-Bashforth (2nd order)
+    case (2)    ! Explicit Adams-Bashforth (2nd order)
       if (iter == 1) then
         do ir=1,nr
           do ib=1,rotor(ir)%nb
@@ -609,7 +609,7 @@ program main
       endif
 
 
-    case (3)    ! Adam-Moulton (2nd order)
+    case (3)    ! Predictor-Corrector Adams-Moulton (2nd order)
       if (iter == 1) then
         do ir=1,nr
           do ib=1,rotor(ir)%nb
@@ -702,7 +702,7 @@ program main
       endif
 
 
-    case (4)    ! Predictor-Corrector Adam-Moulton (3rd order)
+    case (4)    ! Predictor-Corrector Adams-Moulton (3rd order)
       if (iter == 1) then
         do ir=1,nr
           do ib=1,rotor(ir)%nb
@@ -811,7 +811,7 @@ program main
       endif
 
 
-    case (5)    ! Predictor-Corrector Adam-Moulton (4th order)
+    case (5)    ! Predictor-Corrector Adams-Moulton (4th order)
       if (iter == 1) then
         do ir=1,nr
           do ib=1,rotor(ir)%nb
