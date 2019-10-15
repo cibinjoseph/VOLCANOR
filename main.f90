@@ -134,6 +134,9 @@ program main
     rotor(ir)%gamVec=matmul(rotor(ir)%AIC_inv,rotor(ir)%RHS)
   enddo
   call print_status()    ! SUCCESS
+  ! DEBUG
+  print*,rotor(1)%RHS
+  stop
 
   ! Map gamVec to wing gam for each blade in rotor
   do ir=1,nr
@@ -344,6 +347,9 @@ program main
     do ir=1,nr
       rotor(ir)%gamVec=matmul(rotor(ir)%AIC_inv,rotor(ir)%RHS)
     enddo
+    ! DEBUG
+    print*,rotor(1)%gamVec
+    read*
 
     ! Map gamVec to wing gam for each blade in rotor
     do ir=1,nr

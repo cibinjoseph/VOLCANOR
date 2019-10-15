@@ -1588,6 +1588,8 @@ contains
       if (abs(norm2(this%velWind)) < eps) then
         do j=1,this%ns
           velShed=0.3_dp*this%Omega*norm2(this%blade(ib)%wiP(this%nc,j)%vr%vf(2)%fc(:,1)-this%hubCoords)
+          ! DEBUG
+          velShed=3._dp
           call this%blade(ib)%wiP(this%nc,j)%vr%shiftdP(2,(/velShed*dt,0._dp,0._dp/))
           call this%blade(ib)%wiP(this%nc,j)%vr%shiftdP(3,(/velShed*dt,0._dp,0._dp/))
         enddo
@@ -1656,7 +1658,7 @@ contains
 
       ! Initialize all core radius of wing vortices to zero
       do i=1,4
-        this%blade(ib)%wiP%vr%vf(i)%rVc0 = dxdymin*0.1_dp
+        this%blade(ib)%wiP%vr%vf(i)%rVc0 = min(this%spanwiseCore,dxdymin*0.1_dp)
       enddo
 
       ! Initialize spanwise vortex core radius for last row of wing to that of wake

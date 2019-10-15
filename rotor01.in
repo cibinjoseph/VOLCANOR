@@ -4,7 +4,7 @@ No.of blades,nb     Read wing from file
 
 Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 ---------------------------------------------------------------
-   4                       13                   720
+   1                       4                   10
 ===============================================================
 
 X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
@@ -22,7 +22,7 @@ Phi             Theta             Psi     [all in deg]
 
 Span[m]      root_cut[r/R]      chord[m]    coningAngle[deg]
 ---------------------------------------------------------------
- 1.143           0.1905               0.1905            0.5
+ 1.0              0.1               0.1            0.0
 ===============================================================
 
 Omega[rad/s]   X-shaftAxis     Y-shaftAxis     Z-shaftAxis 
@@ -51,11 +51,11 @@ turbulentViscosity parameter (10-10000)
   spanwise core radius[x/c]       streamwise core_switch
   [s]ectional  [i]dentical
 ----------------------------------------------------------------
-  0.01                            i
+  0.0                                       i
 
 streamwise core radius[x/c]   root <----> tip  (ns+1 entries)
 ----------------------------------------------------------------
-0.01 
+0.0 
 ===============================================================
 
 Spanwise start[r/R]  &  end[r/R] for centroid of tip vorticity
