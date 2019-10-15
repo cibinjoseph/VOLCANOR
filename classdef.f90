@@ -1767,6 +1767,22 @@ contains
       case (3)
         allocate(this%blade(ib)%waPPredicted(this%nNwake,this%ns))
         allocate(this%blade(ib)%velNwake1(3,this%nNwake,this%ns+1))
+        allocate(this%blade(ib)%velNwakePredicted(3,this%nNwake,this%ns+1))
+        allocate(this%blade(ib)%velNwakeStep(3,this%nNwake,this%ns+1))
+        this%blade(ib)%velNwake1=0._dp
+        this%blade(ib)%velNwakePredicted=0._dp
+        this%blade(ib)%velNwakeStep=0._dp
+
+        allocate(this%blade(ib)%waFPredicted(this%nFwake))
+        allocate(this%blade(ib)%velFwake1(3,this%nFwake))
+        allocate(this%blade(ib)%velFwakePredicted(3,this%nFwake))
+        allocate(this%blade(ib)%velFwakeStep(3,this%nFwake))
+        this%blade(ib)%velFwake1=0._dp
+        this%blade(ib)%velFwakePredicted=0._dp
+        this%blade(ib)%velFwakeStep=0._dp
+      case (4)
+        allocate(this%blade(ib)%waPPredicted(this%nNwake,this%ns))
+        allocate(this%blade(ib)%velNwake1(3,this%nNwake,this%ns+1))
         allocate(this%blade(ib)%velNwake2(3,this%nNwake,this%ns+1))
         allocate(this%blade(ib)%velNwakePredicted(3,this%nNwake,this%ns+1))
         allocate(this%blade(ib)%velNwakeStep(3,this%nNwake,this%ns+1))
@@ -1784,7 +1800,7 @@ contains
         this%blade(ib)%velFwake2=0._dp
         this%blade(ib)%velFwakePredicted=0._dp
         this%blade(ib)%velFwakeStep=0._dp
-      case (4)
+      case (5)
         allocate(this%blade(ib)%waPPredicted(this%nNwake,this%ns))
         allocate(this%blade(ib)%velNwake1(3,this%nNwake,this%ns+1))
         allocate(this%blade(ib)%velNwake2(3,this%nNwake,this%ns+1))
@@ -1806,22 +1822,6 @@ contains
         this%blade(ib)%velFwake1=0._dp
         this%blade(ib)%velFwake2=0._dp
         this%blade(ib)%velFwake3=0._dp
-        this%blade(ib)%velFwakePredicted=0._dp
-        this%blade(ib)%velFwakeStep=0._dp
-      case (5)
-        allocate(this%blade(ib)%waPPredicted(this%nNwake,this%ns))
-        allocate(this%blade(ib)%velNwake1(3,this%nNwake,this%ns+1))
-        allocate(this%blade(ib)%velNwakePredicted(3,this%nNwake,this%ns+1))
-        allocate(this%blade(ib)%velNwakeStep(3,this%nNwake,this%ns+1))
-        this%blade(ib)%velNwake1=0._dp
-        this%blade(ib)%velNwakePredicted=0._dp
-        this%blade(ib)%velNwakeStep=0._dp
-
-        allocate(this%blade(ib)%waFPredicted(this%nFwake))
-        allocate(this%blade(ib)%velFwake1(3,this%nFwake))
-        allocate(this%blade(ib)%velFwakePredicted(3,this%nFwake))
-        allocate(this%blade(ib)%velFwakeStep(3,this%nFwake))
-        this%blade(ib)%velFwake1=0._dp
         this%blade(ib)%velFwakePredicted=0._dp
         this%blade(ib)%velFwakeStep=0._dp
       end select
@@ -1890,6 +1890,14 @@ contains
       case (3)
         deallocate(this%blade(ib)%waPPredicted)
         deallocate(this%blade(ib)%velNwake1)
+        deallocate(this%blade(ib)%velNwakeStep)
+
+        deallocate(this%blade(ib)%waFPredicted)
+        deallocate(this%blade(ib)%velFwake1)
+        deallocate(this%blade(ib)%velFwakeStep)
+      case (4)
+        deallocate(this%blade(ib)%waPPredicted)
+        deallocate(this%blade(ib)%velNwake1)
         deallocate(this%blade(ib)%velNwake2)
         deallocate(this%blade(ib)%velNwakeStep)
 
@@ -1897,7 +1905,7 @@ contains
         deallocate(this%blade(ib)%velFwake1)
         deallocate(this%blade(ib)%velFwake2)
         deallocate(this%blade(ib)%velFwakeStep)
-      case (4)
+      case (5)
         deallocate(this%blade(ib)%waPPredicted)
         deallocate(this%blade(ib)%velNwake1)
         deallocate(this%blade(ib)%velNwake2)
@@ -1910,14 +1918,6 @@ contains
         deallocate(this%blade(ib)%velFwake2)
         deallocate(this%blade(ib)%velFwake3)
         deallocate(this%blade(ib)%velFwakePredicted)
-        deallocate(this%blade(ib)%velFwakeStep)
-      case (5)
-        deallocate(this%blade(ib)%waPPredicted)
-        deallocate(this%blade(ib)%velNwake1)
-        deallocate(this%blade(ib)%velNwakeStep)
-
-        deallocate(this%blade(ib)%waFPredicted)
-        deallocate(this%blade(ib)%velFwake1)
         deallocate(this%blade(ib)%velFwakeStep)
       end select
     enddo
