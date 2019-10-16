@@ -99,7 +99,7 @@ contains
 
       ! Far wake 
       nx=rotor%nFwake
-      if (rotor%rowFar .ne. 0) then
+      if (rotor%rowFar .le. rotor%nFwake) then
         write(nxChar,'(I5)') nx-(rotor%rowFar-1)+1
 
         !Check if necessary - $omp parallel do collapse(2)
@@ -158,7 +158,7 @@ contains
     nr=size(rotor)
 
     do ir=1,nr
-      if (rotor(ir)%rowFar .eq. 0) error stop 'ERROR: Use filaments2file() only after development of far wake'
+      if (rotor(ir)%rowFar .gt. rotor(ir)%nFwake) error stop 'ERROR: Use filaments2file() only after development of far wake'
     enddo
 
     ! Compute number of each filaments

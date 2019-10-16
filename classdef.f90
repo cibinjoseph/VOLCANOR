@@ -826,9 +826,10 @@ contains
     real(dp), intent(in), dimension(3) :: P
     character(len=1), optional :: optionalChar
     real(dp), dimension(3) :: blade_vind_bywake
-    integer :: i,j,nNwake
+    integer :: i,j,nNwake,nFwake
 
     nNwake=size(this%waP,1)
+    nFwake=size(this%waF,1)
     blade_vind_bywake=0._dp
     if (.not. present(optionalChar)) then
       do j=1,size(this%waP,2)
@@ -838,13 +839,13 @@ contains
         enddo
       enddo
 
-      if (rowFar .ne. 0) then
+      if (rowFar .le. nFwake) then
         ! Last row of Nwake is made of horseshoe vortices, if Fwake is generated
         do j=1,size(this%waP,2)
           blade_vind_bywake=blade_vind_bywake-this%waP(nNwake,j)%vr%vf(2)%vind(P)*this%waP(nNwake,j)%vr%gam
         enddo
 
-        do i=rowFar,size(this%waF,1)
+        do i=rowFar,nFwake
           if (abs(this%waF(i)%gam) .gt. eps ) &
             blade_vind_bywake=blade_vind_bywake+this%waF(i)%vf%vind(P)*this%waF(i)%gam
         enddo
@@ -857,13 +858,13 @@ contains
         enddo
       enddo
 
-      if (rowFar .ne. 0) then
+      if (rowFar .le. nFwake) then
         ! Last row of Nwake is made of horseshoe vortices, if Fwake is generated
         do j=1,size(this%waP,2)
           blade_vind_bywake=blade_vind_bywake-this%waPPredicted(nNwake,j)%vr%vf(2)%vind(P)*this%waPPredicted(nNwake,j)%vr%gam
         enddo
 
-        do i=rowFar,size(this%waF,1)
+        do i=rowFar,nFwake
           if (abs(this%waFPredicted(i)%gam) .gt. eps ) &
             blade_vind_bywake=blade_vind_bywake+this%waFPredicted(i)%vf%vind(P)*this%waFPredicted(i)%gam
         enddo
@@ -901,14 +902,12 @@ contains
       enddo
       !$omp end parallel do
 
-      if (rowFar .ne. 0) then
-        nFwake=size(this%waF,1)
-        !$omp parallel do
-        do i=rowFar,nFwake
-          call this%waF(i)%shiftdP(1,this%velFwake(:,i)*dt)  ! Shift only TE
-        enddo
-        !$omp end parallel do
-      endif
+      nFwake=size(this%waF,1)
+      !$omp parallel do
+      do i=rowFar,nFwake
+        call this%waF(i)%shiftdP(1,this%velFwake(:,i)*dt)  ! Shift only TE
+      enddo
+      !$omp end parallel do
 
 
     case ('P')    ! [P]redicted wake
@@ -926,14 +925,12 @@ contains
       enddo
       !$omp end parallel do
 
-      if (rowFar .ne. 0) then
-        nFwake=size(this%waF,1)
-        !$omp parallel do
-        do i=rowFar,nFwake
-          call this%waFPredicted(i)%shiftdP(1,this%velFwake(:,i)*dt)  ! Shift only TE
-        enddo
-        !$omp end parallel do
-      endif
+      nFwake=size(this%waF,1)
+      !$omp parallel do
+      do i=rowFar,nFwake
+        call this%waFPredicted(i)%shiftdP(1,this%velFwake(:,i)*dt)  ! Shift only TE
+      enddo
+      !$omp end parallel do
 
     end select
 
@@ -977,14 +974,12 @@ contains
       enddo
       !$omp end parallel do
 
-      if (rowFar .ne. 0) then
-        nFwake=size(this%waF,1)
-        !$omp parallel do
-        do i=rowFar+1,nFwake
-          call this%waF(i)%assignP(2,this%waF(i-1)%vf%fc(:,1))
-        enddo
-        !$omp end parallel do
-      endif
+      nFwake=size(this%waF,1)
+      !$omp parallel do
+      do i=rowFar+1,nFwake
+        call this%waF(i)%assignP(2,this%waF(i-1)%vf%fc(:,1))
+      enddo
+      !$omp end parallel do
 
     case ('P')
       ! For predicted wake
@@ -1012,14 +1007,12 @@ contains
       enddo
       !$omp end parallel do
 
-      if (rowFar .ne. 0) then
-        nFwake=size(this%waF,1)
-        !$omp parallel do
-        do i=rowFar+1,nFwake
-          call this%waFPredicted(i)%assignP(2,this%waFPredicted(i-1)%vf%fc(:,1))
-        enddo
-        !$omp end parallel do
-      endif
+      nFwake=size(this%waF,1)
+      !$omp parallel do
+      do i=rowFar+1,nFwake
+        call this%waFPredicted(i)%assignP(2,this%waFPredicted(i-1)%vf%fc(:,1))
+      enddo
+      !$omp end parallel do
 
     case default
       error stop 'ERROR: Wrong character flag for convectwake()'
@@ -1279,7 +1272,7 @@ contains
     !enddo
 
     ! Burst far wake
-    if ((rowFar .ne. 0) .and. (rowFar .ne. size(this%waF,1))) then
+    if (rowFar .le. size(this%waF,1)) then
       do irow=rowFar,size(this%waF,1)-1
         ! NEGLECT ALREADY BURST FILAMENTS IF NECCESSARY
         !if (abs(this%waF(irow+1)%gam) > eps .and. abs(this%waF(irow)%gam) > eps) then
@@ -2157,10 +2150,8 @@ contains
         this%blade(ib)%waP(this%rowNear:this%nNwake,:)%vr%vf(ifil)%age= &
           this%blade(ib)%waP(this%rowNear:this%nNwake,:)%vr%vf(ifil)%age+dt
       enddo
-      if (this%rowFar .ne. 0) then
-        this%blade(ib)%waF(this%rowFar:this%nFwake)%vf%age= &
-          this%blade(ib)%waF(this%rowFar:this%nFwake)%vf%age+dt
-      endif
+      this%blade(ib)%waF(this%rowFar:this%nFwake)%vf%age= &
+        this%blade(ib)%waF(this%rowFar:this%nFwake)%vf%age+dt
     enddo
   end subroutine age_wake
 
@@ -2204,14 +2195,12 @@ contains
       enddo
 
       ! Dissipate far wake if present
-      if (this%rowFar .ne. 0) then
-        !$omp parallel do
-        do ic=this%rowFar,this%nFwake
-          this%blade(ib)%waF(ic)%vf%rVc=sqrt(this%blade(ib)%waF(ic)%vf%rVc**2._dp &
-            +4._dp*oseenParameter*this%turbulentViscosity*kinematicViscosity*dt)
-        enddo
-        !$omp end parallel do
-      endif
+      !$omp parallel do
+      do ic=this%rowFar,this%nFwake
+        this%blade(ib)%waF(ic)%vf%rVc=sqrt(this%blade(ib)%waF(ic)%vf%rVc**2._dp &
+          +4._dp*oseenParameter*this%turbulentViscosity*kinematicViscosity*dt)
+      enddo
+      !$omp end parallel do
     enddo
 
   end subroutine dissipate_wake
@@ -2309,7 +2298,6 @@ contains
     real(dp) :: gamRollup, ageRollup, radiusRollup, gamSum
 
     rowFarNext=this%rowFar-1    ! Rollup the vortex filament of 'next' row
-    if (rowFarNext==-1) rowFarNext=this%nFwake
 
     do ib=1,this%nb
       gamRollup=this%blade(ib)%waP(this%nNwake,this%ns)%vr%gam
