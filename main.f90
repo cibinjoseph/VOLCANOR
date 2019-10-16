@@ -202,8 +202,8 @@ program main
 
     end select
     do ir=1,nr
-      ! Disabling write of initial force value
-      !call force2file(timestamp,rotor(ir),ir,zAxis)  
+      ! Initial force value
+      call force2file(timestamp,rotor(ir),ir,zAxis)  
     enddo
   endif
 
