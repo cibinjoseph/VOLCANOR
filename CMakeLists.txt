@@ -17,7 +17,7 @@ if(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
   set(common_flags "-free -implicitnone -r8")
   set(dbg_flags "-traceback -O0 -warn all -check bounds -g -fpe0 -debug extended -heap-arrays 200")
   set(rls_flags "-fast -O3 -qopenmp -parallel -heap-arrays 200 \
-  -ansi-alias -qopt-jump-tables='large' -xcore-avx2")
+  -ansi-alias -qopt-jump-tables='large' -xcore-avx2 -ipo")
 endif()
 
 # Set compiler flags using variables
