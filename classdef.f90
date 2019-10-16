@@ -1324,6 +1324,7 @@ module rotor_classdef
     real(dp) :: initWakeVel, psiStart, skewLimit
     real(dp) :: turbulentViscosity
     integer :: rollupStart, rollupEnd
+    integer :: suppressFwakeSwitch
     integer :: inflowPlotSwitch, bladeForcePlotSwitch
     integer :: gammaPlotSwitch, alphaPlotSwitch
     integer :: rowNear, rowFar
@@ -1377,6 +1378,11 @@ contains
     read(12,*) this%nb, this%geometryFile
     call skiplines(12,3)
     read(12,*) this%nc,this%ns,this%nNwake
+    this%suppressFwakeSwitch=0
+    ! If nNwake is -ve, far wake is suppressed
+    if (this%nNwake<0) this%suppressFwakeSwitch=1
+    this%nNwake=abs(this%nNwake)
+
     if (this%nNwake<2)  error stop 'ERROR: Atleast 2 near wake rows mandatory'
     call skiplines(12,4)
     read(12,*) this%hubCoords(1),this%hubCoords(2),this%hubCoords(3)
@@ -2341,6 +2347,9 @@ contains
         centroidTE=this%blade(ib)%waP(this%nNwake,this%rollupEnd)%vr%vf(3)%fc(:,1)
         radiusRollup=this%blade(ib)%waP(this%nNwake,this%rollupEnd)%vr%vf(3)%rVc
       endif
+
+      ! Suppress Fwake gam if required
+      if (this%suppressFwakeSwitch .eq. 1) gamRollup=0._dp
 
       ! Initialize far wake tip
       this%blade(ib)%waF(rowFarNext)%vf%fc(:,2)=centroidLE
