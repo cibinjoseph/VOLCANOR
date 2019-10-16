@@ -46,16 +46,16 @@ pivot point from LE[x/chord]    flapHinge from centre[r/R]
 
 turbulentViscosity parameter (10-10000)
 ----------------------------------------------------------------
-  000
+  1000
 ===============================================================
   spanwise core radius[x/c]       streamwise core_switch
   [s]ectional  [i]dentical
 ----------------------------------------------------------------
-  0.0                                       i
+  0.04                                       i
 
 streamwise core radius[x/c]   root <----> tip  (ns+1 entries)
 ----------------------------------------------------------------
-0.0 
+0.04
 ===============================================================
 
 Spanwise start[r/R]  &  end[r/R] for centroid of tip vorticity
