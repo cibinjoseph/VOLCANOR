@@ -18,10 +18,12 @@ Implement option to switch lift from alpha computation to postprocessing
 Implement angle of attack estimation from sectional circulation
 Try slow start for tandem wing to check for discrepancy
 
+Why AB2 unstable here and stable in VLM_Wing
+
 
 Validation cases:
 - Fixed Wing
-  * Anderson rectangular wing at multiple aspect ratios against expts  [DONE]
+  * Anderson rectangular wing at multiple ARs against expts  [DONE]
   * Unsteady lift, Wagner function against Katz's code  [DONE]
   * Bertin & Smith simple testcase for code accuracy  [DONE]
   * Rectangular wing NACA 23012 [DONE]
@@ -32,7 +34,8 @@ Validation cases:
 
 - Rotary Wing
   * Caradonna and Tung rotor - hover and climb cases
+  * AH-1G rotor case
   * Ground effect case
 
 - Wing-rotor interaction
-  * 
+   
