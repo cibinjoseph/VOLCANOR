@@ -1,6 +1,6 @@
  NO. OF TIMESTEPS [nt]    TIMESTEP (sec) [dt]    NO. OF ROTORS [nr]
 -----------------------------------------------------------------------
-      300                       0.0006                   1
+      1500                       0.0006                   1
 
  SPAN DISCRETIZATION : [1]linear [2]cosine [3]halfsine
  spanSpacingSwitch
@@ -38,7 +38,7 @@
  WAKE CONVECTION FINITE-DIFFERENCE SCHEME:
   fdSchemeSwitch  [0]FT1 [1]PC2 [2]AB2 [3]AM2 [4]AM3 [5]AM4
 -----------------------------------------------------------------------
-       2
+       3
 
  IGNORE WAKE WAKE INTERACTION: [0]Off [1..]timesteps
   wakeIgnoreNt  *** NOT IMPLEMENTED ***
