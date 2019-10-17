@@ -1444,7 +1444,7 @@ contains
     call degtorad(this%coningAngle)
     call degtorad(this%psiStart)
     this%nFwake=nt-this%nNwake
-    if (this%nFwake<2) error stop 'ERROR: Atleast 1 far wake rows mandatory'
+    ! if (this%nFwake<2) error stop 'ERROR: Atleast 1 far wake rows mandatory'
     this%spanwiseCore=this%spanwiseCore*this%chord
     this%streamwiseCoreVec=this%streamwiseCoreVec*this%chord
     this%rollupStart=ceiling(rollupStartRadius*this%ns)
