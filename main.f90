@@ -21,7 +21,7 @@ program main
   read(11,*) rotorForcePlotSwitch, forceCalcSwitch
   call skiplines(11,5)
   read(11,*) wakeDissipationSwitch, wakeStrainSwitch, wakeBurstSwitch
-  call skiplines(11,4)
+  call skiplines(11,5)
   read(11,*) slowStartSwitch, slowStartNt
   call skiplines(11,4)
   read(11,*) fdSchemeSwitch
