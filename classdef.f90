@@ -759,6 +759,10 @@ contains
         this%sectionalNormalVec(:,j)=matmul(TMat,this%sectionalNormalVec(:,j))
       enddo
 
+      ! Rotate blade axes
+      this%xAxis=matmul(TMat,this%xAxis)
+      this%yAxis=matmul(TMat,this%yAxis)
+      this%zAxis=matmul(TMat,this%zAxis)
     endif
   end subroutine rot_axis
 
