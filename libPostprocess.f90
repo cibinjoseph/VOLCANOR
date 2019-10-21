@@ -380,71 +380,125 @@ contains
     close(12)
   end subroutine wingverify
 
-  ! subroutine tip2file(wing_array,wake_array,filename)
-  !   type(wingpanel_class), intent(in), dimension(:,:) :: wing_array
-  !   type(Nwake_class), intent(in), dimension(:,:) :: wake_array
-  !   character(len=*), intent(in) :: filename
-  !   character(len=5) :: nxChar, nyChar
-  !   real(dp), dimension(3,size(wing_array,1)+1,size(wing_array,2)+1) :: wingMesh  
-  !   real(dp), dimension(3,size(wake_array,1)+1) :: wakeTip  
-  !   integer :: i,j,nx,ny
+  subroutine tip2file(timestamp,rotor)
+    type(rotor_class), intent(in), dimension(:,:) :: rotor
+    character(len=*), intent(in) :: timestamp
+    character(len=5) :: nxChar, nyChar
+    real(dp), dimension(3,rotor%nc+1,+rotror%ns+1) :: wingMesh
+    real(dp), dimension(3,rotor%nNwake+rotror%nFwake+1) :: wakeTip
+    real(dp), dimension(3) :: centroid
+    real(dp) :: gamRollup, gamSum
+    integer :: i,j,nx,ny
 
-  !   nx=size(wing_array,1)
-  !   ny=size(wing_array,2)
-  !   write(nxChar,'(I5)') nx+1
-  !   write(nyChar,'(I5)') ny+1
+    open(unit=10,file='Results/tip'//timestamp//'.plt',position='append')
 
-  !   open(unit=10,file=filename,position='append')
-  !   do j=1,ny
-  !     do i=1,nx
-  !       wingMesh(:,i,j)=wing_array(i,j)%pc(:,1)
-  !     enddo
-  !   enddo
-  !   do i=1,nx
-  !     wingMesh(:,i,ny+1)=wing_array(i,ny)%pc(:,4)
-  !   enddo
-  !   do j=1,ny
-  !     wingMesh(:,nx+1,j)=wing_array(nx,j)%pc(:,2)
-  !   enddo
-  !   wingMesh(:,nx+1,ny+1)=wing_array(nx,ny)%pc(:,3)
+    write(10,*) 'Title = "Wing and Tip"'
+    write(10,*) 'VARIABLES = "X" "Y" "Z" "GAM"'! "Var5" "Var6"'
 
-  !   write(10,*) 'Title = "Panel array"'
-  !   write(10,*) 'VARIABLES = "X" "Y" "Z"'
-  !   write(10,*) 'Zone I='//trim(nxChar)//' J='//trim(nyChar)//' K=1  T="Wing"'
-  !   write(10,*) 'DATAPACKING=BLOCK'
-  !   write(10,*) ((wingMesh(1,i,j),i=1,nx+1),j=1,ny+1)
-  !   write(10,*) ((wingMesh(2,i,j),i=1,nx+1),j=1,ny+1)
-  !   write(10,*) ((wingMesh(3,i,j),i=1,nx+1),j=1,ny+1)
+    do ib=1,rotor%nb
+      ! Wing
+      nx=rotor%nc
+      ny=rotor%ns
+      write(nxChar,'(I5)') nx+1
+      write(nyChar,'(I5)') ny+1
 
-  !   ! Wake root
-  !   nx=size(wake_array,1)
-  !   ny=size(wake_array,2)
-  !   write(nxChar,'(I5)') nx+1
+      do j=1,ny
+        do i=1,nx
+          wingMesh(:,i,j)=rotor%blade(ib)%wiP(i,j)%pc(:,1)
+        enddo
+      enddo
+      do i=1,nx
+        wingMesh(:,i,ny+1)=rotor%blade(ib)%wiP(i,ny)%pc(:,4)
+      enddo
+      do j=1,ny
+        wingMesh(:,nx+1,j)=rotor%blade(ib)%wiP(nx,j)%pc(:,2)
+      enddo
+      wingMesh(:,nx+1,ny+1)=rotor%blade(ib)%wiP(nx,ny)%pc(:,3)
 
-  !   do i=1,nx
-  !     wakeTip(:,i)=wake_array(i,1)%vr%vf(1)%fc(:,1)
-  !   enddo
-  !   wakeTip(:,nx+1)=wake_array(nx,1)%vr%vf(2)%fc(:,1)
+      write(10,*) 'Zone I='//trim(nxChar)//' J='//trim(nyChar)//' K=1  T="Blade"'
+      write(10,*) 'DATAPACKING=BLOCK'
+      write(10,*) 'VARLOCATION=([4]=CELLCENTERED)'!,[5]=CELLCENTERED,[6]=CELLCENTERED)'
+      write(10,*) ((wingMesh(1,i,j),i=1,nx+1),j=1,ny+1)
+      write(10,*) ((wingMesh(2,i,j),i=1,nx+1),j=1,ny+1)
+      write(10,*) ((wingMesh(3,i,j),i=1,nx+1),j=1,ny+1)
+      write(10,*) ((-1._dp*rotor%blade(ib)%wiP(i,j)%vr%gam,i=1,nx),j=1,ny)
+      !write(10,*) ((rotor%blade(ib)%wiP(i,j)%vr%skew,i=1,nx),j=1,ny)
+      !write(10,*) ((rotor%blade(ib)%wiP(i,j)%vr%skew,i=1,nx),j=1,ny)
 
-  !   write(10,*) 'Zone I='//trim(nxChar)//' J=1   K=1  T="wake_root"'
-  !   write(10,*) 'DATAPACKING=BLOCK'
-  !   write(10,*) (wakeTip(1,i),i=1,nx+1)
-  !   write(10,*) (wakeTip(2,i),i=1,nx+1)
-  !   write(10,*) (wakeTip(3,i),i=1,nx+1)
+      ! Near wake 
+      nx=rotor%nNwake+rotor%nFwake
+      ny=rotor%ns
+      write(nxChar,'(I5)') nx-(rotor%rowNear-1)+1
+      write(nyChar,'(I5)') ny+1
 
-  !   ! Wake tip
-  !   do i=1,nx
-  !     wakeTip(:,i)=wake_array(i,ny)%vr%vf(4)%fc(:,1)
-  !   enddo
-  !   wakeTip(:,nx+1)=wake_array(nx,ny)%vr%vf(3)%fc(:,1)
+      !Check if necessary - $omp parallel do collapse(2)
+      do j=1,ny
+        do i=rotor%rowNear,nx
+          wakeMesh(:,i,j)=rotor%blade(ib)%waP(i,j)%vr%vf(1)%fc(:,1)
+        enddo
+      enddo
+      !Check if necessary -$omp end parallel do
+      do i=rotor%rowNear,nx
+        wakeMesh(:,i,ny+1)=rotor%blade(ib)%waP(i,ny)%vr%vf(4)%fc(:,1)
+      enddo
+      do j=1,ny
+        wakeMesh(:,nx+1,j)=rotor%blade(ib)%waP(nx,j)%vr%vf(2)%fc(:,1)
+      enddo
+      wakeMesh(:,nx+1,ny+1)=rotor%blade(ib)%waP(nx,ny)%vr%vf(3)%fc(:,1)
 
-  !   write(10,*) 'Zone I='//trim(nxChar)//' J=1   K=1  T="wakeTip"'
-  !   write(10,*) 'DATAPACKING=BLOCK'
-  !   write(10,*) (wakeTip(1,i),i=1,nx+1)
-  !   write(10,*) (wakeTip(2,i),i=1,nx+1)
-  !   write(10,*) (wakeTip(3,i),i=1,nx+1)
-  !   close(10)
-  ! end subroutine tip2file
+      write(10,*) 'Zone I='//trim(nxChar)//' J=1    K=1  T="NearWake"'
+      write(10,*) 'DATAPACKING=BLOCK'
+      write(10,*) 'VARLOCATION=([4]=CELLCENTERED)'!,[5]=CELLCENTERED,[6]=CELLCENTERED)'
+      write(10,*) (wakeMesh(1,i,j),i=rotor%rowNear,nx+1)
+      write(10,*) (wakeMesh(2,i,j),i=rotor%rowNear,nx+1)
+      write(10,*) (wakeMesh(3,i,j),i=rotor%rowNear,nx+1)
+      write(10,*) ((-1._dp*rotor%blade(ib)%waP(i,j)%vr%gam,i=rotor%rowNear,nx),j=1,ny)
+      !write(10,*) ((rotor%blade(ib)%waP(i,j)%vr%skew,i=rotor%rowNear,nx),j=1,ny)
+      !write(10,*) ((rotor%blade(ib)%waP(i,j)%vr%skew,i=rotor%rowNear,nx),j=1,ny)
+
+      ! Far wake 
+      nx=rotor%nFwake
+      if (rotor%rowFar .le. rotor%nFwake) then
+        write(nxChar,'(I5)') nx-(rotor%rowFar-1)+1
+
+        !Check if necessary - $omp parallel do collapse(2)
+        do i=rotor%rowFar,nx
+          wakeTip(:,i)=rotor%blade(ib)%waF(i)%vf%fc(:,2)
+        enddo
+        wakeTip(:,nx+1)=rotor%blade(ib)%waF(rotor%nFwake)%vf%fc(:,1)
+        !Check if necessary -$omp end parallel do
+
+        write(10,*) 'Zone I='//trim(nxChar)//' J=1   K=1   T="FarWake"'
+        write(10,*) 'DATAPACKING=BLOCK'
+        write(10,*) 'VARLOCATION=([4]=CELLCENTERED)'!,[5]=CELLCENTERED,[6]=CELLCENTERED)'
+        write(10,*) (wakeTip(1,i),i=rotor%rowFar,nx+1)
+        write(10,*) (wakeTip(2,i),i=rotor%rowFar,nx+1)
+        write(10,*) (wakeTip(3,i),i=rotor%rowFar,nx+1)
+        write(10,*) (-1._dp*rotor%blade(ib)%waF(i)%gam,i=rotor%rowFar,nx)
+        !write(10,*) (rotor%blade(ib)%waF(i)%vf%rVc,i=rotor%rowFar,nx)
+        !write(10,*) (rotor%blade(ib)%waF(i)%vf%age,i=rotor%rowFar,nx)
+
+      else  ! No far wake present
+
+        write(nxChar,'(I5)') 2  ! Plot mesh as single redundant point
+        wakeTip(:,1) = rotor%blade(ib)%waP(rotor%nNwake,rotor%ns)%vr%vf(3)%fc(:,1)
+
+        write(10,*) 'Zone I='//trim(nxChar)//' J=1   K=1   T="FarWake"'
+        write(10,*) 'DATAPACKING=BLOCK'
+        write(10,*) 'VARLOCATION=([4]=CELLCENTERED)'!,[5]=CELLCENTERED,[6]=CELLCENTERED)'
+        write(10,*) wakeTip(1,1),wakeTip(1,1)
+        write(10,*) wakeTip(2,1),wakeTip(2,1)
+        write(10,*) wakeTip(3,1),wakeTip(3,1)
+        write(10,*) 0._dp
+        !write(10,*) 0._dp
+        !write(10,*) 0._dp
+      endif
+
+    enddo
+
+    close(10)
+
+   end subroutine tip2file
 
   subroutine force2file(timestamp,rotor,rotorNumber,directionVector)
     ! Write sectional and net force to file
