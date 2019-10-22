@@ -428,52 +428,51 @@ contains
 
       ! Near wake 
       nx=rotor%nNwake
-      ny=rotor%ns
       write(nxChar,'(I5)') nx-(rotor%rowNear-1)+1
-      write(nyChar,'(I5)') ny+1
 
       ! Compute tip location for near wake
       do i=rotor%rowNear,nx
         gamRollup(i)=rotor%blade(ib)%waP(i,rotor%ns)%vr%gam
         gamSum=0._dp
-        fWakeTip(:,i)=0._dp
+        nWakeTip(:,i)=0._dp
         do j=rotor%rollupStart,rotor%rollupEnd
-          fWakeTip(:,i)=fWakeTip(:,i)+rotor%blade(ib)%waP(i,j)%vr%vf(4)%fc(:,1)* &
+          nWakeTip(:,i)=nWakeTip(:,i)+rotor%blade(ib)%waP(i,j)%vr%vf(4)%fc(:,1)* &
             rotor%blade(ib)%waP(i,j)%vr%gam
           gamSum=gamSum+rotor%blade(ib)%waP(i,j)%vr%gam
+
+          ! Compute max gam for near wake filaments
+          if (sign(1._dp,rotor%Omega*rotor%controlPitch(1)) > eps) then
+            if (rotor%blade(ib)%waP(i,j)%vr%gam<gamRollup(i)) then    ! '<' because of negative gamma
+              gamRollup(i)=rotor%blade(ib)%waP(i,j)%vr%gam
+            endif
+          else    ! one of Omega or pitch is negative
+            if (rotor%blade(ib)%waP(i,j)%vr%gam>gamRollup(i)) then    ! '>' because of positive gamma
+              gamRollup(i)=rotor%blade(ib)%waP(i,j)%vr%gam
+            endif
+          endif
         enddo
 
         if (abs(gamSum) > eps) then
-          fWakeTip(:,i)=fWakeTip(:,i)/gamSum
+          nWakeTip(:,i)=nWakeTip(:,i)/gamSum
         else
-          fWakeTip(:,i)=rotor%blade(ib)%waP(i,rotor%rollupEnd)%vr%vf(4)%fc(:,1)
+          nWakeTip(:,i)=rotor%blade(ib)%waP(i,rotor%rollupEnd)%vr%vf(4)%fc(:,1)
         endif
 
-        ! Compute max gam for near wake filaments
-        if (sign(1._dp,rotor%Omega*rotor%controlPitch(1)) > eps) then
-          if (rotor%blade(ib)%waP(i,j)%vr%gam<gamRollup(i)) then    ! '<' because of negative gamma
-            gamRollup(i)=rotor%blade(ib)%waP(i,j)%vr%gam
-          endif
-        else    ! one of Omega or pitch is negative
-          if (rotor%blade(ib)%waP(i,j)%vr%gam>gamRollup(i)) then    ! '>' because of positive gamma
-            gamRollup(i)=rotor%blade(ib)%waP(i,j)%vr%gam
-          endif
-        endif
       enddo
 
       ! For last row
       gamSum=0._dp
-      fWakeTip(:,nx+1)=0._dp
+      nWakeTip(:,nx+1)=0._dp
       do j=rotor%rollupStart,rotor%rollupEnd
-        fWakeTip(:,nx+1)=fWakeTip(:,nx+1)+rotor%blade(ib)%waP(nx,j)%vr%vf(3)%fc(:,1)* &
+        nWakeTip(:,nx+1)=nWakeTip(:,nx+1)+rotor%blade(ib)%waP(nx,j)%vr%vf(3)%fc(:,1)* &
           rotor%blade(ib)%waP(nx,j)%vr%gam
         gamSum=gamSum+rotor%blade(ib)%waP(nx,j)%vr%gam
       enddo
 
       if (abs(gamSum) > eps) then
-        fWakeTip(:,nx+1)=fWakeTip(:,nx+1)/gamSum
+        nWakeTip(:,nx+1)=nWakeTip(:,nx+1)/gamSum
       else
-        fWakeTip(:,nx+1)=rotor%blade(ib)%waP(nx,rotor%rollupEnd)%vr%vf(3)%fc(:,1)
+        nWakeTip(:,nx+1)=rotor%blade(ib)%waP(nx,rotor%rollupEnd)%vr%vf(3)%fc(:,1)
       endif
 
       write(10,*) 'Zone I='//trim(nxChar)//' J=1    K=1  T="NearWake"'
@@ -485,6 +484,7 @@ contains
       write(10,*) (-1._dp*gamRollup(i),i=rotor%rowNear,nx)
       !write(10,*) ((rotor%blade(ib)%waP(i,j)%vr%skew,i=rotor%rowNear,nx),j=1,ny)
       !write(10,*) ((rotor%blade(ib)%waP(i,j)%vr%skew,i=rotor%rowNear,nx),j=1,ny)
+
 
       ! Far wake 
       nx=rotor%nFwake
@@ -523,12 +523,11 @@ contains
         !write(10,*) 0._dp
         !write(10,*) 0._dp
       endif
-
     enddo
 
     close(10)
 
-   end subroutine tip2file
+  end subroutine tip2file
 
   subroutine force2file(timestamp,rotor,rotorNumber,directionVector)
     ! Write sectional and net force to file
