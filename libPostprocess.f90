@@ -381,16 +381,15 @@ contains
   end subroutine wingverify
 
   subroutine tip2file(timestamp,rotor)
-    type(rotor_class), intent(in), dimension(:,:) :: rotor
+    type(rotor_class), intent(in) :: rotor
     character(len=*), intent(in) :: timestamp
     character(len=5) :: nxChar, nyChar
-    real(dp), dimension(3,rotor%nc+1,+rotror%ns+1) :: wingMesh
+    real(dp), dimension(3,rotor%nc+1,rotor%ns+1) :: wingMesh
     real(dp), dimension(3,rotor%nNwake+1) :: nWakeTip
     real(dp), dimension(rotor%nNwake) :: gamRollup
-    real(dp), dimension(3,rotror%nFwake+1) :: fWakeTip
-    real(dp), dimension(3) :: centroid
+    real(dp), dimension(3,rotor%nFwake+1) :: fWakeTip
     real(dp) :: gamSum
-    integer :: i,j,nx,ny
+    integer :: ib,i,j,nx,ny
 
     open(unit=10,file='Results/tip'//timestamp//'.plt',position='append')
 
@@ -452,12 +451,12 @@ contains
 
         ! Compute max gam for near wake filaments
         if (sign(1._dp,rotor%Omega*rotor%controlPitch(1)) > eps) then
-          if (rotor%blade(ib)%waP(i,ispan)%vr%gam<gamRollup(i)) then    ! '<' because of negative gamma
-            gamRollup(i)=rotor%blade(ib)%waP(i,ispan)%vr%gam
+          if (rotor%blade(ib)%waP(i,j)%vr%gam<gamRollup(i)) then    ! '<' because of negative gamma
+            gamRollup(i)=rotor%blade(ib)%waP(i,j)%vr%gam
           endif
         else    ! one of Omega or pitch is negative
-          if (rotor%blade(ib)%waP(i,ispan)%vr%gam>gamRollup(i)) then    ! '>' because of positive gamma
-            gamRollup(i)=rotor%blade(ib)%waP(i,ispan)%vr%gam
+          if (rotor%blade(ib)%waP(i,j)%vr%gam>gamRollup(i)) then    ! '>' because of positive gamma
+            gamRollup(i)=rotor%blade(ib)%waP(i,j)%vr%gam
           endif
         endif
       enddo
