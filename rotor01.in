@@ -4,7 +4,7 @@ No.of blades,nb     Read wing from file
 
 Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 -------------------------------------------------------------------
-   1                       13                   30
+   1                       13                   250
 ===================================================================
 
 X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
