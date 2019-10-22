@@ -461,6 +461,21 @@ contains
         endif
       enddo
 
+      ! For last row
+      gamSum=0._dp
+      fWakeTip(:,nx+1)=0._dp
+      do j=rotor%rollupStart,rotor%rollupEnd
+        fWakeTip(:,nx+1)=fWakeTip(:,nx+1)+rotor%blade(ib)%waP(nx,j)%vr%vf(3)%fc(:,1)* &
+          rotor%blade(ib)%waP(nx,j)%vr%gam
+        gamSum=gamSum+rotor%blade(ib)%waP(nx,j)%vr%gam
+      enddo
+
+      if (abs(gamSum) > eps) then
+        fWakeTip(:,nx+1)=fWakeTip(:,nx+1)/gamSum
+      else
+        fWakeTip(:,nx+1)=rotor%blade(ib)%waP(nx,rotor%rollupEnd)%vr%vf(3)%fc(:,1)
+      endif
+
       write(10,*) 'Zone I='//trim(nxChar)//' J=1    K=1  T="NearWake"'
       write(10,*) 'DATAPACKING=BLOCK'
       write(10,*) 'VARLOCATION=([4]=CELLCENTERED)'!,[5]=CELLCENTERED,[6]=CELLCENTERED)'
