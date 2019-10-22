@@ -20,7 +20,7 @@ integer :: i,is,ic,row,iter,ir,jr,ib
 integer :: spanSpacingSwitch
 integer :: wakeDissipationSwitch, wakeStrainSwitch, wakeBurstSwitch
 integer :: slowStartSwitch, slowStartNt
-integer :: wakePlotSwitch, gridPlotSwitch
+integer :: wakeTipPlotSwitch, wakePlotSwitch, gridPlotSwitch
 integer :: rotorForcePlotSwitch, forceCalcSwitch
 integer :: fdSchemeSwitch
 integer :: wakeIgnoreNt

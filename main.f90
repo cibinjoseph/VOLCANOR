@@ -16,7 +16,7 @@ program main
   call skiplines(11,4)
   read(11,*) density, velSound
   call skiplines(11,5)
-  read(11,*) wakePlotSwitch, gridPlotSwitch
+  read(11,*) wakePlotSwitch, wakeTipPlotSwitch, gridPlotSwitch
   call skiplines(11,4)
   read(11,*) rotorForcePlotSwitch, forceCalcSwitch
   call skiplines(11,5)
@@ -288,6 +288,11 @@ program main
       if (wakePlotSwitch .ne. 0) then
         if (mod(iter,wakePlotSwitch) .eq. 0) &
           call rotor2file(timestamp,rotor(ir))
+      endif
+
+      if (wakeTipPlotSwitch .ne. 0) then
+        if (mod(iter,wakeTipPlotSwitch) .eq. 0) &
+          call tip2file(timestamp,rotor(ir))
       endif
     enddo
 
