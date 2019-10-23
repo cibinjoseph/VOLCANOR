@@ -72,7 +72,7 @@ initWakeVel[m/s]     psiStart[deg]      skewLimit
     [0]Off                    [0]Off                
     [n]Every nth iteration    [n]Every nth iteration
 -------------------------------------------------------------------
-       0                              0
+       0                              1
 
   gammaPlotSwitch                 alphaPlotSwitch  
     [0]Off                         [0]Off                      
