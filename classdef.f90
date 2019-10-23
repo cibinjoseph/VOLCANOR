@@ -1729,9 +1729,9 @@ contains
     do ib=1,this%nb
       allocate(this%blade(ib)%C81(this%nAirfoils))
       do i=1,this%nAirfoils
-        call this%blade(ib)%C81(i)%readfile('airfoils/'//trim(this%airfoilFile(i)))
+        if (this%airfoilFile(i)(1:1) .ne. '0') &
+          call this%blade(ib)%C81(i)%readfile('airfoils/'//trim(this%airfoilFile(i)))
       enddo
-
       allocate(this%blade(ib)%airfoilSectionLimit(this%nAirfoils))
       this%blade(ib)%airfoilSectionLimit=this%airfoilSectionLimit
     enddo
