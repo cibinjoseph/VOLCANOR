@@ -1659,7 +1659,7 @@ contains
         this%blade(ib)%wiP%vr%vf(i)%rVc0 = min(this%spanwiseCore,dxdymin*0.1_dp)
       enddo
 
-      print*,'Wing vortex core radius set to ',min(this%spanwiseCore,dxdymin*0.1_dp)/this%chord,'times chord'
+      !print*,'Wing vortex core radius set to ',min(this%spanwiseCore,dxdymin*0.1_dp)/this%chord,'times chord'
 
       ! Initialize spanwise vortex core radius for last row of wing to that of wake
       this%blade(ib)%wiP(this%nc,:)%vr%vf(2)%rVc0 = this%spanwiseCore
@@ -1687,12 +1687,12 @@ contains
         print*,'Warning: CP inside vortex core at panel RB'
         warnUser = .TRUE.
       endif
-
-      if (warnUser .eqv. .TRUE.) then
-        print*,'Any key to continue. Ctrl-C to exit'
-        read(*,*)
-      endif
     enddo
+
+    if (warnUser .eqv. .TRUE.) then
+      print*
+      call sleep(2)
+    endif
 
     ! Move rotor to hub coordinates
     do ib=1,this%nb
