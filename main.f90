@@ -59,8 +59,8 @@ program main
   enddo
 
   ! Compute AIC and AIC_inv matrices for rotors
-  call print_status('Computing AIC matrices')
   do ir=1,nr
+    call print_status('Computing AIC matrix')
     call rotor(ir)%calcAIC()
     if (isInverse(rotor(ir)%AIC,rotor(ir)%AIC_inv)) then
       call print_status()    ! SUCCESS
