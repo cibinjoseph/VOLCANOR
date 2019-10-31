@@ -9,11 +9,11 @@ Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 
 X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
 -------------------------------------------------------------------
-   0.0              0.0           -0.5715
+   0.0              0.0           -1.143
 
 X-cgCoords      Y-cgCoords      Z-cgCoords     [all in m]
 -------------------------------------------------------------------
-   0.0              0.0           -0.5715
+   0.0              0.0           -1.143
 
 Phi             Theta             Psi     [all in deg]
 -------------------------------------------------------------------
