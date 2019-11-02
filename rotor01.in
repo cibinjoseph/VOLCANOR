@@ -4,7 +4,7 @@ No.of blades,nb     Read wing from file
 
 Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 -------------------------------------------------------------------
-     26                       19                   50
+     26                       19                   20
 ===================================================================
 
 X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
@@ -46,7 +46,7 @@ pivot point from LE[x/chord]    flapHinge from centre[r/R]
 
 turbulentViscosity parameter (10-10000)
 -------------------------------------------------------------------
-  1000
+  3000
 ===================================================================
   spanwise core radius[x/c]       streamwise core_switch
   [s]ectional  [i]dentical
@@ -87,4 +87,4 @@ No. of airfoil files ***Assumed 1 in code***
 
 Airfoil section limit(r/R)           Airfoil file names
 -------------------------------------------------------------------
-         1.0                           0
+         1.0                           NPL9615.C81
