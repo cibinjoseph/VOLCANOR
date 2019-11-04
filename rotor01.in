@@ -1,10 +1,10 @@
 No.of blades,nb     Read wing from file 
 -------------------------------------------------------------------
-     4                    LynxBlade.xyz
+     4                    PROP2.xyz
 
 Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 -------------------------------------------------------------------
-     26                       19                   20
+     12                       13                   20
 ===================================================================
 
 X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
@@ -22,16 +22,16 @@ Phi             Theta             Psi     [all in deg]
 
 Span[m]      root_cut[r/R]      chord[m]    coningAngle[deg]
 -------------------------------------------------------------------
- 1.105          0.384           0.180            0.0
+ 1.4859          0.27           0.35662            0.0
 ===================================================================
 
 Omega[rad/s]   X-shaftAxis     Y-shaftAxis     Z-shaftAxis 
 -------------------------------------------------------------------
-  172.31             0.0              0.0              1.0
+  167.55             0.0              0.0              1.0
 
 theta0[deg]    thetaC[deg]    thetaS[deg]    thetaTwist[deg]
 -------------------------------------------------------------------
-  13.0             0.0              0.0           0.0
+  45.4             0.0              0.0           0.0
 ===================================================================
 
 u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]    
@@ -46,7 +46,7 @@ pivot point from LE[x/chord]    flapHinge from centre[r/R]
 
 turbulentViscosity parameter (10-10000)
 -------------------------------------------------------------------
-  3000
+  1000
 ===================================================================
   spanwise core radius[x/c]       streamwise core_switch
   [s]ectional  [i]dentical
@@ -87,4 +87,4 @@ No. of airfoil files ***Assumed 1 in code***
 
 Airfoil section limit(r/R)           Airfoil file names
 -------------------------------------------------------------------
-         1.0                           NPL9615.C81
+         1.0                           NACA16-012.C81
