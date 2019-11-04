@@ -1432,11 +1432,13 @@ contains
     call skiplines(12,4)
     read(12,*) this%nAirfoils
     call skiplines(12,3)
-    allocate(this%airfoilSectionLimit(this%nAirfoils))
-    allocate(this%airfoilFile(this%nAirfoils))
-    do i=1,this%nAirfoils
-      read(12,*) this%airfoilSectionLimit(i),this%airfoilFile(i)
-    enddo
+    if (this%nAirfoils .gt. 0) then
+      allocate(this%airfoilSectionLimit(this%nAirfoils))
+      allocate(this%airfoilFile(this%nAirfoils))
+      do i=1,this%nAirfoils
+        read(12,*) this%airfoilSectionLimit(i),this%airfoilFile(i)
+      enddo
+    endif
     close(12)
 
     ! Conversions
@@ -1726,15 +1728,17 @@ contains
     endif
 
     ! Allocate and assign section airfoils
-    do ib=1,this%nb
-      allocate(this%blade(ib)%C81(this%nAirfoils))
-      do i=1,this%nAirfoils
-        if (this%airfoilFile(i)(1:1) .ne. '0') &
-          call this%blade(ib)%C81(i)%readfile('airfoils/'//trim(this%airfoilFile(i)))
+    if (this%nAirfoils .gt. 0) then
+      do ib=1,this%nb
+        allocate(this%blade(ib)%C81(this%nAirfoils))
+        do i=1,this%nAirfoils
+          if (this%airfoilFile(i)(1:1) .ne. '0') &
+            call this%blade(ib)%C81(i)%readfile('airfoils/'//trim(this%airfoilFile(i)))
+        enddo
+        allocate(this%blade(ib)%airfoilSectionLimit(this%nAirfoils))
+        this%blade(ib)%airfoilSectionLimit=this%airfoilSectionLimit
       enddo
-      allocate(this%blade(ib)%airfoilSectionLimit(this%nAirfoils))
-      this%blade(ib)%airfoilSectionLimit=this%airfoilSectionLimit
-    enddo
+    endif
 
     ! Allocate vars required for wake convection
     ! on the basis of finite diff scheme
