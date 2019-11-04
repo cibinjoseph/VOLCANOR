@@ -651,7 +651,7 @@ contains
         (/cos(pts(2)),sin(pts(2))/),&
         (/cos(pts(3)),sin(pts(3))/))
     case default
-      error stop 'Error: wrong option for order'
+      error stop 'ERROR: Wrong option for order'
     end select
 
     do j=1,size(this%wiP,2)
@@ -1952,7 +1952,7 @@ contains
       close(10)
       print*,'PLOT3D file   (nx,ny)    =',nx,ny
       print*,'ROTOR file    (nc+1,ns+1)=',this%nc+1,this%ns+1
-      error stop 'Error: Wrong or conflicting data in PLOT3D file '
+      error stop 'ERROR: Wrong or conflicting data in PLOT3D file '
     else
       allocate(grid(3,nx,ny))
       read(10,*) &
@@ -2079,7 +2079,7 @@ contains
         (/cos(pts(2)),sin(pts(2))/),&
         (/cos(pts(3)),sin(pts(3))/))
     case default
-      error stop 'Error: wrong option for order'
+      error stop 'ERROR: wrong option for order'
     end select
 
     do ib=1,this%nb
@@ -2146,7 +2146,7 @@ contains
         enddo
       enddo
     case default
-      error stop 'Error: Wrong option for edge'
+      error stop 'ERROR: Wrong option for edge'
     end select
 
   end subroutine assignshed
