@@ -94,7 +94,10 @@ contains
     character(len=10) :: formatChar
 
     open(unit=10, file=C81filename, status='old', action='read', iostat=stat)
-    if (stat>0) error stop 'ERROR: '//trim(C81filename)//' file not found'
+    if (stat>0) then
+      print*, 'ERROR: '//trim(C81filename)//' file not found'
+      error stop
+    endif
 
     read(10,100) this%airfoilName,this%ML,this%NL,this%MD,this%ND,this%MM,this%NM
     allocate(this%MaL(this%ML))
@@ -265,7 +268,10 @@ contains
     real(dp), dimension(rows,cols) :: getTable
 
     open(unit=10, file=filename, status='old', action='read', iostat=stat)
-    if (stat>0) error stop 'ERROR: '//trim(filename)//' file not found'
+    if (stat>0) then
+      print*, 'ERROR: '//trim(filename)//' file not found'
+      error stop 
+    endif
     do i=1,rows
       read(10,*) (getTable(i,j),j=1,cols)
     enddo
