@@ -27,7 +27,16 @@ Validation cases:
   * Caradonna and Tung rotor - hover case [DONE]
   * PROP2 [DONE]
   * AH-1G rotor case
-  * Ground effect case
 
 - Wing-rotor interaction
+  * Wing-rotor 
+  * Duct-rotor
+
+- Rotor-rotor interaction
+  * Tandem rotor
+  * Ground effect case
+
+Application Demo:
+  * X-57 Maxwell
+  * Harpischord
    
