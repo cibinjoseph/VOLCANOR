@@ -161,13 +161,29 @@ contains
     alphaIndx = getInterval(this%AL,alphaQuery)
     machIndx = getInterval(this%MaL,machQuery)
 
-    getCL = getBilinearInterp(alphaQuery,machQuery, &
-      (/this%AL(alphaIndx(1)),this%AL(alphaIndx(2))/), &
-      (/this%MaL(machIndx(1)),this%MaL(machIndx(2))/), &
-      this%CL(alphaIndx(1),machIndx(1)), &
-      this%CL(alphaIndx(1),machIndx(2)), &
-      this%CL(alphaIndx(2),machIndx(1)), &
-      this%CL(alphaIndx(2),machIndx(2)))
+    if (alphaIndx(1) .eq. alphaIndx(2)) then
+      if (machIndx(1) .eq. machIndx(2)) then
+        getCL = this%CL(alphaIndx(1),machIndx(1))
+      else
+        getCL = this%CL(alphaIndx(1),machIndx(1))+ &
+          (machQuery-this%MaL(machIndx(1))) * &
+          (this%CL(alphaIndx(1),machIndx(2))-this%CL(alphaIndx(1),machIndx(1)))/ &
+          (this%MaL(machIndx(2))-this%MaL(machIndx(1)))
+      endif
+    elseif (machIndx(1) .eq. machIndx(2)) then
+      getCL = this%CL(alphaIndx(1),machIndx(1))+ &
+        (alphaQuery-this%AL(alphaIndx(1))) * &
+        (this%CL(alphaIndx(2),machIndx(1))-this%CL(alphaIndx(1),machIndx(1)))/ &
+        (this%AL(alphaIndx(2))-this%AL(alphaIndx(1)))
+    else
+      getCL = getBilinearInterp(alphaQuery,machQuery, &
+        (/this%AL(alphaIndx(1)),this%AL(alphaIndx(2))/), &
+        (/this%MaL(machIndx(1)),this%MaL(machIndx(2))/), &
+        this%CL(alphaIndx(1),machIndx(1)), &
+        this%CL(alphaIndx(1),machIndx(2)), &
+        this%CL(alphaIndx(2),machIndx(1)), &
+        this%CL(alphaIndx(2),machIndx(2)))
+    endif
   end function getCL
 
   ! Returns value of 2-d interpolated CD
