@@ -1,6 +1,6 @@
 No.of blades,nb     Read wing from file 
 -------------------------------------------------------------------
-     3                    PROP2.xyz
+     1                    0
 
 Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 -------------------------------------------------------------------
@@ -22,21 +22,21 @@ Phi             Theta             Psi     [all in deg]
 
 Span[m]      root_cut[r/R]      chord[m]    coningAngle[deg]
 -------------------------------------------------------------------
- 1.4859          0.27           0.35662            0.0
+ 0.3          0.0                 0.3            0.0
 ===================================================================
 
 Omega[rad/s]   X-shaftAxis     Y-shaftAxis     Z-shaftAxis 
 -------------------------------------------------------------------
-  167.55             0.0              0.0              1.0
+  0.0             0.0              0.0              1.0
 
 theta0[deg]    thetaC[deg]    thetaS[deg]    thetaTwist[deg]
 -------------------------------------------------------------------
-  50.8             0.0              0.0           0.0
+   0.0              0.0              0.0           0.0
 ===================================================================
 
 u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]    
 -------------------------------------------------------------------
- 0.0        0.0      188.958       0.0        0.0         0.0
+ 0.0        0.0      0.0      0.0        0.0         0.0
 ===================================================================
 
 pivot point from LE[x/chord]    flapHinge from centre[r/R]
@@ -46,7 +46,7 @@ pivot point from LE[x/chord]    flapHinge from centre[r/R]
 
 turbulentViscosity parameter (10-10000)
 -------------------------------------------------------------------
-  1000
+  500
 ===================================================================
   spanwise core radius[x/c]       streamwise core_switch
   [s]ectional  [i]dentical
@@ -87,4 +87,4 @@ No. of airfoil files ***Assumed 1 in code***
 
 Airfoil section limit(r/R)           Airfoil file names
 -------------------------------------------------------------------
-         1.0                           flatPlate.C81
+         1.0                           NACA0012.C81
