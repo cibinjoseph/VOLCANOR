@@ -36,7 +36,7 @@ theta0[deg]    thetaC[deg]    thetaS[deg]    thetaTwist[deg]
 
 u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]    
 -------------------------------------------------------------------
- 0.0        0.0      0.0      0.0        0.0         0.0
+ 8.0        0.0      0.0      0.0        0.0         0.0
 ===================================================================
 
 pivot point from LE[x/chord]    flapHinge from centre[r/R]
@@ -83,7 +83,7 @@ initWakeVel[m/s]     psiStart[deg]      skewLimit
 
 No. of airfoil files ***Assumed 1 in code***
 -------------------------------------------------------------------
-       0
+       1
 
 Airfoil section limit(r/R)           Airfoil file names
 -------------------------------------------------------------------
