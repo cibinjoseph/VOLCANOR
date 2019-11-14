@@ -1,6 +1,6 @@
 No.of blades,nb     Read wing from file 
 -------------------------------------------------------------------
-     2                    PurduePropRefined2.xyz
+     2                    PurdueProp.xyz
 
 Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 -------------------------------------------------------------------
