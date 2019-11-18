@@ -33,7 +33,7 @@ Validation cases:
   * Duct-rotor
 
 - Rotor-rotor interaction
-  * PurdueProp-wing model
+  * PROWIM model [DONE]
   * Tandem rotor
   * Ground effect case
 
