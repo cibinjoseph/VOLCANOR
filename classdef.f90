@@ -1128,14 +1128,20 @@ contains
     ! Compute force using sectional alpha
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: density, velSound
-    integer :: i
+    real(dp), dimension(size(this%wiP,2)) :: forceMag
+    real(dp), dimension(3,size(this%wiP,2)) :: forceDir
+    integer :: i, is
 
     this%sectionalForce=0._dp
     call this%calc_sectionalCL(velSound)
 
-    ! Lift in positive Z-direction assumption made
-    this%sectionalForce(3,:)=this%getSectionalDynamicPressure(density)* &
+    forceMag=this%getSectionalDynamicPressure(density)* &
       this%getSectionalArea()*this%sectionalCL
+    do is=1,size(this%wiP,2)
+      forceDir(:,is)=cross3(this%wiP(1,is)%tauCapSpan,this%sectionalResultantVel(:,is))  
+      forceDir(:,is)=sign(1._dp,sum(this%wiP(:,is)%vr%gam))*forceDir(:,is)/norm2(forceDir(:,is))
+      this%sectionalForce(:,is)=forceMag(is)*forceDir(:,is)
+    enddo
 
     do i=1,3
       this%Force(i)=sum(this%sectionalForce(i,:))
@@ -1149,7 +1155,7 @@ contains
 
     ! Compute unsteady sectional lift from gamma distribution
     call this%calc_force_gamma(density,invertGammaSign,dt)
-    
+
     ! Compute sectional CL
     !this%sectionalCL(is)
 
