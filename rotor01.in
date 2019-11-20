@@ -39,9 +39,10 @@ u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]
  -35.0        0.0        0.0       0.0        0.0         0.0
 ===================================================================
 
-pivot point from LE[x/chord]    flapHinge from centre[r/R]
+pivot point      flapHinge         invert tauSpan
+from LE[x/c]  from centre[r/R]  for swept/symmetric
 -------------------------------------------------------------------
-1.00                            0.0
+1.00                0.0                  0
 ===================================================================
 
 turbulentViscosity parameter (10-10000)
