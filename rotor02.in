@@ -9,15 +9,15 @@ Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 
 X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
 -------------------------------------------------------------------
-   -0.442              0.65           0.0
+   -0.4377              0.65           0.0615
 
 X-cgCoords      Y-cgCoords      Z-cgCoords     [all in m]
 -------------------------------------------------------------------
-   -0.442              0.65           0.0
+   -0.4377              0.65           0.0615
 
 Phi             Theta             Psi     [all in deg]
 -------------------------------------------------------------------
- 0.0             -90.0              0.0
+ 0.0             -82.0              0.0
 ===================================================================
 
 Span[m]      root_cut[r/R]      chord[m]    coningAngle[deg]
