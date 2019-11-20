@@ -1141,7 +1141,7 @@ contains
       this%sectionalForce(:,is)=cross3(this%wiP(1,is)%tauCapSpan, &
         this%sectionalResultantVel(:,is))  
       this%sectionalForce(:,is)=sign(1._dp,sum(this%wiP(:,is)%vr%gam)) &
-        *this%sectionalForce(:,is)/norm2(forceDir(:,is))
+        *this%sectionalForce(:,is)/norm2(this%sectionalForce(:,is))
       this%sectionalForce(:,is)=forceMag(is)*this%sectionalForce(:,is)
     enddo
 
