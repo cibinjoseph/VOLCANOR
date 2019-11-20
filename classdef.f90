@@ -1129,7 +1129,6 @@ contains
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: density, velSound
     real(dp), dimension(size(this%wiP,2)) :: forceMag
-    real(dp), dimension(3,size(this%wiP,2)) :: forceDir
     integer :: i, is
 
     this%sectionalForce=0._dp
@@ -1137,10 +1136,13 @@ contains
 
     forceMag=this%getSectionalDynamicPressure(density)* &
       this%getSectionalArea()*this%sectionalCL
+    ! Compute direction of lift force
     do is=1,size(this%wiP,2)
-      forceDir(:,is)=cross3(this%wiP(1,is)%tauCapSpan,this%sectionalResultantVel(:,is))  
-      forceDir(:,is)=sign(1._dp,sum(this%wiP(:,is)%vr%gam))*forceDir(:,is)/norm2(forceDir(:,is))
-      this%sectionalForce(:,is)=forceMag(is)*forceDir(:,is)
+      this%sectionalForce(:,is)=cross3(this%wiP(1,is)%tauCapSpan, &
+        this%sectionalResultantVel(:,is))  
+      this%sectionalForce(:,is)=sign(1._dp,sum(this%wiP(:,is)%vr%gam)) &
+        *this%sectionalForce(:,is)/norm2(forceDir(:,is))
+      this%sectionalForce(:,is)=forceMag(is)*this%sectionalForce(:,is)
     enddo
 
     do i=1,3
