@@ -1331,7 +1331,7 @@ module rotor_classdef
     real(dp), allocatable, dimension(:,:) :: AIC,AIC_inv  ! Influence coefficient matrix
     real(dp), allocatable, dimension(:) :: gamVec,RHS
     real(dp), allocatable, dimension(:) :: airfoilSectionLimit
-    real(dp) :: initWakeVel, psiStart, skewLimit
+    real(dp) :: initWakeVel, psiStart, skewLimit, symmetricTau
     real(dp) :: turbulentViscosity
     integer :: rollupStart, rollupEnd
     integer :: suppressFwakeSwitch
@@ -1409,8 +1409,8 @@ contains
     call skiplines(12,4)
     read(12,*) this%velBody(1), this%velBody(2), this%velBody(3) &
       ,        this%omegaBody(1), this%omegaBody(2), this%omegaBody(3)
-    call skiplines(12,4)
-    read(12,*) this%pivotLE, this%flapHinge
+    call skiplines(12,5)
+    read(12,*) this%pivotLE, this%flapHinge, this%symmetricTau
     call skiplines(12,4)
     read(12,*) this%turbulentViscosity
     call skiplines(12,4)
@@ -1620,20 +1620,21 @@ contains
         enddo
       enddo
 
-      ! DEBUG for tau vectors
-      ! Overwrite tau vectors for symmetric or swept wings
-      do j=1,(this%ns/2)
-        do i=1,this%nc
-          this%blade(ib)%wiP(i,j)%tauCapSpan = -1._dp*this%blade(ib)%yAxis
-          this%blade(ib)%wiP(i,j)%tauCapChord = this%blade(ib)%xAxis
+      ! Invert half of tau vectors for symmetric or swept wings
+      if (this%symmetricTau .eq. 1) then
+        do j=1,(this%ns/2)
+          do i=1,this%nc
+            this%blade(ib)%wiP(i,j)%tauCapSpan = -1._dp*this%blade(ib)%yAxis
+            this%blade(ib)%wiP(i,j)%tauCapChord = this%blade(ib)%xAxis
+          enddo
         enddo
-      enddo
-      do j=(this%ns/2)+1,this%ns
-        do i=1,this%nc
-          this%blade(ib)%wiP(i,j)%tauCapSpan = this%blade(ib)%yAxis
-          this%blade(ib)%wiP(i,j)%tauCapChord = this%blade(ib)%xAxis
+        do j=(this%ns/2)+1,this%ns
+          do i=1,this%nc
+            this%blade(ib)%wiP(i,j)%tauCapSpan = this%blade(ib)%yAxis
+            this%blade(ib)%wiP(i,j)%tauCapChord = this%blade(ib)%xAxis
+          enddo
         enddo
-      enddo
+      endif
 
       ! Inflow calculated at mid-chord
       this%blade(ib)%inflowLocations = this%blade(ib)%getSectionalChordwiseLocations(0.5_dp)
