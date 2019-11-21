@@ -29,11 +29,10 @@ Validation cases:
   * AH-1G rotor case
 
 - Wing-rotor interaction
-  * Wing-rotor 
+  * PROWIM model [DONE]
   * Duct-rotor
 
 - Rotor-rotor interaction
-  * PROWIM model [DONE]
   * Tandem rotor
   * Ground effect case
 
