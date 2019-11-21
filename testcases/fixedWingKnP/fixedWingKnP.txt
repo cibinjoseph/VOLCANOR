@@ -1,6 +1,0 @@
-Katz and Plotkin (pg 430)
-(ns,nc) = (13,4)
-Aspect ratios = 4, 8, 12, 20
-Uinf = 10 m/s
-delT = 1/160 s
-alpha = 5 deg
