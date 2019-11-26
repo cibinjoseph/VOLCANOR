@@ -1315,7 +1315,7 @@ module rotor_classdef
     type(blade_class), allocatable, dimension(:) :: blade
     real(dp) :: Omega, omegaSlow
     real(dp), dimension(3) :: shaftAxis
-    real(dp), dimension(3) :: hubCoords, cgCoords
+    real(dp), dimension(3) :: hubCoords, cgCoords, fromCoords
     real(dp) :: radius, chord, root_cut, coningAngle
     real(dp) :: CT
     real(dp), dimension(3) :: force
@@ -1400,6 +1400,8 @@ contains
     read(12,*) this%hubCoords(1),this%hubCoords(2),this%hubCoords(3)
     call skiplines(12,3)
     read(12,*) this%cgCoords(1),this%cgCoords(2),this%cgCoords(3)
+    call skiplines(12,3)
+    read(12,*) this%fromCoords(1),this%fromCoords(2),this%fromCoords(3)
     call skiplines(12,3)
     read(12,*) this%pts(1),this%pts(2),this%pts(3)
     call skiplines(12,4)
@@ -1534,7 +1536,9 @@ contains
     endif
 
     do ib=1,this%nb
-      ! Initialize blade axes
+      ! Initialize blade axes  
+      ! Can go wrong if importing geometry from OpenVSP
+      ! and then using these for orientation of lift vectors
       this%blade(ib)%xAxis=xAxis
       this%blade(ib)%yAxis=yAxis
       this%blade(ib)%ZAxis=zAxis
@@ -1707,6 +1711,7 @@ contains
 
     ! Move rotor to hub coordinates
     do ib=1,this%nb
+      call this%blade(ib)%move(-1._dp*this%fromCoords)
       call this%blade(ib)%move(this%hubCoords)
     enddo
 
