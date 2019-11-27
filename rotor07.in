@@ -51,7 +51,7 @@ from LE[x/c]  from centre[r/R]  for swept/symmetric
 
 turbulentViscosity parameter (10-10000)
 -------------------------------------------------------------------
-  100
+  3000
 ===================================================================
   spanwise core radius[x/c]       streamwise core_switch
   [s]ectional  [i]dentical
