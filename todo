@@ -10,6 +10,7 @@ Implement option to switch lift from alpha computation to postprocessing
 Implement angle of attack estimation from sectional circulation
 Try slow start for tandem wing to check for discrepancy
 Use resultant filament gamma for rollup
+Convert grid output to binary format
 
 
 Validation cases:
