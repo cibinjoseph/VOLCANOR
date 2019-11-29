@@ -145,14 +145,15 @@ contains
     type(rotor_class), intent(in), dimension(:) :: rotor
     character(len=*), intent(in) :: timestamp
 
-    integer :: nr, nvrWing, nvrNwake, nvfFwake
+    integer :: nr, nvrWing, nvrNwake, nvfNwakeTE, nvfFwake
     integer :: ir, ib, irow, icol, indx
     type(vr_class), allocatable, dimension(:) :: vrWing, vrNwake
-    type(vf_class), allocatable, dimension(:) :: vfFwake
-    real(dp), allocatable, dimension(:) :: gamFwake
+    type(vf_class), allocatable, dimension(:) :: vfFwake, vfNwakeTE
+    real(dp), allocatable, dimension(:) :: gamFwake, gamNwakeTE
 
     nvrWing=0
     nvrNwake=0
+    nvfNwakeTE=0
     nvfFwake=0
 
     nr=size(rotor)
@@ -165,14 +166,17 @@ contains
     do ir=1,nr
       nvrWing=nvrWing+rotor(ir)%nb*(rotor(ir)%nc*rotor(ir)%ns)
       nvrNwake=nvrNwake+rotor(ir)%nb*(rotor(ir)%nNwake*rotor(ir)%ns)
+      nvfNwakeTE = nvfNwakeTE+rotor(ir)%nb*rotor(ir)%ns
       nvfFwake=nvfFwake+(rotor(ir)%nFwake-rotor(ir)%rowFar+1)*rotor(ir)%nb
     enddo
 
     ! Allocate filaments
     allocate(vrWing(nvrWing))
     allocate(vrNwake(nvrNwake))
+    allocate(vfNwakeTE(nvfNwakeTE))
     allocate(vfFwake(nvfFwake))
     allocate(gamFwake(nvfFwake))
+    allocate(gamNwakeTE(nvfNwakeTE))
 
     ! Extract filament properties
     ! from wing
@@ -201,6 +205,18 @@ contains
       enddo
     enddo
 
+    ! from NwakeTE
+    indx=1
+    do ir=1,nr
+      irow=rotor(ir)%nNwake
+      do ib=1,rotor(ir)%nb
+        do icol=1,rotor(ir)%ns
+          vfNwakeTE(indx)=rotor(ir)%blade(ib)%waP(irow,icol)%vr%vf(2)
+          gamNwakeTE(indx)=rotor(ir)%blade(ib)%waP(irow,icol)%vr%gam*-1._dp
+          indx=indx+1
+        enddo
+      enddo
+    enddo
 
     ! from Fwake
     indx=1
@@ -218,14 +234,18 @@ contains
     open(unit=10,file='Results/filaments'//timestamp//'.dat',form='unformatted')
     write(10) nvrWing
     write(10) nvrNwake
+    write(10) nvfNwakeTE
     write(10) nvfFwake
     write(10) vrWing, vrNwake
+    write(10) vfNwakeTE, gamNwakeTE
     write(10) vfFwake, gamFwake
     close(10)
 
     ! Deallocate filaments
     deallocate(vrWing)
     deallocate(vrNwake)
+    deallocate(vfNwakeTE)
+    deallocate(gamNwakeTE)
     deallocate(vfFwake)
     deallocate(gamFwake)
 

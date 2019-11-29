@@ -12,10 +12,10 @@ program gridgen
   character(len=5) :: nx_char,ny_char,nz_char
   character(len=5) :: timestamp
 
-  integer :: nVrWing, nVrNwake, nVfFwake
+  integer :: nVrWing, nVrNwake, nVfNwakeTE, nVfFwake
   type(vr_class), allocatable, dimension(:) :: vrWing, vrNwake
-  type(vf_class), allocatable, dimension(:) :: vfFwake
-  real(dp), allocatable, dimension(:) :: gamFwake
+  type(vf_class), allocatable, dimension(:) :: vfFwake, vfNwakeTE
+  real(dp), allocatable, dimension(:) :: gamFwake, gamNwakeTE
 
   ! Read gridconfig.in file
   call print_status('Reading file '//'gridconfig.in')
@@ -85,14 +85,18 @@ program gridgen
     open(unit=12,file='Results/filaments'//timestamp//'.dat',form='unformatted')
     read(12) nVrWing
     read(12) nVrNwake
+    read(12) nVfNwakeTE
     read(12) nVfFwake
 
     allocate(vrWing(nVrWing))
     allocate(vrNwake(nVrNwake))
+    allocate(vfNwakeTE(nVfNwakeTE))
     allocate(vfFwake(nVfFwake))
     allocate(gamFwake(nVfFwake))
+    allocate(gamNwakeTE(nVfNwakeTE))
 
     read(12) vrWing, vrNwake
+    read(12) vfNwakeTE, gamNwakeTE
     read(12) vfFwake, gamFwake
     close(12)
     call print_status()    ! SUCCESS
@@ -110,6 +114,10 @@ program gridgen
           ! from Nwake
           do ifil=1,nVrNwake
             velCentre(:,ix,iy,iz)=velCentre(:,ix,iy,iz)+vrNwake(ifil)%vind(gridCentre(:,ix,iy,iz))*vrNwake(ifil)%gam
+          enddo
+          ! from NwakeTE
+          do ifil=1,nVfNwakeTE
+            velCentre(:,ix,iy,iz)=velCentre(:,ix,iy,iz)+vfNwakeTE(ifil)%vind(gridCentre(:,ix,iy,iz))*gamNwakeTE(ifil)
           enddo
           ! from Fwake
           do ifil=1,nVfFwake
@@ -147,8 +155,10 @@ program gridgen
 
     deallocate(vrWing)
     deallocate(vrNwake)
+    deallocate(vfNwakeTE)
     deallocate(vfFwake)
     deallocate(gamFwake)
+    deallocate(gamNwakeTE)
   enddo
 
   deallocate(grid)
