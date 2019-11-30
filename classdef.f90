@@ -1733,11 +1733,11 @@ contains
     ! Compute denominators for non-dimensionalisation
     if (abs(this%Omega) .gt. eps) then
       ! Rotary-wing
-      !this%nonDimForceDenominator = density*(pi*this%radius**2._dp)* &
-      !  (this%radius*this%Omega)**2._dp
+      this%nonDimForceDenominator = density*(pi*this%radius**2._dp)* &
+        (this%radius*this%Omega)**2._dp
       ! Propeller
-      this%nonDimForceDenominator = density*(this%Omega/(2._dp*pi))**2._dp* &
-        (2._dp*this%radius)**4._dp
+      !this%nonDimForceDenominator = density*(this%Omega/(2._dp*pi))**2._dp* &
+      !(2._dp*this%radius)**4._dp
     else
       ! Fixed-wing
       this%nonDimForceDenominator = 0.5_dp*density*(this%radius*(1._dp-this%root_cut)* &
