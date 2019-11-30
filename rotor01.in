@@ -1,10 +1,10 @@
 No.of blades,nb     Read wing from file 
 -------------------------------------------------------------------
-     1                    X-57_Wing.xyz
+     2                    0
 
 Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 -------------------------------------------------------------------
-      12                       34                   100
+      12                       25                   40
 ===================================================================
 
 X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
@@ -17,7 +17,7 @@ X-cgCoords      Y-cgCoords      Z-cgCoords     [all in m]
 
 X-from          Y-from          Z-from         [all in m]
 -------------------------------------------------------------------
-   3.6791646	   0.0	  2.2019514
+   0.0             0.0           0.0
 
 Phi       Theta       Psi     about cgCoords [all in deg]
 -------------------------------------------------------------------
@@ -26,21 +26,21 @@ Phi       Theta       Psi     about cgCoords [all in deg]
 
 Span[m]      root_cut[r/R]      chord[m]    coningAngle[deg]
 -------------------------------------------------------------------
- 9.6           0.0             0.643            0.0
+ 0.762           0.1667             0.0508            0.0
 ===================================================================
 
 Omega[rad/s]   X-shaftAxis     Y-shaftAxis     Z-shaftAxis 
 -------------------------------------------------------------------
-  0.0             0.0              0.0              1.0
+  100.53             0.0              0.0              1.0
 
 theta0[deg]    thetaC[deg]    thetaS[deg]    thetaTwist[deg]
 -------------------------------------------------------------------
-  0.0             0.0              0.0           0.0
+  4.0             0.0              0.0           0.0
 ===================================================================
 
 u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]    
 -------------------------------------------------------------------
- -42.0        0.0        0.0       0.0        0.0         0.0
+ 0.0        0.0        0.0       0.0        0.0         0.0
 ===================================================================
 
 pivot point      flapHinge         invert tauSpan
@@ -51,7 +51,7 @@ from LE[x/c]  from centre[r/R]  for swept/symmetric
 
 turbulentViscosity parameter (10-10000)
 -------------------------------------------------------------------
-  1000
+  50
 ===================================================================
   spanwise core radius[x/c]       streamwise core_switch
   [s]ectional  [i]dentical
@@ -92,4 +92,4 @@ No. of airfoil files ***Assumed 1 in code***
 
 Airfoil section limit(r/R)           Airfoil file names
 -------------------------------------------------------------------
-         1.0                           NACA64015.C81
+         1.0                           NACA0012.C81
