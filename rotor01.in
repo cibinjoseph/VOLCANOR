@@ -35,7 +35,7 @@ Omega[rad/s]   X-shaftAxis     Y-shaftAxis     Z-shaftAxis
 
 theta0[deg]    thetaC[deg]    thetaS[deg]    thetaTwist[deg]
 -------------------------------------------------------------------
-  4.0             0.0              0.0           0.0
+  8.0             0.0              0.0           0.0
 ===================================================================
 
 u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]    
@@ -51,7 +51,7 @@ from LE[x/c]  from centre[r/R]  for swept/symmetric
 
 turbulentViscosity parameter (10-10000)
 -------------------------------------------------------------------
-  50
+  100
 ===================================================================
   spanwise core radius[x/c]       streamwise core_switch
   [s]ectional  [i]dentical
