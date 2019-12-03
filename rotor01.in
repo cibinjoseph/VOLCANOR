@@ -26,7 +26,7 @@ Phi       Theta       Psi     about cgCoords [all in deg]
 
 Span[m]      root_cut[r/R]      chord[m]    coningAngle[deg]
 -------------------------------------------------------------------
- 10.0           0.0             0.380            0.0
+ 10.0           0.0             0.2234            0.0
 ===================================================================
 
 Omega[rad/s]   X-shaftAxis     Y-shaftAxis     Z-shaftAxis 
