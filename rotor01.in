@@ -4,7 +4,7 @@ No.of blades,nb     Read wing from file
 
 Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 -------------------------------------------------------------------
-      1                       26                   720
+      1                       26                   144
 ===================================================================
 
 X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
@@ -40,7 +40,7 @@ theta0[deg]    thetaC[deg]    thetaS[deg]    thetaTwist[deg]
 
 u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]    
 -------------------------------------------------------------------
- 0.0        0.0        0.808       0.0        0.0         0.0
+ 0.0        0.0        2.24       0.0        0.0         0.0
 ===================================================================
 
 pivot point      flapHinge         invert tauSpan
@@ -92,4 +92,4 @@ No. of airfoil files ***Assumed 1 in code***
 
 Airfoil section limit(r/R)           Airfoil file names
 -------------------------------------------------------------------
-         1.0                           multiMain.C81
+         1.0                           0
