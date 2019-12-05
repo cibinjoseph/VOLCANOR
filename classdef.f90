@@ -131,6 +131,7 @@ contains
     real(dp), dimension(3) :: vind, vind1, vind2, vind3, P
     real(dp) :: invr1Xr2Abs2,r1Xr2Abs2, r1Abs, r2Abs, invh2
     real(dp), dimension(3) :: r1, r2, r0, r1Xr2
+    integer :: i
 
     r1=P-this%fc(:,1)
     r2=P-this%fc(:,2)
@@ -152,16 +153,37 @@ contains
       vind1=(r1Xr2*inv4pi*dot_product(r0,r1/r1Abs-r2/r2Abs))/sqrt((this%rVc*norm2(r0))**4._dp+r1Xr2Abs2**2._dp)
 
       ! Case 2
-      invr1Xr2Abs2=1._dp/(r1xr2(1)**2._dp+r1xr2(2)**2._dp+r1xr2(3)**2._dp)
-      vind2=r1xr2*inv4pi*invr1xr2Abs2*dot_product(r0,r1/r1Abs-r2/r2Abs)
-
-      invh2=dot_product(r0,r0)*invr1xr2Abs2
+      invr1Xr2Abs2=1._dp/(r1xr2(1)**2._dp+r1Xr2(2)**2._dp+r1Xr2(3)**2._dp)
+      vind2=r1Xr2*inv4pi*invr1Xr2Abs2*dot_product(r0,r1/r1Abs-r2/r2Abs)
+      invh2=dot_product(r0,r0)*invr1Xr2Abs2
       Kv=1._dp/sqrt(1._dp+this%rVc**4._dp*invh2*invh2)
-
       vind2=min(Kv,1._dp)*vind2
 
       ! Case 3
+      vind3=r1Xr2*inv4pi/r1Xr2Abs2*dot_product(r0,r1/r1Abs-r2/r2Abs)
+      h=norm2(r1Xr2)/norm2(r0)
+      Kv=(h*h)/sqrt(h**4._dp+this%rVc**4._dp)
+      vind3=min(Kv,1._dp)*vind3
     endif
+
+    ! Comparison
+    do i=1,3
+      if (vind1(i) .ne. vind2(i)) then
+        print*,'1 and 2 not equal'
+        print*,vind1
+        print*,vind2
+        print*,vind3
+        stop
+      endif
+      if (vind1(i) .ne. vind3(i)) then
+        print*,'1 and 3 not equal'
+        print*,vind1
+        print*,vind2
+        print*,vind3
+        stop
+      endif
+    enddo
+
     vind=vind1
   end function vfclass_vind
 
