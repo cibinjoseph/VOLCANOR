@@ -379,6 +379,10 @@ program main
       rotor(ir)%RHS=-1._dp*rotor(ir)%RHS
     enddo
 
+    ! DEBUG
+    print*, rotor(1)%RHS
+    read*
+
     do ir=1,nr
       rotor(ir)%gamVec=matmul(rotor(ir)%AIC_inv,rotor(ir)%RHS)
     enddo
