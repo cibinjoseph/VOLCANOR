@@ -7,11 +7,16 @@
 
 # Check for input arguments
 if [[ $# -eq 0 ]]; then
-  testFile=wingNwake00020.plt
-  inputFile=Results/wingNwake00020.plt
+  testFile=reference
+  inputFile=Results/wingNwake00360.plt
 else
-  testFile=$1
-  inputFile=$2
+  if [[ $2 -eq 0 ]]; then
+    testFile=reference
+    inputFile=$1
+  else
+    testFile=$1
+    inputFile=$2
+  fi
 fi
 
 diff -q $testFile $inputFile && echo "NO CHANGES" || diff $testFile $inputFile
