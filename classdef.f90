@@ -92,11 +92,44 @@ contains
 
   ! IMPLEMENTATION 3
   ! Direct translation of math
+  !function vfclass_vind(this,P) result(vind)
+  !  ! Compute induced velocity by unit strength vortex filament
+  !class(vf_class) :: this
+  !  real(dp), dimension(3) :: vind, P
+  !  real(dp) :: r1Xr2Abs2, r1Abs, r2Abs, h, Kv
+  !  real(dp), dimension(3) :: r1, r2, r0, r1Xr2
+
+  !  r1=P-this%fc(:,1)
+  !  r2=P-this%fc(:,2)
+  !  r0=r1-r2
+
+  !  ! Cross product (inlined to avoid function call)
+  !  r1Xr2(1) = r1(2)*r2(3)-r1(3)*r2(2)
+  !  r1Xr2(2) = r1(3)*r2(1)-r1(1)*r2(3)
+  !  r1Xr2(3) = r1(1)*r2(2)-r1(2)*r2(1)
+  !  r1Xr2Abs2=r1xr2(1)**2._dp+r1xr2(2)**2._dp+r1xr2(3)**2._dp
+
+  !  r1Abs=norm2(r1)
+  !  r2Abs=norm2(r2)
+
+  !  vind=0.
+
+  !  if (r1Xr2Abs2 > eps2) then
+  !    vind=r1xr2*inv4pi/r1xr2Abs2*dot_product(r0,r1/r1Abs-r2/r2Abs)
+
+  !    h=norm2(r1xr2)/norm2(r0)
+  !    Kv=(h*h)/sqrt(h**4._dp+this%rVc**4._dp)
+
+  !    vind=min(Kv,1._dp)*vind
+  !  endif
+  !end function vfclass_vind
+
   function vfclass_vind(this,P) result(vind)
     ! Compute induced velocity by unit strength vortex filament
+    ! and compare
   class(vf_class) :: this
-    real(dp), dimension(3) :: vind, P
-    real(dp) :: r1Xr2Abs2, r1Abs, r2Abs, h, Kv
+    real(dp), dimension(3) :: vind, vind1, vind2, vind3, P
+    real(dp) :: invr1Xr2Abs2,r1Xr2Abs2, r1Abs, r2Abs, invh2
     real(dp), dimension(3) :: r1, r2, r0, r1Xr2
 
     r1=P-this%fc(:,1)
@@ -107,7 +140,7 @@ contains
     r1Xr2(1) = r1(2)*r2(3)-r1(3)*r2(2)
     r1Xr2(2) = r1(3)*r2(1)-r1(1)*r2(3)
     r1Xr2(3) = r1(1)*r2(2)-r1(2)*r2(1)
-    r1Xr2Abs2=r1xr2(1)**2._dp+r1xr2(2)**2._dp+r1xr2(3)**2._dp
+    r1Xr2Abs2 = dot_product(r1Xr2,r1Xr2)
 
     r1Abs=norm2(r1)
     r2Abs=norm2(r2)
@@ -115,13 +148,21 @@ contains
     vind=0.
 
     if (r1Xr2Abs2 > eps2) then
-      vind=r1xr2*inv4pi/r1xr2Abs2*dot_product(r0,r1/r1Abs-r2/r2Abs)
+      ! Case 1
+      vind1=(r1Xr2*inv4pi*dot_product(r0,r1/r1Abs-r2/r2Abs))/sqrt((this%rVc*norm2(r0))**4._dp+r1Xr2Abs2**2._dp)
 
-      h=norm2(r1xr2)/norm2(r0)
-      Kv=(h*h)/sqrt(h**4._dp+this%rVc**4._dp)
+      ! Case 2
+      invr1Xr2Abs2=1._dp/(r1xr2(1)**2._dp+r1xr2(2)**2._dp+r1xr2(3)**2._dp)
+      vind2=r1xr2*inv4pi*invr1xr2Abs2*dot_product(r0,r1/r1Abs-r2/r2Abs)
 
-      vind=min(Kv,1._dp)*vind
+      invh2=dot_product(r0,r0)*invr1xr2Abs2
+      Kv=1._dp/sqrt(1._dp+this%rVc**4._dp*invh2*invh2)
+
+      vind2=min(Kv,1._dp)*vind2
+
+      ! Case 3
     endif
+    vind=vind1
   end function vfclass_vind
 
   subroutine vfclass_calclength(this,isOriginal) 
