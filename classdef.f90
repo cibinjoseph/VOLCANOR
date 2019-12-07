@@ -28,33 +28,31 @@ contains
   ! Efficient implementation to vind calculation
   ! IMPLEMENTATION 1
   !! Mathematically simplifed and optimized for groups of variables
-  !function vfclass_vind(this,P) result(vind)
-  !  ! Compute induced velocity by unit strength vortex filament
-  !class(vf_class) :: this
-  !  real(dp), dimension(3) :: vind, P
-  !  real(dp) :: r1Xr2Abs2, r1Abs, r2Abs
-  !  real(dp), dimension(3) :: r1, r2, r0, r1Xr2
+  function vfclass_vind(this,P) result(vind)
+    ! Compute induced velocity by unit strength vortex filament
+  class(vf_class) :: this
+    real(dp), dimension(3) :: vind, P
+    real(dp) :: r1Xr2Abs2
+    real(dp), dimension(3) :: r1, r2, r0, r1Xr2
 
-  !  r1=P-this%fc(:,1)
-  !  r2=P-this%fc(:,2)
-  !  r0=r1-r2
+    r1=P-this%fc(:,1)
+    r2=P-this%fc(:,2)
+    r0=r1-r2
 
-  !  ! Cross product (inlined to avoid function call)
-  !  r1Xr2(1) = r1(2)*r2(3)-r1(3)*r2(2)
-  !  r1Xr2(2) = r1(3)*r2(1)-r1(1)*r2(3)
-  !  r1Xr2(3) = r1(1)*r2(2)-r1(2)*r2(1)
-  !  r1Xr2Abs2 = dot_product(r1Xr2,r1Xr2)
+    ! Cross product (inlined to avoid function call)
+    r1Xr2(1) = r1(2)*r2(3)-r1(3)*r2(2)
+    r1Xr2(2) = r1(3)*r2(1)-r1(1)*r2(3)
+    r1Xr2(3) = r1(1)*r2(2)-r1(2)*r2(1)
+    r1Xr2Abs2 = sum(r1Xr2*r1Xr2)
 
-  !  r1Abs=norm2(r1)
-  !  r2Abs=norm2(r2)
+    vind=0.
 
-  !  vind=0.
-
-  !  if (r1Xr2Abs2 > eps2) then
-  !    ! Vatistas core model
-  !    vind=(r1Xr2*inv4pi*dot_product(r0,r1/r1Abs-r2/r2Abs))/sqrt((this%rVc*norm2(r0))**4._dp+r1Xr2Abs2**2._dp)
-  !  endif
-  !end function vfclass_vind
+    if (r1Xr2Abs2 > eps2) then
+      ! Vatistas core model
+      vind=r1Xr2*inv4pi*dot_product(r0,r1/norm2(r1)-r2/norm2(r2))
+      vind=vind/sqrt((this%rVc*norm2(r0))**4._dp+r1Xr2Abs2**2._dp)
+    endif
+  end function vfclass_vind
 
   ! IMPLEMENTATION 2
   !! Optimize code for reused groups of variables
@@ -92,37 +90,37 @@ contains
 
   ! IMPLEMENTATION 3
   ! Direct translation of math
-  function vfclass_vind(this,P) result(vind)
-    ! Compute induced velocity by unit strength vortex filament
-  class(vf_class) :: this
-    real(dp), dimension(3) :: vind, P
-    real(dp) :: r1Xr2Abs2, r1Abs, r2Abs, h, Kv
-    real(dp), dimension(3) :: r1, r2, r0, r1Xr2
+  !function vfclass_vind(this,P) result(vind)
+  !  ! Compute induced velocity by unit strength vortex filament
+  !class(vf_class) :: this
+  !  real(dp), dimension(3) :: vind, P
+  !  real(dp) :: r1Xr2Abs2, r1Abs, r2Abs, h, Kv
+  !  real(dp), dimension(3) :: r1, r2, r0, r1Xr2
 
-    r1=P-this%fc(:,1)
-    r2=P-this%fc(:,2)
-    r0=r1-r2
+  !  r1=P-this%fc(:,1)
+  !  r2=P-this%fc(:,2)
+  !  r0=r1-r2
 
-    ! Cross product (inlined to avoid function call)
-    r1Xr2(1) = r1(2)*r2(3)-r1(3)*r2(2)
-    r1Xr2(2) = r1(3)*r2(1)-r1(1)*r2(3)
-    r1Xr2(3) = r1(1)*r2(2)-r1(2)*r2(1)
-    r1Xr2Abs2=r1xr2(1)**2._dp+r1xr2(2)**2._dp+r1xr2(3)**2._dp
+  !  ! Cross product (inlined to avoid function call)
+  !  r1Xr2(1) = r1(2)*r2(3)-r1(3)*r2(2)
+  !  r1Xr2(2) = r1(3)*r2(1)-r1(1)*r2(3)
+  !  r1Xr2(3) = r1(1)*r2(2)-r1(2)*r2(1)
+  !  r1Xr2Abs2=r1xr2(1)**2._dp+r1xr2(2)**2._dp+r1xr2(3)**2._dp
 
-    r1Abs=norm2(r1)
-    r2Abs=norm2(r2)
+  !  r1Abs=norm2(r1)
+  !  r2Abs=norm2(r2)
 
-    vind=0.
+  !  vind=0.
 
-    if (r1Xr2Abs2 > eps2) then
-      vind=r1xr2*inv4pi/r1xr2Abs2*dot_product(r0,r1/r1Abs-r2/r2Abs)
+  !  if (r1Xr2Abs2 > eps2) then
+  !    vind=r1xr2*inv4pi/r1xr2Abs2*dot_product(r0,r1/r1Abs-r2/r2Abs)
 
-      h=norm2(r1xr2)/norm2(r0)
-      Kv=(h*h)/sqrt(h**4._dp+this%rVc**4._dp)
+  !    h=norm2(r1xr2)/norm2(r0)
+  !    Kv=(h*h)/sqrt(h**4._dp+this%rVc**4._dp)
 
-      vind=min(Kv,1._dp)*vind
-    endif
-  end function vfclass_vind
+  !    vind=min(Kv,1._dp)*vind
+  !  endif
+  !end function vfclass_vind
 
   !function vfclass_vind(this,P) result(vind)
   !  ! Compute induced velocity by unit strength vortex filament
