@@ -50,7 +50,7 @@ contains
     if (r1Xr2Abs2 > eps2) then
       ! Vatistas core model
       vind=r1Xr2*inv4pi*dot_product(r0,r1/norm2(r1)-r2/norm2(r2))
-      vind=vind/sqrt((this%rVc*norm2(r0))**4._dp+r1Xr2Abs2**2._dp)
+      vind=vind/sqrt(this%rVc**4._dp*sum(r0*r0)**2._dp+r1Xr2Abs2**2._dp)
     endif
   end function vfclass_vind
 
