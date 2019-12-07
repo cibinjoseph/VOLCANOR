@@ -2,6 +2,7 @@ Results/*
 build/*
 build/*.o
 build/*.mod
+build_roofline/*
 *.out
 *.swp
 visitlog.py
