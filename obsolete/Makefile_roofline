@@ -1,0 +1,116 @@
+##################################
+#  USE CMAKE GENERATED MAKEFILE  #
+##################################
+
+ifc=ifort
+iflags=-fast -O3 -implicitnone -r8 -qopenmp -parallel -heap-arrays 200  -ansi-alias -qopt-jump-tables='large' -xcore-avx2
+iflagsdbg=-traceback -O0 -warn all -implicitnone -r8 -check bounds -g -fpe0 -debug extended -heap-arrays 200
+iflagsprof=-traceback -O3 -implicitnone -r8 -qopenmp -g -debug inline-debug-info -parallel-source-info=2 -qopenmp -xcore-avx2 -ipo -parallel -heap-arrays 200 -ansi-alias -qopt-jump-tables='large'
+
+
+objpath=./build_roofline
+resultspath=./Results
+
+
+all:
+	make -f Makefile_roofline run
+
+init:
+	mkdir -p Results 
+	mkdir -p build_roofline
+
+lib:
+	reset
+	@$(ifc) $(iflags) -c libMath.f90       -module $(objpath) -o $(objpath)/libMath.o
+	@printf '%s' 'Compiled 1/5...'
+	@$(ifc) $(iflags) -c libC81.f90       -module $(objpath) -o $(objpath)/libC81.o
+	@printf '\r%s' 'Compiled 2/5...'
+	@$(ifc) $(iflags) -c classdef.f90        -module $(objpath) -o $(objpath)/classdef.o
+	@printf '\r%s' 'Compiled 3/5...'
+	@$(ifc) $(iflags) -c libCommon.f90         -module $(objpath) -o $(objpath)/libCommon.o
+	@printf '\r%s' 'Compiled 4/5...'
+	@$(ifc) $(iflags) -c libPostprocess.f90        -module $(objpath) -o $(objpath)/libPostprocess.o
+	@printf '\r%s\n' 'Compiled 5/5...'
+
+lib_dbg:
+	reset
+	@$(ifc) $(iflagsdbg) -c libMath.f90    -module $(objpath) -o $(objpath)/libMath.o
+	@printf '%s' 'Compiled 1/5...'
+	@$(ifc) $(iflagsdbg) -c libC81.f90    -module $(objpath) -o $(objpath)/libC81.o
+	@printf '\r%s' 'Compiled 2/5...'
+	@$(ifc) $(iflagsdbg) -c classdef.f90     -module $(objpath) -o $(objpath)/classdef.o
+	@printf '\r%s' 'Compiled 3/5...'
+	@$(ifc) $(iflagsdbg) -c libCommon.f90      -module $(objpath) -o $(objpath)/libCommon.o
+	@printf '\r%s' 'Compiled 4/5...'
+	@$(ifc) $(iflagsdbg) -c libPostprocess.f90     -module $(objpath) -o $(objpath)/libPostprocess.o
+	@printf '\r%s\n' 'Compiled 5/5...'
+
+lib_prof:
+	reset
+	@$(ifc) $(iflagsprof) -c libMath.f90   -module $(objpath) -o $(objpath)/libMath.o
+	@printf '%s' 'Compiled 1/5...'
+	@$(ifc) $(iflagsprof) -c libC81.f90   -module $(objpath) -o $(objpath)/libC81.o
+	@printf '\r%s' 'Compiled 2/5...'
+	@$(ifc) $(iflagsprof) -c classdef.f90    -module $(objpath) -o $(objpath)/classdef.o
+	@printf '\r%s' 'Compiled 3/5...'
+	@$(ifc) $(iflagsprof) -c libCommon.f90     -module $(objpath) -o $(objpath)/libCommon.o
+	@printf '\r%s' 'Compiled 4/5...'
+	@$(ifc) $(iflagsprof) -c libPostprocess.f90    -module $(objpath) -o $(objpath)/libPostprocess.o
+	@printf '\r%s\n' 'Compiled 5/5...'
+
+run:
+	reset
+	make -f Makefile_roofline fileclean 
+	make -f Makefile_roofline init 
+	make -f Makefile_roofline lib 
+	@$(ifc) -I$(objpath) $(iflags) main.f90 $(objpath)/*.o -o main.out
+	@time -f "	run time: %e" ./main.out
+
+run_dbg:
+	reset
+	make -f Makefile_roofline fileclean 
+	make -f Makefile_roofline init 
+	make -f Makefile_roofline lib_dbg 
+	@$(ifc) -I$(objpath) $(iflagsdbg) main.f90 $(objpath)/*.o -o main.out
+	@time -f "	run time: %e" ./main.out
+
+run_prof:
+	reset
+	make fileclean -f Makefile_roofline
+	make init -f Makefile_roofline
+	make lib_prof -f Makefile_roofline
+	@$(ifc) -I$(objpath) $(iflagsprof) main.f90 $(objpath)/*.o -o main.out
+
+gridgen_dbg:
+	reset
+	@$(ifc) -I$(objpath) $(iflagsdbg) gridgen.f90 $(objpath)/*.o -o gridgen.out
+	@./gridgen.out
+	
+gridgen:
+	reset
+	@$(ifc) -I$(objpath) $(iflags) gridgen.f90 $(objpath)/*.o -o gridgen.out
+	@./gridgen.out
+	
+trial:
+	reset
+	make lib -f Makefile_roofline
+	$(ifc) -I$(objpath) $(iflags) trial.f90 $(objpath)/*.o -o trial.out
+	@./trial.out
+
+trial_dbg:
+	reset
+	make lib_dbg -f Makefile_roofline
+	$(ifc) -I$(objpath) $(iflagsdbg) trial.f90 $(objpath)/*.o -o trial.out
+	@./trial.out
+
+clean:
+	-rm -f $(objpath)/*.o $(objpath)/*.mod *.out
+	-rm -f visitlog.py 
+
+fileclean:
+	-rm -f $(resultspath)/*.plt
+	-rm -f $(resultspath)/*.curve
+	-rm -f $(resultspath)/*.dat
+	-rm -f $(resultspath)/*.txt
+	-rm -f status.txt
+
