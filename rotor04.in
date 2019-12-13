@@ -9,7 +9,7 @@ Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 
 X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
 -------------------------------------------------------------------
-   1.1625         2.0135           1.0
+  3.1760         3.1760           1.0
 
 X-cgCoords      Y-cgCoords      Z-cgCoords     [all in m]
 -------------------------------------------------------------------
@@ -31,7 +31,7 @@ Span[m]      root_cut[r/R]      chord[m]    coningAngle[deg]
 
 Omega[rad/s]   X-shaftAxis     Y-shaftAxis     Z-shaftAxis 
 -------------------------------------------------------------------
-  -130.89             0.0              0.0              1.0
+ -130.89             0.0              0.0              1.0
 
 theta0[deg]    thetaC[deg]    thetaS[deg]    thetaTwist[deg]
 -------------------------------------------------------------------
