@@ -9,7 +9,7 @@ Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 
 X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
 -------------------------------------------------------------------
- -3.1760         3.1760          -2.5
+ 8.124         3.1760           2.5
 
 X-cgCoords      Y-cgCoords      Z-cgCoords     [all in m]
 -------------------------------------------------------------------
@@ -35,12 +35,12 @@ Omega[rad/s]   X-shaftAxis     Y-shaftAxis     Z-shaftAxis
 
 theta0[deg]    thetaC[deg]    thetaS[deg]    thetaTwist[deg]
 -------------------------------------------------------------------
- -5.0             0.0              0.0           0.0
+  5.0             0.0              0.0           0.0
 ===================================================================
 
 u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]    
 -------------------------------------------------------------------
- 0.0        0.0        -0.5       0.0        0.0         0.0
+ 0.0        12.0         3.0     0.0        0.0         0.0
 ===================================================================
 
 pivot point      flapHinge         invert tauSpan
