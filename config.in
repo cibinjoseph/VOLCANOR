@@ -1,6 +1,6 @@
  NO. OF TIMESTEPS [nt]    TIMESTEP (sec) [dt]    NO. OF ROTORS [nr]
 -----------------------------------------------------------------------
-      1440                     0.000667                   36
+     450                      0.000533                   25
 
  SPAN DISCRETIZATION : [1]linear [2]cosine [3]halfsine
  spanSpacingSwitch
@@ -16,7 +16,7 @@
  PLOT WAKE: [0]Off [n]Every nth iteration
   wakePlotSwitch         wakeTipPlotSwitch      gridPlotSwitch
 -----------------------------------------------------------------------
-       0                       14                      144
+       0                       25                      25
 
  PLOT FORCES: [0]Off [n]th iteration  using [0]gamma  [1]alpha [2]alfGam
   forcePlotSwitch                          forceCalcSwitch

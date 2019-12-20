@@ -26,7 +26,7 @@ Phi       Theta       Psi     about cgCoords [all in deg]
 
 Span[m]      root_cut[r/R]      chord[m]    coningAngle[deg]
 -------------------------------------------------------------------
- 1.15           0.06             0.192            0.0
+ 1.15           0.06             0.096            0.0
 ===================================================================
 
 Omega[rad/s]   X-shaftAxis     Y-shaftAxis     Z-shaftAxis 
@@ -35,12 +35,12 @@ Omega[rad/s]   X-shaftAxis     Y-shaftAxis     Z-shaftAxis
 
 theta0[deg]    thetaC[deg]    thetaS[deg]    thetaTwist[deg]
 -------------------------------------------------------------------
-  5.0             0.0              0.0           0.0
+  8.0             0.0              0.0           0.0
 ===================================================================
 
 u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]    
 -------------------------------------------------------------------
- 0.0       12.0         3.0     0.0        0.0         0.0
+ 0.0       10.0         3.0     0.0        0.0         0.0
 ===================================================================
 
 pivot point      flapHinge         invert tauSpan
@@ -51,7 +51,7 @@ from LE[x/c]  from centre[r/R]  for swept/symmetric
 
 turbulentViscosity parameter (10-10000)
 -------------------------------------------------------------------
-  1000
+  3500
 ===================================================================
   spanwise core radius[x/c]       streamwise core_switch
   [s]ectional  [i]dentical
