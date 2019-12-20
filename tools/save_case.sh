@@ -14,18 +14,18 @@ mkdir -p $recordDir
 
 # Copy input files
 echo "Copying input files ..."
-cp *.in $recordDir
+rsync -P *.in $recordDir
 
 # Copy output files
 echo "Copying output files ..."
-cp -r Results $recordDir
+rsync -rP Results $recordDir
 
 # Get airfoil used
 airfoilName="$(awk 'END {print $2}' rotor01.in)"
 ls airfoils/$airfoilName > /dev/null 2>&1
 if [ $? -eq 0 ]; then
   echo "Copying airfoil files ... $airfoilName"
-  cp airfoils/$airfoilName $recordDir
+  rsync -P airfoils/$airfoilName $recordDir
 fi
 
 # Get geometry used
@@ -33,7 +33,7 @@ geometryName="$(head -n3 rotor01.in | awk 'END {print $2}')"
 ls geometry/$geometryName > /dev/null 2>&1
 if [ $? -eq 0 ]; then
   echo "Copying geometry files ... $geometryName"
-  cp geometry/$geometryName $recordDir
+  rsync -P geometry/$geometryName $recordDir
 fi
 
 # Check for multiple rotor files
