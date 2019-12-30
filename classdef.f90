@@ -1386,7 +1386,7 @@ contains
     real(dp) :: rollupStartRadius, rollupEndRadius
 
     open(unit=12,file=filename)
-    call skiplines(12,2)
+    call skiplines(12,4)
     read(12,*) this%nb, this%geometryFile
     call skiplines(12,3)
     read(12,*) this%nc,this%ns,this%nNwake
