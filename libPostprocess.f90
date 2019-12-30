@@ -212,7 +212,7 @@ contains
       do ib=1,rotor(ir)%nb
         do icol=1,rotor(ir)%ns
           vfNwakeTE(indx)=rotor(ir)%blade(ib)%waP(irow,icol)%vr%vf(2)
-          gamNwakeTE(indx)=rotor(ir)%blade(ib)%waP(irow,icol)%vr%gam*-1._dp
+          gamNwakeTE(indx)=rotor(ir)%blade(ib)%waP(irow,icol)%vr%gam*(-1._dp)
           indx=indx+1
         enddo
       enddo

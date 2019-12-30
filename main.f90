@@ -66,7 +66,7 @@ program main
       call print_status()    ! SUCCESS
     else
       stop 'Warning: Computed AIC_inv does not seem &
-        to be correct within given tolerance'
+        &to be correct within given tolerance'
       read*
     endif
   enddo

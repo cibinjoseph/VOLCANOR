@@ -6,7 +6,7 @@ project(VOLCANOR Fortran)
 
 # Variables for gfortran
 if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
-  set(common_flags "-ffree-form -std=f2008 -fimplicit-none -ffree-line-length-none")
+  set(common_flags "-ffree-form -std=f2008 -fimplicit-none -ffree-line-length-none -fall-intrinsics")
   set(dbg_flags "-fbacktrace -O0 -Wall -Wextra -Wimplicit-interface -Wunused-parameter \
   -Wcharacter-truncation -Wsurprising -Waliasing -fcheck=all -g -ffpe-trap=invalid,zero,overflow,underflow -fbounds-check")
   set(rls_flags "-O2 -fopenmp")

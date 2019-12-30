@@ -1333,8 +1333,9 @@ module rotor_classdef
     real(dp), allocatable, dimension(:,:) :: AIC,AIC_inv  ! Influence coefficient matrix
     real(dp), allocatable, dimension(:) :: gamVec,RHS
     real(dp), allocatable, dimension(:) :: airfoilSectionLimit
-    real(dp) :: initWakeVel, psiStart, skewLimit, symmetricTau
+    real(dp) :: initWakeVel, psiStart, skewLimit
     real(dp) :: turbulentViscosity
+    integer :: symmetricTau
     integer :: rollupStart, rollupEnd
     integer :: suppressFwakeSwitch
     integer :: inflowPlotSwitch, bladeForcePlotSwitch
