@@ -576,12 +576,12 @@ module blade_classdef
     real(dp) :: pivotLE
     character(len=30), allocatable, dimension(:) :: airfoilFile
     real(dp), allocatable, dimension(:) :: airfoilSectionLimit
-    real(dp), allocatable, dimension(:,:) :: sectionalChordwiseVec
-    real(dp), allocatable, dimension(:,:) :: sectionalNormalVec
+    real(dp), allocatable, dimension(:,:) :: sectionalChordwiseVec, sectionalNormalVec
+    real(dp), allocatable, dimension(:,:) :: sectionalVelFreestream
     real(dp), allocatable, dimension(:) :: sectionalAlpha
     real(dp), allocatable, dimension(:) :: sectionalCL
     real(dp), allocatable, dimension(:,:) :: sectionalResultantVel
-    real(dp), allocatable, dimension(:,:) :: inflowLocations
+    real(dp), allocatable, dimension(:,:) :: sectionalCP
     real(dp), allocatable, dimension(:,:,:) :: velNwake
     real(dp), allocatable, dimension(:,:,:) :: velNwake1, velNwake2, velNwake3
     real(dp), allocatable, dimension(:,:,:) :: velNwakePredicted, velNwakeStep
@@ -626,8 +626,8 @@ contains
       enddo
     enddo
 
-    do i=1,size(this%InflowLocations,2)
-      this%inflowLocations(:,i)=this%inflowLocations(:,i)+dshift
+    do i=1,size(this%sectionalCP,2)
+      this%sectionalCP(:,i)=this%sectionalCP(:,i)+dshift
     enddo
 
   end subroutine blade_move
@@ -666,10 +666,10 @@ contains
     this%yAxis=matmul(Tmat,this%yAxis)
     this%zAxis=matmul(Tmat,this%zAxis)
 
-    do i=1,size(this%inflowLocations,2)
-      this%inflowLocations(:,i)=this%inflowLocations(:,i)-origin
-      this%inflowLocations(:,i)=matmul(TMat,this%inflowLocations(:,i))
-      this%inflowLocations(:,i)=this%inflowLocations(:,i)+origin
+    do i=1,size(this%sectionalCP,2)
+      this%sectionalCP(:,i)=this%sectionalCP(:,i)-origin
+      this%sectionalCP(:,i)=matmul(TMat,this%sectionalCP(:,i))
+      this%sectionalCP(:,i)=this%sectionalCP(:,i)+origin
     enddo
 
     ! Rotate sectional vectors 
@@ -746,11 +746,11 @@ contains
       ! Untranslate from origin
       call this%move(origin)
 
-      ! Rotate inflowLocations also
-      do i=1,size(this%inflowLocations,2)
-        this%inflowLocations(:,i)=this%inflowLocations(:,i)-origin
-        this%inflowLocations(:,i)=matmul(TMat,this%inflowLocations(:,i))
-        this%inflowLocations(:,i)=this%inflowLocations(:,i)+origin
+      ! Rotate sectionalCP also
+      do i=1,size(this%sectionalCP,2)
+        this%sectionalCP(:,i)=this%sectionalCP(:,i)-origin
+        this%sectionalCP(:,i)=matmul(TMat,this%sectionalCP(:,i))
+        this%sectionalCP(:,i)=this%sectionalCP(:,i)+origin
       enddo
 
       ! Rotate sectional vectors also along with blade
@@ -1159,7 +1159,7 @@ contains
     call this%calc_force_gamma(density,invertGammaSign,dt)
 
     ! Compute sectional CL
-    !this%sectionalCL(is)
+    !this%sectionalCL(is) = this%sectionalForce
 
     ! Compute angle of attack
 
@@ -1194,7 +1194,7 @@ contains
             this%sectionalChordwiseVec(:,is))
         enddo
         do i=1,3
-          this%sectionalResultantVel(i,is)=lsq2(dot_product(this%inflowLocations(:,is)-  &
+          this%sectionalResultantVel(i,is)=lsq2(dot_product(this%sectionalCP(:,is)-  &
             this%wiP(1,is)%PC(:,1),this%sectionalChordwiseVec(:,is)),xDist,this%wiP(:,is)%chordwiseResultantVel(i))
         enddo
       enddo
@@ -1243,7 +1243,7 @@ contains
   !        xDist(ic)=dot_product(this%wiP(ic,is)%CP-this%wiP(1,is)%PC(:,1),  &
   !          this%sectionalChordwiseVec(:,is))
   !      enddo
-  !      this%sectionalAlpha(is)=lsq2(dot_product(this%inflowLocations(:,is)-  &
+  !      this%sectionalAlpha(is)=lsq2(dot_product(this%sectionalCP(:,is)-  &
   !        this%wiP(1,is)%PC(:,1),this%sectionalChordwiseVec(:,is)),xDist,this%wiP(:,is)%alpha)
   !    enddo
   !  else  ! Use average of alpha values
@@ -1334,7 +1334,7 @@ module rotor_classdef
     real(dp), allocatable, dimension(:) :: gamVec,RHS
     real(dp), allocatable, dimension(:) :: airfoilSectionLimit
     real(dp) :: initWakeVel, psiStart, skewLimit
-    real(dp) :: turbulentViscosity
+    real(dp) :: turbulentViscosity, CL0, CLa
     integer :: symmetricTau
     integer :: rollupStart, rollupEnd
     integer :: suppressFwakeSwitch
@@ -1416,8 +1416,8 @@ contains
       ,        this%omegaBody(1), this%omegaBody(2), this%omegaBody(3)
     call skiplines(12,5)
     read(12,*) this%pivotLE, this%flapHinge, this%symmetricTau
-    call skiplines(12,4)
-    read(12,*) this%turbulentViscosity
+    call skiplines(12,5)
+    read(12,*) this%turbulentViscosity, this%CL0, this%CLa
     call skiplines(12,4)
     read(12,*) this%spanwiseCore, this%streamwiseCoreSwitch
     call skiplines(12,3)
@@ -1481,11 +1481,12 @@ contains
       allocate(this%blade(ib)%waF(this%nFwake))
       allocate(this%blade(ib)%sectionalChordwiseVec(3,this%ns))
       allocate(this%blade(ib)%sectionalNormalVec(3,this%ns))
+      allocate(this%blade(ib)%sectionalVelFreestream(3,this%ns))
       allocate(this%blade(ib)%sectionalForce(3,this%ns))
       allocate(this%blade(ib)%sectionalAlpha(this%ns))
       allocate(this%blade(ib)%sectionalCL(this%ns))
       allocate(this%blade(ib)%sectionalResultantVel(3,this%ns))
-      allocate(this%blade(ib)%inflowLocations(3,this%ns))
+      allocate(this%blade(ib)%sectionalCP(3,this%ns))
     enddo
   end subroutine getdata
 
@@ -1644,7 +1645,7 @@ contains
       endif
 
       ! Inflow calculated at mid-chord
-      this%blade(ib)%inflowLocations = this%blade(ib)%getSectionalChordwiseLocations(0.5_dp)
+      this%blade(ib)%sectionalCP = this%blade(ib)%getSectionalChordwiseLocations(0.5_dp)
 
       ! Initialize gamma
       this%blade(ib)%wiP%vr%gam=0._dp
