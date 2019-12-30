@@ -550,7 +550,7 @@ contains
   end subroutine tip2file
 
   subroutine force2file(timestamp,rotor,rotorNumber,directionVector)
-    ! Write sectional and net force to file
+    ! Write sec and net force to file
     type(rotor_class), intent(in) :: rotor
     character(len=*), intent(in) :: timestamp
     integer, intent(in) :: rotorNumber
@@ -582,7 +582,7 @@ contains
         write(12,*) '# Blade'//bladeNumberChar
         do ispan=1,rotor%ns
           write(12,*) dot_product(rotor%blade(ib)%wiP(1,ispan)%CP-rotor%hubCoords,rotor%blade(ib)%yAxis), &
-            dot_product(rotor%blade(ib)%sectionalForce(:,ispan),directionVector)
+            dot_product(rotor%blade(ib)%secForce(:,ispan),directionVector)
         enddo
       enddo
       close(12)
@@ -591,7 +591,7 @@ contains
 
   subroutine inflow2file(timestamp,rotorArray,rotorNumber,directionVector)
     ! Calculate inflow velocity along directionVector on the blades of rotor(rotorNumber)
-    ! at rotor(rotorNumber)%sectionalCP
+    ! at rotor(rotorNumber)%secCP
     character(len=*), intent(in) :: timestamp
     type(rotor_class), intent(inout), dimension(:) :: rotorArray
     integer, intent(in) :: rotorNumber
@@ -606,7 +606,7 @@ contains
     do ir=1,size(rotorArray)
       do ib=1,rotorArray(rotorNumber)%nb
         do il=1,rotorArray(rotorNumber)%ns
-          P=rotorArray(rotorNumber)%blade(ib)%sectionalCP(:,il)
+          P=rotorArray(rotorNumber)%blade(ib)%secCP(:,il)
           inflowVel(il,ib)=inflowVel(il,ib)+dot_product(rotorArray(ir)%vind_bywing(P),directionVector) 
           inflowVel(il,ib)=inflowVel(il,ib)-dot_product(rotorArray(ir)%vind_bywing_boundVortices(P),directionVector) 
           inflowVel(il,ib)=inflowVel(il,ib)+dot_product(rotorArray(ir)%vind_bywake(P),directionVector) 
@@ -621,7 +621,7 @@ contains
       write(bladeNumberChar,'(I0.2)') ib
       write(12,*) '# Blade'//bladeNumberChar
       do il=1,rotorArray(rotorNumber)%ns
-        write(12,*) norm2(rotorArray(rotorNumber)%hubCoords-rotorArray(rotorNumber)%blade(ib)%sectionalCP(:,il)), &
+        write(12,*) norm2(rotorArray(rotorNumber)%hubCoords-rotorArray(rotorNumber)%blade(ib)%secCP(:,il)), &
           inflowVel(il,ib)
       enddo
     enddo
@@ -631,7 +631,7 @@ contains
 
   subroutine gamma2file(timestamp,rotor,rotorNumber)
     ! Calculate inflow velocity along directionVector on the blades of rotor(rotorNumber)
-    ! at rotor(rotorNumber)%sectionalCP
+    ! at rotor(rotorNumber)%secCP
     character(len=*), intent(in) :: timestamp
     type(rotor_class), intent(in) :: rotor
     integer, intent(in) :: rotorNumber
@@ -656,7 +656,7 @@ contains
   end subroutine gamma2file
 
   subroutine alpha2file(timestamp,rotor,rotorNumber)
-    ! Write sectional alpha to file
+    ! Write sec alpha to file
     character(len=*), intent(in) :: timestamp
     type(rotor_class), intent(inout) :: rotor
     integer, intent(in) :: rotorNumber
@@ -671,7 +671,7 @@ contains
       write(12,*) '# Blade'//bladeNumberChar
       do is=1,rotor%ns
         write(12,*) dot_product(rotor%blade(ib)%wiP(1,is)%CP-rotor%hubCoords,rotor%blade(ib)%yAxis), &
-          rotor%blade(ib)%sectionalAlpha(is)*180._dp/pi
+          rotor%blade(ib)%secAlpha(is)*180._dp/pi
       enddo
     enddo
     close(12)

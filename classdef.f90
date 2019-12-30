@@ -571,17 +571,17 @@ module blade_classdef
     type(C81_class), allocatable, dimension(:) :: C81
     real(dp) :: theta
     real(dp), dimension(3) :: Force
-    real(dp), allocatable, dimension(:,:) :: sectionalForce
+    real(dp), allocatable, dimension(:,:) :: secForce
     real(dp) :: psi
     real(dp) :: pivotLE
     character(len=30), allocatable, dimension(:) :: airfoilFile
     real(dp), allocatable, dimension(:) :: airfoilSectionLimit
-    real(dp), allocatable, dimension(:,:) :: sectionalChordwiseVec, sectionalNormalVec
-    real(dp), allocatable, dimension(:,:) :: sectionalVelFreestream
-    real(dp), allocatable, dimension(:) :: sectionalAlpha
-    real(dp), allocatable, dimension(:) :: sectionalCL
-    real(dp), allocatable, dimension(:,:) :: sectionalResultantVel
-    real(dp), allocatable, dimension(:,:) :: sectionalCP
+    real(dp), allocatable, dimension(:,:) :: secChordwiseVec, secNormalVec
+    real(dp), allocatable, dimension(:,:) :: secVelFreestream
+    real(dp), allocatable, dimension(:) :: secAlpha
+    real(dp), allocatable, dimension(:) :: secCL
+    real(dp), allocatable, dimension(:,:) :: secResultantVel
+    real(dp), allocatable, dimension(:,:) :: secCP
     real(dp), allocatable, dimension(:,:,:) :: velNwake
     real(dp), allocatable, dimension(:,:,:) :: velNwake1, velNwake2, velNwake3
     real(dp), allocatable, dimension(:,:,:) :: velNwakePredicted, velNwakeStep
@@ -601,16 +601,16 @@ module blade_classdef
     procedure :: vind_bywake => blade_vind_bywake
     procedure :: convectwake
     procedure :: wake_continuity
-    procedure :: getSectionalDynamicPressure
-    procedure :: getSectionalArea
+    procedure :: getSecDynamicPressure
+    procedure :: getSecArea
     procedure :: calc_force_gamma => blade_calc_force_gamma
     procedure :: calc_force_alpha => blade_calc_force_alpha
     procedure :: calc_force_alphaGamma => blade_calc_force_alphaGamma
-    procedure :: calc_sectionalAlpha => blade_calc_sectionalAlpha
-    procedure :: calc_sectionalResultantVel => blade_calc_sectionalResultantVel
+    procedure :: calc_secAlpha => blade_calc_secAlpha
+    procedure :: calc_secResultantVel => blade_calc_secResultantVel
     procedure :: burst_wake => blade_burst_wake
-    procedure :: getSectionalChordwiseLocations
-    procedure :: calc_sectionalCL
+    procedure :: getSecChordwiseLocations
+    procedure :: calc_secCL
   end type blade_class
 contains
 
@@ -626,8 +626,8 @@ contains
       enddo
     enddo
 
-    do i=1,size(this%sectionalCP,2)
-      this%sectionalCP(:,i)=this%sectionalCP(:,i)+dshift
+    do i=1,size(this%secCP,2)
+      this%secCP(:,i)=this%secCP(:,i)+dshift
     enddo
 
   end subroutine blade_move
@@ -666,16 +666,16 @@ contains
     this%yAxis=matmul(Tmat,this%yAxis)
     this%zAxis=matmul(Tmat,this%zAxis)
 
-    do i=1,size(this%sectionalCP,2)
-      this%sectionalCP(:,i)=this%sectionalCP(:,i)-origin
-      this%sectionalCP(:,i)=matmul(TMat,this%sectionalCP(:,i))
-      this%sectionalCP(:,i)=this%sectionalCP(:,i)+origin
+    do i=1,size(this%secCP,2)
+      this%secCP(:,i)=this%secCP(:,i)-origin
+      this%secCP(:,i)=matmul(TMat,this%secCP(:,i))
+      this%secCP(:,i)=this%secCP(:,i)+origin
     enddo
 
-    ! Rotate sectional vectors 
+    ! Rotate sec vectors 
     do j=1,size(this%wiP,2)
-      this%sectionalChordwiseVec(:,j)=matmul(TMat,this%sectionalChordwiseVec(:,j))
-      this%sectionalNormalVec(:,j)=matmul(TMat,this%sectionalNormalVec(:,j))
+      this%secChordwiseVec(:,j)=matmul(TMat,this%secChordwiseVec(:,j))
+      this%secNormalVec(:,j)=matmul(TMat,this%secNormalVec(:,j))
     enddo
 
   end subroutine blade_rot_pts
@@ -746,17 +746,17 @@ contains
       ! Untranslate from origin
       call this%move(origin)
 
-      ! Rotate sectionalCP also
-      do i=1,size(this%sectionalCP,2)
-        this%sectionalCP(:,i)=this%sectionalCP(:,i)-origin
-        this%sectionalCP(:,i)=matmul(TMat,this%sectionalCP(:,i))
-        this%sectionalCP(:,i)=this%sectionalCP(:,i)+origin
+      ! Rotate secCP also
+      do i=1,size(this%secCP,2)
+        this%secCP(:,i)=this%secCP(:,i)-origin
+        this%secCP(:,i)=matmul(TMat,this%secCP(:,i))
+        this%secCP(:,i)=this%secCP(:,i)+origin
       enddo
 
-      ! Rotate sectional vectors also along with blade
+      ! Rotate sec vectors also along with blade
       do j=1,size(this%wiP,2)
-        this%sectionalChordwiseVec(:,j)=matmul(TMat,this%sectionalChordwiseVec(:,j))
-        this%sectionalNormalVec(:,j)=matmul(TMat,this%sectionalNormalVec(:,j))
+        this%secChordwiseVec(:,j)=matmul(TMat,this%secChordwiseVec(:,j))
+        this%secNormalVec(:,j)=matmul(TMat,this%secNormalVec(:,j))
       enddo
 
       ! Rotate blade axes
@@ -1069,7 +1069,7 @@ contains
     enddo
 
     ! Compute delP
-    this%sectionalForce=0._dp
+    this%secForce=0._dp
     do is=1,cols
       do ic=1,rows
         ! Use trapezoidal rule on two points to get current gam
@@ -1093,180 +1093,180 @@ contains
         this%wiP(ic,is)%normalForce=this%wiP(ic,is)%delP* &
           this%wiP(ic,is)%panelArea*this%wiP(ic,is)%nCap*(-1._dp)*invertGammaSign
 
-        this%sectionalForce(:,is)=this%sectionalForce(:,is)+this%wiP(ic,is)%normalForce
+        this%secForce(:,is)=this%secForce(:,is)+this%wiP(ic,is)%normalForce
         this%Force=this%Force+this%wiP(ic,is)%normalForce
       enddo
     enddo
 
   end subroutine blade_calc_force_gamma
 
-  function getSectionalDynamicPressure(this,density)
+  function getSecDynamicPressure(this,density)
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: density
-    real(dp), dimension(size(this%wiP,2)) :: magSectionalVelCPTotal
-    real(dp), dimension(size(this%wiP,2)) :: getSectionalDynamicPressure
+    real(dp), dimension(size(this%wiP,2)) :: magsecVelCPTotal
+    real(dp), dimension(size(this%wiP,2)) :: getSecDynamicPressure
     integer :: is,rows
 
     rows=size(this%wiP,1)
     do is=1,size(this%wiP,2)
-      magSectionalVelCPTotal(is)=norm2(this%sectionalResultantVel(:,is))
+      magsecVelCPTotal(is)=norm2(this%secResultantVel(:,is))
     enddo
-    getSectionalDynamicPressure=0.5_dp*density*magSectionalVelCPTotal**2._dp
-  end function getSectionalDynamicPressure
+    getSecDynamicPressure=0.5_dp*density*magsecVelCPTotal**2._dp
+  end function getSecDynamicPressure
 
-  function getSectionalArea(this)
+  function getSecArea(this)
   class(blade_class), intent(inout) :: this
-    real(dp), dimension(size(this%wiP,2)) :: getSectionalArea
+    real(dp), dimension(size(this%wiP,2)) :: getSecArea
     integer :: is
 
     do is=1,size(this%wiP,2)
-      getSectionalArea(is)=sum(this%wiP(:,is)%panelArea)
+      getSecArea(is)=sum(this%wiP(:,is)%panelArea)
     enddo
-  end function getSectionalArea
+  end function getSecArea
 
   subroutine blade_calc_force_alpha(this,density,velSound)
-    ! Compute force using sectional alpha
+    ! Compute force using sec alpha
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: density, velSound
     real(dp), dimension(size(this%wiP,2)) :: forceMag
     integer :: i, is
 
-    this%sectionalForce=0._dp
-    call this%calc_sectionalCL(velSound)
+    this%secForce=0._dp
+    call this%calc_secCL(velSound)
 
-    forceMag=this%getSectionalDynamicPressure(density)* &
-      this%getSectionalArea()*this%sectionalCL
+    forceMag=this%getSecDynamicPressure(density)* &
+      this%getSecArea()*this%secCL
     ! Compute direction of lift force
     do is=1,size(this%wiP,2)
-      this%sectionalForce(:,is)=cross3(this%wiP(1,is)%tauCapSpan, &
-        this%sectionalResultantVel(:,is))  
-      this%sectionalForce(:,is)=sign(1._dp,sum(this%wiP(:,is)%vr%gam)) &
-        *this%sectionalForce(:,is)/norm2(this%sectionalForce(:,is))
-      this%sectionalForce(:,is)=forceMag(is)*this%sectionalForce(:,is)
+      this%secForce(:,is)=cross3(this%wiP(1,is)%tauCapSpan, &
+        this%secResultantVel(:,is))  
+      this%secForce(:,is)=sign(1._dp,sum(this%wiP(:,is)%vr%gam)) &
+        *this%secForce(:,is)/norm2(this%secForce(:,is))
+      this%secForce(:,is)=forceMag(is)*this%secForce(:,is)
     enddo
 
     do i=1,3
-      this%Force(i)=sum(this%sectionalForce(i,:))
+      this%Force(i)=sum(this%secForce(i,:))
     enddo
   end subroutine blade_calc_force_alpha
 
   subroutine blade_calc_force_alphaGamma(this,density,invertGammaSign,velSound,dt)
-    ! Compute force using alpha approximated from sectional circulation
+    ! Compute force using alpha approximated from sec circulation
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: density, invertGammaSign, velSound, dt
 
-    ! Compute unsteady sectional lift from gamma distribution
+    ! Compute unsteady sec lift from gamma distribution
     call this%calc_force_gamma(density,invertGammaSign,dt)
 
-    ! Compute sectional CL
-    !this%sectionalCL(is) = this%sectionalForce
+    ! Compute sec CL
+    !this%secCL(is) = this%secForce
 
     ! Compute angle of attack
 
   end subroutine blade_calc_force_alphaGamma
 
-  subroutine calc_sectionalCL(this,velSound)
-    ! Compute sectional CL from C81 tables and sectional resultant velocity
+  subroutine calc_secCL(this,velSound)
+    ! Compute sec CL from C81 tables and sec resultant velocity
     ! Assumes only one airfoil section present
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: velSound
-    real(dp) :: sectionalMach
+    real(dp) :: secMach
     integer :: is
 
-    do is=1,size(this%sectionalAlpha,1)
-      sectionalMach=norm2(this%sectionalResultantVel(:,is))/velSound
-      this%sectionalCL(is)=this%C81(1)%getCL(this%sectionalAlpha(is)*180._dp/pi,sectionalMach)
+    do is=1,size(this%secAlpha,1)
+      secMach=norm2(this%secResultantVel(:,is))/velSound
+      this%secCL(is)=this%C81(1)%getCL(this%secAlpha(is)*180._dp/pi,secMach)
     enddo
-  end subroutine calc_sectionalCL
+  end subroutine calc_secCL
 
-  subroutine blade_calc_sectionalResultantVel(this)
-    ! Compute sectional resultant velocity by interpolating local panel velocity
+  subroutine blade_calc_secResultantVel(this)
+    ! Compute sec resultant velocity by interpolating local panel velocity
   class(blade_class), intent(inout) :: this
     integer :: i, is, ic, rows
     real(dp), dimension(size(this%wiP,1)) :: xDist
 
     rows=size(this%wiP,1)
-    if (rows .ge. 3) then  ! Use least squares fit to get sectional resultant velocity
-      do is=1,size(this%sectionalResultantVel,2)
+    if (rows .ge. 3) then  ! Use least squares fit to get sec resultant velocity
+      do is=1,size(this%secResultantVel,2)
         do ic=1,rows
           call this%wiP(ic,is)%calc_chordwiseResultantVel()
           xDist(ic)=dot_product(this%wiP(ic,is)%CP-this%wiP(1,is)%PC(:,1),  &
-            this%sectionalChordwiseVec(:,is))
+            this%secChordwiseVec(:,is))
         enddo
         do i=1,3
-          this%sectionalResultantVel(i,is)=lsq2(dot_product(this%sectionalCP(:,is)-  &
-            this%wiP(1,is)%PC(:,1),this%sectionalChordwiseVec(:,is)),xDist,this%wiP(:,is)%chordwiseResultantVel(i))
+          this%secResultantVel(i,is)=lsq2(dot_product(this%secCP(:,is)-  &
+            this%wiP(1,is)%PC(:,1),this%secChordwiseVec(:,is)),xDist,this%wiP(:,is)%chordwiseResultantVel(i))
         enddo
       enddo
     else  ! Use average of resultant velocities
-      do is=1,size(this%sectionalResultantVel,2)
+      do is=1,size(this%secResultantVel,2)
         do ic=1,rows
           call this%wiP(ic,is)%calc_chordwiseResultantVel()
         enddo
         do i=1,3
-          this%sectionalResultantVel(i,is)=sum(this%wiP(:,is)%chordwiseResultantVel(i))/rows
+          this%secResultantVel(i,is)=sum(this%wiP(:,is)%chordwiseResultantVel(i))/rows
         enddo
       enddo
     endif
-  end subroutine blade_calc_sectionalResultantVel
+  end subroutine blade_calc_secResultantVel
 
-  subroutine blade_calc_sectionalAlpha(this)
-    ! Compute sectional alpha using sectional resultant velocity
+  subroutine blade_calc_secAlpha(this)
+    ! Compute sec alpha using sec resultant velocity
   class(blade_class), intent(inout) :: this
     integer :: is
 
-    call this%calc_sectionalResultantVel()
+    call this%calc_secResultantVel()
 
     !! Use acos() to find angle
-    !do is=1,size(this%sectionalAlpha)
-    !  this%sectionalAlpha(is)=acos(dot_product(this%sectionalResultantVel(:,is),this%sectionalChordwiseVec(:,is)) &
-    !    /norm2(this%sectionalResultantVel(:,is)))
+    !do is=1,size(this%secAlpha)
+    !  this%secAlpha(is)=acos(dot_product(this%secResultantVel(:,is),this%secChordwiseVec(:,is)) &
+    !    /norm2(this%secResultantVel(:,is)))
     !enddo
 
     ! Use atan2() to find angle
-    do is=1,size(this%sectionalAlpha)
-      this%sectionalAlpha(is)=atan2(dot_product(this%sectionalResultantVel(:,is),this%sectionalNormalVec(:,is)), &
-        dot_product(this%sectionalResultantVel(:,is),this%sectionalChordwiseVec(:,is)))
+    do is=1,size(this%secAlpha)
+      this%secAlpha(is)=atan2(dot_product(this%secResultantVel(:,is),this%secNormalVec(:,is)), &
+        dot_product(this%secResultantVel(:,is),this%secChordwiseVec(:,is)))
     enddo
-  end subroutine blade_calc_sectionalAlpha
+  end subroutine blade_calc_secAlpha
 
-  !subroutine blade_calc_sectionalAlpha(this)
-  !  ! Compute sectional alpha by interpolating local panel alpha
+  !subroutine blade_calc_secAlpha(this)
+  !  ! Compute sec alpha by interpolating local panel alpha
   !class(blade_class), intent(inout) :: this
   !  integer :: is, ic, rows
   !  real(dp), dimension(size(this%wiP,1)) :: xDist
 
   !  rows=size(this%wiP,1)
   !  if (rows .ge. 3) then  ! Use least squares fit to get alpha
-  !    do is=1,size(this%sectionalAlpha)
+  !    do is=1,size(this%secAlpha)
   !      do ic=1,rows
   !        xDist(ic)=dot_product(this%wiP(ic,is)%CP-this%wiP(1,is)%PC(:,1),  &
-  !          this%sectionalChordwiseVec(:,is))
+  !          this%secChordwiseVec(:,is))
   !      enddo
-  !      this%sectionalAlpha(is)=lsq2(dot_product(this%sectionalCP(:,is)-  &
-  !        this%wiP(1,is)%PC(:,1),this%sectionalChordwiseVec(:,is)),xDist,this%wiP(:,is)%alpha)
+  !      this%secAlpha(is)=lsq2(dot_product(this%secCP(:,is)-  &
+  !        this%wiP(1,is)%PC(:,1),this%secChordwiseVec(:,is)),xDist,this%wiP(:,is)%alpha)
   !    enddo
   !  else  ! Use average of alpha values
-  !    do is=1,size(this%sectionalAlpha)
-  !      this%sectionalAlpha(is)=sum(this%wiP(:,is)%alpha)/rows
+  !    do is=1,size(this%secAlpha)
+  !      this%secAlpha(is)=sum(this%wiP(:,is)%alpha)/rows
   !    enddo
   !  endif
-  !end subroutine blade_calc_sectionalAlpha
+  !end subroutine blade_calc_secAlpha
 
-  function getSectionalChordwiseLocations(this,chordwiseFraction)
+  function getSecChordwiseLocations(this,chordwiseFraction)
     ! Get coordinates of a point located at a fraction of chord on each section
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: chordwiseFraction
-    real(dp), dimension(3,size(this%wiP,2)) :: getSectionalChordwiseLocations
+    real(dp), dimension(3,size(this%wiP,2)) :: getSecChordwiseLocations
     integer :: is, rows
 
     rows=size(this%wiP,1)
 
     do is=1,size(this%wiP,2)
-      getSectionalChordwiseLocations(:,is)=(1._dp-chordwiseFraction)*(this%wiP(1,is)%PC(:,4)+this%wiP(1,is)%PC(:,1))*0.5_dp+  &
+      getSecChordwiseLocations(:,is)=(1._dp-chordwiseFraction)*(this%wiP(1,is)%PC(:,4)+this%wiP(1,is)%PC(:,1))*0.5_dp+  &
         chordwiseFraction*(this%wiP(rows,is)%PC(:,3)+this%wiP(rows,is)%PC(:,2))*0.5_dp
     enddo
-  end function getSectionalChordwiseLocations
+  end function getSecChordwiseLocations
 
   subroutine blade_burst_wake(this,rowFar,skewLimit,largeCoreRadius)
   class(blade_class), intent(inout) :: this
@@ -1369,7 +1369,7 @@ module rotor_classdef
     procedure :: calc_force_gamma => rotor_calc_force_gamma
     procedure :: calc_force_alpha => rotor_calc_force_alpha
     procedure :: calc_force_alphaGamma => rotor_calc_force_alphaGamma
-    procedure :: calc_sectionalAlpha => rotor_calc_sectionalAlpha
+    procedure :: calc_secAlpha => rotor_calc_secAlpha
     procedure :: burst_wake => rotor_burst_wake
   end type rotor_class
 
@@ -1479,14 +1479,14 @@ contains
       allocate(this%blade(ib)%wiP(this%nc,this%ns))
       allocate(this%blade(ib)%waP(this%nNwake,this%ns))
       allocate(this%blade(ib)%waF(this%nFwake))
-      allocate(this%blade(ib)%sectionalChordwiseVec(3,this%ns))
-      allocate(this%blade(ib)%sectionalNormalVec(3,this%ns))
-      allocate(this%blade(ib)%sectionalVelFreestream(3,this%ns))
-      allocate(this%blade(ib)%sectionalForce(3,this%ns))
-      allocate(this%blade(ib)%sectionalAlpha(this%ns))
-      allocate(this%blade(ib)%sectionalCL(this%ns))
-      allocate(this%blade(ib)%sectionalResultantVel(3,this%ns))
-      allocate(this%blade(ib)%sectionalCP(3,this%ns))
+      allocate(this%blade(ib)%secChordwiseVec(3,this%ns))
+      allocate(this%blade(ib)%secNormalVec(3,this%ns))
+      allocate(this%blade(ib)%secVelFreestream(3,this%ns))
+      allocate(this%blade(ib)%secForce(3,this%ns))
+      allocate(this%blade(ib)%secAlpha(this%ns))
+      allocate(this%blade(ib)%secCL(this%ns))
+      allocate(this%blade(ib)%secResultantVel(3,this%ns))
+      allocate(this%blade(ib)%secCP(3,this%ns))
     enddo
   end subroutine getdata
 
@@ -1545,22 +1545,22 @@ contains
       this%blade(ib)%yAxis=yAxis
       this%blade(ib)%ZAxis=zAxis
 
-      ! Initialize sectional vectors
+      ! Initialize sec vectors
       do j=1,this%ns
-        this%blade(ib)%sectionalChordwiseVec(:,j) =  &
+        this%blade(ib)%secChordwiseVec(:,j) =  &
           (this%blade(ib)%wiP(this%nc,j)%PC(:,3)+this%blade(ib)%wiP(this%nc,j)%PC(:,2)- &
           (this%blade(ib)%wiP(1,j)%PC(:,4)+this%blade(ib)%wiP(1,j)%PC(:,1)))*0.5_dp
 
-        this%blade(ib)%sectionalNormalVec(:,j) = &
+        this%blade(ib)%secNormalVec(:,j) = &
           cross3(this%blade(ib)%wiP(this%nc,j)%PC(:,2)-this%blade(ib)%wiP(1,j)%PC(:,4), &
           this%blade(ib)%wiP(this%nc,j)%PC(:,3)-this%blade(ib)%wiP(1,j)%PC(:,1))
 
         ! Normalize
-        this%blade(ib)%sectionalChordwiseVec(:,j) = this%blade(ib)%sectionalChordwiseVec(:,j)/ &
-          norm2(this%blade(ib)%sectionalChordwiseVec(:,j))
+        this%blade(ib)%secChordwiseVec(:,j) = this%blade(ib)%secChordwiseVec(:,j)/ &
+          norm2(this%blade(ib)%secChordwiseVec(:,j))
 
-        this%blade(ib)%sectionalNormalVec(:,j) = this%blade(ib)%sectionalNormalVec(:,j)/ &
-          norm2(this%blade(ib)%sectionalNormalVec(:,j))
+        this%blade(ib)%secNormalVec(:,j) = this%blade(ib)%secNormalVec(:,j)/ &
+          norm2(this%blade(ib)%secNormalVec(:,j))
       enddo
 
       ! Initialize vr coords of all panels except last row (to accomodate mismatch of vr coords when using unequal spacing)
@@ -1645,7 +1645,7 @@ contains
       endif
 
       ! Inflow calculated at mid-chord
-      this%blade(ib)%sectionalCP = this%blade(ib)%getSectionalChordwiseLocations(0.5_dp)
+      this%blade(ib)%secCP = this%blade(ib)%getSecChordwiseLocations(0.5_dp)
 
       ! Initialize gamma
       this%blade(ib)%wiP%vr%gam=0._dp
@@ -2413,7 +2413,7 @@ contains
   end subroutine rotor_calc_force_gamma
 
   subroutine rotor_calc_force_alpha(this,density,velSound)
-    ! Compute force from sectional alpha
+    ! Compute force from sec alpha
   class(rotor_class), intent(inout) :: this
     real(dp), intent(in) :: density, velSound
     integer :: ib
@@ -2426,7 +2426,7 @@ contains
   end subroutine rotor_calc_force_alpha
 
   subroutine rotor_calc_force_alphaGamma(this,density,velSound,dt)
-    ! Compute force from sectional alpha
+    ! Compute force from sec alpha
   class(rotor_class), intent(inout) :: this
     real(dp), intent(in) :: density, velSound, dt
     integer :: ib
@@ -2438,14 +2438,14 @@ contains
     enddo
   end subroutine rotor_calc_force_alphaGamma
 
-  subroutine rotor_calc_sectionalAlpha(this)
+  subroutine rotor_calc_secAlpha(this)
   class(rotor_class), intent(inout) :: this
     integer :: ib
 
     do ib=1,this%nb
-      call this%blade(ib)%calc_sectionalAlpha()
+      call this%blade(ib)%calc_secAlpha()
     enddo
-  end subroutine rotor_calc_sectionalAlpha
+  end subroutine rotor_calc_secAlpha
 
   subroutine rotor_burst_wake(this)
   class(rotor_class), intent(inout) :: this

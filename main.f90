@@ -184,7 +184,7 @@ program main
               enddo
             enddo
 
-            call rotor(ir)%calc_sectionalAlpha()
+            call rotor(ir)%calc_secAlpha()
             call alpha2file(timestamp,rotor(ir),ir)
           endif
         endif
@@ -217,7 +217,7 @@ program main
           enddo
         enddo
 
-        call rotor(ir)%calc_sectionalAlpha()
+        call rotor(ir)%calc_secAlpha()
         call rotor(ir)%calc_force_alpha(density,velSound)
 
         ! Plot alpha
@@ -228,8 +228,19 @@ program main
         endif 
       enddo
 
-    case (2)  ! Compute lift using alpha approximated from sectional circulation
+    case (2)  ! Compute lift using alpha approximated from sec circulation
       do ir=1,nr
+        ! Compute sec freestream velocity
+        do ib=1,rotor(ir)%nb
+          do is=1,rotor(ir)%ns
+            rotor(ir)%blade(ib)%secVelFreestream(:,is) = rotor(ir)%velWind &
+              + cross3(rotor(ir)%omegaWind, &
+              rotor(ir)%blade(ib)%secCP(:,is)-rotor(ir)%cgCoords) &
+              + cross3(-rotor(ir)%omegaSlow*rotor(ir)%shaftAxis, &
+              rotor(ir)%blade(ib)%secCP(:,is)-rotor(ir)%hubCoords)
+          enddo
+        enddo
+
         call rotor(ir)%calc_force_alphaGamma(density,velSound,dt)
       enddo
 
@@ -425,7 +436,7 @@ program main
                   enddo
                 enddo
 
-                call rotor(ir)%calc_sectionalAlpha()
+                call rotor(ir)%calc_secAlpha()
                 call alpha2file(timestamp,rotor(ir),ir)
               endif
             endif
@@ -458,7 +469,7 @@ program main
               enddo
             enddo
 
-            call rotor(ir)%calc_sectionalAlpha()
+            call rotor(ir)%calc_secAlpha()
             call rotor(ir)%calc_force_alpha(density,velSound)
 
             ! Plot alpha
@@ -469,7 +480,7 @@ program main
             endif
           enddo
 
-        case (2)  ! Compute lift using alpha approximated from sectional circulation
+        case (2)  ! Compute lift using alpha approximated from sec circulation
           do ir=1,nr
             call rotor(ir)%calc_force_alphaGamma(density,velSound,dt)
           enddo
@@ -490,7 +501,7 @@ program main
       endif
     enddo
 
-    ! Plot sectional wing bound circulation
+    ! Plot sec wing bound circulation
     do ir=1,nr
       if (rotor(ir)%gammaPlotSwitch .ne. 0) then
         if (mod(iter,rotor(ir)%gammaPlotSwitch) .eq. 0) then 
