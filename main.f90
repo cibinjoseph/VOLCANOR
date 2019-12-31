@@ -242,6 +242,13 @@ program main
         enddo
 
         call rotor(ir)%calc_force_alphaGamma(density,velSound,dt)
+
+        ! Plot alpha
+        if (rotor(ir)%alphaPlotSwitch .ne. 0) then
+          if (mod(iter,rotor(ir)%alphaPlotSwitch) .eq. 0) then 
+            call alpha2file(timestamp,rotor(ir),ir)
+          endif
+        endif 
       enddo
 
     end select

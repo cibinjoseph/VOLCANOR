@@ -51,9 +51,10 @@ from LE[x/c]  from centre[r/R]  for swept/symmetric
 1.00                0.0                  0
 ===================================================================
 
-turbulentViscosity parameter (10-10000)
+turbulentViscosity           Force alphaGamma
+(10-10000)                   CL0                  CLa
 -------------------------------------------------------------------
-  5
+  5                          0.0                  6.28319
 ===================================================================
   spanwise core radius[x/c]       streamwise core_switch
   [s]ectional  [i]dentical
@@ -94,4 +95,4 @@ No. of airfoil files ***Assumed 1 in code***
 
 Airfoil section limit(r/R)           Airfoil file names
 -------------------------------------------------------------------
-         1.0                           0
+         1.0                           flatPlate.C81

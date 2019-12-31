@@ -576,7 +576,7 @@ module blade_classdef
     real(dp) :: pivotLE
     character(len=30), allocatable, dimension(:) :: airfoilFile
     real(dp), allocatable, dimension(:) :: airfoilSectionLimit
-    real(dp), allocatable, dimension(:,:) :: secChordwiseVec, secNormalVec
+    real(dp), allocatable, dimension(:,:) :: secTauCapChord, secTauCapSpan, secNormalVec
     real(dp), allocatable, dimension(:,:) :: secVelFreestream
     real(dp), allocatable, dimension(:) :: secAlpha
     real(dp), allocatable, dimension(:) :: secCL
@@ -674,7 +674,7 @@ contains
 
     ! Rotate sec vectors 
     do j=1,size(this%wiP,2)
-      this%secChordwiseVec(:,j)=matmul(TMat,this%secChordwiseVec(:,j))
+      this%secTauCapChord(:,j)=matmul(TMat,this%secTauCapChord(:,j))
       this%secNormalVec(:,j)=matmul(TMat,this%secNormalVec(:,j))
     enddo
 
@@ -755,7 +755,7 @@ contains
 
       ! Rotate sec vectors also along with blade
       do j=1,size(this%wiP,2)
-        this%secChordwiseVec(:,j)=matmul(TMat,this%secChordwiseVec(:,j))
+        this%secTauCapChord(:,j)=matmul(TMat,this%secTauCapChord(:,j))
         this%secNormalVec(:,j)=matmul(TMat,this%secNormalVec(:,j))
       enddo
 
@@ -1150,19 +1150,53 @@ contains
     enddo
   end subroutine blade_calc_force_alpha
 
-  subroutine blade_calc_force_alphaGamma(this,density,invertGammaSign,velSound,dt)
+  subroutine blade_calc_force_alphaGamma(this,density,invertGammaSign,velSound,dt,CL0,CLa)
     ! Compute force using alpha approximated from sec circulation
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: density, invertGammaSign, velSound, dt
+    real(dp), intent(in) :: CL0, CLa
+    real(dp), dimension(3) :: secChordwiseVelFreestream
+    real(dp), dimension(size(this%wiP,2)) :: forceMag, secDynamicPressure
+    integer :: is, i
 
     ! Compute unsteady sec lift from gamma distribution
     call this%calc_force_gamma(density,invertGammaSign,dt)
 
-    ! Compute sec CL
-    !this%secCL(is) = this%secForce
+    secDynamicPressure = this%getSecDynamicPressure(density)
 
-    ! Compute angle of attack
+    do is=1,size(this%secCL,1)
+      ! Compute sec CL
+      secChordwiseVelFreestream = this%secVelFreestream(:,is)- &
+        dot_product(this%secVelFreestream(:,is),this%secTauCapSpan(:,is))
 
+      ! Assuming sec resultant velocity is same as sec freestream vel
+      ! for computing corrected alpha later
+      this%secResultantVel(:,is)=secChordwiseVelFreestream
+
+      this%secCL(is) = dot_product(this%secForce(:,is),secChordwiseVelFreestream) &
+        / secDynamicPressure(is)
+
+      ! Compute angle of attack from linear CL
+      this%secAlpha(is) = (this%secCL(is)-CL0)/Cla
+    enddo
+
+    ! Compute non-linear CL
+    call this%calc_secCL(velSound)
+
+    forceMag=this%getSecDynamicPressure(density)* &
+      this%getSecArea()*this%secCL
+    ! Compute direction of lift force
+    do is=1,size(this%wiP,2)
+      this%secForce(:,is)=cross3(this%wiP(1,is)%tauCapSpan, &
+        this%secResultantVel(:,is))  
+      this%secForce(:,is)=sign(1._dp,sum(this%wiP(:,is)%vr%gam)) &
+        *this%secForce(:,is)/norm2(this%secForce(:,is))
+      this%secForce(:,is)=forceMag(is)*this%secForce(:,is)
+    enddo
+
+    do i=1,3
+      this%Force(i)=sum(this%secForce(i,:))
+    enddo
   end subroutine blade_calc_force_alphaGamma
 
   subroutine calc_secCL(this,velSound)
@@ -1191,11 +1225,11 @@ contains
         do ic=1,rows
           call this%wiP(ic,is)%calc_chordwiseResultantVel()
           xDist(ic)=dot_product(this%wiP(ic,is)%CP-this%wiP(1,is)%PC(:,1),  &
-            this%secChordwiseVec(:,is))
+            this%secTauCapChord(:,is))
         enddo
         do i=1,3
           this%secResultantVel(i,is)=lsq2(dot_product(this%secCP(:,is)-  &
-            this%wiP(1,is)%PC(:,1),this%secChordwiseVec(:,is)),xDist,this%wiP(:,is)%chordwiseResultantVel(i))
+            this%wiP(1,is)%PC(:,1),this%secTauCapChord(:,is)),xDist,this%wiP(:,is)%chordwiseResultantVel(i))
         enddo
       enddo
     else  ! Use average of resultant velocities
@@ -1219,14 +1253,14 @@ contains
 
     !! Use acos() to find angle
     !do is=1,size(this%secAlpha)
-    !  this%secAlpha(is)=acos(dot_product(this%secResultantVel(:,is),this%secChordwiseVec(:,is)) &
+    !  this%secAlpha(is)=acos(dot_product(this%secResultantVel(:,is),this%secTauCapChord(:,is)) &
     !    /norm2(this%secResultantVel(:,is)))
     !enddo
 
     ! Use atan2() to find angle
     do is=1,size(this%secAlpha)
       this%secAlpha(is)=atan2(dot_product(this%secResultantVel(:,is),this%secNormalVec(:,is)), &
-        dot_product(this%secResultantVel(:,is),this%secChordwiseVec(:,is)))
+        dot_product(this%secResultantVel(:,is),this%secTauCapChord(:,is)))
     enddo
   end subroutine blade_calc_secAlpha
 
@@ -1241,10 +1275,10 @@ contains
   !    do is=1,size(this%secAlpha)
   !      do ic=1,rows
   !        xDist(ic)=dot_product(this%wiP(ic,is)%CP-this%wiP(1,is)%PC(:,1),  &
-  !          this%secChordwiseVec(:,is))
+  !          this%secTauCapChord(:,is))
   !      enddo
   !      this%secAlpha(is)=lsq2(dot_product(this%secCP(:,is)-  &
-  !        this%wiP(1,is)%PC(:,1),this%secChordwiseVec(:,is)),xDist,this%wiP(:,is)%alpha)
+  !        this%wiP(1,is)%PC(:,1),this%secTauCapChord(:,is)),xDist,this%wiP(:,is)%alpha)
   !    enddo
   !  else  ! Use average of alpha values
   !    do is=1,size(this%secAlpha)
@@ -1479,7 +1513,8 @@ contains
       allocate(this%blade(ib)%wiP(this%nc,this%ns))
       allocate(this%blade(ib)%waP(this%nNwake,this%ns))
       allocate(this%blade(ib)%waF(this%nFwake))
-      allocate(this%blade(ib)%secChordwiseVec(3,this%ns))
+      allocate(this%blade(ib)%secTauCapChord(3,this%ns))
+      allocate(this%blade(ib)%secTauCapSpan(3,this%ns))
       allocate(this%blade(ib)%secNormalVec(3,this%ns))
       allocate(this%blade(ib)%secVelFreestream(3,this%ns))
       allocate(this%blade(ib)%secForce(3,this%ns))
@@ -1543,21 +1578,23 @@ contains
       ! and then using these for orientation of lift vectors
       this%blade(ib)%xAxis=xAxis
       this%blade(ib)%yAxis=yAxis
-      this%blade(ib)%ZAxis=zAxis
+      this%blade(ib)%zAxis=zAxis
 
       ! Initialize sec vectors
       do j=1,this%ns
-        this%blade(ib)%secChordwiseVec(:,j) =  &
+        this%blade(ib)%secTauCapChord(:,j) =  &
           (this%blade(ib)%wiP(this%nc,j)%PC(:,3)+this%blade(ib)%wiP(this%nc,j)%PC(:,2)- &
           (this%blade(ib)%wiP(1,j)%PC(:,4)+this%blade(ib)%wiP(1,j)%PC(:,1)))*0.5_dp
+
+        this%blade(ib)%secTauCapSpan(:,j) =  yAxis
 
         this%blade(ib)%secNormalVec(:,j) = &
           cross3(this%blade(ib)%wiP(this%nc,j)%PC(:,2)-this%blade(ib)%wiP(1,j)%PC(:,4), &
           this%blade(ib)%wiP(this%nc,j)%PC(:,3)-this%blade(ib)%wiP(1,j)%PC(:,1))
 
         ! Normalize
-        this%blade(ib)%secChordwiseVec(:,j) = this%blade(ib)%secChordwiseVec(:,j)/ &
-          norm2(this%blade(ib)%secChordwiseVec(:,j))
+        this%blade(ib)%secTauCapChord(:,j) = this%blade(ib)%secTauCapChord(:,j)/ &
+          norm2(this%blade(ib)%secTauCapChord(:,j))
 
         this%blade(ib)%secNormalVec(:,j) = this%blade(ib)%secNormalVec(:,j)/ &
           norm2(this%blade(ib)%secNormalVec(:,j))
@@ -1631,6 +1668,7 @@ contains
       ! Invert half of tau vectors for symmetric or swept wings
       if (this%symmetricTau .eq. 1) then
         do j=1,(this%ns/2)
+          this%blade(ib)%secTauCapSpan(:,j) = -1._dp*yAxis 
           do i=1,this%nc
             this%blade(ib)%wiP(i,j)%tauCapSpan = -1._dp*this%blade(ib)%yAxis
             this%blade(ib)%wiP(i,j)%tauCapChord = this%blade(ib)%xAxis
@@ -2433,7 +2471,8 @@ contains
 
     this%Force=0._dp
     do ib=1,this%nb
-      call this%blade(ib)%calc_force_alphaGamma(density,sign(1._dp,this%Omega*this%controlPitch(1)),velSound,dt)
+      call this%blade(ib)%calc_force_alphaGamma(density,sign(1._dp,this%Omega*this%controlPitch(1)), &
+        velSound,dt,this%CL0,this%CLa)
       this%Force=this%Force+this%blade(ib)%Force
     enddo
   end subroutine rotor_calc_force_alphaGamma
