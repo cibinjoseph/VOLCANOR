@@ -489,7 +489,25 @@ program main
 
         case (2)  ! Compute lift using alpha approximated from sec circulation
           do ir=1,nr
+            ! Compute sec freestream velocity
+            do ib=1,rotor(ir)%nb
+              do is=1,rotor(ir)%ns
+                rotor(ir)%blade(ib)%secVelFreestream(:,is) = rotor(ir)%velWind &
+                  + cross3(rotor(ir)%omegaWind, &
+                  rotor(ir)%blade(ib)%secCP(:,is)-rotor(ir)%cgCoords) &
+                  + cross3(-rotor(ir)%omegaSlow*rotor(ir)%shaftAxis, &
+                  rotor(ir)%blade(ib)%secCP(:,is)-rotor(ir)%hubCoords)
+              enddo
+            enddo
+
             call rotor(ir)%calc_force_alphaGamma(density,velSound,dt)
+
+            ! Plot alpha
+            if (rotor(ir)%alphaPlotSwitch .ne. 0) then
+              if (mod(iter,rotor(ir)%alphaPlotSwitch) .eq. 0) then 
+                call alpha2file(timestamp,rotor(ir),ir)
+              endif
+            endif 
           enddo
         end select
 

@@ -1157,22 +1157,26 @@ contains
     real(dp), intent(in) :: CL0, CLa
     real(dp), dimension(3) :: secChordwiseVelFreestream
     real(dp), dimension(size(this%wiP,2)) :: forceMag, secDynamicPressure
-    integer :: is, i
+    integer :: is, i, ns
+
+    ns = size(this%wiP,2)
 
     ! Compute unsteady sec lift from gamma distribution
     call this%calc_force_gamma(density,invertGammaSign,dt)
 
-    secDynamicPressure = this%getSecDynamicPressure(density)
-
-    do is=1,size(this%secCL,1)
+    do is=1,ns
       ! Compute sec CL
       secChordwiseVelFreestream = this%secVelFreestream(:,is)- &
-        dot_product(this%secVelFreestream(:,is),this%secTauCapSpan(:,is))
+        dot_product(this%secVelFreestream(:,is),this%secTauCapSpan(:,is))*this%secTauCapSpan(:,is)
 
       ! Assuming sec resultant velocity is same as sec freestream vel
       ! for computing corrected alpha later
       this%secResultantVel(:,is)=secChordwiseVelFreestream
+    enddo
 
+    secDynamicPressure = this%getSecDynamicPressure(density)
+
+    do is=1,ns
       this%secCL(is) = dot_product(this%secForce(:,is),secChordwiseVelFreestream) &
         / secDynamicPressure(is)
 
@@ -1186,7 +1190,7 @@ contains
     forceMag=this%getSecDynamicPressure(density)* &
       this%getSecArea()*this%secCL
     ! Compute direction of lift force
-    do is=1,size(this%wiP,2)
+    do is=1,ns
       this%secForce(:,is)=cross3(this%wiP(1,is)%tauCapSpan, &
         this%secResultantVel(:,is))  
       this%secForce(:,is)=sign(1._dp,sum(this%wiP(:,is)%vr%gam)) &
