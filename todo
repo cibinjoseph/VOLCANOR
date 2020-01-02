@@ -1,13 +1,10 @@
 Max circulation at non max lift in forward flight?
 Does discretization give rise to instability? cause for Kelvin waves or Crow instability?
 Split Nwake and Fwake computations to separate loops to avoid if conditions
-Get blade distributed parameters, at quarter chord maybe?
 Make lift integration higher order - unequal intervals
 Check oscillations in inflow - dependent on nInflowLocations
 Check if vortex strain is overriding vortex core changes due to dissipation
 Wake dissipation on extreme straining
 Implement option to switch lift from alpha computation to postprocessing
-Implement angle of attack estimation from sectional circulation
 Try slow start for tandem wing to check for discrepancy
-Use resultant filament gamma for rollup
 Convert grid output to binary format
