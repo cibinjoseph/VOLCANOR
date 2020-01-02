@@ -1155,7 +1155,7 @@ contains
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: density, invertGammaSign, velSound, dt
     real(dp), intent(in) :: CL0, CLa
-    real(dp), dimension(3) :: secChordwiseVelFreestream
+    real(dp), dimension(3) :: secChordwiseVelFreestream, liftDir
     real(dp), dimension(size(this%wiP,2)) :: forceMag, secDynamicPressure
     integer :: is, i, ns
 
@@ -1177,8 +1177,10 @@ contains
     secDynamicPressure = this%getSecDynamicPressure(density)
 
     do is=1,ns
-      this%secCL(is) = dot_product(this%secForce(:,is),secChordwiseVelFreestream) &
-        / secDynamicPressure(is)
+      ! Extract sectional Lift
+      liftDir = cross3(this%secResultantVel(:,is),this%secTauCapSpan(:,is))
+      this%secCL(is) = dot_product(this%secForce(:,is),liftDir)/norm2(liftDir) &
+      / secDynamicPressure(is)
 
       ! Compute angle of attack from linear CL
       this%secAlpha(is) = (this%secCL(is)-CL0)/Cla
