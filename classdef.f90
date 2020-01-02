@@ -1156,16 +1156,18 @@ contains
     real(dp), intent(in) :: density, invertGammaSign, velSound, dt
     real(dp), intent(in) :: CL0, CLa
     real(dp), dimension(3) :: secChordwiseVelFreestream, liftDir
-    real(dp), dimension(size(this%wiP,2)) :: forceMag, secDynamicPressure
+    real(dp), dimension(size(this%wiP,2)) :: forceMag, secDynamicPressure, secArea
     integer :: is, i, ns
 
     ns = size(this%wiP,2)
 
     ! Compute unsteady sec lift from gamma distribution
     call this%calc_force_gamma(density,invertGammaSign,dt)
+    ! DEBUG
+    ! print*, 'secForce', this%secForce(:,1)
 
     do is=1,ns
-      ! Compute sec CL
+      ! Compute sec freestream velocity
       secChordwiseVelFreestream = this%secVelFreestream(:,is)- &
         dot_product(this%secVelFreestream(:,is),this%secTauCapSpan(:,is))*this%secTauCapSpan(:,is)
 
@@ -1175,12 +1177,16 @@ contains
     enddo
 
     secDynamicPressure = this%getSecDynamicPressure(density)
+    secArea = this%getSecArea()
 
     do is=1,ns
-      ! Extract sectional Lift
+      ! Extract sectional lift and CL
       liftDir = cross3(this%secResultantVel(:,is),this%secTauCapSpan(:,is))
       this%secCL(is) = dot_product(this%secForce(:,is),liftDir)/norm2(liftDir) &
-      / secDynamicPressure(is)
+        / (secDynamicPressure(is)*secArea(is))
+
+      ! DEBUG
+      ! print*, 'CL', this%secCL(1)
 
       ! Compute angle of attack from linear CL
       this%secAlpha(is) = (this%secCL(is)-CL0)/Cla
@@ -1189,8 +1195,9 @@ contains
     ! Compute non-linear CL
     call this%calc_secCL(velSound)
 
-    forceMag=this%getSecDynamicPressure(density)* &
-      this%getSecArea()*this%secCL
+    forceMag=secDynamicPressure*secArea*this%secCL
+    ! DEBUG
+    ! print*, 'forceMag', forceMag(1)
     ! Compute direction of lift force
     do is=1,ns
       this%secForce(:,is)=cross3(this%wiP(1,is)%tauCapSpan, &
@@ -1199,6 +1206,10 @@ contains
         *this%secForce(:,is)/norm2(this%secForce(:,is))
       this%secForce(:,is)=forceMag(is)*this%secForce(:,is)
     enddo
+    ! DEBUG
+    ! print*, 'calcCL', this%secCL(1)
+    ! print*, 'calcSecForce', this%secForce(:,1)
+    ! stop
 
     do i=1,3
       this%Force(i)=sum(this%secForce(i,:))
