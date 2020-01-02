@@ -1429,10 +1429,14 @@ contains
     read(12,*) this%nb, this%geometryFile
     call skiplines(12,3)
     read(12,*) this%nc,this%ns,this%nNwake
-    this%suppressFwakeSwitch=0
     ! If nNwake is -ve, far wake is suppressed
-    if (this%nNwake<0) this%suppressFwakeSwitch=1
-    this%nNwake=abs(this%nNwake)
+    if (this%nNwake < 0) then 
+      this%suppressFwakeSwitch=1
+      this%nNwake=abs(this%nNwake)
+    else
+      this%suppressFwakeSwitch=0
+      this%nNwake = min(this%nNwake,nt)
+    endif
 
     if (this%nNwake<2)  error stop 'ERROR: Atleast 2 near wake rows mandatory'
     call skiplines(12,4)
