@@ -1081,8 +1081,8 @@ contains
         endif
 
         ! For checking against Katz's fixed wing code
-        !velTangentialChord(ic,is)=10._dp*cos(5._dp*pi/180._dp)
-        !velTangentialSpan(ic,is)=0._dp
+        velTangentialChord(ic,is)=10._dp*cos(5._dp*pi/180._dp)
+        velTangentialSpan(ic,is)=0._dp
 
         this%wiP(ic,is)%delP=density*(velTangentialChord(ic,is)*gamElementChord(ic,is)/this%wiP(ic,is)%meanChord &
           + velTangentialSpan(ic,is)*gamElementSpan(ic,is)/this%wiP(ic,is)%meanSpan &
