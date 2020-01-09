@@ -70,9 +70,6 @@ program main
       read*
     endif
   enddo
-  ! DEBUG
-  print*,rotor(1)%AIC
-  stop
 
   ! Obtain initial solution without wake
   call print_status('Computing initial solution')
