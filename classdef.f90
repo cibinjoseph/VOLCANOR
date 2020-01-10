@@ -1080,6 +1080,7 @@ contains
           this%wiP(1,is)%gamTrapz=0.5_dp*this%wiP(1,is)%vr%gam
         endif
 
+        ! DEBUG
         ! For checking against Katz's fixed wing code
         velTangentialChord(ic,is)=10._dp*cos(5._dp*pi/180._dp)
         velTangentialSpan(ic,is)=0._dp
@@ -1163,8 +1164,6 @@ contains
 
     ! Compute unsteady sec lift from gamma distribution
     call this%calc_force_gamma(density,invertGammaSign,dt)
-    ! DEBUG
-    ! print*, 'secForce', this%secForce(:,1)
 
     do is=1,ns
       ! Compute sec freestream velocity
@@ -1185,8 +1184,6 @@ contains
       this%secCL(is) = dot_product(this%secForce(:,is),liftDir)/norm2(liftDir) &
         / (secDynamicPressure(is)*secArea(is))
 
-      ! DEBUG
-      ! print*, 'CL', this%secCL(1)
 
       ! Compute angle of attack from linear CL
       this%secAlpha(is) = (this%secCL(is)-CL0)/Cla
@@ -1196,8 +1193,6 @@ contains
     call this%calc_secCL(velSound)
 
     forceMag=secDynamicPressure*secArea*this%secCL
-    ! DEBUG
-    ! print*, 'forceMag', forceMag(1)
     ! Compute direction of lift force
     do is=1,ns
       this%secForce(:,is)=cross3(this%wiP(1,is)%tauCapSpan, &
@@ -1206,10 +1201,6 @@ contains
         *this%secForce(:,is)/norm2(this%secForce(:,is))
       this%secForce(:,is)=forceMag(is)*this%secForce(:,is)
     enddo
-    ! DEBUG
-    ! print*, 'calcCL', this%secCL(1)
-    ! print*, 'calcSecForce', this%secForce(:,1)
-    ! stop
 
     do i=1,3
       this%Force(i)=sum(this%secForce(i,:))
