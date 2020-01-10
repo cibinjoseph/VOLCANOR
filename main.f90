@@ -134,6 +134,8 @@ program main
     rotor(ir)%gamVec=matmul(rotor(ir)%AIC_inv,rotor(ir)%RHS)
   enddo
   call print_status()    ! SUCCESS
+  ! DEBUG
+  print*,'gam',rotor(1)%gamVec
 
   ! Map gamVec to wing gam for each blade in rotor
   do ir=1,nr
@@ -155,6 +157,9 @@ program main
     case (0)  ! Compute using wing circulation
       do ir=1,nr
         call rotor(ir)%calc_force_gamma(density,dt)
+        ! DEBUG
+        print*,'CL',rotor%Force(3)/(0.5_dp*1.2_dp*100_dp)
+        stop
 
         ! Compute and plot alpha if requested
         if (rotor(ir)%alphaPlotSwitch .ne. 0) then
