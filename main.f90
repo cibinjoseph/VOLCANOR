@@ -28,7 +28,7 @@ program main
   call skiplines(11,4)
   read(11,*) wakeIgnoreNt
   call skiplines(11,4)
-  read(11,*) initWakeVelNt
+  read(11,*) initWakeVelNt, initConverged
   close(11)
   call print_status()    ! SUCCESS
 
@@ -88,59 +88,74 @@ program main
   write(timestamp,'(I0.5)') iter
 
   ! Compute RHS for initial solution without wake
-  do ir=1,nr
-    do ib=1,rotor(ir)%nb
-      do is=1,rotor(ir)%ns
-        do ic=1,rotor(ir)%nc
-          row=ic+rotor(ir)%nc*(is-1)+rotor(ir)%ns*rotor(ir)%nc*(ib-1)
+  initConvergedLoop: do i=0,initConverged
+    do ir=1,nr
+      do ib=1,rotor(ir)%nb
+        do is=1,rotor(ir)%ns
+          do ic=1,rotor(ir)%nc
+            row=ic+rotor(ir)%nc*(is-1)+rotor(ir)%ns*rotor(ir)%nc*(ib-1)
 
-          ! Translational vel
-          rotor(ir)%blade(ib)%wiP(ic,is)%velCP=rotor(ir)%velWind
+            ! Translational vel
+            rotor(ir)%blade(ib)%wiP(ic,is)%velCP=rotor(ir)%velWind
 
-          ! Rotational vel
-          rotor(ir)%blade(ib)%wiP(ic,is)%velCP= &
-            rotor(ir)%blade(ib)%wiP(ic,is)%velCP+ &
-            cross3(rotor(ir)%omegaWind,rotor(ir)%blade(ib)%wiP(ic,is)%CP- &
-            rotor(ir)%cgCoords)
+            ! Rotational vel
+            rotor(ir)%blade(ib)%wiP(ic,is)%velCP= &
+              rotor(ir)%blade(ib)%wiP(ic,is)%velCP+ &
+              cross3(rotor(ir)%omegaWind,rotor(ir)%blade(ib)%wiP(ic,is)%CP- &
+              rotor(ir)%cgCoords)
 
-          ! Omega vel
-          rotor(ir)%blade(ib)%wiP(ic,is)%velCP= &
-            rotor(ir)%blade(ib)%wiP(ic,is)%velCP+ &
-            cross3(-rotor(ir)%omegaSlow*rotor(ir)%shaftAxis, &
-            rotor(ir)%blade(ib)%wiP(ic,is)%CP-rotor(ir)%hubCoords)
+            ! Omega vel
+            rotor(ir)%blade(ib)%wiP(ic,is)%velCP= &
+              rotor(ir)%blade(ib)%wiP(ic,is)%velCP+ &
+              cross3(-rotor(ir)%omegaSlow*rotor(ir)%shaftAxis, &
+              rotor(ir)%blade(ib)%wiP(ic,is)%CP-rotor(ir)%hubCoords)
 
-          ! Velocity due to wing vortices of other rotors
-          do jr=1,nr
-            if (ir .ne. jr) then
-              rotor(ir)%blade(ib)%wiP(ic,is)%velCP= &
-                rotor(ir)%blade(ib)%wiP(ic,is)%velCP+  &
-                rotor(jr)%vind_bywing(rotor(ir)%blade(ib)%wiP(ic,is)%CP)
-            endif
+            ! Velocity due to wing vortices of other rotors
+            do jr=1,nr
+              if (ir .ne. jr) then
+                rotor(ir)%blade(ib)%wiP(ic,is)%velCP= &
+                  rotor(ir)%blade(ib)%wiP(ic,is)%velCP+  &
+                  rotor(jr)%vind_bywing(rotor(ir)%blade(ib)%wiP(ic,is)%CP)
+              endif
+            enddo
+
+            rotor(ir)%RHS(row)= &
+              dot_product(rotor(ir)%blade(ib)%wiP(ic,is)%velCP, &
+              rotor(ir)%blade(ib)%wiP(ic,is)%nCap)
+
+            ! Pitch vel
+            !rotor(ir)%blade%(ib)%wing(ic,is)%velPitch= &
+            !  rotor(ir)%thetadot_pitch(0._dp,ib)* &
+            !  rotor(ir)%blade(ib)%wiP(ic,is)%rHinge
+            !rotor(ir)%RHS(row)= RHS(row)+wing(ib,ic,is)%velPitch
           enddo
-
-          rotor(ir)%RHS(row)= &
-            dot_product(rotor(ir)%blade(ib)%wiP(ic,is)%velCP, &
-            rotor(ir)%blade(ib)%wiP(ic,is)%nCap)
-
-          ! Pitch vel
-          !rotor(ir)%blade%(ib)%wing(ic,is)%velPitch= &
-          !  rotor(ir)%thetadot_pitch(0._dp,ib)* &
-          !  rotor(ir)%blade(ib)%wiP(ic,is)%rHinge
-          !rotor(ir)%RHS(row)= RHS(row)+wing(ib,ic,is)%velPitch
         enddo
       enddo
-    enddo
-    rotor(ir)%RHS=-1._dp*rotor(ir)%RHS
-    rotor(ir)%gamVec=matmul(rotor(ir)%AIC_inv,rotor(ir)%RHS)
-  enddo
-  call print_status()    ! SUCCESS
-  ! DEBUG
-  print*,'gam',rotor(1)%gamVec
+      rotor(ir)%RHS=-1._dp*rotor(ir)%RHS
+      rotor(ir)%gamVecPrev=rotor(ir)%gamVec
+      rotor(ir)%gamVec=matmul(rotor(ir)%AIC_inv,rotor(ir)%RHS)
 
-  ! Map gamVec to wing gam for each blade in rotor
-  do ir=1,nr
-    call rotor(ir)%map_gam()
-  enddo
+      ! Map gamVec to wing gam for each blade in rotor
+      call rotor(ir)%map_gam()
+
+      ! Check if initialization using converged soultion is requested
+      if (initConverged .ne. 0) then
+        if (norm2(rotor(ir)%gamVec-rotor(ir)%gamVecPrev) .le. eps) exit initConvergedLoop
+      endif
+    enddo
+  enddo initConvergedLoop
+
+  if (i .gt. initConverged) then 
+    error stop "Initial solution did not converge. Try increasing iterations."
+  else
+    call print_status()    ! SUCCESS
+  endif
+
+  ! DEBUG
+  print*, currentTime,iter,nt
+  print*,'RHS',rotor(1)%RHS,rotor(2)%RHS
+  print*,'Gam',rotor(1)%gamVec,rotor(2)%gamVec
+  !stop
 
   do ir=1,nr
     rotor(ir)%rowFar=rotor(ir)%nFwake+1
@@ -158,8 +173,7 @@ program main
       do ir=1,nr
         call rotor(ir)%calc_force_gamma(density,dt)
         ! DEBUG
-        print*,'CL',rotor%Force(3)/(0.5_dp*1.2_dp*100_dp)
-        stop
+        !print*,'CL',rotor%Force(3)/(0.5_dp*1.2_dp*100_dp)
 
         ! Compute and plot alpha if requested
         if (rotor(ir)%alphaPlotSwitch .ne. 0) then
@@ -401,10 +415,13 @@ program main
       enddo
       rotor(ir)%RHS=-1._dp*rotor(ir)%RHS
     enddo
-
+    
     do ir=1,nr
       rotor(ir)%gamVec=matmul(rotor(ir)%AIC_inv,rotor(ir)%RHS)
     enddo
+    ! DEBUG
+    print*,'RHS',rotor(1)%RHS,rotor(2)%RHS
+    print*,'Gam',rotor(1)%gamVec,rotor(2)%gamVec
 
     ! Map gamVec to wing gam for each blade in rotor
     do ir=1,nr

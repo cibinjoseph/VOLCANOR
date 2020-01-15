@@ -24,4 +24,4 @@ integer :: wakeTipPlotSwitch, wakePlotSwitch, gridPlotSwitch
 integer :: rotorForcePlotSwitch, forceCalcSwitch
 integer :: fdSchemeSwitch
 integer :: wakeIgnoreNt
-integer :: initWakeVelNt
+integer :: initWakeVelNt, initConverged

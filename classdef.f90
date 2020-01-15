@@ -1373,7 +1373,7 @@ module rotor_classdef
     real(dp) :: spanwiseCore
     real(dp), allocatable, dimension(:) :: streamwiseCoreVec
     real(dp), allocatable, dimension(:,:) :: AIC,AIC_inv  ! Influence coefficient matrix
-    real(dp), allocatable, dimension(:) :: gamVec,RHS
+    real(dp), allocatable, dimension(:) :: gamVec, gamVecPrev, RHS
     real(dp), allocatable, dimension(:) :: airfoilSectionLimit
     real(dp) :: initWakeVel, psiStart, skewLimit
     real(dp) :: turbulentViscosity, CL0, CLa
@@ -1518,6 +1518,7 @@ contains
     allocate(this%AIC(this%nc*this%ns*this%nb,this%nc*this%ns*this%nb))
     allocate(this%AIC_inv(this%nc*this%ns*this%nb,this%nc*this%ns*this%nb))
     allocate(this%gamVec(this%nc*this%ns*this%nb))
+    allocate(this%gamVecPrev(this%nc*this%ns*this%nb))
     allocate(this%RHS(this%nc*this%ns*this%nb))
 
     ! Allocate blade object variables
@@ -1552,6 +1553,10 @@ contains
     real(dp) :: velShed
     real(dp), dimension(4) :: xshift
     logical :: warnUser
+
+    ! Rotor initialization
+    this%gamVec = 0._dp
+    this%gamVecPrev = 0._dp
 
     ! Blade initialization
     if (this%geometryFile(1:1) .eq. '0') then
