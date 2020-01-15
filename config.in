@@ -1,6 +1,6 @@
  NO. OF TIMESTEPS [nt]    TIMESTEP (sec) [dt]    NO. OF ROTORS [nr]
 -----------------------------------------------------------------------
-     5                      0.025                   1
+     5                      0.025                   2
 
  SPAN DISCRETIZATION : [1]linear [2]cosine [3]halfsine
  spanSpacingSwitch
@@ -45,7 +45,7 @@
 -----------------------------------------------------------------------
        0
 
- INITIAL WAKE VELOCITY: [0]Off [1..]timesteps
-  initWakeVelNt
+ INITIAL WAKE VELOCITY: [0]Off [1..]timesteps   START FROM CONVERGENCE
+  initWakeVelNt                                 [1..] iterations
 -----------------------------------------------------------------------
-       0
+       0                                                 100
