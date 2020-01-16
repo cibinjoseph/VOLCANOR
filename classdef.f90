@@ -1442,7 +1442,8 @@ contains
       this%nNwake = min(this%nNwake,nt)
     endif
 
-    if (this%nNwake<2)  error stop 'ERROR: Atleast 2 near wake rows mandatory'
+    ! DEBUG
+    !if (this%nNwake<2)  error stop 'ERROR: Atleast 2 near wake rows mandatory'
     call skiplines(12,4)
     read(12,*) this%hubCoords(1),this%hubCoords(2),this%hubCoords(3)
     call skiplines(12,3)
@@ -1507,7 +1508,6 @@ contains
     call degtorad(this%coningAngle)
     call degtorad(this%psiStart)
     this%nFwake=nt-this%nNwake
-    ! if (this%nFwake<2) error stop 'ERROR: Atleast 1 far wake rows mandatory'
     this%spanwiseCore=this%spanwiseCore*this%chord
     this%streamwiseCoreVec=this%streamwiseCoreVec*this%chord
     this%rollupStart=ceiling(rollupStartRadius*this%ns)
