@@ -155,7 +155,10 @@ program main
   print*, currentTime,iter,nt
   print*,'RHS',rotor(1)%RHS,rotor(2)%RHS
   print*,'Gam',rotor(1)%gamVec,rotor(2)%gamVec
-  !stop
+
+  ! DEBUG
+  print*,'TE1',rotor(1)%blade(1)%wiP(1,1)%vr%vf(2)%fc(:,1)
+  print*,'TE2',rotor(1)%blade(1)%wiP(1,1)%vr%vf(2)%fc(:,2)
 
   do ir=1,nr
     rotor(ir)%rowFar=rotor(ir)%nFwake+1
@@ -397,9 +400,10 @@ program main
 
               ! Wing induced vel due to all rotors except self
               if (ir .ne. jr) then
-                rotor(ir)%blade(ib)%wiP(ic,is)%velCP= &
-                  rotor(ir)%blade(ib)%wiP(ic,is)%velCP+ &
-                  rotor(jr)%vind_bywing(rotor(ir)%blade(ib)%wiP(ic,is)%CP)
+                ! DEBUG
+                !  rotor(ir)%blade(ib)%wiP(ic,is)%velCP= &
+                !    rotor(ir)%blade(ib)%wiP(ic,is)%velCP+ &
+                !    rotor(jr)%vind_bywing(rotor(ir)%blade(ib)%wiP(ic,is)%CP)
               endif
             enddo
 
@@ -415,7 +419,7 @@ program main
       enddo
       rotor(ir)%RHS=-1._dp*rotor(ir)%RHS
     enddo
-    
+
     do ir=1,nr
       rotor(ir)%gamVec=matmul(rotor(ir)%AIC_inv,rotor(ir)%RHS)
     enddo
