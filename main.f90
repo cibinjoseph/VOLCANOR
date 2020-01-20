@@ -151,15 +151,6 @@ program main
     call print_status()    ! SUCCESS
   endif
 
-  ! DEBUG
-  print*, currentTime,iter,nt
-  print*,'RHS',rotor(1)%RHS,rotor(2)%RHS
-  print*,'Gam',rotor(1)%gamVec,rotor(2)%gamVec
-
-  ! DEBUG
-  print*,'TE1',rotor(1)%blade(1)%wiP(1,1)%vr%vf(2)%fc(:,1)
-  print*,'TE2',rotor(1)%blade(1)%wiP(1,1)%vr%vf(2)%fc(:,2)
-
   do ir=1,nr
     rotor(ir)%rowFar=rotor(ir)%nFwake+1
     ! Since assignshed TE assigns to rowNear-1 panel
@@ -400,10 +391,9 @@ program main
 
               ! Wing induced vel due to all rotors except self
               if (ir .ne. jr) then
-                ! DEBUG
-                !  rotor(ir)%blade(ib)%wiP(ic,is)%velCP= &
-                !    rotor(ir)%blade(ib)%wiP(ic,is)%velCP+ &
-                !    rotor(jr)%vind_bywing(rotor(ir)%blade(ib)%wiP(ic,is)%CP)
+                rotor(ir)%blade(ib)%wiP(ic,is)%velCP= &
+                  rotor(ir)%blade(ib)%wiP(ic,is)%velCP+ &
+                  rotor(jr)%vind_bywing(rotor(ir)%blade(ib)%wiP(ic,is)%CP)
               endif
             enddo
 
@@ -424,7 +414,7 @@ program main
       rotor(ir)%gamVec=matmul(rotor(ir)%AIC_inv,rotor(ir)%RHS)
     enddo
     ! DEBUG
-    print*,'RHS',rotor(1)%RHS,rotor(2)%RHS
+    !print*,'RHS',rotor(1)%RHS,rotor(2)%RHS
     print*,'Gam',rotor(1)%gamVec,rotor(2)%gamVec
 
     ! Map gamVec to wing gam for each blade in rotor
