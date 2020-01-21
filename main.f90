@@ -11,7 +11,7 @@ program main
   open(unit=11,file='config.in')
   call skiplines(11,2)
   read(11,*) nt,dt,nr
-  call skiplines(11,4)
+  call skiplines(11,3)
   read(11,*) ntSub,ntSubInit
   call skiplines(11,4)
   read(11,*) spanSpacingSwitch
@@ -150,7 +150,7 @@ program main
     enddo
   enddo ntSubInitLoop
 
-  if (i .gt. ntSubInit) then 
+  if ((i .gt. ntSubInit) .and. (ntSubInit .ne. 0)) then 
     error stop "Initial solution did not converge. Try increasing sub-iterations."
   else
     call print_status()    ! SUCCESS
@@ -429,8 +429,11 @@ program main
         endif
       enddo
     enddo ntSubLoop
+    
+    ! DEBUG
+    print*,'Sub-iterations ',i
 
-    if (i .gt. ntSub) then
+    if ((i .gt. ntSub) .and. (ntSub .ne. 0)) then
       error stop "Solution did not converge. Try increasing sub-iterations."
     endif
 
