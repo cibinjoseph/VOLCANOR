@@ -17,6 +17,7 @@ character(len=10) :: currentTime
 integer :: i,is,ic,row,iter,ir,jr,ib
 
 ! Switches
+integer :: ntSub, ntSubInit
 integer :: spanSpacingSwitch
 integer :: wakeDissipationSwitch, wakeStrainSwitch, wakeBurstSwitch
 integer :: slowStartSwitch, slowStartNt
@@ -24,4 +25,4 @@ integer :: wakeTipPlotSwitch, wakePlotSwitch, gridPlotSwitch
 integer :: rotorForcePlotSwitch, forceCalcSwitch
 integer :: fdSchemeSwitch
 integer :: wakeIgnoreNt
-integer :: initWakeVelNt, initConverged
+integer :: initWakeVelNt

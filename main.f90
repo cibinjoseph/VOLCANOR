@@ -12,6 +12,8 @@ program main
   call skiplines(11,2)
   read(11,*) nt,dt,nr
   call skiplines(11,4)
+  read(11,*) ntSub,ntSubInit
+  call skiplines(11,4)
   read(11,*) spanSpacingSwitch
   call skiplines(11,4)
   read(11,*) density, velSound
@@ -28,7 +30,7 @@ program main
   call skiplines(11,4)
   read(11,*) wakeIgnoreNt
   call skiplines(11,4)
-  read(11,*) initWakeVelNt, initConverged
+  read(11,*) initWakeVelNt
   close(11)
   call print_status()    ! SUCCESS
 
@@ -88,7 +90,7 @@ program main
   write(timestamp,'(I0.5)') iter
 
   ! Compute RHS for initial solution without wake
-  initConvergedLoop: do i=0,initConverged
+  ntSubInitLoop: do i=0,ntSubInit
     do ir=1,nr
       do ib=1,rotor(ir)%nb
         do is=1,rotor(ir)%ns
@@ -132,6 +134,9 @@ program main
         enddo
       enddo
       rotor(ir)%RHS=-1._dp*rotor(ir)%RHS
+    enddo
+
+    do ir=1,nr
       rotor(ir)%gamVecPrev=rotor(ir)%gamVec
       rotor(ir)%gamVec=matmul(rotor(ir)%AIC_inv,rotor(ir)%RHS)
 
@@ -139,14 +144,14 @@ program main
       call rotor(ir)%map_gam()
 
       ! Check if initialization using converged soultion is requested
-      if (initConverged .ne. 0) then
-        if (norm2(rotor(ir)%gamVec-rotor(ir)%gamVecPrev) .le. eps) exit initConvergedLoop
+      if (ntSubInit .ne. 0) then
+        if (norm2(rotor(ir)%gamVec-rotor(ir)%gamVecPrev) .le. eps) exit ntSubInitLoop
       endif
     enddo
-  enddo initConvergedLoop
+  enddo ntSubInitLoop
 
-  if (i .gt. initConverged) then 
-    error stop "Initial solution did not converge. Try increasing iterations."
+  if (i .gt. ntSubInit) then 
+    error stop "Initial solution did not converge. Try increasing sub-iterations."
   else
     call print_status()    ! SUCCESS
   endif
@@ -361,66 +366,76 @@ program main
     enddo
 
     ! Compute RHS
-    do ir=1,nr
-      rotor(ir)%RHS=0._dp
-      do ib=1,rotor(ir)%nb
-        do is=1,rotor(ir)%ns
-          do ic=1,rotor(ir)%nc
-            row=ic+rotor(ir)%nc*(is-1)+rotor(ir)%ns*rotor(ir)%nc*(ib-1)
+    ntSubLoop: do i=0,ntSub
+      do ir=1,nr
+        rotor(ir)%RHS=0._dp
+        do ib=1,rotor(ir)%nb
+          do is=1,rotor(ir)%ns
+            do ic=1,rotor(ir)%nc
+              row=ic+rotor(ir)%nc*(is-1)+rotor(ir)%ns*rotor(ir)%nc*(ib-1)
 
-            ! Translational vel
-            rotor(ir)%blade(ib)%wiP(ic,is)%velCP=rotor(ir)%velWind
+              ! Translational vel
+              rotor(ir)%blade(ib)%wiP(ic,is)%velCP=rotor(ir)%velWind
 
-            ! Rotational vel
-            rotor(ir)%blade(ib)%wiP(ic,is)%velCP= &
-              rotor(ir)%blade(ib)%wiP(ic,is)%velCP+ &
-              cross3(rotor(ir)%omegaWind,rotor(ir)%blade(ib)%wiP(ic,is)%CP- &
-              rotor(ir)%cgCoords)
-
-            ! Omega vel
-            rotor(ir)%blade(ib)%wiP(ic,is)%velCP= &
-              rotor(ir)%blade(ib)%wiP(ic,is)%velCP+ &
-              cross3(-rotor(ir)%omegaSlow*rotor(ir)%shaftAxis, &
-              rotor(ir)%blade(ib)%wiP(ic,is)%CP-rotor(ir)%hubCoords)
-
-            do jr=1,nr
-              ! Wake induced vel due to all rotors
+              ! Rotational vel
               rotor(ir)%blade(ib)%wiP(ic,is)%velCP= &
                 rotor(ir)%blade(ib)%wiP(ic,is)%velCP+ &
-                rotor(jr)%vind_bywake(rotor(ir)%blade(ib)%wiP(ic,is)%CP)
+                cross3(rotor(ir)%omegaWind,rotor(ir)%blade(ib)%wiP(ic,is)%CP- &
+                rotor(ir)%cgCoords)
 
-              ! Wing induced vel due to all rotors except self
-              if (ir .ne. jr) then
+              ! Omega vel
+              rotor(ir)%blade(ib)%wiP(ic,is)%velCP= &
+                rotor(ir)%blade(ib)%wiP(ic,is)%velCP+ &
+                cross3(-rotor(ir)%omegaSlow*rotor(ir)%shaftAxis, &
+                rotor(ir)%blade(ib)%wiP(ic,is)%CP-rotor(ir)%hubCoords)
+
+              do jr=1,nr
+                ! Wake induced vel due to all rotors
                 rotor(ir)%blade(ib)%wiP(ic,is)%velCP= &
                   rotor(ir)%blade(ib)%wiP(ic,is)%velCP+ &
-                  rotor(jr)%vind_bywing(rotor(ir)%blade(ib)%wiP(ic,is)%CP)
-              endif
+                  rotor(jr)%vind_bywake(rotor(ir)%blade(ib)%wiP(ic,is)%CP)
+
+                ! Wing induced vel due to all rotors except self
+                if (ir .ne. jr) then
+                  rotor(ir)%blade(ib)%wiP(ic,is)%velCP= &
+                    rotor(ir)%blade(ib)%wiP(ic,is)%velCP+ &
+                    rotor(jr)%vind_bywing(rotor(ir)%blade(ib)%wiP(ic,is)%CP)
+                endif
+              enddo
+
+              rotor(ir)%RHS(row)= &
+                dot_product(rotor(ir)%blade(ib)%wiP(ic,is)%velCP, &
+                rotor(ir)%blade(ib)%wiP(ic,is)%nCap)
+
+              ! Pitch vel
+              !wing(ib,ic,is)%velPitch=thetadot*wing(ib,ic,is)%rHinge
+              !RHS(row)=RHS(row)+wing(ib,ic,is)%velPitch
             enddo
-
-            rotor(ir)%RHS(row)= &
-              dot_product(rotor(ir)%blade(ib)%wiP(ic,is)%velCP, &
-              rotor(ir)%blade(ib)%wiP(ic,is)%nCap)
-
-            ! Pitch vel
-            !wing(ib,ic,is)%velPitch=thetadot*wing(ib,ic,is)%rHinge
-            !RHS(row)=RHS(row)+wing(ib,ic,is)%velPitch
           enddo
         enddo
+        rotor(ir)%RHS=-1._dp*rotor(ir)%RHS
       enddo
-      rotor(ir)%RHS=-1._dp*rotor(ir)%RHS
-    enddo
 
-    do ir=1,nr
-      rotor(ir)%gamVec=matmul(rotor(ir)%AIC_inv,rotor(ir)%RHS)
-    enddo
+      do ir=1,nr
+        rotor(ir)%gamvecPrev=rotor(ir)%gamVec
+        rotor(ir)%gamVec=matmul(rotor(ir)%AIC_inv,rotor(ir)%RHS)
+
+        ! Map gamVec to wing gam for each blade in rotor
+        call rotor(ir)%map_gam()
+
+        ! Check if sub-iterations are requested
+        if (ntSub .ne. 0) then
+          if (norm2(rotor(ir)%gamVec-rotor(ir)%gamVecPrev) .le. eps) exit ntSubLoop
+        endif
+      enddo
+    enddo ntSubLoop
+
+    if (i .gt. ntSub) then
+      error stop "Solution did not converge. Try increasing sub-iterations."
+    endif
+
     ! DEBUG
-    !print*,'RHS',rotor(1)%RHS,rotor(2)%RHS
     print*,'Gam',rotor(1)%gamVec,rotor(2)%gamVec
-
-    ! Map gamVec to wing gam for each blade in rotor
-    do ir=1,nr
-      call rotor(ir)%map_gam()
-    enddo
 
     ! Compute forces
     if (rotorForcePlotSwitch .ne. 0) then
