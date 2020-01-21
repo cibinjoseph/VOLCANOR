@@ -430,7 +430,6 @@ program main
       enddo
     enddo ntSubLoop
     
-    ! DEBUG
     print*,'Sub-iterations ',i
 
     if ((i .gt. ntSub) .and. (ntSub .ne. 0)) then
