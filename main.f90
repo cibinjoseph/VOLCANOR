@@ -171,8 +171,6 @@ program main
     case (0)  ! Compute using wing circulation
       do ir=1,nr
         call rotor(ir)%calc_force_gamma(density,dt)
-        ! DEBUG
-        !print*,'CL',rotor%Force(3)/(0.5_dp*1.2_dp*100_dp)
 
         ! Compute and plot alpha if requested
         if (rotor(ir)%alphaPlotSwitch .ne. 0) then
@@ -435,9 +433,6 @@ program main
     if ((i .gt. ntSub) .and. (ntSub .ne. 0)) then
       error stop "Solution did not converge. Try increasing sub-iterations."
     endif
-
-    ! DEBUG
-    print*,'Gam',rotor(1)%gamVec,rotor(2)%gamVec
 
     ! Compute forces
     if (rotorForcePlotSwitch .ne. 0) then
