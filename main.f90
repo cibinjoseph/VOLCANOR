@@ -427,11 +427,10 @@ program main
         endif
       enddo
     enddo ntSubLoop
-    
-    if (ntSub .ne. 0) print*,'Sub-iterations ',i
 
-    if ((i .gt. ntSub) .and. (ntSub .ne. 0)) then
-      error stop "Solution did not converge. Try increasing sub-iterations."
+    if (ntSub .ne. 0) then 
+      print*,'Sub-iterations ',i
+      if (i .gt. ntSub) error stop "Solution did not converge. Try increasing sub-iterations."
     endif
 
     ! Compute forces
