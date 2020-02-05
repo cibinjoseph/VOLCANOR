@@ -1080,10 +1080,9 @@ contains
           this%wiP(1,is)%gamTrapz=0.5_dp*this%wiP(1,is)%vr%gam
         endif
 
-        ! DEBUG
         ! For checking against Katz's fixed wing code
-        velTangentialChord(ic,is)=10._dp*cos(5._dp*pi/180._dp)
-        velTangentialSpan(ic,is)=0._dp
+        !velTangentialChord(ic,is)=10._dp*cos(5._dp*pi/180._dp)
+        !velTangentialSpan(ic,is)=0._dp
 
         this%wiP(ic,is)%delP=density*(velTangentialChord(ic,is)*gamElementChord(ic,is)/this%wiP(ic,is)%meanChord &
           + velTangentialSpan(ic,is)*gamElementSpan(ic,is)/this%wiP(ic,is)%meanSpan &
@@ -1442,8 +1441,7 @@ contains
       this%nNwake = min(this%nNwake,nt)
     endif
 
-    ! DEBUG
-    !if (this%nNwake<2)  error stop 'ERROR: Atleast 2 near wake rows mandatory'
+    if (this%nNwake<2)  error stop 'ERROR: Atleast 2 near wake rows mandatory'
     call skiplines(12,4)
     read(12,*) this%hubCoords(1),this%hubCoords(2),this%hubCoords(3)
     call skiplines(12,3)
