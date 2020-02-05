@@ -428,7 +428,7 @@ program main
       enddo
     enddo ntSubLoop
     
-    print*,'Sub-iterations ',i
+    if (ntSub .ne. 0) print*,'Sub-iterations ',i
 
     if ((i .gt. ntSub) .and. (ntSub .ne. 0)) then
       error stop "Solution did not converge. Try increasing sub-iterations."
