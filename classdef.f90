@@ -574,12 +574,13 @@ module blade_classdef
     real(dp), allocatable, dimension(:,:) :: secForce
     real(dp) :: psi
     real(dp) :: pivotLE
+    integer, allocatable, dimension(:) :: airfoilNo
     character(len=30), allocatable, dimension(:) :: airfoilFile
     real(dp), allocatable, dimension(:) :: airfoilSectionLimit
     real(dp), allocatable, dimension(:,:) :: secTauCapChord, secTauCapSpan, secNormalVec
     real(dp), allocatable, dimension(:,:) :: secVelFreestream
     real(dp), allocatable, dimension(:) :: secAlpha
-    real(dp), allocatable, dimension(:) :: secCL
+    real(dp), allocatable, dimension(:) :: secCL,CL0,CLa
     real(dp), allocatable, dimension(:,:) :: secResultantVel
     real(dp), allocatable, dimension(:,:) :: secCP
     real(dp), allocatable, dimension(:,:,:) :: velNwake
@@ -1150,11 +1151,10 @@ contains
     enddo
   end subroutine blade_calc_force_alpha
 
-  subroutine blade_calc_force_alphaGamma(this,density,invertGammaSign,velSound,dt,CL0,CLa)
+  subroutine blade_calc_force_alphaGamma(this,density,invertGammaSign,velSound,dt)
     ! Compute force using alpha approximated from sec circulation
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: density, invertGammaSign, velSound, dt
-    real(dp), intent(in) :: CL0, CLa
     real(dp), dimension(3) :: secChordwiseVelFreestream, liftDir
     real(dp), dimension(size(this%wiP,2)) :: forceMag, secDynamicPressure, secArea
     integer :: is, i, ns
@@ -1183,9 +1183,8 @@ contains
       this%secCL(is) = dot_product(this%secForce(:,is),liftDir)/norm2(liftDir) &
         / (secDynamicPressure(is)*secArea(is))
 
-
       ! Compute angle of attack from linear CL
-      this%secAlpha(is) = (this%secCL(is)-CL0)/Cla
+      this%secAlpha(is) = (this%secCL(is)-this%CL0(this%airfoilNo(is)))/this%Cla(this%airfoilNo(is))
     enddo
 
     ! Compute non-linear CL
@@ -1216,7 +1215,7 @@ contains
 
     do is=1,size(this%secAlpha,1)
       secMach=norm2(this%secResultantVel(:,is))/velSound
-      this%secCL(is)=this%C81(1)%getCL(this%secAlpha(is)*180._dp/pi,secMach)
+      this%secCL(is)=this%C81(this%airfoilNo(is))%getCL(this%secAlpha(is)*180._dp/pi,secMach)
     enddo
   end subroutine calc_secCL
 
@@ -1374,8 +1373,9 @@ module rotor_classdef
     real(dp), allocatable, dimension(:,:) :: AIC,AIC_inv  ! Influence coefficient matrix
     real(dp), allocatable, dimension(:) :: gamVec, gamVecPrev, RHS
     real(dp), allocatable, dimension(:) :: airfoilSectionLimit
+    real(dp), allocatable, dimension(:) :: CL0, CLa 
     real(dp) :: initWakeVel, psiStart, skewLimit
-    real(dp) :: turbulentViscosity, CL0, CLa
+    real(dp) :: turbulentViscosity
     integer :: symmetricTau
     integer :: rollupStart, rollupEnd
     integer :: suppressFwakeSwitch
@@ -1462,7 +1462,7 @@ contains
     call skiplines(12,5)
     read(12,*) this%pivotLE, this%flapHinge, this%symmetricTau
     call skiplines(12,5)
-    read(12,*) this%turbulentViscosity, this%CL0, this%CLa
+    read(12,*) this%turbulentViscosity
     call skiplines(12,4)
     read(12,*) this%spanwiseCore, this%streamwiseCoreSwitch
     call skiplines(12,3)
@@ -1487,12 +1487,14 @@ contains
     read(12,*) this%gammaPlotSwitch, this%alphaPlotSwitch
     call skiplines(12,4)
     read(12,*) this%nAirfoils
-    call skiplines(12,3)
+    call skiplines(12,4)
     if (this%nAirfoils .gt. 0) then
       allocate(this%airfoilSectionLimit(this%nAirfoils))
       allocate(this%airfoilFile(this%nAirfoils))
+      allocate(this%CL0(this%nAirfoils))
+      allocate(this%CLa(this%nAirfoils))
       do i=1,this%nAirfoils
-        read(12,*) this%airfoilSectionLimit(i),this%airfoilFile(i)
+        read(12,*) this%airfoilSectionLimit(i),this%CL0(i),this%CLa(i),this%airfoilFile(i)
       enddo
     endif
     close(12)
@@ -1530,6 +1532,7 @@ contains
       allocate(this%blade(ib)%secVelFreestream(3,this%ns))
       allocate(this%blade(ib)%secForce(3,this%ns))
       allocate(this%blade(ib)%secAlpha(this%ns))
+      allocate(this%blade(ib)%airfoilNo(this%ns))
       allocate(this%blade(ib)%secCL(this%ns))
       allocate(this%blade(ib)%secResultantVel(3,this%ns))
       allocate(this%blade(ib)%secCP(3,this%ns))
@@ -1545,7 +1548,8 @@ contains
     real(dp), dimension(this%nc+1) :: xVec
     real(dp), dimension(this%ns+1) :: yVec
     real(dp), dimension(this%nc,this%ns) :: dx,dy
-    real(dp) :: dxdymin
+    real(dp), dimension(3) :: leftTipCP
+    real(dp) :: dxdymin, secCPLoc, rbyR
     integer :: i,j,ib,is,ic
     real(dp) :: bladeOffset
     real(dp) :: velShed
@@ -1698,7 +1702,8 @@ contains
       endif
 
       ! Inflow calculated at mid-chord
-      this%blade(ib)%secCP = this%blade(ib)%getSecChordwiseLocations(0.5_dp)
+      secCPLoc=0.5_dp
+      this%blade(ib)%secCP = this%blade(ib)%getSecChordwiseLocations(secCPLoc)
 
       ! Initialize gamma
       this%blade(ib)%wiP%vr%gam=0._dp
@@ -1808,7 +1813,23 @@ contains
             call this%blade(ib)%C81(i)%readfile('airfoils/'//trim(this%airfoilFile(i)))
         enddo
         allocate(this%blade(ib)%airfoilSectionLimit(this%nAirfoils))
+        allocate(this%blade(ib)%CL0(this%nAirfoils))
+        allocate(this%blade(ib)%CLa(this%nAirfoils))
         this%blade(ib)%airfoilSectionLimit=this%airfoilSectionLimit
+
+        ! Assign airfoil numbers for each section
+        leftTipCP=this%blade(ib)%wiP(1,1)%PC(:,4)*(1._dp-secCPLoc) &
+          +this%blade(ib)%wiP(this%nc,1)%PC(:,3)*secCPLoc
+        do is=1,this%ns
+          rbyR=abs(dot_product(this%blade(ib)%secCP(:,is)-leftTipCP,this%blade(ib)%xAxis)) &
+            +this%root_cut
+          do i=1,this%nAirfoils
+            if (this%airfoilSectionLimit(i) .ge. rbyR) then
+              this%blade(ib)%airfoilNo(is)=i
+              exit
+            endif
+          enddo
+        enddo
       enddo
     endif
 
@@ -2487,7 +2508,7 @@ contains
     this%Force=0._dp
     do ib=1,this%nb
       call this%blade(ib)%calc_force_alphaGamma(density,sign(1._dp,this%Omega*this%controlPitch(1)), &
-        velSound,dt,this%CL0,this%CLa)
+        velSound,dt)
       this%Force=this%Force+this%blade(ib)%Force
     enddo
   end subroutine rotor_calc_force_alphaGamma

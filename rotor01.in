@@ -51,10 +51,10 @@ from LE[x/c]  from centre[r/R]  for swept/symmetric
 0.00                0.0                  0
 ===================================================================
 
-turbulentViscosity           Force alphaGamma
-(10-10000)                   CL0                  CLa
+turbulentViscosity           
+(10-10000)                   
 -------------------------------------------------------------------
-  5                          0.0                  6.28319
+  5                         
 ===================================================================
   spanwise core radius[x/c]       streamwise core_switch
   [s]ectional  [i]dentical
@@ -89,10 +89,11 @@ initWakeVel[m/s]     psiStart[deg]      skewLimit
        0                                 0
 ===================================================================
 
-No. of airfoil files ***Assumed 1 in code***
+No. of airfoil files 
 -------------------------------------------------------------------
        1
 
-Airfoil section limit(r/R)           Airfoil file names
+section limit    CL0     CLa(per rad)   Airfoil file names
+    (r/R)         [for FELS]
 -------------------------------------------------------------------
-         1.0                           flatPlate.C81
+     1.0         0.0      6.28319        flatPlate.C81
