@@ -1,6 +1,6 @@
  NO. OF TIMESTEPS [nt]    TIMESTEP (sec) [dt]    NO. OF ROTORS [nr]
 -----------------------------------------------------------------------
-     160                      0.00625                   2
+     160                      0.00625                   1
 
  NO. OF SUBITERATIONS [ntSub]  NO. OF INITIAL SUBITERATIONS [ntSubInit]    
 -----------------------------------------------------------------------
@@ -25,7 +25,7 @@
  PLOT FORCES: [0]Off [n]th iteration  using [0]gamma  [1]alpha [2]alfGam
   forcePlotSwitch                          forceCalcSwitch
 -----------------------------------------------------------------------
-       1                                          0
+       1                                          1
 =======================================================================
 
  WAKE PROPERTY SWITCHES: [0]Off [1]On  
