@@ -9,7 +9,7 @@
  SPAN DISCRETIZATION : [1]linear [2]cosine [3]halfsine
  spanSpacingSwitch
 -----------------------------------------------------------------------
-       1
+       2
 =======================================================================
 
    DENSITY [kg/m3]    SOUND VEL. [m/s]
@@ -25,7 +25,7 @@
  PLOT FORCES: [0]Off [n]th iteration  using [0]gamma  [1]alpha [2]alfGam
   forcePlotSwitch                          forceCalcSwitch
 -----------------------------------------------------------------------
-       1                                          1
+       1                                          0
 =======================================================================
 
  WAKE PROPERTY SWITCHES: [0]Off [1]On  
