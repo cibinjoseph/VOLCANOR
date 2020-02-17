@@ -28,7 +28,7 @@ Phi       Theta       Psi     about cgCoords [all in deg]
 
 Span[m]      root_cut[r/R]      chord[m]    coningAngle[deg]
 -------------------------------------------------------------------
- 6.0           0.0                1.0            0.0
+ 0.25           0.0                1.0            0.0
 ===================================================================
 
 Omega[rad/s]   X-shaftAxis     Y-shaftAxis     Z-shaftAxis 
@@ -96,4 +96,4 @@ No. of airfoil files
 section limit    CL0     CLa(per rad)   Airfoil file names
     (r/R)         [for FELS]
 -------------------------------------------------------------------
-     1.0         0.0      6.28319        flatPlate.C81
+     1.0         0.701      6.188        NACA6409.C81
