@@ -1184,7 +1184,7 @@ contains
         / (secDynamicPressure(is)*secArea(is))
 
       ! Compute angle of attack from linear CL
-      this%secAlpha(is) = (this%secCL(is)-this%CL0(this%airfoilNo(is)))/this%Cla(this%airfoilNo(is))
+      this%secAlpha(is) = (this%secCL(is)-this%CL0(this%airfoilNo(is)))/this%CLa(this%airfoilNo(is))
     enddo
 
     ! Compute non-linear CL
@@ -1816,6 +1816,10 @@ contains
         allocate(this%blade(ib)%CL0(this%nAirfoils))
         allocate(this%blade(ib)%CLa(this%nAirfoils))
         this%blade(ib)%airfoilSectionLimit=this%airfoilSectionLimit
+        do i=1,this%nAirfoils
+          this%blade(ib)%CL0(i)=this%CL0(i)
+          this%blade(ib)%CLa(i)=this%CLa(i)
+        enddo
 
         ! Assign airfoil numbers for each section
         leftTipCP=this%blade(ib)%wiP(1,1)%PC(:,4)*(1._dp-secCPLoc) &
