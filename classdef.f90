@@ -1184,6 +1184,8 @@ contains
         / (secDynamicPressure(is)*secArea(is))
 
       ! Compute angle of attack from linear CL
+      ! DEBUG
+      print*, this%airfoilNo(is)
       this%secAlpha(is) = (this%secCL(is)-this%CL0(this%airfoilNo(is)))/this%CLa(this%airfoilNo(is))
     enddo
 
@@ -1822,18 +1824,27 @@ contains
         enddo
 
         ! Assign airfoil numbers for each section
-        leftTipCP=this%blade(ib)%wiP(1,1)%PC(:,4)*(1._dp-secCPLoc) &
-          +this%blade(ib)%wiP(this%nc,1)%PC(:,3)*secCPLoc
-        do is=1,this%ns
-          rbyR=abs(dot_product(this%blade(ib)%secCP(:,is)-leftTipCP,this%blade(ib)%xAxis)) &
-            +this%root_cut
-          do i=1,this%nAirfoils
-            if (this%airfoilSectionLimit(i) .ge. rbyR) then
-              this%blade(ib)%airfoilNo(is)=i
-              exit
-            endif
+        if (this%nAirfoils .eq. 1) then
+          this%blade(ib)%airfoilNo(:)=1
+        else
+          leftTipCP=this%blade(ib)%wiP(1,1)%PC(:,4)*(1._dp-secCPLoc) &
+            +this%blade(ib)%wiP(this%nc,1)%PC(:,3)*secCPLoc
+          do is=1,this%ns
+            ! This will break if wing is centered about X-Z plane and 
+            ! full span length is used for reference length
+            rbyR=abs(dot_product(this%blade(ib)%secCP(:,is)-leftTipCP,this%blade(ib)%xAxis)) &
+              +this%root_cut
+            if (rbyR .gt. 1._dp) error stop 'ERROR: r/R value is greater than 1 in airfoil selection'
+            do i=1,this%nAirfoils
+              if (this%airfoilSectionLimit(i) .ge. rbyR) then
+                ! DEBUG
+                print*,'ASSIGN AIRFOIL'
+                this%blade(ib)%airfoilNo(is)=i
+                exit
+              endif
+            enddo
           enddo
-        enddo
+        endif
       enddo
     endif
 
