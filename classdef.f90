@@ -1184,8 +1184,6 @@ contains
         / (secDynamicPressure(is)*secArea(is))
 
       ! Compute angle of attack from linear CL
-      ! DEBUG
-      print*, this%airfoilNo(is)
       this%secAlpha(is) = (this%secCL(is)-this%CL0(this%airfoilNo(is)))/this%CLa(this%airfoilNo(is))
     enddo
 
@@ -1837,8 +1835,6 @@ contains
             if (rbyR .gt. 1._dp) error stop 'ERROR: r/R value is greater than 1 in airfoil selection'
             do i=1,this%nAirfoils
               if (this%airfoilSectionLimit(i) .ge. rbyR) then
-                ! DEBUG
-                print*,'ASSIGN AIRFOIL'
                 this%blade(ib)%airfoilNo(is)=i
                 exit
               endif
