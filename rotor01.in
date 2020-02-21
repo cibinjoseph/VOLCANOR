@@ -6,7 +6,7 @@ No.of blades,nb     Read wing from file
 
 Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 -------------------------------------------------------------------
-      10                       34                   250
+      10                       34                   300
 ===================================================================
 
 X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
@@ -48,7 +48,7 @@ u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]
 pivot point      flapHinge         invert tauSpan
 from LE[x/c]  from centre[r/R]  for swept/symmetric
 -------------------------------------------------------------------
-0.00                0.0                  0
+0.00                0.0                  1
 ===================================================================
 
 turbulentViscosity           
