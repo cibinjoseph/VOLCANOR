@@ -1143,6 +1143,8 @@ contains
         this%secResultantVel(:,is))  
       this%secForce(:,is)=sign(1._dp,sum(this%wiP(:,is)%vr%gam)) &
         *this%secForce(:,is)/norm2(this%secForce(:,is))
+      ! DEBUG
+      print*,this%secForce(:,is)
       this%secForce(:,is)=forceMag(is)*this%secForce(:,is)
     enddo
 
