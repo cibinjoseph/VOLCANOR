@@ -1139,12 +1139,12 @@ contains
       this%getSecArea()*this%secCL
     ! Compute direction of lift force
     do is=1,size(this%wiP,2)
+      ! Warning: This would give a wrong answer if a considerable dihedral
+      ! is present for the wing
       this%secForce(:,is)=cross3(this%yAxis, &
         this%secResultantVel(:,is))  
       this%secForce(:,is)=sign(1._dp,sum(this%wiP(:,is)%vr%gam)) &
         *this%secForce(:,is)/norm2(this%secForce(:,is))
-      ! DEBUG
-      print*,this%secForce(:,is)
       this%secForce(:,is)=forceMag(is)*this%secForce(:,is)
     enddo
 
@@ -1830,7 +1830,7 @@ contains
           leftTipCP=this%blade(ib)%wiP(1,1)%PC(:,4)*(1._dp-secCPLoc) &
             +this%blade(ib)%wiP(this%nc,1)%PC(:,3)*secCPLoc
           do is=1,this%ns
-            ! This will break if wing is centered about X-Z plane and 
+            ! Warning: This will break if wing is centered about X-Z plane and 
             ! full span length is used for reference length
             rbyR=abs(dot_product(this%blade(ib)%secCP(:,is)-leftTipCP,this%blade(ib)%xAxis)) &
               +this%root_cut
