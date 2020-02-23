@@ -49,7 +49,7 @@
 -----------------------------------------------------------------------
        0
 
- INITIAL WAKE VELOCITY: [0]Off [1..]timesteps   START FROM CONVERGENCE
-  initWakeVelNt                                 [1..] iterations
+ INITIAL WAKE VELOCITY: [0]Off [1..]timesteps  
+  initWakeVelNt                                 
 -----------------------------------------------------------------------
-       0                                                 100
+       0                                          
