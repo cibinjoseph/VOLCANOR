@@ -1139,7 +1139,7 @@ contains
       this%getSecArea()*this%secCL
     ! Compute direction of lift force
     do is=1,size(this%wiP,2)
-      this%secForce(:,is)=cross3(this%wiP(1,is)%tauCapSpan, &
+      this%secForce(:,is)=cross3(this%yAxis, &
         this%secResultantVel(:,is))  
       this%secForce(:,is)=sign(1._dp,sum(this%wiP(:,is)%vr%gam)) &
         *this%secForce(:,is)/norm2(this%secForce(:,is))
