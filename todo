@@ -5,8 +5,10 @@ Make lift integration higher order - unequal intervals
 Check oscillations in inflow - dependent on nInflowLocations
 Check if vortex strain is overriding vortex core changes due to dissipation
 Wake dissipation on extreme straining
-Implement option to switch lift from alpha computation to postprocessing
 Try slow start for tandem wing to check for discrepancy
 Convert grid output to binary format
 Implement non-lifting surfaces
 Resolve issue of blending multiple airfoils along span
+Implement option to switch lift from alpha computation to postprocessing
+  - Compute forces using recorded alpha
+Check why negative alpha does not produce negative lift
