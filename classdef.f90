@@ -1140,12 +1140,13 @@ contains
     ! Compute direction of lift force
     do is=1,size(this%wiP,2)
       ! Warning: This would give a wrong answer if a considerable dihedral
-      ! is present for the wing
+      ! is present for the wing since the blade Y-axis is not flapped
       this%secForce(:,is)=cross3(this%yAxis, &
         this%secResultantVel(:,is))  
       this%secForce(:,is)=sign(1._dp,sum(this%wiP(:,is)%vr%gam)) &
         *this%secForce(:,is)/norm2(this%secForce(:,is))
-      this%secForce(:,is)=forceMag(is)*this%secForce(:,is)
+      ! abs() used since direction is already captured in vector
+      this%secForce(:,is)=abs(forceMag(is))*this%secForce(:,is)
     enddo
 
     do i=1,3
