@@ -2,7 +2,7 @@
 type(rotor_class), allocatable, dimension(:) :: rotor
 
 ! Kinematics
-integer :: nt,nr
+integer :: nt, nr
 real(dp) :: dt
 
 ! Other Variables
@@ -14,7 +14,7 @@ character(len=10) :: rotorFile
 character(len=10) :: currentTime
 
 ! Iterators
-integer :: i,is,ic,row,iter,ir,jr,ib
+integer :: i, is, ic, row, iter, ir, jr, ib
 
 ! Switches
 integer :: ntSub, ntSubInit
