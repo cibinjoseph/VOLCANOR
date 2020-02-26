@@ -12,4 +12,3 @@ Resolve issue of blending multiple airfoils along span
 Implement option to switch lift from alpha computation to postprocessing
 - Compute forces using recorded alpha
 Write out in the form timestamp CFx CFy CFz CL CD CM Fx Fy Fz L D M
-instead of using a single direction vector
