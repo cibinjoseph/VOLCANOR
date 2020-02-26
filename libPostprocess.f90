@@ -577,7 +577,7 @@ contains
         write (12, *) '# Blade'//bladeNumberChar
         do ispan = 1, rotor%ns
           write (12, *) dot_product(rotor%blade(ib)%wiP(1, ispan)%CP - rotor%hubCoords, rotor%blade(ib)%yAxis), &
-            dot_product(rotor%blade(ib)%secforce(:, ispan), (/0._dp, 0._dp, 1._dp/))
+            dot_product(rotor%blade(ib)%secForce(:, ispan), (/0._dp, 0._dp, 1._dp/))
         enddo
       enddo
       close (12)

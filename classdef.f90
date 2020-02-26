@@ -578,8 +578,8 @@ module blade_classdef
     type(Fwake_class), allocatable, dimension(:) :: waFPredicted
     type(C81_class), allocatable, dimension(:) :: C81
     real(dp) :: theta, psi, pivotLE
-    real(dp), dimension(3) :: force, lift, drag
-    real(dp), allocatable, dimension(:, :) :: secforce
+    real(dp), dimension(3) :: force, lift, drag, momentLE
+    real(dp), allocatable, dimension(:, :) :: secForce
     integer, allocatable, dimension(:) :: airfoilNo
     character(len=30), allocatable, dimension(:) :: airfoilFile
     real(dp), allocatable, dimension(:) :: airfoilSectionLimit
@@ -1086,7 +1086,7 @@ contains
     enddo
 
     ! Compute delP
-    this%secforce = 0._dp
+    this%secForce = 0._dp
     do is = 1, cols
       do ic = 1, rows
         ! Use trapezoidal rule on two points to get current gam
@@ -1110,7 +1110,7 @@ contains
         this%wiP(ic, is)%normalforce = this%wiP(ic, is)%delP* &
           this%wiP(ic, is)%panelArea*this%wiP(ic, is)%nCap*(-1._dp)*invertGammaSign
 
-        this%secforce(:, is) = this%secforce(:, is) + this%wiP(ic, is)%normalforce
+        this%secForce(:, is) = this%secForce(:, is) + this%wiP(ic, is)%normalforce
         this%force = this%force + this%wiP(ic, is)%normalforce
       enddo
     enddo
@@ -1148,7 +1148,7 @@ contains
     real(dp), dimension(size(this%wiP, 2)) :: forceMag
     integer :: i, is
 
-    this%secforce = 0._dp
+    this%secForce = 0._dp
     call this%calc_secCL(velSound)
 
     forceMag = this%getSecDynamicPressure(density)* &
@@ -1157,16 +1157,16 @@ contains
     do is = 1, size(this%wiP, 2)
       ! Warning: This would give a wrong answer if a considerable dihedral
       ! is present for the wing since the blade Y-axis is not flapped
-      this%secforce(:, is) = cross3(this%yAxis, &
+      this%secForce(:, is) = cross3(this%yAxis, &
         this%secResultantVel(:, is))
-      this%secforce(:, is) = sign(1._dp, sum(this%wiP(:, is)%vr%gam)) &
-        *this%secforce(:, is)/norm2(this%secforce(:, is))
+      this%secForce(:, is) = sign(1._dp, sum(this%wiP(:, is)%vr%gam)) &
+        *this%secForce(:, is)/norm2(this%secForce(:, is))
       ! abs() used since direction is already captured in vector
-      this%secforce(:, is) = abs(forceMag(is))*this%secforce(:, is)
+      this%secForce(:, is) = abs(forceMag(is))*this%secForce(:, is)
     enddo
 
     do i = 1, 3
-      this%force(i) = sum(this%secforce(i, :))
+      this%force(i) = sum(this%secForce(i, :))
     enddo
   end subroutine blade_calc_force_alpha
 
@@ -1199,7 +1199,7 @@ contains
     do is = 1, ns
       ! Extract sectional lift and CL
       liftDir = cross3(this%secResultantVel(:, is), this%secTauCapSpan(:, is))
-      this%secCL(is) = dot_product(this%secforce(:, is), liftDir)/norm2(liftDir) &
+      this%secCL(is) = dot_product(this%secForce(:, is), liftDir)/norm2(liftDir) &
         /(secDynamicPressure(is)*secArea(is))
 
       ! Compute angle of attack from linear CL
@@ -1212,15 +1212,15 @@ contains
     forceMag = secDynamicPressure*secArea*this%secCL
     ! Compute direction of lift force
     do is = 1, ns
-      this%secforce(:, is) = cross3(this%wiP(1, is)%tauCapSpan, &
+      this%secForce(:, is) = cross3(this%wiP(1, is)%tauCapSpan, &
         this%secResultantVel(:, is))
-      this%secforce(:, is) = sign(1._dp, sum(this%wiP(:, is)%vr%gam)) &
-        *this%secforce(:, is)/norm2(this%secforce(:, is))
-      this%secforce(:, is) = forceMag(is)*this%secforce(:, is)
+      this%secForce(:, is) = sign(1._dp, sum(this%wiP(:, is)%vr%gam)) &
+        *this%secForce(:, is)/norm2(this%secForce(:, is))
+      this%secForce(:, is) = forceMag(is)*this%secForce(:, is)
     enddo
 
     do i = 1, 3
-      this%force(i) = sum(this%secforce(i, :))
+      this%force(i) = sum(this%secForce(i, :))
     enddo
   end subroutine blade_calc_force_alphaGamma
 
@@ -1549,7 +1549,7 @@ contains
       allocate (this%blade(ib)%secTauCapSpan(3, this%ns))
       allocate (this%blade(ib)%secNormalVec(3, this%ns))
       allocate (this%blade(ib)%secVelFreestream(3, this%ns))
-      allocate (this%blade(ib)%secforce(3, this%ns))
+      allocate (this%blade(ib)%secForce(3, this%ns))
       allocate (this%blade(ib)%secAlpha(this%ns))
       allocate (this%blade(ib)%airfoilNo(this%ns))
       allocate (this%blade(ib)%secCL(this%ns))
@@ -2546,7 +2546,7 @@ contains
     do ib = 1, this%nb
       call this%blade(ib)%calc_force_alpha(density, velSound)
       this%force = this%force + this%blade(ib)%force
-    enddo
+    endsemido
   end subroutine rotor_calc_force_alpha
 
   subroutine rotor_calc_force_alphaGamma(this, density, velSound, dt)
