@@ -1,5 +1,5 @@
 # Plot using gnuplot
-plot 'Results/r01forceHist.txt' w l
+plot 'Results/r01forceHist.txt' u 1:4 w l
 pause 1
 reread
 

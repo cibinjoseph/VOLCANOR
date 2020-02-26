@@ -272,7 +272,7 @@ program main
     end select
     do ir = 1, nr
       ! Initial force value
-      call force2file(timestamp, rotor(ir), ir, zAxis)
+      call force2file(timestamp, rotor(ir), ir)
     enddo
   endif
 
@@ -545,7 +545,7 @@ program main
         end select
 
         do ir = 1, nr
-          call force2file(timestamp, rotor(ir), ir, zAxis)
+          call force2file(timestamp, rotor(ir), ir)
         enddo
       endif
     endif

@@ -16,7 +16,7 @@ contains
 
       ! Add data headers
       open (unit=11, file=forceFilename, action='write')
-      write (11, '(A)') 'timestamp(iters)    CT    rotorThrust    bladeThrust1    bladeThrust2...'
+      write (11, '(A)') 'timestamp(iters)    CFx    CFy    CFz    Fx    Fy    Fz'
     enddo
     close (11)
   end subroutine init_plots
@@ -548,31 +548,27 @@ contains
 
   end subroutine tip2file
 
-  subroutine force2file(timestamp, rotor, rotorNumber, directionVector)
+  subroutine force2file(timestamp, rotor, rotorNumber)
     ! Write sec and net force to file
     type(rotor_class), intent(in) :: rotor
     character(len=*), intent(in) :: timestamp
     integer, intent(in) :: rotorNumber
-    real(dp), intent(in), dimension(3) :: directionVector
     character(len=2) :: rotorNumberChar, bladeNumberChar
-    real(dp) :: rotorForce
-    real(dp), dimension(rotor%nb) :: bladeForce
     integer :: ib, ispan
     character(len=24) :: forceFilename
-
-    rotorForce = dot_product(rotor%Force, directionVector)
-
-    do ib = 1, rotor%nb
-      bladeForce(ib) = dot_product(rotor%blade(ib)%Force, directionVector)
-    enddo
 
     write (rotorNumberChar, '(I0.2)') rotorNumber
     forceFilename = 'Results/r'//rotorNumberChar//'forceHist.txt'
 
     open (unit=11, file=forceFilename, action='write', position='append')
-    write (11, 100) timestamp, rotorForce/rotor%nonDimForceDenominator, rotorForce, (bladeForce(ib), ib=1, rotor%nb)
+    write (11, 100) timestamp, &
+      rotor%Force(1) / rotor%nonDimForceDenominator, &  ! CFx
+      rotor%Force(2) / rotor%nonDimForceDenominator, &  ! CFy
+      rotor%Force(3) / rotor%nonDimForceDenominator, &  ! CFz
+      rotor%Force(1), rotor%Force(2), rotor%Force(3)    ! Fx, Fy, Fz
+      !(bladeForce(ib), ib=1, rotor%nb)
     close (11)
-100 format(A, 15(E15.7))
+    100 format(A, 6(E15.7))
 
     if (rotor%bladeForcePlotSwitch .ne. 0) then
       open (unit=12, file='Results/r'//rotorNumberChar//'forceDist'//timestamp//'.curve', action='write')
@@ -581,7 +577,7 @@ contains
         write (12, *) '# Blade'//bladeNumberChar
         do ispan = 1, rotor%ns
           write (12, *) dot_product(rotor%blade(ib)%wiP(1, ispan)%CP - rotor%hubCoords, rotor%blade(ib)%yAxis), &
-            dot_product(rotor%blade(ib)%secForce(:, ispan), directionVector)
+            dot_product(rotor%blade(ib)%secForce(:, ispan), (/0._dp, 0._dp, 1._dp/))
         enddo
       enddo
       close (12)
