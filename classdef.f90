@@ -577,28 +577,22 @@ module blade_classdef
     type(Nwake_class), allocatable, dimension(:, :) :: waPPredicted
     type(Fwake_class), allocatable, dimension(:) :: waFPredicted
     type(C81_class), allocatable, dimension(:) :: C81
-    real(dp) :: theta
+    real(dp) :: theta, psi, pivotLE
     real(dp), dimension(3) :: Force
     real(dp), allocatable, dimension(:, :) :: secForce
-    real(dp) :: psi
-    real(dp) :: pivotLE
     integer, allocatable, dimension(:) :: airfoilNo
     character(len=30), allocatable, dimension(:) :: airfoilFile
     real(dp), allocatable, dimension(:) :: airfoilSectionLimit
-    real(dp), allocatable, dimension(:, :) :: secTauCapChord, secTauCapSpan
-    real(dp), allocatable, dimension(:, :) :: secNormalVec
-    real(dp), allocatable, dimension(:, :) :: secVelFreestream
-    real(dp), allocatable, dimension(:) :: secAlpha
-    real(dp), allocatable, dimension(:) :: secCL, CL0, CLa
-    real(dp), allocatable, dimension(:, :) :: secResultantVel
-    real(dp), allocatable, dimension(:, :) :: secCP
-    real(dp), allocatable, dimension(:, :, :) :: velNwake
-    real(dp), allocatable, dimension(:, :, :) :: velNwake1, velNwake2, velNwake3
+    real(dp), allocatable, dimension(:, :, :) :: velNwake, velNwake1, velNwake2, velNwake3
     real(dp), allocatable, dimension(:, :, :) :: velNwakePredicted, velNwakeStep
-    real(dp), allocatable, dimension(:, :) :: velFwake
-    real(dp), allocatable, dimension(:, :) :: velFwake1, velFwake2, velFwake3
+    real(dp), allocatable, dimension(:, :) :: velFwake, velFwake1, velFwake2, velFwake3
     real(dp), allocatable, dimension(:, :) :: velFwakePredicted, velFwakeStep
     real(dp), dimension(3) :: xAxis, yAxis, zAxis
+    ! Sectional quantities
+    real(dp), allocatable, dimension(:, :) :: secTauCapChord, secTauCapSpan
+    real(dp), allocatable, dimension(:, :) :: secNormalVec, secVelFreestream
+    real(dp), allocatable, dimension(:, :) :: secResultantVel, secCP
+    real(dp), allocatable, dimension(:) :: secAlpha, secCL, CL0, CLa
 
   contains
     procedure :: move => blade_move
