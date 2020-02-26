@@ -562,22 +562,22 @@ contains
 
     open (unit=11, file=forceFilename, action='write', position='append')
     write (11, 100) timestamp, &
-      rotor%Force(1) / rotor%nonDimForceDenominator, &  ! CFx
-      rotor%Force(2) / rotor%nonDimForceDenominator, &  ! CFy
-      rotor%Force(3) / rotor%nonDimForceDenominator, &  ! CFz
-      rotor%Force(1), rotor%Force(2), rotor%Force(3)    ! Fx, Fy, Fz
-      !(bladeForce(ib), ib=1, rotor%nb)
+      rotor%force(1) / rotor%nonDimforceDenominator, &  ! CFx
+      rotor%force(2) / rotor%nonDimforceDenominator, &  ! CFy
+      rotor%force(3) / rotor%nonDimforceDenominator, &  ! CFz
+      rotor%force(1), rotor%force(2), rotor%force(3)    ! Fx, Fy, Fz
+      !(bladeforce(ib), ib=1, rotor%nb)
     close (11)
     100 format(A, 6(E15.7))
 
-    if (rotor%bladeForcePlotSwitch .ne. 0) then
+    if (rotor%bladeforcePlotSwitch .ne. 0) then
       open (unit=12, file='Results/r'//rotorNumberChar//'forceDist'//timestamp//'.curve', action='write')
       do ib = 1, rotor%nb
         write (bladeNumberChar, '(I0.2)') ib
         write (12, *) '# Blade'//bladeNumberChar
         do ispan = 1, rotor%ns
           write (12, *) dot_product(rotor%blade(ib)%wiP(1, ispan)%CP - rotor%hubCoords, rotor%blade(ib)%yAxis), &
-            dot_product(rotor%blade(ib)%secForce(:, ispan), (/0._dp, 0._dp, 1._dp/))
+            dot_product(rotor%blade(ib)%secforce(:, ispan), (/0._dp, 0._dp, 1._dp/))
         enddo
       enddo
       close (12)
