@@ -562,13 +562,17 @@ contains
 
     open (unit=11, file=forceFilename, action='write', position='append')
     write (11, 100) timestamp, &
-      rotor%force(1) / rotor%nonDimforceDenominator, &  ! CFx
-      rotor%force(2) / rotor%nonDimforceDenominator, &  ! CFy
-      rotor%force(3) / rotor%nonDimforceDenominator, &  ! CFz
-      rotor%force(1), rotor%force(2), rotor%force(3)    ! Fx, Fy, Fz
+      rotor%forceInertial(1) / rotor%nonDimforceDenominator, &   ! CFx
+      rotor%forceInertial(2) / rotor%nonDimforceDenominator, &   ! CFy
+      rotor%forceInertial(3) / rotor%nonDimforceDenominator, &   ! CFz
+      rotor%forceWind(1) / rotor%nonDimforceDenominator, &   ! CFwindx
+      rotor%forceWind(2) / rotor%nonDimforceDenominator, &   ! CFwindy
+      rotor%forceWind(3) / rotor%nonDimforceDenominator, &   ! CFwindz
+      rotor%forceInertial(1), rotor%forceInertial(2), rotor%forceInertial(3), &  ! Fx, Fy, Fz
+      rotor%forceWind(1), rotor%forceWind(2), rotor%forceWind(3)     ! Fwindx, Fwindy, Fwindz
       !(bladeforce(ib), ib=1, rotor%nb)
     close (11)
-    100 format(A, 6(E15.7))
+    100 format(A, 12(E15.7))
 
     if (rotor%bladeforcePlotSwitch .ne. 0) then
       open (unit=12, file='Results/r'//rotorNumberChar//'forceDist'//timestamp//'.curve', action='write')

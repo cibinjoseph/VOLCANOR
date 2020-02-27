@@ -578,7 +578,7 @@ module blade_classdef
     type(Fwake_class), allocatable, dimension(:) :: waFPredicted
     type(C81_class), allocatable, dimension(:) :: C81
     real(dp) :: theta, psi, pivotLE
-    real(dp), dimension(3) :: force, lift, drag, momentLE
+    real(dp), dimension(3) :: forceInertial
     real(dp), allocatable, dimension(:, :) :: secForce
     integer, allocatable, dimension(:) :: airfoilNo
     character(len=30), allocatable, dimension(:) :: airfoilFile
@@ -1051,7 +1051,7 @@ contains
     rows = size(this%wiP, 1)
     cols = size(this%wiP, 2)
 
-    this%force = 0._dp
+    this%forceInertial = 0._dp
 
     ! Compute tangential velocity
     do is = 1, cols
@@ -1106,12 +1106,12 @@ contains
           + (this%wiP(ic, is)%gamTrapz - this%wiP(ic, is)%gamPrev)/dt)
         this%wiP(ic, is)%gamPrev = this%wiP(ic, is)%gamTrapz
 
-        ! Invert direction of force according to sign of omega and collective pitch
+        ! Invert direction of forceInertial according to sign of omega and collective pitch
         this%wiP(ic, is)%normalforce = this%wiP(ic, is)%delP* &
           this%wiP(ic, is)%panelArea*this%wiP(ic, is)%nCap*(-1._dp)*invertGammaSign
 
         this%secForce(:, is) = this%secForce(:, is) + this%wiP(ic, is)%normalforce
-        this%force = this%force + this%wiP(ic, is)%normalforce
+        this%forceInertial = this%forceInertial + this%wiP(ic, is)%normalforce
       enddo
     enddo
 
@@ -1166,7 +1166,7 @@ contains
     enddo
 
     do i = 1, 3
-      this%force(i) = sum(this%secForce(i, :))
+      this%forceInertial(i) = sum(this%secForce(i, :))
     enddo
   end subroutine blade_calc_force_alpha
 
@@ -1220,7 +1220,7 @@ contains
     enddo
 
     do i = 1, 3
-      this%force(i) = sum(this%secForce(i, :))
+      this%forceInertial(i) = sum(this%secForce(i, :))
     enddo
   end subroutine blade_calc_force_alphaGamma
 
@@ -1377,7 +1377,7 @@ module rotor_classdef
     real(dp), dimension(3) :: hubCoords, cgCoords, fromCoords
     real(dp) :: radius, chord, root_cut, coningAngle
     real(dp) :: CT
-    real(dp), dimension(3) :: force
+    real(dp), dimension(3) :: forceInertial, forceWind
     real(dp), dimension(3) :: controlPitch  ! theta0,thetaC,thetaS
     real(dp) :: thetaTwist
     real(dp) :: pivotLE  ! pivot location from LE [x/c]
@@ -2529,10 +2529,10 @@ contains
     real(dp), intent(in) :: density, dt
     integer :: ib
 
-    this%force = 0._dp
+    this%forceInertial = 0._dp
     do ib = 1, this%nb
       call this%blade(ib)%calc_force_gamma(density, sign(1._dp, this%Omega*this%controlPitch(1)), dt)
-      this%force = this%force + this%blade(ib)%force
+      this%forceInertial = this%forceInertial + this%blade(ib)%forceInertial
     enddo
   end subroutine rotor_calc_force_gamma
 
@@ -2542,11 +2542,11 @@ contains
     real(dp), intent(in) :: density, velSound
     integer :: ib
 
-    this%force = 0._dp
+    this%forceInertial = 0._dp
     do ib = 1, this%nb
       call this%blade(ib)%calc_force_alpha(density, velSound)
-      this%force = this%force + this%blade(ib)%force
-    endsemido
+      this%forceInertial = this%forceInertial + this%blade(ib)%forceInertial
+    enddo
   end subroutine rotor_calc_force_alpha
 
   subroutine rotor_calc_force_alphaGamma(this, density, velSound, dt)
@@ -2555,11 +2555,11 @@ contains
     real(dp), intent(in) :: density, velSound, dt
     integer :: ib
 
-    this%force = 0._dp
+    this%forceInertial = 0._dp
     do ib = 1, this%nb
       call this%blade(ib)%calc_force_alphaGamma(density, sign(1._dp, this%Omega*this%controlPitch(1)), &
         velSound, dt)
-      this%force = this%force + this%blade(ib)%force
+      this%forceInertial = this%forceInertial + this%blade(ib)%forceInertial
     enddo
   end subroutine rotor_calc_force_alphaGamma
 
