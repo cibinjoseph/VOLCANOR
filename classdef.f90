@@ -579,7 +579,7 @@ module blade_classdef
     type(C81_class), allocatable, dimension(:) :: C81
     real(dp) :: theta, psi, pivotLE
     real(dp), dimension(3) :: forceInertial
-    real(dp), allocatable, dimension(:, :) :: secForce
+    real(dp), allocatable, dimension(:, :) :: secForceInertial, secForceWind
     integer, allocatable, dimension(:) :: airfoilNo
     character(len=30), allocatable, dimension(:) :: airfoilFile
     real(dp), allocatable, dimension(:) :: airfoilSectionLimit
@@ -1086,7 +1086,7 @@ contains
     enddo
 
     ! Compute delP
-    this%secForce = 0._dp
+    this%secForceInertial = 0._dp
     do is = 1, cols
       do ic = 1, rows
         ! Use trapezoidal rule on two points to get current gam
@@ -1110,7 +1110,7 @@ contains
         this%wiP(ic, is)%normalforce = this%wiP(ic, is)%delP* &
           this%wiP(ic, is)%panelArea*this%wiP(ic, is)%nCap*(-1._dp)*invertGammaSign
 
-        this%secForce(:, is) = this%secForce(:, is) + this%wiP(ic, is)%normalforce
+        this%secForceInertial(:, is) = this%secForceInertial(:, is) + this%wiP(ic, is)%normalforce
         this%forceInertial = this%forceInertial + this%wiP(ic, is)%normalforce
       enddo
     enddo
@@ -1145,28 +1145,28 @@ contains
     ! Compute force using sec alpha
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: density, velSound
-    real(dp), dimension(size(this%wiP, 2)) :: forceMag
+    real(dp), dimension(size(this%wiP, 2)) :: liftMag
     integer :: i, is
 
-    this%secForce = 0._dp
+    this%secForceWind = 0._dp
     call this%calc_secCL(velSound)
 
-    forceMag = this%getSecDynamicPressure(density)* &
+    this%secForceWind(3,:) = this%getSecDynamicPressure(density)* &
       this%getSecArea()*this%secCL
-    ! Compute direction of lift force
-    do is = 1, size(this%wiP, 2)
-      ! Warning: This would give a wrong answer if a considerable dihedral
-      ! is present for the wing since the blade Y-axis is not flapped
-      this%secForce(:, is) = cross3(this%yAxis, &
-        this%secResultantVel(:, is))
-      this%secForce(:, is) = sign(1._dp, sum(this%wiP(:, is)%vr%gam)) &
-        *this%secForce(:, is)/norm2(this%secForce(:, is))
-      ! abs() used since direction is already captured in vector
-      this%secForce(:, is) = abs(forceMag(is))*this%secForce(:, is)
-    enddo
+    !! Compute direction of lift force
+    !do is = 1, size(this%wiP, 2)
+    !  ! Warning: This would give a wrong answer if a considerable dihedral
+    !  ! is present for the wing since the blade Y-axis is not flapped
+    !  this%secForceInertial(:, is) = cross3(this%yAxis, &
+    !    this%secResultantVel(:, is))
+    !  this%secForceInertial(:, is) = sign(1._dp, sum(this%wiP(:, is)%vr%gam)) &
+    !    *this%secForceInertial(:, is)/norm2(this%secForceInertial(:, is))
+    !  ! abs() used since direction is already captured in vector
+    !  this%secForceInertial(:, is) = abs(forceMag(is))*this%secForceInertial(:, is)
+    !enddo
 
     do i = 1, 3
-      this%forceInertial(i) = sum(this%secForce(i, :))
+      this%forceWind(i) = sum(this%secForceWind(i, :))
     enddo
   end subroutine blade_calc_force_alpha
 
@@ -1199,7 +1199,7 @@ contains
     do is = 1, ns
       ! Extract sectional lift and CL
       liftDir = cross3(this%secResultantVel(:, is), this%secTauCapSpan(:, is))
-      this%secCL(is) = dot_product(this%secForce(:, is), liftDir)/norm2(liftDir) &
+      this%secCL(is) = dot_product(this%secForceInertial(:, is), liftDir)/norm2(liftDir) &
         /(secDynamicPressure(is)*secArea(is))
 
       ! Compute angle of attack from linear CL
@@ -1212,15 +1212,15 @@ contains
     forceMag = secDynamicPressure*secArea*this%secCL
     ! Compute direction of lift force
     do is = 1, ns
-      this%secForce(:, is) = cross3(this%wiP(1, is)%tauCapSpan, &
+      this%secForceInertial(:, is) = cross3(this%wiP(1, is)%tauCapSpan, &
         this%secResultantVel(:, is))
-      this%secForce(:, is) = sign(1._dp, sum(this%wiP(:, is)%vr%gam)) &
-        *this%secForce(:, is)/norm2(this%secForce(:, is))
-      this%secForce(:, is) = forceMag(is)*this%secForce(:, is)
+      this%secForceInertial(:, is) = sign(1._dp, sum(this%wiP(:, is)%vr%gam)) &
+        *this%secForceInertial(:, is)/norm2(this%secForceInertial(:, is))
+      this%secForceInertial(:, is) = forceMag(is)*this%secForceInertial(:, is)
     enddo
 
     do i = 1, 3
-      this%forceInertial(i) = sum(this%secForce(i, :))
+      this%forceInertial(i) = sum(this%secForceInertial(i, :))
     enddo
   end subroutine blade_calc_force_alphaGamma
 
@@ -1549,7 +1549,8 @@ contains
       allocate (this%blade(ib)%secTauCapSpan(3, this%ns))
       allocate (this%blade(ib)%secNormalVec(3, this%ns))
       allocate (this%blade(ib)%secVelFreestream(3, this%ns))
-      allocate (this%blade(ib)%secForce(3, this%ns))
+      allocate (this%blade(ib)%secForceInertial(3, this%ns))
+      allocate (this%blade(ib)%secForceWind(3, this%ns))
       allocate (this%blade(ib)%secAlpha(this%ns))
       allocate (this%blade(ib)%airfoilNo(this%ns))
       allocate (this%blade(ib)%secCL(this%ns))
