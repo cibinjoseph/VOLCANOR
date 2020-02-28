@@ -295,7 +295,7 @@ module wingpanel_classdef
     real(dp), dimension(3) :: velCPTotal  ! local vel at CP including wing vortices
     real(dp), dimension(3) :: velCPm  ! rel. inertial vel at CP (due to motion)
     real(dp), dimension(3) :: normalforce  ! normalforce vector (inertial frame)
-    real(dp), dimension(3) :: chordwiseResultantVel
+    real(dp), dimension(3) :: chordwiseResVel
     real(dp) :: velPitch             ! pitch velocity
     !real(dp) :: dLift, dDrag          ! magnitudes of panel lift and drag
     real(dp) :: delP                  ! Pressure difference at panel
@@ -310,7 +310,7 @@ module wingpanel_classdef
     procedure :: calcTau => wingpanel_class_calcTau
     procedure :: rot => wingpanel_class_rot
     procedure :: shiftdP => wingpanel_class_shiftdP
-    procedure :: calc_chordwiseResultantVel => wingpanel_calc_chordwiseResultantVel
+    procedure :: calc_chordwiseResVel => wingpanel_calc_chordwiseResVel
     procedure :: calc_area
     procedure :: calc_mean_dimensions
     procedure :: isCPinsidecore
@@ -451,13 +451,13 @@ contains
     endif
   end function isCPinsidecore
 
-  subroutine wingpanel_calc_chordwiseResultantVel(this)
+  subroutine wingpanel_calc_chordwiseResVel(this)
     ! Compute panel resultant velocities using local velocities
   class(wingpanel_class), intent(inout) :: this
 
-    this%chordwiseResultantVel = this%velCPTotal - &
+    this%chordwiseResVel = this%velCPTotal - &
       dot_product(this%velCPTotal, this%tauCapSpan)*this%tauCapSpan
-  end subroutine wingpanel_calc_chordwiseResultantVel
+  end subroutine wingpanel_calc_chordwiseResVel
 
   !subroutine wingpanel_calc_alpha(this)
   !  ! Compute panel alpha using local velocities
@@ -591,7 +591,7 @@ module blade_classdef
     ! Sectional quantities
     real(dp), allocatable, dimension(:, :) :: secTauCapChord, secTauCapSpan
     real(dp), allocatable, dimension(:, :) :: secNormalVec, secVelFreestream
-    real(dp), allocatable, dimension(:, :) :: secResultantVel, secCP
+    real(dp), allocatable, dimension(:, :) :: secResVel, secCP
     real(dp), allocatable, dimension(:) :: secAlpha, secCL, CL0, CLa
 
   contains
@@ -611,7 +611,7 @@ module blade_classdef
     procedure :: calc_force_alpha => blade_calc_force_alpha
     procedure :: calc_force_alphaGamma => blade_calc_force_alphaGamma
     procedure :: calc_secAlpha => blade_calc_secAlpha
-    procedure :: calc_secResultantVel => blade_calc_secResultantVel
+    procedure :: calc_secResVel => blade_calc_secResVel
     procedure :: burst_wake => blade_burst_wake
     procedure :: getSecChordwiseLocations
     procedure :: calc_secCL
@@ -1126,7 +1126,7 @@ contains
 
     rows = size(this%wiP, 1)
     do is = 1, size(this%wiP, 2)
-      magsecVelCPTotal(is) = norm2(this%secResultantVel(:, is))
+      magsecVelCPTotal(is) = norm2(this%secResVel(:, is))
     enddo
     getSecDynamicPressure = 0.5_dp*density*magsecVelCPTotal**2._dp
   end function getSecDynamicPressure
@@ -1145,8 +1145,7 @@ contains
     ! Compute force using sec alpha
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: density, velSound
-    real(dp), dimension(size(this%wiP, 2)) :: liftMag
-    integer :: i, is
+    ! integer :: i, is
 
     this%secForceWind = 0._dp
     call this%calc_secCL(velSound)
@@ -1158,16 +1157,16 @@ contains
     !  ! Warning: This would give a wrong answer if a considerable dihedral
     !  ! is present for the wing since the blade Y-axis is not flapped
     !  this%secForceInertial(:, is) = cross3(this%yAxis, &
-    !    this%secResultantVel(:, is))
+    !    this%secResVel(:, is))
     !  this%secForceInertial(:, is) = sign(1._dp, sum(this%wiP(:, is)%vr%gam)) &
     !    *this%secForceInertial(:, is)/norm2(this%secForceInertial(:, is))
     !  ! abs() used since direction is already captured in vector
     !  this%secForceInertial(:, is) = abs(forceMag(is))*this%secForceInertial(:, is)
     !enddo
 
-    do i = 1, 3
-      this%forceWind(i) = sum(this%secForceWind(i, :))
-    enddo
+    ! do i = 1, 3
+    !   this%forceWind(i) = sum(this%secForceWind(i, :))
+    ! enddo
   end subroutine blade_calc_force_alpha
 
   subroutine blade_calc_force_alphaGamma(this, density, invertGammaSign, velSound, dt)
@@ -1190,7 +1189,7 @@ contains
 
       ! Assuming sec resultant velocity is same as sec freestream vel
       ! for computing corrected alpha later
-      this%secResultantVel(:, is) = secChordwiseVelFreestream
+      this%secResVel(:, is) = secChordwiseVelFreestream
     enddo
 
     secDynamicPressure = this%getSecDynamicPressure(density)
@@ -1198,7 +1197,7 @@ contains
 
     do is = 1, ns
       ! Extract sectional lift and CL
-      liftDir = cross3(this%secResultantVel(:, is), this%secTauCapSpan(:, is))
+      liftDir = cross3(this%secResVel(:, is), this%secTauCapSpan(:, is))
       this%secCL(is) = dot_product(this%secForceInertial(:, is), liftDir)/norm2(liftDir) &
         /(secDynamicPressure(is)*secArea(is))
 
@@ -1213,7 +1212,7 @@ contains
     ! Compute direction of lift force
     do is = 1, ns
       this%secForceInertial(:, is) = cross3(this%wiP(1, is)%tauCapSpan, &
-        this%secResultantVel(:, is))
+        this%secResVel(:, is))
       this%secForceInertial(:, is) = sign(1._dp, sum(this%wiP(:, is)%vr%gam)) &
         *this%secForceInertial(:, is)/norm2(this%secForceInertial(:, is))
       this%secForceInertial(:, is) = forceMag(is)*this%secForceInertial(:, is)
@@ -1233,12 +1232,12 @@ contains
     integer :: is
 
     do is = 1, size(this%secAlpha, 1)
-      secMach = norm2(this%secResultantVel(:, is))/velSound
+      secMach = norm2(this%secResVel(:, is))/velSound
       this%secCL(is) = this%C81(this%airfoilNo(is))%getCL(this%secAlpha(is)*180._dp/pi, secMach)
     enddo
   end subroutine calc_secCL
 
-  subroutine blade_calc_secResultantVel(this)
+  subroutine blade_calc_secResVel(this)
     ! Compute sec resultant velocity by interpolating local panel velocity
   class(blade_class), intent(inout) :: this
     integer :: i, is, ic, rows
@@ -1246,47 +1245,47 @@ contains
 
     rows = size(this%wiP, 1)
     if (rows .ge. 3) then  ! Use least squares fit to get sec resultant velocity
-      do is = 1, size(this%secResultantVel, 2)
+      do is = 1, size(this%secResVel, 2)
         do ic = 1, rows
-          call this%wiP(ic, is)%calc_chordwiseResultantVel()
+          call this%wiP(ic, is)%calc_chordwiseResVel()
           xDist(ic) = dot_product(this%wiP(ic, is)%CP - this%wiP(1, is)%PC(:, 1), &
             this%secTauCapChord(:, is))
         enddo
         do i = 1, 3
-          this%secResultantVel(i, is) = lsq2(dot_product(this%secCP(:, is) - &
+          this%secResVel(i, is) = lsq2(dot_product(this%secCP(:, is) - &
             this%wiP(1, is)%PC(:, 1), this%secTauCapChord(:, is)), xDist, &
-            this%wiP(:, is)%chordwiseResultantVel(i))
+            this%wiP(:, is)%chordwiseResVel(i))
         enddo
       enddo
     else  ! Use average of resultant velocities
-      do is = 1, size(this%secResultantVel, 2)
+      do is = 1, size(this%secResVel, 2)
         do ic = 1, rows
-          call this%wiP(ic, is)%calc_chordwiseResultantVel()
+          call this%wiP(ic, is)%calc_chordwiseResVel()
         enddo
         do i = 1, 3
-          this%secResultantVel(i, is) = sum(this%wiP(:, is)%chordwiseResultantVel(i))/rows
+          this%secResVel(i, is) = sum(this%wiP(:, is)%chordwiseResVel(i))/rows
         enddo
       enddo
     endif
-  end subroutine blade_calc_secResultantVel
+  end subroutine blade_calc_secResVel
 
   subroutine blade_calc_secAlpha(this)
     ! Compute sec alpha using sec resultant velocity
   class(blade_class), intent(inout) :: this
     integer :: is
 
-    call this%calc_secResultantVel()
+    call this%calc_secResVel()
 
     !! Use acos() to find angle
     !do is=1,size(this%secAlpha)
-    !  this%secAlpha(is)=acos(dot_product(this%secResultantVel(:,is),this%secTauCapChord(:,is)) &
-    !    /norm2(this%secResultantVel(:,is)))
+    !  this%secAlpha(is)=acos(dot_product(this%secResVel(:,is),this%secTauCapChord(:,is)) &
+    !    /norm2(this%secResVel(:,is)))
     !enddo
 
     ! Use atan2() to find angle
     do is = 1, size(this%secAlpha)
-      this%secAlpha(is) = atan2(dot_product(this%secResultantVel(:, is), this%secNormalVec(:, is)), &
-        dot_product(this%secResultantVel(:, is), this%secTauCapChord(:, is)))
+      this%secAlpha(is) = atan2(dot_product(this%secResVel(:, is), this%secNormalVec(:, is)), &
+        dot_product(this%secResVel(:, is), this%secTauCapChord(:, is)))
     enddo
   end subroutine blade_calc_secAlpha
 
@@ -1554,7 +1553,7 @@ contains
       allocate (this%blade(ib)%secAlpha(this%ns))
       allocate (this%blade(ib)%airfoilNo(this%ns))
       allocate (this%blade(ib)%secCL(this%ns))
-      allocate (this%blade(ib)%secResultantVel(3, this%ns))
+      allocate (this%blade(ib)%secResVel(3, this%ns))
       allocate (this%blade(ib)%secCP(3, this%ns))
     enddo
   end subroutine getdata
