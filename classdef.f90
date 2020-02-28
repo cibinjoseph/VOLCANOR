@@ -1145,7 +1145,7 @@ contains
     ! Compute force using sec alpha
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: density, velSound
-    ! integer :: i, is
+    integer :: i
 
     this%secForceWind = 0._dp
     call this%calc_secCL(velSound)
@@ -1164,9 +1164,9 @@ contains
     !  this%secForceInertial(:, is) = abs(forceMag(is))*this%secForceInertial(:, is)
     !enddo
 
-    ! do i = 1, 3
-    !   this%forceWind(i) = sum(this%secForceWind(i, :))
-    ! enddo
+    do i = 1, 3
+      this%forceInertial(i) = sum(this%secForceInertial(i, :))
+    enddo
   end subroutine blade_calc_force_alpha
 
   subroutine blade_calc_force_alphaGamma(this, density, invertGammaSign, velSound, dt)
