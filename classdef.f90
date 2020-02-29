@@ -592,7 +592,7 @@ module blade_classdef
     real(dp), allocatable, dimension(:, :) :: secTauCapChord, secTauCapSpan
     real(dp), allocatable, dimension(:, :) :: secNormalVec, secVelFreestream
     real(dp), allocatable, dimension(:, :) :: secChordwiseResVel, secCP
-    real(dp), allocatable, dimension(:) :: secAlpha, secCL, CL0, CLa
+    real(dp), allocatable, dimension(:) :: secAlpha, secCL, secCD, secCM, CL0, CLa
 
   contains
     procedure :: move => blade_move
@@ -614,7 +614,7 @@ module blade_classdef
     procedure :: calc_secChordwiseResVel => blade_calc_secChordwiseResVel
     procedure :: burst_wake => blade_burst_wake
     procedure :: getSecChordwiseLocations
-    procedure :: calc_secCL
+    procedure :: calc_secCoeffs
   end type blade_class
 contains
 
@@ -1145,24 +1145,32 @@ contains
     ! Compute force using sec alpha
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: density, velSound
-    integer :: i
+    integer :: i, is
 
     this%secForceWind = 0._dp
-    call this%calc_secCL(velSound)
+    this%secForceInertial = 0._dp
+    call this%calc_secCoeffs(velSound)
 
+    ! Lift and Drag in local wind frame
     this%secForceWind(3,:) = this%getSecDynamicPressure(density)* &
-      this%getSecArea()*this%secCL
-    !! Compute direction of lift force
-    !do is = 1, size(this%wiP, 2)
-    !  ! Warning: This would give a wrong answer if a considerable dihedral
-    !  ! is present for the wing since the blade Y-axis is not flapped
-    !  this%secForceInertial(:, is) = cross3(this%yAxis, &
-    !    this%secChordwiseResVel(:, is))
-    !  this%secForceInertial(:, is) = sign(1._dp, sum(this%wiP(:, is)%vr%gam)) &
-    !    *this%secForceInertial(:, is)/norm2(this%secForceInertial(:, is))
-    !  ! abs() used since direction is already captured in vector
-    !  this%secForceInertial(:, is) = abs(forceMag(is))*this%secForceInertial(:, is)
-    !enddo
+      this%getSecArea() * this%secCL
+    this%secForceWind(1,:) = this%getSecDynamicPressure(density)* &
+      this%getSecArea() * this%secCD
+
+    do is = 1, size(this%wiP, 2)
+      ! Lift in inertial frame
+      ! Warning: This would give a wrong answer if a considerable dihedral
+      ! is present for the wing since the blade Y-axis is not flapped
+      this%secForceInertial(:, is) = cross3(this%yAxis, &
+        this%secChordwiseResVel(:, is))
+      this%secForceInertial(:, is) = sign(1._dp, sum(this%wiP(:, is)%vr%gam)) &
+        * unitVec(this%secForceInertial(:, is))
+      ! abs() used since direction is already captured in vector
+      this%secForceInertial(:, is) = abs(this%secForceWind(3,is)) * this%secForceInertial(:, is)
+      ! Drag in inertial frame
+      this%secForceInertial(:,is) = this%secForceInertial(:,is) + &
+        this%secForceWind(1,is) * unitVec(this%secChordwiseResVel(:,is))
+    enddo
 
     do i = 1, 3
       this%forceInertial(i) = sum(this%secForceInertial(i, :))
@@ -1206,7 +1214,7 @@ contains
     enddo
 
     ! Compute non-linear CL
-    call this%calc_secCL(velSound)
+    call this%calc_secCoeffs(velSound)
 
     forceMag = secDynamicPressure*secArea*this%secCL
     ! Compute direction of lift force
@@ -1223,19 +1231,22 @@ contains
     enddo
   end subroutine blade_calc_force_alphaGamma
 
-  subroutine calc_secCL(this, velSound)
-    ! Compute sec CL from C81 tables and sec resultant velocity
+  subroutine calc_secCoeffs(this, velSound)
+    ! Compute sec CL, CD, CM from C81 tables and sec resultant velocity
     ! Assumes only one airfoil section present
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: velSound
-    real(dp) :: secMach
+    real(dp) :: secMach, alphaDeg
     integer :: is
 
     do is = 1, size(this%secAlpha, 1)
       secMach = norm2(this%secChordwiseResVel(:, is))/velSound
-      this%secCL(is) = this%C81(this%airfoilNo(is))%getCL(this%secAlpha(is)*180._dp/pi, secMach)
+      alphaDeg = this%secAlpha(is) * 180._dp / pi
+      this%secCL(is) = this%C81(this%airfoilNo(is))%getCL(alphaDeg, secMach)
+      this%secCD(is) = this%C81(this%airfoilNo(is))%getCD(alphaDeg, secMach)
+      this%secCM(is) = this%C81(this%airfoilNo(is))%getCM(alphaDeg, secMach)
     enddo
-  end subroutine calc_secCL
+  end subroutine calc_secCoeffs
 
   subroutine blade_calc_secChordwiseResVel(this)
     ! Compute sec resultant velocity by interpolating local panel velocity
@@ -1553,6 +1564,8 @@ contains
       allocate (this%blade(ib)%secAlpha(this%ns))
       allocate (this%blade(ib)%airfoilNo(this%ns))
       allocate (this%blade(ib)%secCL(this%ns))
+      allocate (this%blade(ib)%secCD(this%ns))
+      allocate (this%blade(ib)%secCM(this%ns))
       allocate (this%blade(ib)%secChordwiseResVel(3, this%ns))
       allocate (this%blade(ib)%secCP(3, this%ns))
     enddo
@@ -2562,6 +2575,12 @@ contains
       this%forceInertial = this%forceInertial + this%blade(ib)%forceInertial
     enddo
   end subroutine rotor_calc_force_alphaGamma
+
+  subroutine rotor_forceInertialToWind()
+    do ib = 1, this%nb
+      
+    enddo
+  end subroutine rotor_forceInertialToWind
 
   subroutine rotor_calc_secAlpha(this)
   class(rotor_class), intent(inout) :: this
