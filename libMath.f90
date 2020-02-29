@@ -143,6 +143,16 @@ contains
   ! -------------------------------------------------
   !                inv
   ! -------------------------------------------------
+  function getUnitVec(a)
+    real(dp), intent(in), dimension(:) :: a
+    real(dp), dimension(size(a)) :: getUnitVec
+
+    getUnitVec = a / norm2(a)
+  end function getUnitVec
+
+  ! -------------------------------------------------
+  !                inv
+  ! -------------------------------------------------
   ! Matrix Inversion
   ! Ax=b
   ! PA = LU or A=P'LU
