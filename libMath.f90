@@ -143,12 +143,12 @@ contains
   ! -------------------------------------------------
   !                inv
   ! -------------------------------------------------
-  function getUnitVec(a)
+  function unitVec(a)
     real(dp), intent(in), dimension(:) :: a
-    real(dp), dimension(size(a)) :: getUnitVec
+    real(dp), dimension(size(a)) :: unitVec
 
-    getUnitVec = a / norm2(a)
-  end function getUnitVec
+    unitVec = a / norm2(a)
+  end function unitVec
 
   ! -------------------------------------------------
   !                inv
