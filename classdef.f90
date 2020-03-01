@@ -1506,6 +1506,12 @@ contains
     read (12, *) rollupStartRadius, rollupEndRadius
     call skiplines(12, 3)
     read (12, *) this%initWakeVel, this%psiStart, this%skewLimit
+    call skiplines(12, 5)
+    read (12, *) this%dragUnitVec(1), this%dragUnitVec(2), this%dragUnitVec(3)
+    call skiplines(12, 2)
+    read (12, *) this%sideUnitVec(1), this%sideUnitVec(2), this%sideUnitVec(3)
+    call skiplines(12, 2)
+    read (12, *) this%liftUnitVec(1), this%liftUnitVec(2), this%liftUnitVec(3)
     call skiplines(12, 7)
     read (12, *) this%inflowPlotSwitch, this%bladeforcePlotSwitch
     call skiplines(12, 5)
@@ -2020,28 +2026,32 @@ contains
 
     ! Compute direction of wind frame forces
     ! Assuming sideslip is not present
-    if (abs(this%Omega) .le. eps) then
-      if (abs(this%velWind(1)) .gt. eps) then  ! v is assumed zero
-        this%dragUnitVec = unitVec((/this%velWind(1), 0._dp, this%velWind(3)/))
-        this%sideUnitVec = yAxis
-      else  ! u is assumed zero
-        this%dragUnitVec = unitVec((/0._dp, this%velWind(2), this%velWind(3)/))
-        this%sideUnitVec = xAxis
-      endif
-      this%liftUnitVec = cross3(this%dragUnitVec, this%sideUnitVec)
-    else
-      ! Drag along forward velocity direction
-      if (abs(this%velWind(1)) .gt. eps) then
-        this%dragUnitVec = unitVec((/this%velWind(1), 0._dp, this%velWind(3)/))
-        this%sideUnitVec = yAxis
-      elseif (abs(this%velWind(2)) .gt. eps) then
-        this%dragUnitVec = unitVec((/this%velWind(1), 0._dp, this%velWind(3)/))
-        this%sideUnitVec = xAxis
+    if ((norm2(this%dragUnitVec) .le. eps) &
+      .and. (norm2(this%sideUnitVec) .le. eps) &
+      .and. (norm2(this%liftUnitVec) .le. eps)) then
+      if (abs(this%Omega) .le. eps) then
+        if (abs(this%velWind(1)) .gt. eps) then  ! v is assumed zero
+          this%dragUnitVec = unitVec((/this%velWind(1), 0._dp, this%velWind(3)/))
+          this%sideUnitVec = yAxis
+        else  ! u is assumed zero
+          this%dragUnitVec = unitVec((/0._dp, this%velWind(2), this%velWind(3)/))
+          this%sideUnitVec = xAxis
+        endif
+        this%liftUnitVec = cross3(this%dragUnitVec, this%sideUnitVec)
       else
-        this%sideUnitVec = yAxis
-        this%dragUnitVec = cross3(this%sideUnitVec, this%shaftAxis)
-      endif
+        ! Drag along forward velocity direction
+        if (abs(this%velWind(1)) .gt. eps) then
+          this%dragUnitVec = unitVec((/this%velWind(1), 0._dp, this%velWind(3)/))
+          this%sideUnitVec = yAxis
+        elseif (abs(this%velWind(2)) .gt. eps) then
+          this%dragUnitVec = unitVec((/this%velWind(1), 0._dp, this%velWind(3)/))
+          this%sideUnitVec = xAxis
+        else
+          this%sideUnitVec = yAxis
+          this%dragUnitVec = cross3(this%sideUnitVec, this%shaftAxis)
+        endif
         this%liftUnitVec = this%shaftAxis
+      endif
     endif
 
   end subroutine rotor_init
@@ -2058,7 +2068,7 @@ contains
 
       select case (fdSchemeSwitch)
       case (0)
-        ! Nothing to deallocate
+          ! Nothing to deallocate
       case (1)
         deallocate (this%blade(ib)%waPPredicted)
         deallocate (this%blade(ib)%velNwakePredicted)
