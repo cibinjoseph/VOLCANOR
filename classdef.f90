@@ -1388,6 +1388,7 @@ module rotor_classdef
     real(dp) :: radius, chord, root_cut, coningAngle
     real(dp) :: CT
     real(dp), dimension(3) :: forceInertial, forceWind
+    real(dp), dimension(3) :: liftUnitVec, dragUnitVec, sideUnitVec
     real(dp), dimension(3) :: controlPitch  ! theta0,thetaC,thetaS
     real(dp) :: thetaTwist
     real(dp) :: pivotLE  ! pivot location from LE [x/c]
@@ -1441,6 +1442,7 @@ module rotor_classdef
     procedure :: calc_force_alphaGamma => rotor_calc_force_alphaGamma
     procedure :: calc_secAlpha => rotor_calc_secAlpha
     procedure :: burst_wake => rotor_burst_wake
+    procedure :: rotor_forceInertialToWind
   end type rotor_class
 
 contains
@@ -2024,6 +2026,32 @@ contains
 
     enddo
 
+    ! Compute direction of wind frame forces
+    ! Assuming sideslip is not present
+    if (abs(this%Omega) .le. eps) then
+      if (abs(this%velWind(1)) .gt. eps) then  ! v is assumed zero
+        this%dragUnitVec = unitVec((/this%velWind(1), 0._dp, this%velWind(3)/))
+        this%sideUnitVec = yAxis
+      else  ! u is assumed zero
+        this%dragUnitVec = unitVec((/0._dp, this%velWind(2), this%velWind(3)/))
+        this%sideUnitVec = xAxis
+      endif
+      this%liftUnitVec = cross3(this%dragUnitVec, this%sideUnitVec)
+    else
+      ! Drag along forward velocity direction
+      if (abs(this%velWind(1)) .gt. eps) then
+        this%dragUnitVec = unitVec((/this%velWind(1), 0._dp, this%velWind(3)/))
+        this%sideUnitVec = yAxis
+      elseif (abs(this%velWind(2)) .gt. eps) then
+        this%dragUnitVec = unitVec((/this%velWind(1), 0._dp, this%velWind(3)/))
+        this%sideUnitVec = xAxis
+      else
+        this%sideUnitVec = yAxis
+        this%dragUnitVec = cross3(this%sideUnitVec, this%shaftAxis)
+      endif
+        this%liftUnitVec = this%shaftAxis
+    endif
+
   end subroutine rotor_init
 
   subroutine rotor_deinit(this, fdSchemeSwitch)
@@ -2547,6 +2575,7 @@ contains
       call this%blade(ib)%calc_force_gamma(density, sign(1._dp, this%Omega*this%controlPitch(1)), dt)
       this%forceInertial = this%forceInertial + this%blade(ib)%forceInertial
     enddo
+    call this%rotor_forceInertialToWind()
   end subroutine rotor_calc_force_gamma
 
   subroutine rotor_calc_force_alpha(this, density, velSound)
@@ -2560,6 +2589,7 @@ contains
       call this%blade(ib)%calc_force_alpha(density, velSound)
       this%forceInertial = this%forceInertial + this%blade(ib)%forceInertial
     enddo
+    call this%rotor_forceInertialToWind()
   end subroutine rotor_calc_force_alpha
 
   subroutine rotor_calc_force_alphaGamma(this, density, velSound, dt)
@@ -2574,12 +2604,14 @@ contains
         velSound, dt)
       this%forceInertial = this%forceInertial + this%blade(ib)%forceInertial
     enddo
+    call this%rotor_forceInertialToWind()
   end subroutine rotor_calc_force_alphaGamma
 
-  subroutine rotor_forceInertialToWind()
-    do ib = 1, this%nb
-      
-    enddo
+  subroutine rotor_forceInertialToWind(this)
+  class(rotor_class), intent(inout) :: this
+    this%forceWind(1) = dot_product(this%forceInertial, this%dragUnitVec)
+    this%forceWind(2) = dot_product(this%forceInertial, this%sideUnitVec)
+    this%forceWind(3) = dot_product(this%forceInertial, this%liftUnitVec)
   end subroutine rotor_forceInertialToWind
 
   subroutine rotor_calc_secAlpha(this)
