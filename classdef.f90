@@ -29,7 +29,7 @@ contains
     ! Compute induced velocity by unit strength vortex filament
   class(vf_class) :: this
     real(dp), dimension(3) :: vind, P
-    real(dp) :: r1Xr2Abs2, r1Abs, r2Abs
+    real(dp) :: r1Xr2Abs2
     real(dp), dimension(3) :: r1, r2, r0, r1Xr2
 
     r1 = P - this%fc(:, 1)
@@ -42,14 +42,11 @@ contains
     r1Xr2(3) = r1(1)*r2(2) - r1(2)*r2(1)
     r1Xr2Abs2 = dot_product(r1Xr2, r1Xr2)
 
-    r1Abs = norm2(r1)
-    r2Abs = norm2(r2)
-
     vind = 0.
 
     if (r1Xr2Abs2 > eps*eps) then
       ! Vatistas core model
-      vind = (r1Xr2*inv4pi*dot_product(r0, r1/r1Abs - r2/r2Abs)) &
+      vind = (r1Xr2*inv4pi*dot_product(r0, unitVec(r1) - unitVec(r2))) &
         /sqrt((this%rVc*norm2(r0))**4._dp + r1Xr2Abs2**2._dp)
     endif
   end function vfclass_vind
@@ -355,20 +352,17 @@ contains
   subroutine wingpanel_class_calcN(this)
     ! Compute normal vector
   class(wingpanel_class) :: this
-    this%nCap = cross3(this%pc(:, 3) - this%pc(:, 1), &
-      this%pc(:, 4) - this%pc(:, 2))
-    this%nCap = this%nCap/norm2(this%nCap)
+    this%nCap = unitVec(cross3(this%pc(:, 3) - this%pc(:, 1), &
+      this%pc(:, 4) - this%pc(:, 2)))
   end subroutine wingpanel_class_calcN
 
   subroutine wingpanel_class_calcTau(this)
     ! Compute chordwise and spanwise tangential vectors
   class(wingpanel_class) :: this
-    this%tauCapChord = 0.5_dp*((this%pc(:, 2) + this%pc(:, 3)) &
-      - (this%pc(:, 1) + this%pc(:, 4)))
-    this%tauCapSpan = 0.5_dp*((this%pc(:, 3) + this%pc(:, 4)) &
-      - (this%pc(:, 2) + this%pc(:, 1)))
-    this%tauCapChord = this%tauCapChord/norm2(this%tauCapChord)
-    this%tauCapSpan = this%tauCapSpan/norm2(this%tauCapSpan)
+    this%tauCapChord = unitVec(0.5_dp*((this%pc(:, 2) + this%pc(:, 3)) &
+      - (this%pc(:, 1) + this%pc(:, 4))))
+    this%tauCapSpan = unitVec(0.5_dp*((this%pc(:, 3) + this%pc(:, 4)) &
+      - (this%pc(:, 2) + this%pc(:, 1))))
   end subroutine wingpanel_class_calcTau
 
   subroutine wingpanel_class_rot(this, Tmat)
@@ -1206,7 +1200,7 @@ contains
     do is = 1, ns
       ! Extract sectional lift and CL
       liftDir = cross3(this%secChordwiseResVel(:, is), this%secTauCapSpan(:, is))
-      this%secCL(is) = dot_product(this%secForceInertial(:, is), liftDir)/norm2(liftDir) &
+      this%secCL(is) = dot_product(this%secForceInertial(:, is), unitVec(liftDir)) &
         /(secDynamicPressure(is)*secArea(is))
 
       ! Compute angle of attack from linear CL
@@ -1222,7 +1216,7 @@ contains
       this%secForceInertial(:, is) = cross3(this%wiP(1, is)%tauCapSpan, &
         this%secChordwiseResVel(:, is))
       this%secForceInertial(:, is) = sign(1._dp, sum(this%wiP(:, is)%vr%gam)) &
-        *this%secForceInertial(:, is)/norm2(this%secForceInertial(:, is))
+        * unitVec(this%secForceInertial(:, is))
       this%secForceInertial(:, is) = forceMag(is)*this%secForceInertial(:, is)
     enddo
 
@@ -1646,11 +1640,9 @@ contains
           this%blade(ib)%wiP(this%nc, j)%PC(:, 3) - this%blade(ib)%wiP(1, j)%PC(:, 1))
 
         ! Normalize
-        this%blade(ib)%secTauCapChord(:, j) = this%blade(ib)%secTauCapChord(:, j)/ &
-          norm2(this%blade(ib)%secTauCapChord(:, j))
+        this%blade(ib)%secTauCapChord(:, j) = unitVec(this%blade(ib)%secTauCapChord(:, j))
 
-        this%blade(ib)%secNormalVec(:, j) = this%blade(ib)%secNormalVec(:, j)/ &
-          norm2(this%blade(ib)%secNormalVec(:, j))
+        this%blade(ib)%secNormalVec(:, j) = unitVec(this%blade(ib)%secNormalVec(:, j))
       enddo
 
       ! Initialize vr coords of all panels except last row (to accomodate mismatch of vr coords when using unequal spacing)
