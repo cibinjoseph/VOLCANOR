@@ -11,3 +11,4 @@ Implement non-lifting surfaces
 Resolve issue of blending multiple airfoils along span
 Implement option to switch lift from alpha computation to postprocessing
 - Compute forces using recorded alpha
+Check lift and drag values for NACA 63A012 airfoil wing
