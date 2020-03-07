@@ -609,6 +609,7 @@ module blade_classdef
     procedure :: burst_wake => blade_burst_wake
     procedure :: getSecChordwiseLocations
     procedure :: calc_secCoeffs
+    procedure :: secCoeffs2Force
   end type blade_class
 contains
 
@@ -1139,36 +1140,12 @@ contains
     ! Compute force using sec alpha
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: density, velSound
-    integer :: i, is
 
     this%secForceWind = 0._dp
     this%secForceInertial = 0._dp
     call this%calc_secCoeffs(velSound)
 
-    ! Lift and Drag in local wind frame
-    this%secForceWind(3,:) = this%getSecDynamicPressure(density)* &
-      this%getSecArea() * this%secCL
-    this%secForceWind(1,:) = this%getSecDynamicPressure(density)* &
-      this%getSecArea() * this%secCD
-
-    do is = 1, size(this%wiP, 2)
-      ! Lift in inertial frame
-      ! Warning: This would give a wrong answer if a considerable dihedral
-      ! is present for the wing since the blade Y-axis is not flapped
-      this%secForceInertial(:, is) = cross3(this%yAxis, &
-        this%secChordwiseResVel(:, is))
-      this%secForceInertial(:, is) = sign(1._dp, sum(this%wiP(:, is)%vr%gam)) &
-        * unitVec(this%secForceInertial(:, is))
-      ! abs() used since direction is already captured in vector
-      this%secForceInertial(:, is) = abs(this%secForceWind(3,is)) * this%secForceInertial(:, is)
-      ! Drag in inertial frame
-      this%secForceInertial(:,is) = this%secForceInertial(:,is) + &
-        this%secForceWind(1,is) * unitVec(this%secChordwiseResVel(:,is))
-    enddo
-
-    do i = 1, 3
-      this%forceInertial(i) = sum(this%secForceInertial(i, :))
-    enddo
+    call this%secCoeffs2Force(density)
   end subroutine blade_calc_force_alpha
 
   subroutine blade_calc_force_alphaGamma(this, density, invertGammaSign, velSound, dt)
@@ -1176,8 +1153,8 @@ contains
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: density, invertGammaSign, velSound, dt
     real(dp), dimension(3) :: secChordwiseVelFreestream, liftDir
-    real(dp), dimension(size(this%wiP, 2)) :: forceMag, secDynamicPressure, secArea
-    integer :: is, i, ns
+    real(dp), dimension(size(this%wiP, 2)) :: secDynamicPressure, secArea
+    integer :: is, ns
 
     ns = size(this%wiP, 2)
 
@@ -1210,20 +1187,39 @@ contains
     ! Compute non-linear CL
     call this%calc_secCoeffs(velSound)
 
-    forceMag = secDynamicPressure*secArea*this%secCL
-    ! Compute direction of lift force
-    do is = 1, ns
-      this%secForceInertial(:, is) = cross3(this%wiP(1, is)%tauCapSpan, &
+    call this%secCoeffs2Force(density)
+  end subroutine blade_calc_force_alphaGamma
+
+  subroutine secCoeffs2Force(this, density)
+  class(blade_class), intent(inout) :: this
+    real(dp), intent(in) :: density
+    integer :: i, is
+    real(dp), dimension(size(this%wiP, 2)) :: leadingTerm
+
+    ! Lift and Drag in local wind frame
+    leadingTerm = this%getSecDynamicPressure(density) * this%getSecArea()
+    this%secForceWind(3, :) = leadingTerm * this%secCL
+    this%secForceWind(1, :) = leadingTerm * this%secCD
+
+    do is = 1, size(this%wiP, 2)
+      ! Lift in inertial frame
+      ! Warning: This would give a wrong answer if a considerable dihedral
+      ! is present for the wing since the blade Y-axis is not flapped
+      this%secForceInertial(:, is) = cross3(this%yAxis, &
         this%secChordwiseResVel(:, is))
       this%secForceInertial(:, is) = sign(1._dp, sum(this%wiP(:, is)%vr%gam)) &
         * unitVec(this%secForceInertial(:, is))
-      this%secForceInertial(:, is) = forceMag(is)*this%secForceInertial(:, is)
+      ! abs() used since direction is already captured in vector
+      this%secForceInertial(:, is) = abs(this%secForceWind(3,is)) * this%secForceInertial(:, is)
+      ! Drag in inertial frame
+      this%secForceInertial(:,is) = this%secForceInertial(:,is) + &
+        this%secForceWind(1,is) * unitVec(this%secChordwiseResVel(:,is))
     enddo
 
     do i = 1, 3
       this%forceInertial(i) = sum(this%secForceInertial(i, :))
     enddo
-  end subroutine blade_calc_force_alphaGamma
+  end subroutine secCoeffs2Force
 
   subroutine calc_secCoeffs(this, velSound)
     ! Compute sec CL, CD, CM from C81 tables and sec resultant velocity
