@@ -1164,7 +1164,7 @@ contains
     do is = 1, ns
       ! Compute sec freestream velocity
       secChordwiseVelFreestream = this%secVelFreestream(:, is) - &
-        dot_product(this%secVelFreestream(:, is), this%secTauCapSpan(:, is))*this%secTauCapSpan(:, is)
+        dot_product(this%secVelFreestream(:, is), this%yAxis)*this%yAxis
 
       ! Assuming sec resultant velocity is same as sec freestream vel
       ! for computing corrected alpha later
@@ -1176,7 +1176,8 @@ contains
 
     do is = 1, ns
       ! Extract sectional lift and CL
-      liftDir = cross3(this%secChordwiseResVel(:, is), this%secTauCapSpan(:, is))
+      liftDir = cross3(this%secChordwiseResVel(:, is), this%yAxis)
+      ! Assuming gamma method only gives lift
       this%secCL(is) = dot_product(this%secForceInertial(:, is), unitVec(liftDir)) &
         /(secDynamicPressure(is)*secArea(is))
 
