@@ -1201,7 +1201,6 @@ contains
     leadingTerm = this%getSecDynamicPressure(density) * this%getSecArea()
     this%secForceWind(3, :) = leadingTerm * this%secCL
     this%secForceWind(1, :) = leadingTerm * this%secCD
-    print*, 'c =', this%secCD
 
     do is = 1, size(this%wiP, 2)
       ! Lift in inertial frame
