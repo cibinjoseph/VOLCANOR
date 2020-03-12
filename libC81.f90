@@ -2,13 +2,24 @@ module libC81
   use libMath 
   implicit none
 
-  ! Define C81 class
   type C81_class
+    !! Base class for C81 performance data
     character(len=30) :: airfoilName
-    integer :: ML, NL, MD, ND, MM, NM
-    real(dp), allocatable, dimension(:) :: MaL, MaD, MaM
-    real(dp), allocatable, dimension(:) :: AL, AD, AM
-    real(dp), allocatable, dimension(:,:) :: CL, CD, CM
+    integer :: ML  !! No. of lift coefficient machs
+    integer :: NL  !! No. of lift coefficient alphas
+    integer :: MD  !! No. of drag coefficient machs
+    integer :: ND  !! No. of drag coefficient alphas
+    integer :: MM  !! No. of moment coefficient machs
+    integer :: NM  !! No. of moment coefficient alphas  
+    real(dp), allocatable, dimension(:) :: MaL  !! Machs for lift
+    real(dp), allocatable, dimension(:) :: MaD  !! Machs for drag
+    real(dp), allocatable, dimension(:) :: MaM  !! Machs for moment
+    real(dp), allocatable, dimension(:) :: AL  !! Alphas for lift  
+    real(dp), allocatable, dimension(:) :: AD  !! Alphas for drag
+    real(dp), allocatable, dimension(:) :: AM  !! Alphas for moment
+    real(dp), allocatable, dimension(:,:) :: CL  !! Lift coefficient  
+    real(dp), allocatable, dimension(:,:) :: CD  !! Drag coefficient
+    real(dp), allocatable, dimension(:,:) :: CM  !! Moment coefficient
   contains
     procedure :: writefile
     procedure :: readfile
@@ -19,23 +30,25 @@ module libC81
 
 contains
 
-  ! Writes data arrays to C81 file
   subroutine writefile(this,C81filename)
+  !! Writes C81 class data to C81 file
   class(C81_class) :: this
     character(len=*), intent(in) :: C81filename
     integer :: i, j
-    integer :: stat
+    logical :: fileExists
     character(len=10) :: formatChar
     character(len=1) :: overwriteOption
 
-    open(unit=10,file=C81filename, status='new', action='write', iostat=stat)
-    if (stat>0) then
+    inquire(file=C81filename, exist=fileExists)
+    if (fileExists) then
       print*, 'File '//trim(C81filename)//' already exists!'
       write(*,'(A)',advance='no') ' Okay to overwrite (y/n)? '
       read(*,*) overwriteOption
       print*
-      if (overwriteOption .ne. 'y') stop
+      if ((overwriteOption .ne. 'y') .and. (overwriteOption .ne. 'Y')) stop
     endif
+
+    open(unit=10,file=C81filename, action='write')
 
     this%ML = size(this%MaL,1)
     this%MD = size(this%MaD,1)
@@ -80,13 +93,13 @@ contains
 
     close(10)
 
-    100 format (A30,6I2)
+    100 format (A30,6I0.2)
     101 format (7X,9F7.3)
     102 format (F7.2,9F7.3)
   end subroutine writefile
 
-  ! Reads from C81 file to allocatable arrays
   subroutine readfile(this,C81filename)
+  !! Reads from C81 file to C81 class
   class(C81_class) :: this
     character(len=*), intent(in) :: C81filename
     integer :: i, j
@@ -94,10 +107,7 @@ contains
     character(len=10) :: formatChar
 
     open(unit=10, file=C81filename, status='old', action='read', iostat=stat)
-    if (stat>0) then
-      print*, 'ERROR: '//trim(C81filename)//' file not found'
-      error stop
-    endif
+    if (stat>0) error stop 'ERROR: File not found'
 
     read(10,100) this%airfoilName,this%ML,this%NL,this%MD,this%ND,this%MM,this%NM
     allocate(this%MaL(this%ML))
@@ -150,9 +160,9 @@ contains
     102 format (10F7.0)
   end subroutine readfile
 
-  ! Returns value of 2-d interpolated CL
-  ! for given alphaQuery and machQuery queries
   function getCL(this,alphaQuery,machQuery)
+  !! Returns value of 2-d linear interpolated CL
+  !! for a given alphaQuery and machQuery values
   class(C81_class) :: this
     real(dp), intent(in) :: alphaQuery, machQuery
     real(dp) :: getCL
@@ -186,9 +196,9 @@ contains
     endif
   end function getCL
 
-  ! Returns value of 2-d interpolated CD
-  ! for given alphaQuery and machQuery queries
   function getCD(this,alphaQuery,machQuery)
+  !! Returns value of 2-d linearly interpolated CD
+  !! for given alphaQuery and machQuery values
   class(C81_class) :: this
     real(dp), intent(in) :: alphaQuery, machQuery
     real(dp) :: getCD
@@ -224,9 +234,9 @@ contains
     endif
   end function getCD
 
-  ! Returns value of 2-d interpolated CM
-  ! for given alphaQuery and machQuery queries
   function getCM(this,alphaQuery,machQuery)
+    !! Returns value of 2-d linearly interpolated CM
+    !! for given alphaQuery and machQuery values
   class(C81_class) :: this
     real(dp), intent(in) :: alphaQuery, machQuery
     real(dp) :: getCM
@@ -262,8 +272,6 @@ contains
     endif
   end function getCM
 
-  ! Returns upper and lower indices of a 1-d sorted array 
-  ! using binary search in which a search value lies 
   function getInterval(A,x) result(indx)
     real(dp), intent(in), dimension(:) :: A
     real(dp), intent(in) :: x
@@ -295,10 +303,12 @@ contains
     endif
   end function getInterval
 
-  ! Get bilinearly interpolated values at (x,y)
   function getBilinearInterp(x,y,xvec,yvec,f11,f12,f21,f22)
-    real(dp), intent(in) :: x, y
-    real(dp), intent(in), dimension(2) :: xvec, yvec
+    !! Returns bilinearly interpolated values at (x,y)
+    real(dp), intent(in) :: x !! Queried x
+    real(dp), intent(in) :: y !! Queried y
+    real(dp), intent(in), dimension(2) :: xvec
+    real(dp), intent(in), dimension(2) :: yvec
     real(dp), intent(in) :: f11, f12, f21, f22
     real(dp) :: getBilinearInterp
     real(dp), dimension(2,2) :: fMat
@@ -311,10 +321,11 @@ contains
 
   end function getBilinearInterp
 
-  ! Gets data from csv formatted file
   function getTable(filename,rows,cols)
+    !! Returns data from csv formatted file
     character(len=*), intent(in) :: filename
-    integer, intent(in) :: rows, cols
+    integer, intent(in) :: rows  !! No. of rows
+    integer, intent(in) :: cols  !! No. of columns 
     integer :: i, j
     integer :: stat
     real(dp), dimension(rows,cols) :: getTable
@@ -328,6 +339,6 @@ contains
       read(10,*) (getTable(i,j),j=1,cols)
     enddo
     close(10)
-    end function getTable
+  end function getTable
 
 end module libC81
