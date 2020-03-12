@@ -194,16 +194,34 @@ contains
     real(dp) :: getCD
     integer, dimension(2) :: alphaIndx, machIndx
 
-    alphaIndx = getInterval(this%AL,alphaQuery)
-    machIndx = getInterval(this%MaL,machQuery)
+    alphaIndx = getInterval(this%AD,alphaQuery)
+    machIndx = getInterval(this%MaD,machQuery)
 
-    getCD = getBilinearInterp(alphaQuery,machQuery, &
-      (/this%AD(alphaIndx(1)),this%AD(alphaIndx(2))/), &
-      (/this%MaD(machIndx(1)),this%MaD(machIndx(2))/), &
-      this%CD(alphaIndx(1),machIndx(1)), &
-      this%CD(alphaIndx(1),machIndx(2)), &
-      this%CD(alphaIndx(2),machIndx(1)), &
-      this%CD(alphaIndx(2),machIndx(2)))
+    if (alphaIndx(1) .eq. alphaIndx(2)) then
+      if (machIndx(1) .eq. machIndx(2)) then
+        getCD = this%CD(alphaIndx(1),machIndx(1))
+      else
+        getCD = this%CD(alphaIndx(1),machIndx(1))+ &
+          (machQuery-this%MaD(machIndx(1))) * &
+          (this%CD(alphaIndx(1),machIndx(2))- &
+          this%CD(alphaIndx(1),machIndx(1)))/ &
+          (this%MaD(machIndx(2))-this%MaD(machIndx(1)))
+      endif
+    elseif (machIndx(1) .eq. machIndx(2)) then
+      getCD = this%CD(alphaIndx(1),machIndx(1))+ &
+        (alphaQuery-this%AD(alphaIndx(1))) * &
+        (this%CD(alphaIndx(2),machIndx(1))- &
+        this%CD(alphaIndx(1),machIndx(1)))/ &
+        (this%AD(alphaIndx(2))-this%AD(alphaIndx(1)))
+    else
+      getCD = getBilinearInterp(alphaQuery,machQuery, &
+        (/this%AD(alphaIndx(1)),this%AD(alphaIndx(2))/), &
+        (/this%MaD(machIndx(1)),this%MaD(machIndx(2))/), &
+        this%CD(alphaIndx(1),machIndx(1)), &
+        this%CD(alphaIndx(1),machIndx(2)), &
+        this%CD(alphaIndx(2),machIndx(1)), &
+        this%CD(alphaIndx(2),machIndx(2)))
+    endif
   end function getCD
 
   ! Returns value of 2-d interpolated CM
@@ -214,16 +232,34 @@ contains
     real(dp) :: getCM
     integer, dimension(2) :: alphaIndx, machIndx
 
-    alphaIndx = getInterval(this%AL,alphaQuery)
-    machIndx = getInterval(this%MaL,machQuery)
+    alphaIndx = getInterval(this%AM,alphaQuery)
+    machIndx = getInterval(this%MaM,machQuery)
 
-    getCM = getBilinearInterp(alphaQuery,machQuery, &
-      (/this%AM(alphaIndx(1)),this%AM(alphaIndx(2))/), &
-      (/this%MaM(machIndx(1)),this%MaM(machIndx(2))/), &
-      this%CM(alphaIndx(1),machIndx(1)), &
-      this%CM(alphaIndx(1),machIndx(2)), &
-      this%CM(alphaIndx(2),machIndx(1)), &
-      this%CM(alphaIndx(2),machIndx(2)))
+    if (alphaIndx(1) .eq. alphaIndx(2)) then
+      if (machIndx(1) .eq. machIndx(2)) then
+        getCM = this%CM(alphaIndx(1),machIndx(1))
+      else
+        getCM = this%CM(alphaIndx(1),machIndx(1))+ &
+          (machQuery-this%MaM(machIndx(1))) * &
+          (this%CM(alphaIndx(1),machIndx(2))- &
+          this%CM(alphaIndx(1),machIndx(1)))/ &
+          (this%MaM(machIndx(2))-this%MaM(machIndx(1)))
+      endif
+    elseif (machIndx(1) .eq. machIndx(2)) then
+      getCM = this%CM(alphaIndx(1),machIndx(1))+ &
+        (alphaQuery-this%AM(alphaIndx(1))) * &
+        (this%CM(alphaIndx(2),machIndx(1))- &
+        this%CM(alphaIndx(1),machIndx(1)))/ &
+        (this%AM(alphaIndx(2))-this%AM(alphaIndx(1)))
+    else
+      getCM = getBilinearInterp(alphaQuery,machQuery, &
+        (/this%AM(alphaIndx(1)),this%AM(alphaIndx(2))/), &
+        (/this%MaM(machIndx(1)),this%MaM(machIndx(2))/), &
+        this%CM(alphaIndx(1),machIndx(1)), &
+        this%CM(alphaIndx(1),machIndx(2)), &
+        this%CM(alphaIndx(2),machIndx(1)), &
+        this%CM(alphaIndx(2),machIndx(2)))
+    endif
   end function getCM
 
   ! Returns upper and lower indices of a 1-d sorted array 
