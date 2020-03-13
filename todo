@@ -12,3 +12,4 @@ Resolve issue of blending multiple airfoils along span
 Implement option to switch lift from alpha computation to postprocessing
 - Compute forces using recorded alpha
 Check sweep cases by KnP
+Add induced drag force
