@@ -834,7 +834,7 @@ contains
       enddo
     enddo
     do j = 1, cols
-      blade_vind_bywing_boundVortices = blade_vind_bywing_chordwiseVortices + &
+      blade_vind_bywing_chordwiseVortices = blade_vind_bywing_chordwiseVortices + &
         this%wiP(rows, j)%vr%vf(2)%vind(P)*this%wiP(rows, j)%vr%gam
     enddo
   end function blade_vind_bywing_chordwiseVortices
@@ -1082,7 +1082,8 @@ contains
         velTangentialChord(ic, is) = dot_product(this%wiP(ic, is)%velCP, this%wiP(ic, is)%tauCapChord)
         velTangentialSpan(ic, is) = dot_product(this%wiP(ic, is)%velCP, this%wiP(ic, is)%tauCapSpan)
         ! Use chordwise induced velocity fuction here
-        velInduced(ic, is) = dot_product(this%wiP(ic, is)%velCP + , &
+        velInduced(ic, is) = dot_product(this%wiP(ic, is)%velCP + &
+          this%vind_bywing_chordwiseVortices(this%wiP(ic, is)%CP), &
           unitVec(cross3(this%wiP(ic, is)%velCPm,this%yAxis)))
       enddo
     enddo
@@ -1133,7 +1134,10 @@ contains
           + unsteadyTerm)
         this%wiP(ic, is)%gamPrev = this%wiP(ic, is)%gamTrapz
 
-        !this%wiP(ic, is)%delDi = density(+ unsteadyTerm)
+        this%wiP(ic, is)%delDi = density*(velInduced(ic, is)*gamElementChord(ic, is)*this%wiP(ic, is)%meanChord + &
+          unsteadyTerm * this%wiP(ic, is)%panelArea * &
+          dot_product(this%wiP(ic, is)%nCap, unitVec(this%wiP(ic, is)%velCPm)))
+        this%secForceWind(1, is) = this%secForceWind(1, is) + this%wiP(ic, is)%delDi
 
         ! Invert direction of forceInertial according to sign of omega and collective pitch
         this%wiP(ic, is)%normalforce = this%wiP(ic, is)%delP* &
