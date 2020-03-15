@@ -296,6 +296,7 @@ module wingpanel_classdef
     real(dp) :: velPitch             ! pitch velocity
     !real(dp) :: dLift, dDrag          ! magnitudes of panel lift and drag
     real(dp) :: delP                  ! Pressure difference at panel
+    real(dp) :: delDi                 ! Induced drag at panel
     real(dp) :: meanChord, meanSpan ! Panel mean dimensions
     real(dp) :: panelArea            ! Panel area for computing lift
     real(dp) :: rHinge  ! dist to point about which pitching occurs (LE of wing)
@@ -595,6 +596,7 @@ module blade_classdef
     procedure :: rot_pts => blade_rot_pts
     procedure :: vind_bywing => blade_vind_bywing
     procedure :: vind_bywing_boundVortices => blade_vind_bywing_boundVortices
+    procedure :: vind_bywing_chordwiseVortices => blade_vind_bywing_chordwiseVortices
     procedure :: vind_boundVortex => blade_vind_boundVortex
     procedure :: vind_bywake => blade_vind_bywake
     procedure :: convectwake
@@ -812,6 +814,30 @@ contains
         this%wiP(rows, j)%vr%vf(2)%vind(P)*this%wiP(rows, j)%vr%gam
     enddo
   end function blade_vind_bywing_boundVortices
+
+  function blade_vind_bywing_chordwiseVortices(this, P)
+    ! Compute induced velocity by bound vortices alone
+  class(blade_class), intent(inout) :: this
+    real(dp), intent(in), dimension(3) :: P
+    real(dp), dimension(3) :: blade_vind_bywing_chordwiseVortices
+    integer :: i, j, rows, cols
+
+    rows = size(this%wiP, 1)
+    cols = size(this%wiP, 2)
+
+    blade_vind_bywing_chordwiseVortices = 0._dp
+    do j = 1, cols
+      do i = 1, rows
+        blade_vind_bywing_chordwiseVortices = blade_vind_bywing_chordwiseVortices + &
+          (this%wiP(i, j)%vr%vf(1)%vind(P) + this%wiP(i, j)%vr%vf(3)%vind(P))* &
+          this%wiP(i, j)%vr%gam
+      enddo
+    enddo
+    do j = 1, cols
+      blade_vind_bywing_boundVortices = blade_vind_bywing_chordwiseVortices + &
+        this%wiP(rows, j)%vr%vf(2)%vind(P)*this%wiP(rows, j)%vr%gam
+    enddo
+  end function blade_vind_bywing_chordwiseVortices
 
   function blade_vind_boundVortex(this, ic, is, P)
     ! Compute induced velocity by bound vortices alone
@@ -1041,7 +1067,9 @@ contains
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: density, invertGammaSign, dt
     integer :: is, ic, rows, cols
+    real(dp) :: unsteadyTerm
     real(dp), dimension(size(this%wiP, 1), size(this%wiP, 2)) :: velTangentialChord, velTangentialSpan
+    real(dp), dimension(size(this%wiP, 1), size(this%wiP, 2)) :: velInduced
     real(dp), dimension(size(this%wiP, 1), size(this%wiP, 2)) :: gamElementChord, gamElementSpan
     rows = size(this%wiP, 1)
     cols = size(this%wiP, 2)
@@ -1053,6 +1081,9 @@ contains
       do ic = 1, rows
         velTangentialChord(ic, is) = dot_product(this%wiP(ic, is)%velCP, this%wiP(ic, is)%tauCapChord)
         velTangentialSpan(ic, is) = dot_product(this%wiP(ic, is)%velCP, this%wiP(ic, is)%tauCapSpan)
+        ! Use chordwise induced velocity fuction here
+        velInduced(ic, is) = dot_product(this%wiP(ic, is)%velCP + , &
+          unitVec(cross3(this%wiP(ic, is)%velCPm,this%yAxis)))
       enddo
     enddo
 
@@ -1096,10 +1127,13 @@ contains
         !velTangentialChord(ic,is)=10._dp*cos(5._dp*pi/180._dp)
         !velTangentialSpan(ic,is)=0._dp
 
+        unsteadyTerm = (this%wiP(ic, is)%gamTrapz - this%wiP(ic, is)%gamPrev)/dt
         this%wiP(ic, is)%delP = density*(velTangentialChord(ic, is)*gamElementChord(ic, is)/this%wiP(ic, is)%meanChord &
           + velTangentialSpan(ic, is)*gamElementSpan(ic, is)/this%wiP(ic, is)%meanSpan &
-          + (this%wiP(ic, is)%gamTrapz - this%wiP(ic, is)%gamPrev)/dt)
+          + unsteadyTerm)
         this%wiP(ic, is)%gamPrev = this%wiP(ic, is)%gamTrapz
+
+        !this%wiP(ic, is)%delDi = density(+ unsteadyTerm)
 
         ! Invert direction of forceInertial according to sign of omega and collective pitch
         this%wiP(ic, is)%normalforce = this%wiP(ic, is)%delP* &
