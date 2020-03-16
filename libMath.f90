@@ -141,7 +141,7 @@ contains
   end function getAngleCos
 
   ! -------------------------------------------------
-  !                inv
+  !                unitVec
   ! -------------------------------------------------
   function unitVec(a)
     real(dp), intent(in), dimension(:) :: a
