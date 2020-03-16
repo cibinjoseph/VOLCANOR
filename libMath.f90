@@ -151,6 +151,15 @@ contains
   end function unitVec
 
   ! -------------------------------------------------
+  !                projVec
+  ! -------------------------------------------------
+  function projVec(a,dirVec)
+    real(dp), intent(in), dimension(3) :: a, dirVec
+    real(dp), dimension(3) :: projVec
+    projVec = dot_product(a, dirVec) * dirVec / (sum(dirVec**2._dp))
+  end function proj
+
+  ! -------------------------------------------------
   !                inv
   ! -------------------------------------------------
   ! Matrix Inversion
