@@ -157,7 +157,7 @@ contains
     real(dp), intent(in), dimension(3) :: a, dirVec
     real(dp), dimension(3) :: projVec
     projVec = dot_product(a, dirVec) * dirVec / (sum(dirVec**2._dp))
-  end function proj
+  end function projVec
 
   ! -------------------------------------------------
   !                inv
