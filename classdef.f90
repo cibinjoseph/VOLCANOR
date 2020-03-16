@@ -291,7 +291,7 @@ module wingpanel_classdef
     real(dp), dimension(3) :: velCP    ! local vel at CP excluding wing vortices
     real(dp), dimension(3) :: velCPTotal  ! local vel at CP including wing vortices
     real(dp), dimension(3) :: velCPm  ! rel. inertial vel at CP (due to motion)
-    real(dp), dimension(3) :: normalforce  ! normalforce vector (inertial frame)
+    real(dp), dimension(3) :: normalForce  ! normalForce vector (inertial frame)
     real(dp), dimension(3) :: chordwiseResVel
     real(dp) :: velPitch             ! pitch velocity
     !real(dp) :: dLift, dDrag          ! magnitudes of panel lift and drag
@@ -1134,17 +1134,20 @@ contains
           + unsteadyTerm)
         this%wiP(ic, is)%gamPrev = this%wiP(ic, is)%gamTrapz
 
+        ! Compute induced drag
         this%wiP(ic, is)%delDi = density*(velInduced(ic, is)*gamElementChord(ic, is)*this%wiP(ic, is)%meanChord + &
           unsteadyTerm * this%wiP(ic, is)%panelArea * &
           dot_product(this%wiP(ic, is)%nCap, unitVec(this%wiP(ic, is)%velCPm)))
         this%secForceWind(1, is) = this%secForceWind(1, is) + this%wiP(ic, is)%delDi
+        this%secForceWind(3, is) = this%secForceWind(3, is) + dot_product(this%wiP(ic, is)%normalForce, this%secLiftUnitVec(:, is))
 
         ! Invert direction of forceInertial according to sign of omega and collective pitch
-        this%wiP(ic, is)%normalforce = this%wiP(ic, is)%delP* &
+        this%wiP(ic, is)%normalForce = this%wiP(ic, is)%delP* &
           this%wiP(ic, is)%panelArea*this%wiP(ic, is)%nCap*(-1._dp)*invertGammaSign
 
-        this%secForceInertial(:, is) = this%secForceInertial(:, is) + this%wiP(ic, is)%normalforce
-        this%forceInertial = this%forceInertial + this%wiP(ic, is)%normalforce
+        this%secForceInertial(:, is) = this%secForceInertial(:, is) + this%wiP(ic, is)%normalForce
+        this%forceInertial = this%forceInertial + this%wiP(ic, is)%normalForce
+
       enddo
     enddo
 
