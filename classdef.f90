@@ -1152,11 +1152,12 @@ contains
         this%forceInertial = this%forceInertial + this%wiP(ic, is)%normalForce
 
         this%secLift(:, is) = this%secLift(:, is) + projVec(this%wiP(ic, is)%normalForce, &
-          cross_product(this%wiP(1, is)%velCpm,this%yAxis))
+          this%secLift(:, is))
 
       enddo
       this%secDragInduced(:, is) = this%secDragInduced(:, is) * sum(this%wiP(:, is)%delDi)
     enddo
+    this%secDrag = this%secDragInduced
 
   end subroutine blade_calc_force_gamma
 
@@ -1189,9 +1190,6 @@ contains
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: density, velSound
 
-    this%secLift = 0._dp
-    this%secDrag = 0._dp
-    this%secForceInertial = 0._dp
     call this%calc_secCoeffs(velSound)
 
     call this%secCoeffs2Force(density)
@@ -1246,12 +1244,12 @@ contains
     integer :: i, is
     real(dp), dimension(size(this%wiP, 2)) :: leadingTerm
 
-    leadingTerm = this%getSecDynamicPressure(density) * this%getSecArea()
+    leadingTerm = this%getSecDynamicPressure(density)*this%getSecArea()
 
     do is = 1, size(this%wiP, 2)
       ! Lift and Drag in local wind frame
-      this%secLift(:, is) = leadingTerm(is) * this%secCL(is) 
-      this%secDragProfile(:, is) = leadingTerm(is) * this%secCD(is)
+      this%secLift(:, is) = this%secLift(:,is)*leadingTerm(is)*this%secCL(is) 
+      this%secDragProfile(:, is) = this%secDragProfile*leadingTerm(is)*this%secCD(is)
       ! Lift in inertial frame
       ! Warning: This would give a wrong answer if a considerable dihedral
       ! is present for the wing since the blade Y-axis is not flapped
@@ -1417,6 +1415,8 @@ contains
     integer :: is
     do is = 1, size(this%wiP, 2)
       this%secDrag(:, is) = unitVec(this%wiP(1, is)%velCPm)
+      this%secDragInduced(:, is) = this%secDrag(:, is)
+      this%secDragProfile(:, is) = this%secDrag(:, is)
       this%secLift(:, is) = cross_product(this%secDrag(:, is), this%yAxis)
     enddo
   end subroutine blade_dirLiftDrag

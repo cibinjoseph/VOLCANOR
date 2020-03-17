@@ -565,11 +565,11 @@ contains
       rotor%forceInertial(1) / rotor%nonDimforceDenominator, &   ! CFx
       rotor%forceInertial(2) / rotor%nonDimforceDenominator, &   ! CFy
       rotor%forceInertial(3) / rotor%nonDimforceDenominator, &   ! CFz
-      rotor%forceWind(1) / rotor%nonDimforceDenominator, &   ! CFwindx
-      rotor%forceWind(2) / rotor%nonDimforceDenominator, &   ! CFwindy
-      rotor%forceWind(3) / rotor%nonDimforceDenominator, &   ! CFwindz
+      rotor%forceInertial(1) / rotor%nonDimforceDenominator, &   ! CFwindx
+      rotor%forceInertial(2) / rotor%nonDimforceDenominator, &   ! CFwindy
+      rotor%forceInertial(3) / rotor%nonDimforceDenominator, &   ! CFwindz
       rotor%forceInertial(1), rotor%forceInertial(2), rotor%forceInertial(3), &  ! Fx, Fy, Fz
-      rotor%forceWind(1), rotor%forceWind(2), rotor%forceWind(3)     ! Fwindx, Fwindy, Fwindz
+      rotor%forceInertial(1), rotor%forceInertial(2), rotor%forceInertial(3)     ! Fwindx, Fwindy, Fwindz
       !(bladeforce(ib), ib=1, rotor%nb)
     close (11)
     100 format(A, 12(E15.7))
