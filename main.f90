@@ -101,15 +101,17 @@ program main
             ! Translational vel
             rotor(ir)%blade(ib)%wiP(ic, is)%velCP = rotor(ir)%velWind + &
               ! Rotational vel
-            cross3(rotor(ir)%omegaWind, rotor(ir)%blade(ib)%wiP(ic, is)%CP - &
+            cross_product(rotor(ir)%omegaWind, rotor(ir)%blade(ib)%wiP(ic, is)%CP - &
               rotor(ir)%cgCoords) + &
               ! Omega vel
-            cross3(-rotor(ir)%omegaSlow*rotor(ir)%shaftAxis, &
+            cross_product(-rotor(ir)%omegaSlow*rotor(ir)%shaftAxis, &
               rotor(ir)%blade(ib)%wiP(ic, is)%CP - rotor(ir)%hubCoords)
 
-            ! Record velocities due to motion for induced drag computation
+            ! Record velocities due to motion for 
+            ! computing lift and drag directions
             rotor(ir)%blade(ib)%wiP(ic, is)%velCPm = &
               rotor(ir)%blade(ib)%wiP(ic, is)%velCP
+            rotor(ir)%dirLiftDrag()
 
             ! Velocity due to wing vortices of other rotors
             do jr = 1, nr
@@ -250,9 +252,9 @@ program main
         do ib = 1, rotor(ir)%nb
           do is = 1, rotor(ir)%ns
             rotor(ir)%blade(ib)%secVelFreestream(:, is) = rotor(ir)%velWind &
-              + cross3(rotor(ir)%omegaWind, &
+              + cross_product(rotor(ir)%omegaWind, &
               rotor(ir)%blade(ib)%secCP(:, is) - rotor(ir)%cgCoords) &
-              + cross3(-rotor(ir)%omegaSlow*rotor(ir)%shaftAxis, &
+              + cross_product(-rotor(ir)%omegaSlow*rotor(ir)%shaftAxis, &
               rotor(ir)%blade(ib)%secCP(:, is) - rotor(ir)%hubCoords)
           enddo
         enddo
@@ -377,15 +379,16 @@ program main
               ! Translational vel
               rotor(ir)%blade(ib)%wiP(ic, is)%velCP = rotor(ir)%velWind + &
                 ! Rotational vel
-              cross3(rotor(ir)%omegaWind, &
+              cross_product(rotor(ir)%omegaWind, &
                 rotor(ir)%blade(ib)%wiP(ic, is)%CP - rotor(ir)%cgCoords) + &
                 ! Omega vel
-              cross3(-rotor(ir)%omegaSlow*rotor(ir)%shaftAxis, &
+              cross_product(-rotor(ir)%omegaSlow*rotor(ir)%shaftAxis, &
                 rotor(ir)%blade(ib)%wiP(ic, is)%CP - rotor(ir)%hubCoords)
 
               ! Record velocities due to motion for induced drag computation
               rotor(ir)%blade(ib)%wiP(ic, is)%velCPm = &
                 rotor(ir)%blade(ib)%wiP(ic, is)%velCP
+              rotor(ir)%dirLiftDrag()
 
               do jr = 1, nr
                 ! Wake induced vel due to all rotors
@@ -522,9 +525,9 @@ program main
             do ib = 1, rotor(ir)%nb
               do is = 1, rotor(ir)%ns
                 rotor(ir)%blade(ib)%secVelFreestream(:, is) = rotor(ir)%velWind &
-                  + cross3(rotor(ir)%omegaWind, &
+                  + cross_product(rotor(ir)%omegaWind, &
                   rotor(ir)%blade(ib)%secCP(:, is) - rotor(ir)%cgCoords) &
-                  + cross3(-rotor(ir)%omegaSlow*rotor(ir)%shaftAxis, &
+                  + cross_product(-rotor(ir)%omegaSlow*rotor(ir)%shaftAxis, &
                   rotor(ir)%blade(ib)%secCP(:, is) - rotor(ir)%hubCoords)
               enddo
             enddo

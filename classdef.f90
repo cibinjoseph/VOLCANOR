@@ -353,7 +353,7 @@ contains
   subroutine wingpanel_class_calcN(this)
     ! Compute normal vector
   class(wingpanel_class) :: this
-    this%nCap = unitVec(cross3(this%pc(:, 3) - this%pc(:, 1), &
+    this%nCap = unitVec(cross_product(this%pc(:, 3) - this%pc(:, 1), &
       this%pc(:, 4) - this%pc(:, 2)))
   end subroutine wingpanel_class_calcN
 
@@ -398,7 +398,7 @@ contains
 
   subroutine calc_area(this)
   class(wingpanel_class) :: this
-    this%panelArea = 0.5_dp*norm2(cross3(this%pc(:, 3) &
+    this%panelArea = 0.5_dp*norm2(cross_product(this%pc(:, 3) &
       - this%pc(:, 1), this%pc(:, 4) - this%pc(:, 2)))
   end subroutine calc_area
 
@@ -1087,7 +1087,7 @@ contains
         ! Use chordwise induced velocity fuction here
         velInduced(ic, is) = dot_product(this%wiP(ic, is)%velCP + &
           this%vind_bywing_chordwiseVortices(this%wiP(ic, is)%CP), &
-          unitVec(cross3(this%wiP(ic, is)%velCPm,this%yAxis)))
+          unitVec(cross_product(this%wiP(ic, is)%velCPm,this%yAxis)))
       enddo
     enddo
 
@@ -1152,7 +1152,7 @@ contains
         this%forceInertial = this%forceInertial + this%wiP(ic, is)%normalForce
 
         this%secLift(:, is) = this%secLift(:, is) + projVec(this%wiP(ic, is)%normalForce, &
-          cross3(this%wiP(1, is)%velCpm,this%yAxis))
+          cross_product(this%wiP(1, is)%velCpm,this%yAxis))
 
       enddo
       this%secDragInduced(:, is) = this%secDragInduced(:, is) * sum(this%wiP(:, is)%delDi)
@@ -1225,7 +1225,7 @@ contains
 
     do is = 1, ns
       ! Extract sectional lift and CL
-      liftDir = cross3(this%secChordwiseResVel(:, is), this%yAxis)
+      liftDir = cross_product(this%secChordwiseResVel(:, is), this%yAxis)
       ! Assuming gamma method only gives lift
       this%secCL(is) = dot_product(this%secForceInertial(:, is), unitVec(liftDir)) &
         /(secDynamicPressure(is)*secArea(is))
@@ -1255,7 +1255,7 @@ contains
       ! Lift in inertial frame
       ! Warning: This would give a wrong answer if a considerable dihedral
       ! is present for the wing since the blade Y-axis is not flapped
-      this%secForceInertial(:, is) = cross3(this%yAxis, &
+      this%secForceInertial(:, is) = cross_product(this%yAxis, &
         this%secChordwiseResVel(:, is))
       this%secForceInertial(:, is) = sign(1._dp, sum(this%wiP(:, is)%vr%gam)) &
         * unitVec(this%secForceInertial(:, is))
@@ -1417,7 +1417,7 @@ contains
     integer :: is
     do is = 1, size(this%wiP, 2)
       this%secDrag(:, is) = unitVec(this%wiP(1, is)%velCPm)
-      this%secLift(:, is) = cross3(this%secDrag(:, is), this%yAxis)
+      this%secLift(:, is) = cross_product(this%secDrag(:, is), this%yAxis)
     enddo
   end subroutine blade_dirLiftDrag
 
@@ -1702,7 +1702,7 @@ contains
         this%blade(ib)%secTauCapSpan(:, j) = yAxis
 
         this%blade(ib)%secNormalVec(:, j) = &
-          cross3(this%blade(ib)%wiP(this%nc, j)%PC(:, 2) - this%blade(ib)%wiP(1, j)%PC(:, 4), &
+          cross_product(this%blade(ib)%wiP(this%nc, j)%PC(:, 2) - this%blade(ib)%wiP(1, j)%PC(:, 4), &
           this%blade(ib)%wiP(this%nc, j)%PC(:, 3) - this%blade(ib)%wiP(1, j)%PC(:, 1))
 
         ! Normalize
@@ -2097,7 +2097,7 @@ contains
           this%dragUnitVec = unitVec((/0._dp, this%velWind(2), this%velWind(3)/))
           this%sideUnitVec = xAxis
         endif
-        this%liftUnitVec = cross3(this%dragUnitVec, this%sideUnitVec)
+        this%liftUnitVec = cross_product(this%dragUnitVec, this%sideUnitVec)
       else
         ! Drag along forward velocity direction
         if (abs(this%velWind(1)) .gt. eps) then
@@ -2108,7 +2108,7 @@ contains
           this%sideUnitVec = xAxis
         else
           this%sideUnitVec = yAxis
-          this%dragUnitVec = cross3(this%sideUnitVec, this%shaftAxis)
+          this%dragUnitVec = cross_product(this%sideUnitVec, this%shaftAxis)
         endif
         this%liftUnitVec = this%shaftAxis
       endif

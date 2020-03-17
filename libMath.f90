@@ -72,17 +72,17 @@ contains
   end function halfsinspace
 
   ! -------------------------------------------------
-  !                cross3
+  !                cross_product
   ! -------------------------------------------------
-  function cross3(avec,bvec)
-    real(dp), intent(in), dimension(3) :: avec,bvec
-    real(dp), dimension(3) :: cross3
+  function cross_product(vecA,vecB)
+    real(dp), intent(in), dimension(3) :: vecA,vecB
+    real(dp), dimension(3) :: cross_product
 
-    cross3(1) = avec(2)*bvec(3)-avec(3)*bvec(2)
-    cross3(2) = avec(3)*bvec(1)-avec(1)*bvec(3)
-    cross3(3) = avec(1)*bvec(2)-avec(2)*bvec(1)
+    cross_product(1) = vecA(2)*vecB(3)-vecA(3)*vecB(2)
+    cross_product(2) = vecA(3)*vecB(1)-vecA(1)*vecB(3)
+    cross_product(3) = vecA(1)*vecB(2)-vecA(2)*vecB(1)
 
-  end function cross3
+  end function cross_product
 
   ! -------------------------------------------------
   !                degtorad
