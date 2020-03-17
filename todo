@@ -13,3 +13,5 @@ Implement option to switch lift from alpha computation to postprocessing
 - Compute forces using recorded alpha
 Check sweep cases by KnP
 Add induced drag force
+Use projVec()
+Introduce blade%xAxisNoPitch centered about pitching hinge
