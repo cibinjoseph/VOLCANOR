@@ -574,7 +574,9 @@ module blade_classdef
     type(C81_class), allocatable, dimension(:) :: C81
     real(dp) :: theta, psi, pivotLE
     real(dp), dimension(3) :: forceInertial
-    real(dp), allocatable, dimension(:, :) :: secForceInertial, secForceWind
+    real(dp), dimension(3) :: lift, drag, dragInduced, dragProfile
+    real(dp), allocatable, dimension(:, :) :: secForceInertial, secLift, secDrag
+    real(dp), allocatable, dimension(:, :) :: secDragInduced, secDragProfile
     integer, allocatable, dimension(:) :: airfoilNo
     character(len=30), allocatable, dimension(:) :: airfoilFile
     real(dp), allocatable, dimension(:) :: airfoilSectionLimit
@@ -612,6 +614,7 @@ module blade_classdef
     procedure :: getSecChordwiseLocations
     procedure :: calc_secCoeffs
     procedure :: secCoeffs2Force
+    procedure :: dirLiftDrag => blade_dirLiftDrag
   end type blade_class
 contains
 
@@ -1129,17 +1132,17 @@ contains
         !velTangentialSpan(ic,is)=0._dp
 
         unsteadyTerm = (this%wiP(ic, is)%gamTrapz - this%wiP(ic, is)%gamPrev)/dt
-        this%wiP(ic, is)%delP = density*(velTangentialChord(ic, is)*gamElementChord(ic, is)/this%wiP(ic, is)%meanChord &
-          + velTangentialSpan(ic, is)*gamElementSpan(ic, is)/this%wiP(ic, is)%meanSpan &
-          + unsteadyTerm)
+        this%wiP(ic, is)%delP = density * &
+          (velTangentialChord(ic, is) * gamElementChord(ic, is) / this%wiP(ic, is)%meanChord + &
+          velTangentialSpan(ic, is) * gamElementSpan(ic, is) / this%wiP(ic, is)%meanSpan + &
+          unsteadyTerm)
         this%wiP(ic, is)%gamPrev = this%wiP(ic, is)%gamTrapz
 
         ! Compute induced drag
-        this%wiP(ic, is)%delDi = density*(velInduced(ic, is)*gamElementChord(ic, is)*this%wiP(ic, is)%meanChord + &
+        this%wiP(ic, is)%delDi = density * &
+          (velInduced(ic, is) * gamElementChord(ic, is) * this%wiP(ic, is)%meanChord + &
           unsteadyTerm * this%wiP(ic, is)%panelArea * &
           dot_product(this%wiP(ic, is)%nCap, unitVec(this%wiP(ic, is)%velCPm)))
-        this%secForceWind(1, is) = this%secForceWind(1, is) + this%wiP(ic, is)%delDi
-        this%secForceWind(3, is) = this%secForceWind(3, is) + dot_product(this%wiP(ic, is)%normalForce, this%secLiftUnitVec(:, is))
 
         ! Invert direction of forceInertial according to sign of omega and collective pitch
         this%wiP(ic, is)%normalForce = this%wiP(ic, is)%delP* &
@@ -1148,7 +1151,11 @@ contains
         this%secForceInertial(:, is) = this%secForceInertial(:, is) + this%wiP(ic, is)%normalForce
         this%forceInertial = this%forceInertial + this%wiP(ic, is)%normalForce
 
+        this%secLift(:, is) = this%secLift(:, is) + projVec(this%wiP(ic, is)%normalForce, &
+          cross3(this%wiP(1, is)%velCpm,this%yAxis))
+
       enddo
+      this%secDragInduced(:, is) = this%secDragInduced(:, is) * sum(this%wiP(:, is)%delDi)
     enddo
 
   end subroutine blade_calc_force_gamma
@@ -1182,7 +1189,8 @@ contains
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: density, velSound
 
-    this%secForceWind = 0._dp
+    this%secLift = 0._dp
+    this%secDrag = 0._dp
     this%secForceInertial = 0._dp
     call this%calc_secCoeffs(velSound)
 
@@ -1238,12 +1246,12 @@ contains
     integer :: i, is
     real(dp), dimension(size(this%wiP, 2)) :: leadingTerm
 
-    ! Lift and Drag in local wind frame
     leadingTerm = this%getSecDynamicPressure(density) * this%getSecArea()
-    this%secForceWind(3, :) = leadingTerm * this%secCL
-    this%secForceWind(1, :) = leadingTerm * this%secCD
 
     do is = 1, size(this%wiP, 2)
+      ! Lift and Drag in local wind frame
+      this%secLift(:, is) = leadingTerm(is) * this%secCL(is) 
+      this%secDragProfile(:, is) = leadingTerm(is) * this%secCD(is)
       ! Lift in inertial frame
       ! Warning: This would give a wrong answer if a considerable dihedral
       ! is present for the wing since the blade Y-axis is not flapped
@@ -1252,10 +1260,10 @@ contains
       this%secForceInertial(:, is) = sign(1._dp, sum(this%wiP(:, is)%vr%gam)) &
         * unitVec(this%secForceInertial(:, is))
       ! abs() used since direction is already captured in vector
-      this%secForceInertial(:, is) = abs(this%secForceWind(3,is)) * this%secForceInertial(:, is)
+      this%secForceInertial(:, is) = norm2(this%secLift(:,is)) * this%secForceInertial(:, is)
       ! Drag in inertial frame
       this%secForceInertial(:,is) = this%secForceInertial(:,is) + &
-        this%secForceWind(1,is) * unitVec(this%secChordwiseResVel(:,is))
+        norm2(this%secDrag(:,is)) * unitVec(this%secChordwiseResVel(:,is))
     enddo
 
     do i = 1, 3
@@ -1403,6 +1411,16 @@ contains
       enddo
     endif
   end subroutine blade_burst_wake
+
+  subroutine blade_dirLiftDrag(this)
+  class(blade_class), intent(inout) :: this
+    integer :: is
+    do is = 1, size(this%wiP, 2)
+      this%secDrag(:, is) = unitVec(this%wiP(1, is)%velCPm)
+      this%secLift(:, is) = cross3(this%secDrag(:, is), this%yAxis)
+    enddo
+  end subroutine blade_dirLiftDrag
+
 end module blade_classdef
 
 !------+-------------------+------|
@@ -1419,7 +1437,7 @@ module rotor_classdef
     real(dp), dimension(3) :: hubCoords, cgCoords, fromCoords
     real(dp) :: radius, chord, root_cut, coningAngle
     real(dp) :: CT
-    real(dp), dimension(3) :: forceInertial, forceWind
+    real(dp), dimension(3) :: forceInertial, lift, drag
     real(dp), dimension(3) :: liftUnitVec, dragUnitVec, sideUnitVec
     real(dp), dimension(3) :: controlPitch  ! theta0,thetaC,thetaS
     real(dp) :: thetaTwist
@@ -1475,6 +1493,7 @@ module rotor_classdef
     procedure :: calc_secAlpha => rotor_calc_secAlpha
     procedure :: burst_wake => rotor_burst_wake
     procedure :: rotor_forceInertialToWind
+    procedure :: dirLiftDrag => rotor_dirLiftDrag
   end type rotor_class
 
 contains
@@ -1600,7 +1619,10 @@ contains
       allocate (this%blade(ib)%secNormalVec(3, this%ns))
       allocate (this%blade(ib)%secVelFreestream(3, this%ns))
       allocate (this%blade(ib)%secForceInertial(3, this%ns))
-      allocate (this%blade(ib)%secForceWind(3, this%ns))
+      allocate (this%blade(ib)%secLift(3, this%ns))
+      allocate (this%blade(ib)%secDrag(3, this%ns))
+      allocate (this%blade(ib)%secDragInduced(3, this%ns))
+      allocate (this%blade(ib)%secDragProfile(3, this%ns))
       allocate (this%blade(ib)%secAlpha(this%ns))
       allocate (this%blade(ib)%airfoilNo(this%ns))
       allocate (this%blade(ib)%secCL(this%ns))
@@ -2649,9 +2671,8 @@ contains
 
   subroutine rotor_forceInertialToWind(this)
   class(rotor_class), intent(inout) :: this
-    this%forceWind(1) = dot_product(this%forceInertial, this%dragUnitVec)
-    this%forceWind(2) = dot_product(this%forceInertial, this%sideUnitVec)
-    this%forceWind(3) = dot_product(this%forceInertial, this%liftUnitVec)
+    this%drag = projVec(this%forceInertial, this%dragUnitVec)
+    this%lift = projVec(this%forceInertial, this%liftUnitVec)
   end subroutine rotor_forceInertialToWind
 
   subroutine rotor_calc_secAlpha(this)
@@ -2670,4 +2691,14 @@ contains
       call this%blade(ib)%burst_wake(this%rowFar, this%skewLimit, this%chord)
     enddo
   end subroutine rotor_burst_wake
+
+  subroutine rotor_dirLiftDrag(this)
+  class(rotor_class), intent(inout) :: this
+    integer :: ib
+
+    do ib = 1, this%nb
+      call this%blade(ib)%dirLiftDrag()
+    enddo
+
+  end subroutine rotor_dirLiftDrag
 end module rotor_classdef
