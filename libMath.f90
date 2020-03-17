@@ -74,13 +74,13 @@ contains
   ! -------------------------------------------------
   !                cross_product
   ! -------------------------------------------------
-  function cross_product(vecA,vecB)
-    real(dp), intent(in), dimension(3) :: vecA,vecB
+  function cross_product(aVec,bVec)
+    real(dp), intent(in), dimension(3) :: aVec,bVec
     real(dp), dimension(3) :: cross_product
 
-    cross_product(1) = vecA(2)*vecB(3)-vecA(3)*vecB(2)
-    cross_product(2) = vecA(3)*vecB(1)-vecA(1)*vecB(3)
-    cross_product(3) = vecA(1)*vecB(2)-vecA(2)*vecB(1)
+    cross_product(1) = aVec(2)*bVec(3)-aVec(3)*bVec(2)
+    cross_product(2) = aVec(3)*bVec(1)-aVec(1)*bVec(3)
+    cross_product(3) = aVec(1)*bVec(2)-aVec(2)*bVec(1)
 
   end function cross_product
 
@@ -103,60 +103,58 @@ contains
   ! -------------------------------------------------
   !                outer_product
   ! -------------------------------------------------
-  function outer_product(vecA,vecB)
-    real(dp), intent(in), dimension(3) :: vecA, vecB
+  function outer_product(aVec,bVec)
+    real(dp), intent(in), dimension(3) :: aVec, bVec
     real(dp), dimension(3,3) :: outer_product
-    outer_product(:,1)=(/vecA(1)*vecB(1),vecA(2)*vecB(1),vecA(3)*vecB(1)/)
-    outer_product(:,2)=(/vecA(1)*vecB(2),vecA(2)*vecB(2),vecA(3)*vecB(2)/)
-    outer_product(:,3)=(/vecA(1)*vecB(2),vecA(2)*vecB(3),vecA(3)*vecB(3)/)
+    outer_product(:,1)=(/aVec(1)*bVec(1),aVec(2)*bVec(1),aVec(3)*bVec(1)/)
+    outer_product(:,2)=(/aVec(1)*bVec(2),aVec(2)*bVec(2),aVec(3)*bVec(2)/)
+    outer_product(:,3)=(/aVec(1)*bVec(2),aVec(2)*bVec(3),aVec(3)*bVec(3)/)
   end function outer_product
 
   ! -------------------------------------------------
   !                getAngleTan
   ! -------------------------------------------------
-  function getAngleTan(a,b)
-    real(dp), intent(in), dimension(3) :: a, b
+  function getAngleTan(aVec,bVec)
+    real(dp), intent(in), dimension(3) :: aVec, bVec
     real(dp) :: getAngleTan
     real(dp) :: mag2A, mag2B, dotAB
 
     ! Result will be -pi to pi
-    mag2A = a(1)*a(1)+a(2)*a(2)+a(3)*a(3)
-    mag2B = b(1)*b(1)+b(2)*b(2)+b(3)*b(3)
-    dotAB = dot_product(a,b)
+    mag2A = sum(aVec**2._dp)
+    mag2B = sum(bVec**2._dp)
+    dotAB = dot_product(aVec,bVec)
     getAngleTan = atan2(sqrt(mag2A*mag2B-dotAB*dotAB),dotAB)
   end function getAngleTan
 
   ! -------------------------------------------------
   !                getAngleCos
   ! -------------------------------------------------
-  function getAngleCos(a,b)
-    real(dp), intent(in), dimension(3) :: a, b
+  function getAngleCos(aVec,bVec)
+    real(dp), intent(in), dimension(3) :: aVec, bVec
     real(dp) :: getAngleCos
-    real(dp) :: mag2A, mag2B
 
     ! Assumes no angle > 180 deg exists
-    mag2A = a(1)*a(1)+a(2)*a(2)+a(3)*a(3)
-    mag2B = b(1)*b(1)+b(2)*b(2)+b(3)*b(3)
-    getAngleCos = acos(dot_product(a,b)/(sqrt(mag2A*mag2B)))
+    getAngleCos = acos(dot_product(aVec,bVec)/ &
+      (sqrt(sum(aVec**2._dp)*sum(bVec**2._dp))))
   end function getAngleCos
 
   ! -------------------------------------------------
   !                unitVec
   ! -------------------------------------------------
-  function unitVec(a)
-    real(dp), intent(in), dimension(:) :: a
-    real(dp), dimension(size(a)) :: unitVec
+  function unitVec(aVec)
+    real(dp), intent(in), dimension(:) :: aVec
+    real(dp), dimension(size(aVec)) :: unitVec
 
-    unitVec = a / norm2(a)
+    unitVec = aVec / norm2(aVec)
   end function unitVec
 
   ! -------------------------------------------------
   !                projVec
   ! -------------------------------------------------
-  function projVec(a,dirVec)
-    real(dp), intent(in), dimension(3) :: a, dirVec
+  function projVec(aVec,dirVec)
+    real(dp), intent(in), dimension(3) :: aVec, dirVec
     real(dp), dimension(3) :: projVec
-    projVec = dot_product(a, dirVec) * dirVec / (sum(dirVec**2._dp))
+    projVec = dot_product(aVec, dirVec) * dirVec / (sum(dirVec**2._dp))
   end function projVec
 
   ! -------------------------------------------------
