@@ -111,7 +111,6 @@ program main
             ! computing lift and drag directions
             rotor(ir)%blade(ib)%wiP(ic, is)%velCPm = &
               rotor(ir)%blade(ib)%wiP(ic, is)%velCP
-            call rotor(ir)%dirLiftDrag()
 
             ! Velocity due to wing vortices of other rotors
             do jr = 1, nr
@@ -134,6 +133,7 @@ program main
           enddo
         enddo
       enddo
+      call rotor(ir)%dirLiftDrag()
       rotor(ir)%RHS = -1._dp*rotor(ir)%RHS
     enddo
 
@@ -388,7 +388,6 @@ program main
               ! Record velocities due to motion for induced drag computation
               rotor(ir)%blade(ib)%wiP(ic, is)%velCPm = &
                 rotor(ir)%blade(ib)%wiP(ic, is)%velCP
-              call rotor(ir)%dirLiftDrag()
 
               do jr = 1, nr
                 ! Wake induced vel due to all rotors
@@ -414,6 +413,7 @@ program main
             enddo
           enddo
         enddo
+        call rotor(ir)%dirLiftDrag()
         rotor(ir)%RHS = -1._dp*rotor(ir)%RHS
       enddo
 
