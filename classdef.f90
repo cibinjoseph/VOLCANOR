@@ -1193,6 +1193,7 @@ contains
     call this%calc_secCoeffs(velSound)
 
     call this%secCoeffs2Force(density)
+    this%secDrag = this%secDragProfile
   end subroutine blade_calc_force_alpha
 
   subroutine blade_calc_force_alphaGamma(this, density, invertGammaSign, velSound, dt)
@@ -1236,6 +1237,7 @@ contains
     call this%calc_secCoeffs(velSound)
 
     call this%secCoeffs2Force(density)
+    this%secDrag = this%secDragInduced + this%secDragProfile
   end subroutine blade_calc_force_alphaGamma
 
   subroutine secCoeffs2Force(this, density)
@@ -1247,7 +1249,7 @@ contains
     leadingTerm = this%getSecDynamicPressure(density)*this%getSecArea()
 
     do is = 1, size(this%wiP, 2)
-      ! Lift and Drag in local wind frame
+      ! Lift and Drag vectors
       this%secLift(:, is) = this%secLift(:,is)*leadingTerm(is)*this%secCL(is) 
       this%secDragProfile(:, is) = this%secDragProfile*leadingTerm(is)*this%secCD(is)
       ! Lift in inertial frame
@@ -1258,7 +1260,8 @@ contains
       this%secForceInertial(:, is) = sign(1._dp, sum(this%wiP(:, is)%vr%gam)) &
         * unitVec(this%secForceInertial(:, is))
       ! abs() used since direction is already captured in vector
-      this%secForceInertial(:, is) = norm2(this%secLift(:,is)) * this%secForceInertial(:, is)
+      this%secForceInertial(:, is) = norm2(this%secLift(:,is)) * &
+        this%secForceInertial(:, is)
       ! Drag in inertial frame
       this%secForceInertial(:,is) = this%secForceInertial(:,is) + &
         norm2(this%secDrag(:,is)) * unitVec(this%secChordwiseResVel(:,is))
@@ -2128,7 +2131,7 @@ contains
 
       select case (fdSchemeSwitch)
       case (0)
-          ! Nothing to deallocate
+        ! Nothing to deallocate
       case (1)
         deallocate (this%blade(ib)%waPPredicted)
         deallocate (this%blade(ib)%velNwakePredicted)
