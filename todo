@@ -13,6 +13,4 @@ Implement option to switch lift from alpha computation to postprocessing
 - Compute forces using recorded alpha
 Check sweep cases by KnP
 While computing drag from FELS in unsteady case, ensure unsteady 'induced' drag term is not counted twice by neglecting it in force computation using gamma 
-Use projVec()
 Introduce blade%xAxisNoPitch centered about pitching hinge
-Debug secCoeffs2Force called from force_alpha()

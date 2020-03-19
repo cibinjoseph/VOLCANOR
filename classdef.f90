@@ -1142,7 +1142,7 @@ contains
         this%wiP(ic, is)%delDi = density * &
           (velInduced(ic, is) * gamElementChord(ic, is) * this%wiP(ic, is)%meanChord + &
           unsteadyTerm * this%wiP(ic, is)%panelArea * &
-          dot_product(this%wiP(ic, is)%nCap, unitVec(this%wiP(ic, is)%velCPm)))
+          projVec(this%wiP(ic, is)%nCap, this%wiP(ic, is)%velCPm))
 
         ! Invert direction of forceInertial according to sign of omega and collective pitch
         this%wiP(ic, is)%normalForce = this%wiP(ic, is)%delP* &
@@ -1226,7 +1226,7 @@ contains
       ! Extract sectional lift and CL
       liftDir = cross_product(this%secChordwiseResVel(:, is), this%yAxis)
       ! Assuming gamma method only gives lift
-      this%secCL(is) = dot_product(this%secForceInertial(:, is), unitVec(liftDir)) &
+      this%secCL(is) = projVec(this%secForceInertial(:, is), liftDir) &
         /(secDynamicPressure(is)*secArea(is))
 
       ! Compute angle of attack from linear CL
