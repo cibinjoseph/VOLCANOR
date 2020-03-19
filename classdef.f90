@@ -1881,10 +1881,11 @@ contains
       endif
     enddo
 
-    if (warnUser .eqv. .TRUE.) then
-      print *
-      call sleep(2)
-    endif
+    ! Removing sleep() for preventing ifort warnings
+    ! if (warnUser .eqv. .TRUE.) then
+    !   print *
+    !   call sleep(2)
+    ! endif
 
     ! Move rotor to hub coordinates
     do ib = 1, this%nb
