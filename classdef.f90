@@ -1250,8 +1250,8 @@ contains
 
     do is = 1, size(this%wiP, 2)
       ! Lift and Drag vectors
-      this%secLift(:, is) = this%secLift(:,is)*leadingTerm(is)*this%secCL(is) 
-      this%secDragProfile(:, is) = this%secDragProfile*leadingTerm(is)*this%secCD(is)
+      this%secLift(:, is) = this%secLift(:, is)*leadingTerm(is)*this%secCL(is) 
+      this%secDragProfile(:, is) = this%secDragProfile(:, is)*leadingTerm(is)*this%secCD(is)
       ! Lift in inertial frame
       ! Warning: This would give a wrong answer if a considerable dihedral
       ! is present for the wing since the blade Y-axis is not flapped
