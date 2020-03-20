@@ -600,7 +600,7 @@ module blade_classdef
     procedure :: burst_wake => blade_burst_wake
     procedure :: getSecChordwiseLocations
     procedure :: calc_secCoeffs
-    procedure :: secCoeffs2Forces
+    procedure :: secCoeffsToForces
     procedure :: dirLiftDrag => blade_dirLiftDrag
   end type blade_class
 contains
@@ -1229,7 +1229,7 @@ contains
     ! Compute non-linear CL
     call this%calc_secCoeffs(velSound)
 
-    call this%secCoeffs2Forces(density)
+    call this%secCoeffsToForces(density)
 
     this%forceInertial = sum(this%secForceInertial, 2)
     this%lift = sum(this%secLift, 2)
@@ -1263,7 +1263,7 @@ contains
       this%secForceInertial(:,is) = this%secForceInertial(:,is) + &
         norm2(this%secDrag(:,is)) * unitVec(this%secChordwiseResVel(:,is))
     enddo
-  end subroutine secCoeffs2Forces
+  end subroutine secCoeffsToForces
 
   subroutine calc_secCoeffs(this, velSound)
     ! Compute sec CL, CD, CM from C81 tables and sec resultant velocity
