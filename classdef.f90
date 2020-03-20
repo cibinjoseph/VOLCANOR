@@ -562,8 +562,6 @@ module blade_classdef
     real(dp) :: theta, psi, pivotLE
     real(dp), dimension(3) :: forceInertial
     real(dp), dimension(3) :: lift, drag, dragInduced, dragProfile
-    real(dp), allocatable, dimension(:, :) :: secForceInertial, secLift, secDrag
-    real(dp), allocatable, dimension(:, :) :: secDragInduced, secDragProfile
     integer, allocatable, dimension(:) :: airfoilNo
     character(len=30), allocatable, dimension(:) :: airfoilFile
     real(dp), allocatable, dimension(:) :: airfoilSectionLimit
@@ -573,6 +571,8 @@ module blade_classdef
     real(dp), allocatable, dimension(:, :) :: velFwakePredicted, velFwakeStep
     real(dp), dimension(3) :: xAxis, yAxis, zAxis
     ! Sectional quantities
+    real(dp), allocatable, dimension(:, :) :: secForceInertial, secLift, secDrag
+    real(dp), allocatable, dimension(:, :) :: secDragInduced, secDragProfile
     real(dp), allocatable, dimension(:, :) :: secTauCapChord, secTauCapSpan
     real(dp), allocatable, dimension(:, :) :: secNormalVec, secVelFreestream
     real(dp), allocatable, dimension(:, :) :: secChordwiseResVel, secCP
