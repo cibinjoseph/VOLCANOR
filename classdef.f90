@@ -600,7 +600,7 @@ module blade_classdef
     procedure :: burst_wake => blade_burst_wake
     procedure :: getSecChordwiseLocations
     procedure :: calc_secCoeffs
-    procedure :: secCoeffs2Force
+    procedure :: secCoeffs2Forces
     procedure :: dirLiftDrag => blade_dirLiftDrag
   end type blade_class
 contains
@@ -1145,6 +1145,8 @@ contains
       this%secDragInduced(:, is) = this%secDragInduced(:, is) * sum(this%wiP(:, is)%delDi)
     enddo
     this%secDrag = this%secDragInduced
+    this%lift = sum(this%secLift, 2)
+    this%drag = sum(this%secDrag, 2)
 
   end subroutine blade_calc_force_gamma
 
@@ -1179,8 +1181,12 @@ contains
 
     call this%calc_secCoeffs(velSound)
 
-    call this%secCoeffs2Force(density)
+    call this%secCoeffs2secForces(density)
     this%secDrag = this%secDragProfile
+
+    this%forceInertial = sum(this%secForceInertial, 2)
+    this%lift = sum(this%secLift, 2)
+    this%drag = sum(this%secDrag, 2)
   end subroutine blade_calc_force_alpha
 
   subroutine blade_calc_force_alphaGamma(this, density, invertGammaSign, velSound, dt)
@@ -1223,11 +1229,15 @@ contains
     ! Compute non-linear CL
     call this%calc_secCoeffs(velSound)
 
-    call this%secCoeffs2Force(density)
+    call this%secCoeffs2Forces(density)
+
+    this%forceInertial = sum(this%secForceInertial, 2)
+    this%lift = sum(this%secLift, 2)
     this%secDrag = this%secDragInduced + this%secDragProfile
+    this%drag = sum(this%secDrag, 2)
   end subroutine blade_calc_force_alphaGamma
 
-  subroutine secCoeffs2Force(this, density)
+  subroutine secCoeffs2secForces(this, density)
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: density
     integer :: i, is
@@ -1253,11 +1263,7 @@ contains
       this%secForceInertial(:,is) = this%secForceInertial(:,is) + &
         norm2(this%secDrag(:,is)) * unitVec(this%secChordwiseResVel(:,is))
     enddo
-
-    do i = 1, 3
-      this%forceInertial(i) = sum(this%secForceInertial(i, :))
-    enddo
-  end subroutine secCoeffs2Force
+  end subroutine secCoeffs2Forces
 
   subroutine calc_secCoeffs(this, velSound)
     ! Compute sec CL, CD, CM from C81 tables and sec resultant velocity
