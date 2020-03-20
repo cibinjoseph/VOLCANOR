@@ -411,19 +411,6 @@ contains
       + norm2(this%pc(:, 3) - this%pc(:, 4)))
   end subroutine calc_mean_dimensions
 
-  !function orthproj(this)
-  !! Compute the orthogonal projection operator
-  !class(wingpanel_class) :: this
-  !  real(dp), dimension(3,3) :: orthproj
-  !  real(dp), dimension(3,3) :: idenmat
-  !  real(dp), dimension(3) :: velCPm_cap
-  !  idenmat(:,1)=(/1._dp,0._dp,0._dp/)
-  !  idenmat(:,2)=(/0._dp,1._dp,0._dp/)
-  !  idenmat(:,3)=(/0._dp,0._dp,1._dp/)
-  !  velCPm_cap=this%velCPm/norm2(this%velCPm)
-  !  orthproj=idenmat-outer_product(velCPm_cap,velCPm_cap)
-  !end function orthproj
-
   function isCPinsidecore(this)
     ! Check whether collocation point lies
     ! inside viscous core region of vortex ring
