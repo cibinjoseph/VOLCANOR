@@ -1488,7 +1488,7 @@ module rotor_classdef
     procedure :: calc_force_alphaGamma => rotor_calc_force_alphaGamma
     procedure :: calc_secAlpha => rotor_calc_secAlpha
     procedure :: burst_wake => rotor_burst_wake
-    procedure :: rotor_forceInertialToWind
+    procedure :: rotor_forceInertialToLiftDrag
     procedure :: dirLiftDrag => rotor_dirLiftDrag
   end type rotor_class
 
@@ -2634,7 +2634,7 @@ contains
       call this%blade(ib)%calc_force_gamma(density, sign(1._dp, this%Omega*this%controlPitch(1)), dt)
       this%forceInertial = this%forceInertial + this%blade(ib)%forceInertial
     enddo
-    call this%rotor_forceInertialToWind()
+    call this%rotor_forceInertialToLiftDrag()
   end subroutine rotor_calc_force_gamma
 
   subroutine rotor_calc_force_alpha(this, density, velSound)
@@ -2648,7 +2648,7 @@ contains
       call this%blade(ib)%calc_force_alpha(density, velSound)
       this%forceInertial = this%forceInertial + this%blade(ib)%forceInertial
     enddo
-    call this%rotor_forceInertialToWind()
+    call this%rotor_forceInertialToLiftDrag()
   end subroutine rotor_calc_force_alpha
 
   subroutine rotor_calc_force_alphaGamma(this, density, velSound, dt)
@@ -2663,14 +2663,14 @@ contains
         velSound, dt)
       this%forceInertial = this%forceInertial + this%blade(ib)%forceInertial
     enddo
-    call this%rotor_forceInertialToWind()
+    call this%rotor_forceInertialToLiftDrag()
   end subroutine rotor_calc_force_alphaGamma
 
-  subroutine rotor_forceInertialToWind(this)
+  subroutine rotor_forceInertialToLiftDrag(this)
   class(rotor_class), intent(inout) :: this
     this%drag = projVec(this%forceInertial, this%dragUnitVec)
     this%lift = projVec(this%forceInertial, this%liftUnitVec)
-  end subroutine rotor_forceInertialToWind
+  end subroutine rotor_forceInertialToLiftDrag
 
   subroutine rotor_calc_secAlpha(this)
   class(rotor_class), intent(inout) :: this
