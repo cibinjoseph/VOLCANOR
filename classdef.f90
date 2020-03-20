@@ -600,7 +600,7 @@ module blade_classdef
     procedure :: burst_wake => blade_burst_wake
     procedure :: getSecChordwiseLocations
     procedure :: calc_secCoeffs
-    procedure :: secCoeffsToForces
+    procedure :: secCoeffsToSecForces
     procedure :: dirLiftDrag => blade_dirLiftDrag
   end type blade_class
 contains
@@ -1181,7 +1181,7 @@ contains
 
     call this%calc_secCoeffs(velSound)
 
-    call this%secCoeffs2secForces(density)
+    call this%secCoeffsTosecForces(density)
     this%secDrag = this%secDragProfile
 
     this%forceInertial = sum(this%secForceInertial, 2)
@@ -1229,7 +1229,7 @@ contains
     ! Compute non-linear CL
     call this%calc_secCoeffs(velSound)
 
-    call this%secCoeffsToForces(density)
+    call this%secCoeffsToSecForces(density)
 
     this%forceInertial = sum(this%secForceInertial, 2)
     this%lift = sum(this%secLift, 2)
@@ -1237,10 +1237,10 @@ contains
     this%drag = sum(this%secDrag, 2)
   end subroutine blade_calc_force_alphaGamma
 
-  subroutine secCoeffs2secForces(this, density)
+  subroutine secCoeffsToSecForces(this, density)
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: density
-    integer :: i, is
+    integer :: is
     real(dp), dimension(size(this%wiP, 2)) :: leadingTerm
 
     leadingTerm = this%getSecDynamicPressure(density)*this%getSecArea()
@@ -1263,7 +1263,7 @@ contains
       this%secForceInertial(:,is) = this%secForceInertial(:,is) + &
         norm2(this%secDrag(:,is)) * unitVec(this%secChordwiseResVel(:,is))
     enddo
-  end subroutine secCoeffsToForces
+  end subroutine secCoeffsToSecForces
 
   subroutine calc_secCoeffs(this, velSound)
     ! Compute sec CL, CD, CM from C81 tables and sec resultant velocity
