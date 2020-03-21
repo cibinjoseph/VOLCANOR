@@ -602,6 +602,7 @@ module blade_classdef
     procedure :: calc_secCoeffs
     procedure :: secCoeffsToSecForces
     procedure :: dirLiftDrag => blade_dirLiftDrag
+    procedure :: sumSecToNetForces
   end type blade_class
 contains
 
@@ -1144,9 +1145,11 @@ contains
       enddo
       this%secDragInduced(:, is) = this%secDragInduced(:, is) * sum(this%wiP(:, is)%delDi)
     enddo
-    this%secDrag = this%secDragInduced
-    this%lift = sum(this%secLift, 2)
-    this%drag = sum(this%secDrag, 2)
+    this%secDragProfile = 0._dp  ! To overwrite unit vectors previously assigned in main.f90
+
+    this%secDrag = this%secDragInduced + this%secDragProfile
+
+    call this%sumSecToNetForces()
 
   end subroutine blade_calc_force_gamma
 
@@ -1182,11 +1185,11 @@ contains
     call this%calc_secCoeffs(velSound)
 
     call this%secCoeffsTosecForces(density)
-    this%secDrag = this%secDragProfile
+    this%secDragInduced = 0._dp  ! To overwrite unit vectors previously assigned in main.f90
+    this%secDrag = this%secDragProfile + this%secDragInduced
 
-    this%forceInertial = sum(this%secForceInertial, 2)
-    this%lift = sum(this%secLift, 2)
-    this%drag = sum(this%secDrag, 2)
+    call this%sumSecToNetForces()
+
   end subroutine blade_calc_force_alpha
 
   subroutine blade_calc_force_alphaGamma(this, density, invertGammaSign, velSound, dt)
@@ -1231,10 +1234,10 @@ contains
 
     call this%secCoeffsToSecForces(density)
 
-    this%forceInertial = sum(this%secForceInertial, 2)
-    this%lift = sum(this%secLift, 2)
     this%secDrag = this%secDragInduced + this%secDragProfile
-    this%drag = sum(this%secDrag, 2)
+
+    call this%sumSecToNetForces()
+
   end subroutine blade_calc_force_alphaGamma
 
   subroutine secCoeffsToSecForces(this, density)
@@ -1417,6 +1420,16 @@ contains
     enddo
   end subroutine blade_dirLiftDrag
 
+  subroutine sumSecToNetForces(this)
+    class(blade_class), intent(inout) :: this
+    
+    this%forceInertial = sum(this%secForceInertial, 2)
+    this%lift = sum(this%secLift, 2)
+    this%drag = sum(this%secDrag, 2)
+    this%dragProfile = sum(this%secDragProfile, 2)
+    this%dragInduced = sum(this%secDragInduced, 2)
+  end subroutine sumSecToNetForces
+
 end module blade_classdef
 
 !------+-------------------+------|
@@ -1434,6 +1447,7 @@ module rotor_classdef
     real(dp) :: radius, chord, root_cut, coningAngle
     real(dp) :: CT
     real(dp), dimension(3) :: forceInertial, lift, drag
+    real(dp), dimension(3) :: dragInduced, dragProfile
     real(dp), dimension(3) :: liftUnitVec, dragUnitVec, sideUnitVec
     real(dp), dimension(3) :: controlPitch  ! theta0,thetaC,thetaS
     real(dp) :: thetaTwist
@@ -1488,7 +1502,6 @@ module rotor_classdef
     procedure :: calc_force_alphaGamma => rotor_calc_force_alphaGamma
     procedure :: calc_secAlpha => rotor_calc_secAlpha
     procedure :: burst_wake => rotor_burst_wake
-    procedure :: rotor_forceInertialToLiftDrag
     procedure :: dirLiftDrag => rotor_dirLiftDrag
   end type rotor_class
 
@@ -2634,7 +2647,6 @@ contains
       call this%blade(ib)%calc_force_gamma(density, sign(1._dp, this%Omega*this%controlPitch(1)), dt)
       this%forceInertial = this%forceInertial + this%blade(ib)%forceInertial
     enddo
-    call this%rotor_forceInertialToLiftDrag()
   end subroutine rotor_calc_force_gamma
 
   subroutine rotor_calc_force_alpha(this, density, velSound)
@@ -2648,7 +2660,6 @@ contains
       call this%blade(ib)%calc_force_alpha(density, velSound)
       this%forceInertial = this%forceInertial + this%blade(ib)%forceInertial
     enddo
-    call this%rotor_forceInertialToLiftDrag()
   end subroutine rotor_calc_force_alpha
 
   subroutine rotor_calc_force_alphaGamma(this, density, velSound, dt)
@@ -2663,14 +2674,7 @@ contains
         velSound, dt)
       this%forceInertial = this%forceInertial + this%blade(ib)%forceInertial
     enddo
-    call this%rotor_forceInertialToLiftDrag()
   end subroutine rotor_calc_force_alphaGamma
-
-  subroutine rotor_forceInertialToLiftDrag(this)
-  class(rotor_class), intent(inout) :: this
-    this%drag = projVec(this%forceInertial, this%dragUnitVec)
-    this%lift = projVec(this%forceInertial, this%liftUnitVec)
-  end subroutine rotor_forceInertialToLiftDrag
 
   subroutine rotor_calc_secAlpha(this)
   class(rotor_class), intent(inout) :: this
@@ -2696,6 +2700,6 @@ contains
     do ib = 1, this%nb
       call this%blade(ib)%dirLiftDrag()
     enddo
-
   end subroutine rotor_dirLiftDrag
+
 end module rotor_classdef
