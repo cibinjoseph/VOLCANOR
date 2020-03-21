@@ -1421,8 +1421,8 @@ contains
   end subroutine blade_dirLiftDrag
 
   subroutine sumSecToNetForces(this)
-    class(blade_class), intent(inout) :: this
-    
+  class(blade_class), intent(inout) :: this
+
     this%forceInertial = sum(this%secForceInertial, 2)
     this%lift = sum(this%secLift, 2)
     this%drag = sum(this%secDrag, 2)
@@ -1503,6 +1503,7 @@ module rotor_classdef
     procedure :: calc_secAlpha => rotor_calc_secAlpha
     procedure :: burst_wake => rotor_burst_wake
     procedure :: dirLiftDrag => rotor_dirLiftDrag
+    procedure :: sumBladeToNetForces
   end type rotor_class
 
 contains
@@ -2645,8 +2646,8 @@ contains
     this%forceInertial = 0._dp
     do ib = 1, this%nb
       call this%blade(ib)%calc_force_gamma(density, sign(1._dp, this%Omega*this%controlPitch(1)), dt)
-      this%forceInertial = this%forceInertial + this%blade(ib)%forceInertial
     enddo
+    call this%sumBladeToNetForces()
   end subroutine rotor_calc_force_gamma
 
   subroutine rotor_calc_force_alpha(this, density, velSound)
@@ -2658,8 +2659,8 @@ contains
     this%forceInertial = 0._dp
     do ib = 1, this%nb
       call this%blade(ib)%calc_force_alpha(density, velSound)
-      this%forceInertial = this%forceInertial + this%blade(ib)%forceInertial
     enddo
+    call this%sumBladeToNetForces()
   end subroutine rotor_calc_force_alpha
 
   subroutine rotor_calc_force_alphaGamma(this, density, velSound, dt)
@@ -2672,8 +2673,8 @@ contains
     do ib = 1, this%nb
       call this%blade(ib)%calc_force_alphaGamma(density, sign(1._dp, this%Omega*this%controlPitch(1)), &
         velSound, dt)
-      this%forceInertial = this%forceInertial + this%blade(ib)%forceInertial
     enddo
+    call this%sumBladeToNetForces()
   end subroutine rotor_calc_force_alphaGamma
 
   subroutine rotor_calc_secAlpha(this)
@@ -2702,4 +2703,23 @@ contains
     enddo
   end subroutine rotor_dirLiftDrag
 
+  subroutine sumBladeToNetForces(this)
+  class(rotor_class), intent(inout) :: this
+    integer :: ib
+
+    this%forceInertial = 0._dp
+    this%lift = 0._dp
+    this%drag = 0._dp
+    this%dragInduced = 0._dp
+    this%dragProfile = 0._dp
+
+    do ib = 1, this%nb
+      this%forceInertial = this%forceInertial + this%blade(ib)%forceInertial
+      this%lift = this%lift + this%blade(ib)%lift
+      this%drag = this%drag + this%blade(ib)%drag
+      this%dragInduced = this%dragInduced + this%blade(ib)%dragInduced
+      this%dragProfile = this%dragProfile + this%blade(ib)%dragProfile
+    enddo
+
+  end subroutine sumBladeToNetForces
 end module rotor_classdef
