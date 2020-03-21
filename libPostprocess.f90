@@ -6,16 +6,16 @@ contains
   subroutine init_plots(numOfRotors)
     ! Initialise headers for plot files
     integer, intent(in) :: numOfRotors
-    character(len=24) :: forceFilename
+    character(len=24) :: forcesDimFilename
     integer :: rotorNumber
     character(len=2) :: rotorNumberChar
 
     do rotorNumber = 1, numOfRotors
       write (rotorNumberChar, '(I0.2)') rotorNumber
-      forceFilename = 'Results/r'//rotorNumberChar//'forceHist.txt'
+      forcesDimFilename = 'Results/r'//rotorNumberChar//'forceHist.txt'
 
       ! Add data headers
-      open (unit=11, file=forceFilename, action='write')
+      open (unit=11, file=forcesDimFilename, action='write')
       write (11, '(A)') 'timestamp(iters)  CFx CFy CFz  CFwindx CFwindy CFwindz  Fx Fy Fz  Fwindx Fwindy Fwindz'
     enddo
     close (11)
@@ -555,21 +555,30 @@ contains
     integer, intent(in) :: rotorNumber
     character(len=2) :: rotorNumberChar, bladeNumberChar
     integer :: ib, ispan
-    character(len=24) :: forceFilename
+    character(len=24) :: forcesDimFilename
+    character(len=27) :: forcesNonDimFilename
 
     write (rotorNumberChar, '(I0.2)') rotorNumber
-    forceFilename = 'Results/r'//rotorNumberChar//'forceHist.txt'
 
-    open (unit=11, file=forceFilename, action='write', position='append')
+    forcesNonDimFilename = 'Results/r'//rotorNumberChar//'ForcesNonDim.txt'
+    open (unit=11, file=forcesNonDimFilename, action='write', position='append')
     write (11, 100) timestamp, &
       norm2(rotor%lift) / rotor%nonDimforceDenominator, &        ! CL
       norm2(rotor%drag) / rotor%nonDimforceDenominator, &        ! CD
       rotor%forceInertial(1) / rotor%nonDimforceDenominator, &   ! CFx
       rotor%forceInertial(2) / rotor%nonDimforceDenominator, &   ! CFy
       rotor%forceInertial(3) / rotor%nonDimforceDenominator      ! CFz
-    !(bladeforce(ib), ib=1, rotor%nb)
     close (11)
-    100 format(A, 12(E15.7))
+    100 format(A, 5(E15.7))
+
+    forcesDimFilename = 'Results/r'//rotorNumberChar//'ForcesDim.txt'
+    open (unit=12, file=forcesDimFilename, action='write', position='append')
+    write (12, 100) timestamp, &
+      rotor%lift(1), rotor%lift(2), rotor%lift(3), &     ! Lift
+      rotor%drag(1), rotor%drag(2), rotor%drag(3), &     ! Drag
+      rotor%forceInertial(1), rotor%forceInertial(2), rotor%forceInertial(3)  ! forceInertial 
+    close (12)
+    101 format(A, 9(E15.7))
 
     if (rotor%bladeforcePlotSwitch .ne. 0) then
       open (unit=12, file='Results/r'//rotorNumberChar//'forceDist'//timestamp//'.curve', action='write')
