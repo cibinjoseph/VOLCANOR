@@ -13,8 +13,8 @@ contains
 
     do rotorNumber = 1, numOfRotors
       write (rotorNumberChar, '(I0.2)') rotorNumber
-      forcesDimFilename = 'Results/r'//rotorNumberChar//'ForceDim.txt'
-      forcesNonDimFilename = 'Results/r'//rotorNumberChar//'ForceNonDim.txt'
+      forcesDimFilename = 'Results/r'//rotorNumberChar//'ForcesDim.txt'
+      forcesNonDimFilename = 'Results/r'//rotorNumberChar//'ForcesNonDim.txt'
 
       ! Add data headers
       open (unit=11, file=forcesDimFilename, action='write')
