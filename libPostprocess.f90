@@ -457,7 +457,7 @@ contains
         nWakeTip(:, i) = 0._dp
         do j = rotor%rollupStart, rotor%rollupEnd
           nWakeTip(:, i) = nWakeTip(:, i) + rotor%blade(ib)%waP(i, j)%vr%vf(4)%fc(:, 1)* &
-                           rotor%blade(ib)%waP(i, j)%vr%gam
+            rotor%blade(ib)%waP(i, j)%vr%gam
           gamSum = gamSum + rotor%blade(ib)%waP(i, j)%vr%gam
 
           ! Compute max gam for near wake filaments
@@ -485,7 +485,7 @@ contains
       nWakeTip(:, nx + 1) = 0._dp
       do j = rotor%rollupStart, rotor%rollupEnd
         nWakeTip(:, nx + 1) = nWakeTip(:, nx + 1) + rotor%blade(ib)%waP(nx, j)%vr%vf(3)%fc(:, 1)* &
-                              rotor%blade(ib)%waP(nx, j)%vr%gam
+          rotor%blade(ib)%waP(nx, j)%vr%gam
         gamSum = gamSum + rotor%blade(ib)%waP(nx, j)%vr%gam
       enddo
 
@@ -562,15 +562,12 @@ contains
 
     open (unit=11, file=forceFilename, action='write', position='append')
     write (11, 100) timestamp, &
+      norm2(rotor%lift) / rotor%nonDimforceDenominator, &        ! CL
+      norm2(rotor%drag) / rotor%nonDimforceDenominator, &        ! CD
       rotor%forceInertial(1) / rotor%nonDimforceDenominator, &   ! CFx
       rotor%forceInertial(2) / rotor%nonDimforceDenominator, &   ! CFy
-      rotor%forceInertial(3) / rotor%nonDimforceDenominator, &   ! CFz
-      rotor%forceInertial(1) / rotor%nonDimforceDenominator, &   ! CFwindx
-      rotor%forceInertial(2) / rotor%nonDimforceDenominator, &   ! CFwindy
-      rotor%forceInertial(3) / rotor%nonDimforceDenominator, &   ! CFwindz
-      rotor%forceInertial(1), rotor%forceInertial(2), rotor%forceInertial(3), &  ! Fx, Fy, Fz
-      rotor%forceInertial(1), rotor%forceInertial(2), rotor%forceInertial(3)     ! Fwindx, Fwindy, Fwindz
-      !(bladeforce(ib), ib=1, rotor%nb)
+      rotor%forceInertial(3) / rotor%nonDimforceDenominator      ! CFz
+    !(bladeforce(ib), ib=1, rotor%nb)
     close (11)
     100 format(A, 12(E15.7))
 
