@@ -10,6 +10,7 @@ if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
   set(dbg_flags "-fbacktrace -O0 -Wall -Wextra -Wimplicit-interface -Wunused-parameter \
   -Wcharacter-truncation -Wsurprising -Waliasing -fcheck=all -g -ffpe-trap=invalid,zero,overflow -fbounds-check")
   set(rls_flags "-O2 -fopenmp")
+  set(COMPILERSTATEMENT "Compiler: GFORTRAN")
 endif()
 
 # Variables for ifort
@@ -18,6 +19,7 @@ if(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
   set(dbg_flags "-traceback -O0 -warn all -check bounds -g -fpe0 -debug extended -heap-arrays 200")
   set(rls_flags "-fast -O3 -qopenmp -parallel -heap-arrays 200 \
   -ansi-alias -qopt-jump-tables='large' -xcore-avx2 -ipo")
+  set(COMPILERSTATEMENT "Compiler: IFORT")
 endif()
 
 # Set compiler flags using variables
@@ -67,15 +69,15 @@ add_custom_target(fileclean
 # Target release/run to regenerate Makefile
 add_custom_target(run
   COMMAND ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=Release ${CMAKE_SOURCE_DIR}
-  COMMAND reset
   COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target fileclean
   COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target init
+  COMMENT ${COMPILERSTATEMENT}
   COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target main.out)
 
 # Target debug/run_dbg to regenerate Makefile
 add_custom_target(run_dbg
   COMMAND ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=Debug ${CMAKE_SOURCE_DIR}
-  COMMAND reset
   COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target fileclean
   COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target init
+  COMMENT ${COMPILERSTATEMENT}
   COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target main.out)
