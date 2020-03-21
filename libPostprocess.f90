@@ -7,18 +7,24 @@ contains
     ! Initialise headers for plot files
     integer, intent(in) :: numOfRotors
     character(len=24) :: forcesDimFilename
+    character(len=27) :: forcesNonDimFilename
     integer :: rotorNumber
     character(len=2) :: rotorNumberChar
 
     do rotorNumber = 1, numOfRotors
       write (rotorNumberChar, '(I0.2)') rotorNumber
-      forcesDimFilename = 'Results/r'//rotorNumberChar//'forceHist.txt'
+      forcesDimFilename = 'Results/r'//rotorNumberChar//'ForceDim.txt'
+      forcesNonDimFilename = 'Results/r'//rotorNumberChar//'ForceNonDim.txt'
 
       ! Add data headers
       open (unit=11, file=forcesDimFilename, action='write')
-      write (11, '(A)') 'timestamp(iters)  CFx CFy CFz  CFwindx CFwindy CFwindz  Fx Fy Fz  Fwindx Fwindy Fwindz'
+      write (11, '(A)') 'timestamp(iters)  Lift(x,y,z)  Drag(x,y,z)  ForceInertial(x,y,z)'
+      close (11)
+
+      open (unit=12, file=forcesNonDimFilename, action='write')
+      write (12, '(A)') 'timestamp(iters)  CL CD  CFx CFy CFz'
+      close (12)
     enddo
-    close (11)
   end subroutine init_plots
 
   subroutine rotor2file(timestamp, rotor)
