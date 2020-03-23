@@ -5,7 +5,6 @@ build/*.mod
 *.out
 *.swp
 visitlog.py
-Validation/*
 Unsteady
 Unsteady/*
 dummy*
@@ -19,9 +18,9 @@ octave-workspace
 *.pyc
 src_plot/*.pyc
 *_copy
-status.txt
 r01forceHist.txt
 .vsptime
 tools/*.xyz
 tools/*.vsp3
 geometry/*.m
+bin/*
