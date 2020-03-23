@@ -28,7 +28,8 @@ set(CMAKE_Fortran_FLAGS_DEBUG "${dbg_flags}")
 set(CMAKE_Fortran_FLAGS_RELEASE "${rls_flags}")
 set(CMAKE_BUILD_PARALLEL_LEVEL 4)
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
+set(CMAKE_SOURCE_DIR ${PROJECT_SOURCE_DIR}/src)
 
 # Libraries
 add_library(Math STATIC ${CMAKE_SOURCE_DIR}/libMath.f90)
@@ -46,38 +47,38 @@ add_library(Postprocess STATIC ${CMAKE_SOURCE_DIR}/libPostprocess.f90)
 target_link_libraries(Postprocess classdef)
 
 # Executables
-add_executable(main.out ${CMAKE_SOURCE_DIR}/main.f90)
-target_link_libraries(main.out Common Postprocess)
+add_executable(volcanor ${CMAKE_SOURCE_DIR}/main.f90)
+target_link_libraries(volcanor Common Postprocess)
 
-add_executable(gridgen.out ${CMAKE_SOURCE_DIR}/gridgen.f90)
+add_executable(gridgen ${CMAKE_SOURCE_DIR}/gridgen.f90)
 target_link_libraries(gridgen.out Common)
 
 add_executable(trial.out ${CMAKE_SOURCE_DIR}/trial.f90)
 target_link_libraries(trial.out Common Postprocess)
 
 # Target init
-add_custom_target(init
-  COMMAND echo "Creating Results/"
-  COMMAND mkdir -p ${CMAKE_SOURCE_DIR}/Results)
-
-# Target fileclean 
-add_custom_target(fileclean
-  COMMAND echo "Clearing Results/"
-  COMMAND rm -f ${CMAKE_SOURCE_DIR}/Results/*
-  COMMAND rm -f ${CMAKE_SOURCE_DIR}/status.txt)
+# add_custom_target(init
+#   COMMAND echo "Creating Results/"
+#   COMMAND mkdir -p ${CMAKE_SOURCE_DIR}/Results)
+# 
+# # Target fileclean 
+# add_custom_target(fileclean
+#   COMMAND echo "Clearing Results/"
+#   COMMAND rm -f ${CMAKE_SOURCE_DIR}/Results/*
+#   COMMAND rm -f ${CMAKE_SOURCE_DIR}/status.txt)
 
 # Target release/run to regenerate Makefile
 add_custom_target(run
   COMMAND ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=Release ${CMAKE_SOURCE_DIR}
-  COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target fileclean
-  COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target init
+  # COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target fileclean
+  # COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target init
   COMMENT ${COMPILERSTATEMENT}
-  COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target main.out)
+  COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target volcanor)
 
 # Target debug/run_dbg to regenerate Makefile
 add_custom_target(run_dbg
   COMMAND ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=Debug ${CMAKE_SOURCE_DIR}
-  COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target fileclean
-  COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target init
+  # COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target fileclean
+  # COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target init
   COMMENT ${COMPILERSTATEMENT}
-  COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target main.out)
+  COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target volcanor)
