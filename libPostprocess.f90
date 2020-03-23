@@ -579,7 +579,7 @@ contains
 
     forceDimFilename = 'Results/r'//rotorNumberChar//'ForceDim.txt'
     open (unit=12, file=forceDimFilename, action='write', position='append')
-    write (12, 100) timestamp, &
+    write (12, 101) timestamp, &
       rotor%lift(1), rotor%lift(2), rotor%lift(3), &     ! Lift
       rotor%drag(1), rotor%drag(2), rotor%drag(3), &     ! Drag
       rotor%forceInertial(1), rotor%forceInertial(2), rotor%forceInertial(3)  ! forceInertial 
