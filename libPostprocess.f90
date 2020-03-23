@@ -6,22 +6,22 @@ contains
   subroutine init_plots(numOfRotors)
     ! Initialise headers for plot files
     integer, intent(in) :: numOfRotors
-    character(len=24) :: forcesDimFilename
-    character(len=27) :: forcesNonDimFilename
+    character(len=24) :: forceDimFilename
+    character(len=27) :: forceNonDimFilename
     integer :: rotorNumber
     character(len=2) :: rotorNumberChar
 
     do rotorNumber = 1, numOfRotors
       write (rotorNumberChar, '(I0.2)') rotorNumber
-      forcesDimFilename = 'Results/r'//rotorNumberChar//'ForcesDim.txt'
-      forcesNonDimFilename = 'Results/r'//rotorNumberChar//'ForcesNonDim.txt'
+      forceDimFilename = 'Results/r'//rotorNumberChar//'ForceDim.txt'
+      forceNonDimFilename = 'Results/r'//rotorNumberChar//'ForceNonDim.txt'
 
       ! Add data headers
-      open (unit=11, file=forcesDimFilename, action='write')
+      open (unit=11, file=forceDimFilename, action='write')
       write (11, '(A)') 'timestamp(iters)  Lift(x,y,z)  Drag(x,y,z)  ForceInertial(x,y,z)'
       close (11)
 
-      open (unit=12, file=forcesNonDimFilename, action='write')
+      open (unit=12, file=forceNonDimFilename, action='write')
       write (12, '(A)') 'timestamp(iters)  CL CD  CFx CFy CFz'
       close (12)
     enddo
@@ -561,13 +561,13 @@ contains
     integer, intent(in) :: rotorNumber
     character(len=2) :: rotorNumberChar, bladeNumberChar
     integer :: ib, ispan
-    character(len=24) :: forcesDimFilename
-    character(len=27) :: forcesNonDimFilename
+    character(len=24) :: forceDimFilename
+    character(len=27) :: forceNonDimFilename
 
     write (rotorNumberChar, '(I0.2)') rotorNumber
 
-    forcesNonDimFilename = 'Results/r'//rotorNumberChar//'ForcesNonDim.txt'
-    open (unit=11, file=forcesNonDimFilename, action='write', position='append')
+    forceNonDimFilename = 'Results/r'//rotorNumberChar//'ForceNonDim.txt'
+    open (unit=11, file=forceNonDimFilename, action='write', position='append')
     write (11, 100) timestamp, &
       norm2(rotor%lift) / rotor%nonDimforceDenominator, &        ! CL
       norm2(rotor%drag) / rotor%nonDimforceDenominator, &        ! CD
@@ -577,8 +577,8 @@ contains
     close (11)
     100 format(A, 5(E15.7))
 
-    forcesDimFilename = 'Results/r'//rotorNumberChar//'ForcesDim.txt'
-    open (unit=12, file=forcesDimFilename, action='write', position='append')
+    forceDimFilename = 'Results/r'//rotorNumberChar//'ForceDim.txt'
+    open (unit=12, file=forceDimFilename, action='write', position='append')
     write (12, 100) timestamp, &
       rotor%lift(1), rotor%lift(2), rotor%lift(3), &     ! Lift
       rotor%drag(1), rotor%drag(2), rotor%drag(3), &     ! Drag
