@@ -55,29 +55,14 @@ target_link_libraries(gridgen Common)
 add_executable(trial.out ${PROJECT_SOURCE_DIR}/src/trial.f90)
 target_link_libraries(trial.out Common Postprocess)
 
-# Target init
-# add_custom_target(init
-#   COMMAND echo "Creating Results/"
-#   COMMAND mkdir -p ${PROJECT_SOURCE_DIR}/src/Results)
-# 
-# # Target fileclean 
-# add_custom_target(fileclean
-#   COMMAND echo "Clearing Results/"
-#   COMMAND rm -f ${PROJECT_SOURCE_DIR}/src/Results/*
-#   COMMAND rm -f ${PROJECT_SOURCE_DIR}/src/status.txt)
-
 # Target release/run to regenerate Makefile
 add_custom_target(run
   COMMAND ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=Release ${PROJECT_SOURCE_DIR}
-  # COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target fileclean
-  # COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target init
   COMMENT ${COMPILERSTATEMENT}
   COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target volcanor)
 
 # Target debug/run_dbg to regenerate Makefile
 add_custom_target(run_dbg
   COMMAND ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=Debug ${PROJECT_SOURCE_DIR}
-  # COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target fileclean
-  # COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target init
   COMMENT ${COMPILERSTATEMENT}
   COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target volcanor)
