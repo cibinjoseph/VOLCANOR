@@ -12,6 +12,7 @@ character(len=5) :: timestamp
 character(len=2) :: rotorChar
 character(len=10) :: rotorFile
 character(len=10) :: currentTime
+logical :: fileExists
 
 ! Iterators
 integer :: i, is, ic, row, iter, ir, jr, ib

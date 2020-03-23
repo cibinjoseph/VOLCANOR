@@ -6,6 +6,10 @@ program main
   include "init_file.f90"
   print *
 
+  ! Ensure all necessary files exist
+  inquire(file='config.in', exist=fileExists)
+  if (.not. fileExists) error stop 'ERROR: config.in does not exist'
+
   ! Read config.in file
   call print_status('Reading file '//'config.in')
   open (unit=11, file='config.in')
@@ -34,6 +38,7 @@ program main
   close (11)
   call print_status()    ! SUCCESS
 
+
   ! Allocate rotor objects
   allocate (rotor(nr))
 
@@ -41,6 +46,8 @@ program main
   do ir = 1, nr
     write (rotorChar, '(I0.2)') ir
     rotorFile = 'rotor'//rotorChar//'.in'
+    inquire(file=rotorFile, exist=fileExists)
+    if (.not. fileExists) error stop 'ERROR: '//rotorFile//' does not exist'
     call print_status('Reading file '//rotorFile)
     call rotor(ir)%getdata(rotorFile, nt)
     call print_status()    ! SUCCESS
