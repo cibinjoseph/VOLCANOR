@@ -8,7 +8,7 @@ from subprocess import call
 from time import sleep
 
 src_plotDir = 'src_plot/'
-resultsDir = 'Results/'
+resultsDir = os.getcwd() + 'Results/'
 
 # Functions to be invoked for asynchronous keyboard signals ctrl+Z and ctrl+C
 def ctrlZ_func(signum, frame):
@@ -25,7 +25,7 @@ def ctrlC_func(signum, frame):
 
 def wait4file(filename):
     if os.path.exists(filename) == False:
-        print('Waiting for file creation...') 
+        print('Waiting for file creation...')
     while os.path.exists(filename) == False:
         sleep(1)
 
@@ -36,7 +36,7 @@ signal.signal(signal.SIGINT, ctrlC_func)
 
 # Define input arguments
 parser = argparse.ArgumentParser(
-        description = ('Visualize plots using visit'), 
+        description = ('Visualize plots using visit'),
         epilog = 'Author: Cibin Joseph')
 parser.add_argument('-w', '--wake', help='Plot wake structure', action = 'store_true')
 parser.add_argument('-f', '--force', help='Plot rotor force', action = 'store_true')
