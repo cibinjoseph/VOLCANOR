@@ -47,7 +47,7 @@ program main
     write (rotorChar, '(I0.2)') ir
     rotorFile = 'rotor'//rotorChar//'.in'
     inquire(file=rotorFile, exist=fileExists)
-    if (.not. fileExists) error stop 'ERROR: '//rotorFile//' does not exist'
+    if (.not. fileExists) error stop 'ERROR: A rotorXX.in file does not exist'
     call print_status('Reading file '//rotorFile)
     call rotor(ir)%getdata(rotorFile, nt)
     call print_status()    ! SUCCESS
