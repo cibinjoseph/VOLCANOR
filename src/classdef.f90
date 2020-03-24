@@ -1692,7 +1692,7 @@ contains
         enddo
       enddo
     else
-      call this%plot3dtoblade('geometry/'//trim(this%geometryFile))
+      call this%plot3dtoblade(trim(this%geometryFile))
     endif
 
     do ib = 1, this%nb
@@ -1935,7 +1935,7 @@ contains
         allocate (this%blade(ib)%C81(this%nAirfoils))
         do i = 1, this%nAirfoils
           if (this%airfoilFile(i) (1:1) .ne. '0') &
-            call this%blade(ib)%C81(i)%readfile('airfoils/'//trim(this%airfoilFile(i)))
+            call this%blade(ib)%C81(i)%readfile(trim(this%airfoilFile(i)))
         enddo
         allocate (this%blade(ib)%airfoilSectionLimit(this%nAirfoils))
         allocate (this%blade(ib)%CL0(this%nAirfoils))
