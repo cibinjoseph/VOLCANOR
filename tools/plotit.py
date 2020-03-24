@@ -7,8 +7,11 @@ import signal, os, sys
 from subprocess import call
 from time import sleep
 
-src_plotDir = 'src_plot/'
-resultsDir = os.getcwd() + 'Results/'
+scriptDir = os.path.dirname(os.path.realpath(__file__)) + '/'
+currentDir = os.getcwd() + '/'
+
+src_plotDir = scriptDir + 'src_plot/'
+resultsDir = currentDir + 'Results/'
 
 # Functions to be invoked for asynchronous keyboard signals ctrl+Z and ctrl+C
 def ctrlZ_func(signum, frame):
