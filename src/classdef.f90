@@ -1127,7 +1127,6 @@ contains
         this%wiP(ic, is)%gamPrev = this%wiP(ic, is)%gamTrapz
 
         ! Compute induced drag
-        ! DEBUG
         this%wiP(ic, is)%delDi = density * &
           (velInduced(ic, is) * gamElementChord(ic, is) * this%wiP(ic, is)%meanSpan + &
           unsteadyTerm * this%wiP(ic, is)%panelArea * &
