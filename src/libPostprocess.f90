@@ -22,7 +22,7 @@ contains
       close (11)
 
       open (unit=12, file=forceNonDimFilename, action='write')
-      write (12, '(A)') 'timestamp(iters)  CL CD CDi CDo  CFx CFy CFz'
+      write (12, '(A)') 'timestamp(iters)  CL CD CDi CD0 CDu  CFx CFy CFz'
       close (12)
     enddo
   end subroutine init_plots
@@ -569,15 +569,16 @@ contains
     forceNonDimFilename = 'Results/r'//rotorNumberChar//'ForceNonDim.txt'
     open (unit=11, file=forceNonDimFilename, action='write', position='append')
     write (11, 100) timestamp, &
-      norm2(rotor%lift) / rotor%nonDimforceDenominator, &        ! CL
-      norm2(rotor%drag) / rotor%nonDimforceDenominator, &        ! CD
-      norm2(rotor%dragInduced) / rotor%nonDimforceDenominator, & ! CDi
-      norm2(rotor%dragProfile) / rotor%nonDimforceDenominator, & ! CDo
-      rotor%forceInertial(1) / rotor%nonDimforceDenominator, &   ! CFx
-      rotor%forceInertial(2) / rotor%nonDimforceDenominator, &   ! CFy
-      rotor%forceInertial(3) / rotor%nonDimforceDenominator      ! CFz
+      norm2(rotor%lift) / rotor%nonDimforceDenominator, &          ! CL
+      norm2(rotor%drag) / rotor%nonDimforceDenominator, &          ! CD
+      norm2(rotor%dragInduced) / rotor%nonDimforceDenominator, &   ! CDi
+      norm2(rotor%dragProfile) / rotor%nonDimforceDenominator, &   ! CDo
+      norm2(rotor%dragUnsteady) / rotor%nonDimforceDenominator, &  ! CDu
+      rotor%forceInertial(1) / rotor%nonDimforceDenominator, &     ! CFx
+      rotor%forceInertial(2) / rotor%nonDimforceDenominator, &     ! CFy
+      rotor%forceInertial(3) / rotor%nonDimforceDenominator        ! CFz
     close (11)
-    100 format(A, 7(E15.7))
+    100 format(A, 8(E15.7))
 
     forceDimFilename = 'Results/r'//rotorNumberChar//'ForceDim.txt'
     open (unit=12, file=forceDimFilename, action='write', position='append')
