@@ -22,7 +22,7 @@ contains
       close (11)
 
       open (unit=12, file=forceNonDimFilename, action='write')
-      write (12, '(A)') 'timestamp(iters)  CL CD  CFx CFy CFz'
+      write (12, '(A)') 'timestamp(iters)  CL CD CDi CDp  CFx CFy CFz'
       close (12)
     enddo
   end subroutine init_plots
@@ -571,11 +571,13 @@ contains
     write (11, 100) timestamp, &
       norm2(rotor%lift) / rotor%nonDimforceDenominator, &        ! CL
       norm2(rotor%drag) / rotor%nonDimforceDenominator, &        ! CD
+      norm2(rotor%dragInduced) / rotor%nonDimforceDenominator, & ! CDi
+      norm2(rotor%dragProfile) / rotor%nonDimforceDenominator, & ! CDp
       rotor%forceInertial(1) / rotor%nonDimforceDenominator, &   ! CFx
       rotor%forceInertial(2) / rotor%nonDimforceDenominator, &   ! CFy
       rotor%forceInertial(3) / rotor%nonDimforceDenominator      ! CFz
     close (11)
-    100 format(A, 5(E15.7))
+    100 format(A, 7(E15.7))
 
     forceDimFilename = 'Results/r'//rotorNumberChar//'ForceDim.txt'
     open (unit=12, file=forceDimFilename, action='write', position='append')
