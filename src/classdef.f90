@@ -296,7 +296,8 @@ module wingpanel_classdef
     real(dp) :: velPitch             ! pitch velocity
     !real(dp) :: dLift, dDrag          ! magnitudes of panel lift and drag
     real(dp) :: delP                  ! Pressure difference at panel
-    real(dp) :: delDi                 ! Induced drag at panel
+    real(dp) :: delDiConstant         ! Induced drag (constant part) at panel
+    real(dp) :: delDiUnsteady         ! Induced drag (unsteady part) at panel
     real(dp) :: meanChord, meanSpan ! Panel mean dimensions
     real(dp) :: panelArea            ! Panel area for computing lift
     real(dp) :: rHinge  ! dist to point about which pitching occurs (LE of wing)
@@ -561,7 +562,7 @@ module blade_classdef
     type(C81_class), allocatable, dimension(:) :: C81
     real(dp) :: theta, psi, pivotLE
     real(dp), dimension(3) :: forceInertial
-    real(dp), dimension(3) :: lift, drag, dragInduced, dragProfile
+    real(dp), dimension(3) :: lift, drag, dragInduced, dragProfile, dragUnsteady
     integer, allocatable, dimension(:) :: airfoilNo
     character(len=30), allocatable, dimension(:) :: airfoilFile
     real(dp), allocatable, dimension(:) :: airfoilSectionLimit
@@ -572,7 +573,7 @@ module blade_classdef
     real(dp), dimension(3) :: xAxis, yAxis, zAxis
     ! Sectional quantities
     real(dp), allocatable, dimension(:, :) :: secForceInertial, secLift, secDrag
-    real(dp), allocatable, dimension(:, :) :: secDragInduced, secDragProfile
+    real(dp), allocatable, dimension(:, :) :: secDragInduced, secDragProfile, secDragUnsteady
     real(dp), allocatable, dimension(:, :) :: secTauCapChord, secTauCapSpan
     real(dp), allocatable, dimension(:, :) :: secNormalVec, secVelFreestream
     real(dp), allocatable, dimension(:, :) :: secChordwiseResVel, secCP
@@ -1127,10 +1128,10 @@ contains
         this%wiP(ic, is)%gamPrev = this%wiP(ic, is)%gamTrapz
 
         ! Compute induced drag
-        this%wiP(ic, is)%delDi = density * &
-          (velInduced(ic, is) * gamElementChord(ic, is) * this%wiP(ic, is)%meanSpan + &
-          unsteadyTerm * this%wiP(ic, is)%panelArea * &
-          dot_product(this%wiP(ic, is)%nCap, unitVec(this%wiP(ic, is)%velCPm)))
+        this%wiP(ic, is)%delDiConstant = density*velInduced(ic, is)* &
+          gamElementChord(ic, is)*this%wiP(ic, is)%meanSpan
+        this%wiP(ic, is)%delDiUnsteady = density*unsteadyTerm*this%wiP(ic, is)%panelArea * &
+          dot_product(this%wiP(ic, is)%nCap, unitVec(this%wiP(ic, is)%velCPm))
 
         ! Invert direction of forceInertial according to sign of omega and collective pitch
         this%wiP(ic, is)%normalForce = this%wiP(ic, is)%delP* &
@@ -1143,7 +1144,12 @@ contains
           this%secLift(:, is))
 
       enddo
-      this%secDragInduced(:, is) = this%secDragInduced(:, is) * sum(this%wiP(:, is)%delDi)
+      this%secDragInduced(:, is) = this%secDragInduced(:, is)* &
+        sum(this%wiP(:, is)%delDiConstant + this%wiP(:, is)%delDiUnsteady)
+      ! Drag unsteady is purely for monitoring purposes if required
+      ! and is not used for computations anywhere
+      this%secDragUnsteady(:, is) = this%secDragUnsteady(:, is)* &
+        sum(this%wiP(:, is)%delDiUnsteady)
     enddo
     this%secDragProfile = 0._dp  ! To overwrite unit vectors previously assigned in main.f90
 
@@ -1415,6 +1421,7 @@ contains
     do is = 1, size(this%wiP, 2)
       this%secDrag(:, is) = unitVec(this%wiP(1, is)%velCPm)
       this%secDragInduced(:, is) = this%secDrag(:, is)
+      this%secDragUnsteady(:, is) = this%secDrag(:, is)
       this%secDragProfile(:, is) = this%secDrag(:, is)
       this%secLift(:, is) = cross_product(this%secDrag(:, is), this%yAxis)
     enddo
@@ -1427,6 +1434,7 @@ contains
     this%lift = sum(this%secLift, 2)
     this%drag = sum(this%secDrag, 2)
     this%dragProfile = sum(this%secDragProfile, 2)
+    this%dragUnsteady = sum(this%secDragUnsteady, 2)
     this%dragInduced = sum(this%secDragInduced, 2)
   end subroutine sumSecToNetForces
 
@@ -1447,7 +1455,7 @@ module rotor_classdef
     real(dp) :: radius, chord, root_cut, coningAngle
     real(dp) :: CT
     real(dp), dimension(3) :: forceInertial, lift, drag
-    real(dp), dimension(3) :: dragInduced, dragProfile
+    real(dp), dimension(3) :: dragInduced, dragProfile, dragUnsteady
     real(dp), dimension(3) :: liftUnitVec, dragUnitVec, sideUnitVec
     real(dp), dimension(3) :: controlPitch  ! theta0,thetaC,thetaS
     real(dp) :: thetaTwist
@@ -2712,6 +2720,7 @@ contains
     this%drag = 0._dp
     this%dragInduced = 0._dp
     this%dragProfile = 0._dp
+    this%dragUnsteady = 0._dp
 
     do ib = 1, this%nb
       this%forceInertial = this%forceInertial + this%blade(ib)%forceInertial
@@ -2719,6 +2728,7 @@ contains
       this%drag = this%drag + this%blade(ib)%drag
       this%dragInduced = this%dragInduced + this%blade(ib)%dragInduced
       this%dragProfile = this%dragProfile + this%blade(ib)%dragProfile
+      this%dragUnsteady = this%dragUnsteady + this%blade(ib)%dragUnsteady
     enddo
 
   end subroutine sumBladeToNetForces
