@@ -19,7 +19,7 @@ fileclean:
 	-rm -f $(resultspath)/*.txt
 	-rm -f status.txt
 
-rerun:
+run:
 	mkdir -p $(resultspath)
 	make fileclean
 	./volcanor
