@@ -1641,6 +1641,7 @@ contains
       allocate (this%blade(ib)%secDrag(3, this%ns))
       allocate (this%blade(ib)%secDragInduced(3, this%ns))
       allocate (this%blade(ib)%secDragProfile(3, this%ns))
+      allocate (this%blade(ib)%secDragUnsteady(3, this%ns))
       allocate (this%blade(ib)%secAlpha(this%ns))
       allocate (this%blade(ib)%airfoilNo(this%ns))
       allocate (this%blade(ib)%secCL(this%ns))
