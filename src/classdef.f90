@@ -573,6 +573,7 @@ module blade_classdef
     real(dp), dimension(3) :: xAxis, yAxis, zAxis
     ! Sectional quantities
     real(dp), allocatable, dimension(:, :) :: secForceInertial, secLift, secDrag
+    real(dp), allocatable, dimension(:, :) :: secLiftDir, secDragDir
     real(dp), allocatable, dimension(:, :) :: secDragInduced, secDragProfile, secDragUnsteady
     real(dp), allocatable, dimension(:, :) :: secTauCapChord, secTauCapSpan
     real(dp), allocatable, dimension(:, :) :: secNormalVec, secVelFreestream
@@ -1067,13 +1068,15 @@ contains
     cols = size(this%wiP, 2)
 
     this%forceInertial = 0._dp
+    this%secForceInertial = 0._dp
+    this%secLift = 0._dp
+    this%secDrag = 0._dp
 
     ! Compute tangential velocity
     do is = 1, cols
       do ic = 1, rows
         velTangentialChord(ic, is) = dot_product(this%wiP(ic, is)%velCP, this%wiP(ic, is)%tauCapChord)
         velTangentialSpan(ic, is) = dot_product(this%wiP(ic, is)%velCP, this%wiP(ic, is)%tauCapSpan)
-        ! Use chordwise induced velocity fuction here
         velInduced(ic, is) = dot_product(this%wiP(ic, is)%velCP + &
           this%vind_bywing_chordwiseVortices(this%wiP(ic, is)%CP), &
           unitVec(cross_product(this%wiP(ic, is)%velCPm,this%yAxis)))
@@ -1117,8 +1120,9 @@ contains
         endif
 
         ! For checking against Katz's fixed wing code
-        !velTangentialChord(ic,is)=10._dp*cos(5._dp*pi/180._dp)
-        !velTangentialSpan(ic,is)=0._dp
+        ! DEBUG
+        velTangentialChord(ic,is)=10._dp*cos(5._dp*pi/180._dp)
+        velTangentialSpan(ic,is)=0._dp
 
         unsteadyTerm = (this%wiP(ic, is)%gamTrapz - this%wiP(ic, is)%gamPrev)/dt
         this%wiP(ic, is)%delP = density * &
@@ -1141,14 +1145,13 @@ contains
         this%forceInertial = this%forceInertial + this%wiP(ic, is)%normalForce
 
         this%secLift(:, is) = this%secLift(:, is) + projVec(this%wiP(ic, is)%normalForce, &
-          this%secLift(:, is))
-
+          this%secLiftDir(:, is))
       enddo
-      this%secDragInduced(:, is) = this%secDragInduced(:, is)* &
+      this%secDragInduced(:, is) = this%secDragDir(:, is)* &
         sum(this%wiP(:, is)%delDiConstant + this%wiP(:, is)%delDiUnsteady)
       ! Drag unsteady is purely for monitoring purposes if required
       ! and is not used for computations anywhere
-      this%secDragUnsteady(:, is) = this%secDragUnsteady(:, is)* &
+      this%secDragUnsteady(:, is) = this%secDragDir(:, is)* &
         sum(this%wiP(:, is)%delDiUnsteady)
     enddo
     this%secDragProfile = 0._dp  ! To overwrite unit vectors previously assigned in main.f90
@@ -1256,8 +1259,8 @@ contains
 
     do is = 1, size(this%wiP, 2)
       ! Lift and Drag vectors
-      this%secLift(:, is) = this%secLift(:, is)*leadingTerm(is)*this%secCL(is) 
-      this%secDragProfile(:, is) = this%secDragProfile(:, is)*leadingTerm(is)*this%secCD(is)
+      this%secLift(:, is) = this%secLiftDir(:, is)*leadingTerm(is)*this%secCL(is) 
+      this%secDragProfile(:, is) = this%secDragDir(:, is)*leadingTerm(is)*this%secCD(is)
       ! Lift in inertial frame
       ! Warning: This would give a wrong answer if a considerable dihedral
       ! is present for the wing since the blade Y-axis is not flapped
@@ -1419,11 +1422,8 @@ contains
   class(blade_class), intent(inout) :: this
     integer :: is
     do is = 1, size(this%wiP, 2)
-      this%secDrag(:, is) = unitVec(this%wiP(1, is)%velCPm)
-      this%secDragInduced(:, is) = this%secDrag(:, is)
-      this%secDragUnsteady(:, is) = this%secDrag(:, is)
-      this%secDragProfile(:, is) = this%secDrag(:, is)
-      this%secLift(:, is) = cross_product(this%secDrag(:, is), this%yAxis)
+      this%secDragDir(:, is) = unitVec(this%wiP(1, is)%velCPm)
+      this%secLiftDir(:, is) = cross_product(this%secDragDir(:, is), this%yAxis)
     enddo
   end subroutine blade_dirLiftDrag
 
@@ -1639,6 +1639,8 @@ contains
       allocate (this%blade(ib)%secForceInertial(3, this%ns))
       allocate (this%blade(ib)%secLift(3, this%ns))
       allocate (this%blade(ib)%secDrag(3, this%ns))
+      allocate (this%blade(ib)%secLiftDir(3, this%ns))
+      allocate (this%blade(ib)%secDragDir(3, this%ns))
       allocate (this%blade(ib)%secDragInduced(3, this%ns))
       allocate (this%blade(ib)%secDragProfile(3, this%ns))
       allocate (this%blade(ib)%secDragUnsteady(3, this%ns))
