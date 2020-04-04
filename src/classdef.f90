@@ -1107,16 +1107,19 @@ contains
       enddo
     enddo
 
+    ! Invert gamma sign for correct computation
+    gamElementSpan = -1._dp*gamElementSpan
+    gamElementChord = -1._dp*gamElementChord
+
     ! Compute delP
-    this%secForceInertial = 0._dp
     do is = 1, cols
       do ic = 1, rows
         ! Use trapezoidal rule on two points to get current gam
         ! for computing unsteady lift part
         if (ic > 1) then
-          this%wiP(ic, is)%gamTrapz = 0.5_dp*(this%wiP(ic, is)%vr%gam + this%wiP(ic - 1, is)%vr%gam)
+          this%wiP(ic, is)%gamTrapz = -0.5_dp*(this%wiP(ic, is)%vr%gam + this%wiP(ic - 1, is)%vr%gam)
         else
-          this%wiP(1, is)%gamTrapz = 0.5_dp*this%wiP(1, is)%vr%gam
+          this%wiP(1, is)%gamTrapz = -0.5_dp*this%wiP(1, is)%vr%gam
         endif
 
         ! For checking against Katz's fixed wing code
@@ -1124,15 +1127,18 @@ contains
         velTangentialChord(ic,is)=10._dp*cos(5._dp*pi/180._dp)
         velTangentialSpan(ic,is)=0._dp
 
+        ! -1.0 multiplied to invert sign of gamma
         unsteadyTerm = (this%wiP(ic, is)%gamTrapz - this%wiP(ic, is)%gamPrev)/dt
         this%wiP(ic, is)%delP = density * &
           (velTangentialChord(ic, is) * gamElementChord(ic, is) / this%wiP(ic, is)%meanChord + &
           velTangentialSpan(ic, is) * gamElementSpan(ic, is) / this%wiP(ic, is)%meanSpan + &
           unsteadyTerm)
+        ! -1.0 multiplied to invert sign of gamma
         this%wiP(ic, is)%gamPrev = this%wiP(ic, is)%gamTrapz
 
         ! Compute induced drag
-        this%wiP(ic, is)%delDiConstant = density*velInduced(ic, is)* &
+        ! velInduced in either direction doesnt change drag direction
+        this%wiP(ic, is)%delDiConstant = density*abs(velInduced(ic, is))* &
           gamElementChord(ic, is)*this%wiP(ic, is)%meanSpan
         this%wiP(ic, is)%delDiUnsteady = density*unsteadyTerm*this%wiP(ic, is)%panelArea * &
           dot_product(this%wiP(ic, is)%nCap, unitVec(this%wiP(ic, is)%velCPm))
