@@ -1,16 +1,12 @@
 ##################################
 #  USE CMAKE GENERATED MAKEFILE  #
+#    FOR BUILDING EXECUTABLE     #
 ##################################
 
 resultspath=./Results
 
 all:
-	make warning
-
-warning:
-	@echo
-	@<&2 echo "  Use cmake generated Makefile in build/"
-	@echo
+	make run
 
 fileclean:
 	-rm -f $(resultspath)/*.plt
