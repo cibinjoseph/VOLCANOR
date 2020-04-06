@@ -15,7 +15,7 @@ endif()
 
 # Variables for ifort
 if(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
-  set(common_flags "-free -implicitnone -r8")
+  set(common_flags "-free -implicitnone")
   set(dbg_flags "-traceback -O0 -warn all -check bounds -g -fpe0 -debug extended -heap-arrays 200")
   set(rls_flags "-fast -O3 -qopenmp -parallel -heap-arrays 200 \
   -ansi-alias -qopt-jump-tables='large' -xcore-avx2 -ipo")
@@ -45,10 +45,10 @@ target_link_libraries(Common classdef C81 Math)
 add_library(Postprocess STATIC ${PROJECT_SOURCE_DIR}/src/libPostprocess.f90)
 target_link_libraries(Postprocess classdef)
 
-# add_library(fruit STATIC ${PROJECT_SOURCE_DIR}/tests/fruit.f90)
+add_library(fruit STATIC ${PROJECT_SOURCE_DIR}/tests/fruit.f90)
 
-# add_library(vf_test STATIC ${PROJECT_SOURCE_DIR}/tests/vf_test.f90)
-# target_link_libraries(vf_test fruit classdef)
+add_library(vf_test STATIC ${PROJECT_SOURCE_DIR}/tests/vf_test.f90)
+target_link_libraries(vf_test fruit classdef)
 
 # Executables
 add_executable(volcanor ${PROJECT_SOURCE_DIR}/src/main.f90)
@@ -60,8 +60,8 @@ target_link_libraries(gridgen Common)
 add_executable(trial.out ${PROJECT_SOURCE_DIR}/src/trial.f90)
 target_link_libraries(trial.out Common Postprocess)
 
-# add_executable(vf_testdriver ${PROJECT_SOURCE_DIR}/tests/vf_testdriver.f90)
-# target_link_libraries(vf_testdriver fruit vf_test)
+add_executable(vf_testdriver ${PROJECT_SOURCE_DIR}/tests/vf_testdriver.f90)
+target_link_libraries(vf_testdriver fruit vf_test)
 
 # Target release/run to regenerate Makefile
 add_custom_target(run
