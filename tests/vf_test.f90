@@ -4,9 +4,10 @@ module vf_test
 contains
 
   subroutine test_vind()
-    use vf_classdef, only: calclength
+    use vf_classdef
 
     call assert_equals(4, 4)
+    call assert_equals(2, 2)
 
   end subroutine test_vind
 
