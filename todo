@@ -12,7 +12,7 @@ Resolve issue of blending multiple airfoils along span
 Implement option to switch lift from alpha computation to postprocessing
 - Compute forces using recorded alpha
 Check sweep cases by KnP
-While computing drag from FELS in unsteady case, ensure unsteady 'induced' drag term is not counted twice by neglecting it in force computation using gamma 
+While computing drag from FELS in unsteady case, ensure unsteady 'induced' drag term 
+  is not counted twice by neglecting it in force computation using gamma 
 Introduce blade%xAxisNoPitch centered about pitching hinge
 Validate drag using KnP plots for rectangular wing
-Convert src_plot files inside plotit.py itself as functions
