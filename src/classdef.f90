@@ -1530,7 +1530,7 @@ contains
   class(rotor_class) :: this
     character(len=*), intent(in) :: filename
     integer, intent(in) :: nt  ! nt passed for allocting wake panels
-    integer :: i, ib
+    integer :: i
     real(dp) :: rollupStartRadius, rollupEndRadius
 
     open (unit=12, file=filename)
@@ -1624,6 +1624,24 @@ contains
     this%streamwiseCoreVec = this%streamwiseCoreVec*this%chord
     this%rollupStart = ceiling(rollupStartRadius*this%ns)
     this%rollupEnd = floor(rollupEndRadius*this%ns)
+  end subroutine getdata
+
+  subroutine rotor_init(this, density, dt, spanSpacingSwitch, fdSchemeSwitch)
+    ! Initialize variables of rotor geometry and wake
+  class(rotor_class) :: this
+    real(dp), intent(in) :: density, dt
+    integer, intent(in) :: spanSpacingSwitch, fdSchemeSwitch
+
+    real(dp), dimension(this%nc + 1) :: xVec
+    real(dp), dimension(this%ns + 1) :: yVec
+    real(dp), dimension(this%nc, this%ns) :: dx, dy
+    real(dp), dimension(3) :: leftTipCP
+    real(dp) :: dxdymin, secCPLoc, rbyR
+    integer :: i, j, ib, is, ic
+    real(dp) :: bladeOffset
+    real(dp) :: velShed
+    real(dp), dimension(4) :: xshift
+    logical :: warnUser
 
     ! Allocate rotor object variables
     allocate (this%blade(this%nb))
@@ -1658,24 +1676,6 @@ contains
       allocate (this%blade(ib)%secChordwiseResVel(3, this%ns))
       allocate (this%blade(ib)%secCP(3, this%ns))
     enddo
-  end subroutine getdata
-
-  subroutine rotor_init(this, density, dt, spanSpacingSwitch, fdSchemeSwitch)
-    ! Initialize variables of rotor geometry and wake
-  class(rotor_class) :: this
-    real(dp), intent(in) :: density, dt
-    integer, intent(in) :: spanSpacingSwitch, fdSchemeSwitch
-
-    real(dp), dimension(this%nc + 1) :: xVec
-    real(dp), dimension(this%ns + 1) :: yVec
-    real(dp), dimension(this%nc, this%ns) :: dx, dy
-    real(dp), dimension(3) :: leftTipCP
-    real(dp) :: dxdymin, secCPLoc, rbyR
-    integer :: i, j, ib, is, ic
-    real(dp) :: bladeOffset
-    real(dp) :: velShed
-    real(dp), dimension(4) :: xshift
-    logical :: warnUser
 
     ! Rotor initialization
     this%gamVec = 0._dp
