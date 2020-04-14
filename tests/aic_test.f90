@@ -56,7 +56,9 @@ contains
 
   end subroutine setUp
 
-  subroutine test_1panel()
+  subroutine test_2panel()
+    integer :: spanSpacingSwitch = 2
+    integer :: fdSchemeSwitch = 3
 
     call rotor%init(density, dt, nt, spanSpacingSwitch, fdSchemeSwitch)
 
@@ -65,7 +67,7 @@ contains
     call assert_true(.true.)
     call testcase_finalize()
 
-  end subroutine test_1panel
+  end subroutine test_2panel
 
 
 end module aic_test
