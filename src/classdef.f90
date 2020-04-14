@@ -1480,6 +1480,7 @@ module rotor_classdef
     real(dp), allocatable, dimension(:) :: CL0, CLa
     real(dp) :: initWakeVel, psiStart, skewLimit
     real(dp) :: turbulentViscosity
+    real(dp) :: rollupStartRadius, rollupEndRadius
     integer :: symmetricTau
     integer :: rollupStart, rollupEnd
     integer :: suppressFwakeSwitch
@@ -1526,12 +1527,10 @@ contains
   ! -+- | Initialization Functions | -+- |
   !-----+--------------------------+-----|
 
-  subroutine getdata(this, filename, nt)
+  subroutine getdata(this, filename)
   class(rotor_class) :: this
     character(len=*), intent(in) :: filename
-    integer, intent(in) :: nt  ! nt passed for allocting wake panels
     integer :: i
-    real(dp) :: rollupStartRadius, rollupEndRadius
 
     open (unit=12, file=filename)
     call skiplines(12, 4)
@@ -1544,7 +1543,6 @@ contains
       this%nNwake = abs(this%nNwake)
     else
       this%suppressFwakeSwitch = 0
-      this%nNwake = min(this%nNwake, nt)
     endif
 
     if (this%nNwake < 2) error stop 'ERROR: Atleast 2 near wake rows mandatory'
@@ -1584,7 +1582,8 @@ contains
       error stop 'ERROR: Wrong input for streamwiseCoreSwitch in rotorXX.in'
     endif
     call skiplines(12, 4)
-    read (12, *) rollupStartRadius, rollupEndRadius
+    ! Dimensional quantities
+    read (12, *) this%rollupStartRadius, this%rollupEndRadius
     call skiplines(12, 3)
     read (12, *) this%initWakeVel, this%psiStart, this%skewLimit
     call skiplines(12, 5)
@@ -1610,27 +1609,13 @@ contains
       enddo
     endif
     close (12)
-
-    ! Conversions
-    do i = 1, 3
-      call degtorad(this%controlPitch(i))
-      call degtorad(this%pts(i))
-    enddo
-    call degtorad(this%thetaTwist)
-    call degtorad(this%coningAngle)
-    call degtorad(this%psiStart)
-    this%nFwake = nt - this%nNwake
-    this%spanwiseCore = this%spanwiseCore*this%chord
-    this%streamwiseCoreVec = this%streamwiseCoreVec*this%chord
-    this%rollupStart = ceiling(rollupStartRadius*this%ns)
-    this%rollupEnd = floor(rollupEndRadius*this%ns)
   end subroutine getdata
 
-  subroutine rotor_init(this, density, dt, spanSpacingSwitch, fdSchemeSwitch)
+  subroutine rotor_init(this, density, dt, nt, spanSpacingSwitch, fdSchemeSwitch)
     ! Initialize variables of rotor geometry and wake
   class(rotor_class) :: this
     real(dp), intent(in) :: density, dt
-    integer, intent(in) :: spanSpacingSwitch, fdSchemeSwitch
+    integer, intent(in) :: nt, spanSpacingSwitch, fdSchemeSwitch
 
     real(dp), dimension(this%nc + 1) :: xVec
     real(dp), dimension(this%ns + 1) :: yVec
@@ -1676,6 +1661,21 @@ contains
       allocate (this%blade(ib)%secChordwiseResVel(3, this%ns))
       allocate (this%blade(ib)%secCP(3, this%ns))
     enddo
+
+    ! Conversions
+    do i = 1, 3
+      call degtorad(this%controlPitch(i))
+      call degtorad(this%pts(i))
+    enddo
+    call degtorad(this%thetaTwist)
+    call degtorad(this%coningAngle)
+    call degtorad(this%psiStart)
+    this%nNwake = min(this%nNwake, nt)
+    this%nFwake = nt - this%nNwake
+    this%spanwiseCore = this%spanwiseCore*this%chord
+    this%streamwiseCoreVec = this%streamwiseCoreVec*this%chord
+    this%rollupStart = ceiling(this%rollupStartRadius*this%ns)
+    this%rollupEnd = floor(this%rollupEndRadius*this%ns)
 
     ! Rotor initialization
     this%gamVec = 0._dp

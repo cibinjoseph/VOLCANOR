@@ -49,13 +49,13 @@ program main
     inquire(file=rotorFile, exist=fileExists)
     if (.not. fileExists) error stop 'ERROR: A rotorXX.in file does not exist'
     call print_status('Reading file '//rotorFile)
-    call rotor(ir)%getdata(rotorFile, nt)
+    call rotor(ir)%getdata(rotorFile)
     call print_status()    ! SUCCESS
   enddo
 
   ! Rotor and wake initialization
   do ir = 1, nr
-    call rotor(ir)%init(density, dt, spanSpacingSwitch, fdSchemeSwitch)
+    call rotor(ir)%init(density, dt, nt, spanSpacingSwitch, fdSchemeSwitch)
   enddo
 
   ! Rotate wing pc, vr, cp and nCap by initial pitch angle
