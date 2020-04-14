@@ -1670,6 +1670,7 @@ contains
     call degtorad(this%thetaTwist)
     call degtorad(this%coningAngle)
     call degtorad(this%psiStart)
+
     this%nNwake = min(this%nNwake, nt)
     this%nFwake = nt - this%nNwake
     this%spanwiseCore = this%spanwiseCore*this%chord
