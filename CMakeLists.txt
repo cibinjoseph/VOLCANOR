@@ -45,11 +45,7 @@ target_link_libraries(Common classdef C81 Math)
 add_library(Postprocess STATIC ${PROJECT_SOURCE_DIR}/src/libPostprocess.f90)
 target_link_libraries(Postprocess classdef)
 
-# For testing
-add_library(naturalfruit STATIC ${PROJECT_SOURCE_DIR}/tests/naturalfruit.f90)
-
-add_library(aic_test STATIC ${PROJECT_SOURCE_DIR}/tests/aic_test.f90)
-target_link_libraries(aic_test classdef naturalfruit )
+add_subdirectory(tests)
 
 # Executables
 add_executable(volcanor ${PROJECT_SOURCE_DIR}/src/main.f90)
@@ -60,9 +56,6 @@ target_link_libraries(gridgen Common)
 
 add_executable(trial.out ${PROJECT_SOURCE_DIR}/src/trial.f90)
 target_link_libraries(trial.out Common Postprocess)
-
-add_executable(aic_testrunner ${PROJECT_SOURCE_DIR}/tests/aic_testrunner.f90)
-target_link_libraries(aic_testrunner aic_test)
 
 # Target release/run to regenerate Makefile
 add_custom_target(run
