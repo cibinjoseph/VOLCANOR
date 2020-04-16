@@ -1628,6 +1628,10 @@ contains
     real(dp), dimension(4) :: xshift
     logical :: warnUser
 
+    ! Initialize variables for use in allocating
+    this%nNwake = min(this%nNwake, nt)
+    this%nFwake = nt - this%nNwake
+
     ! Allocate rotor object variables
     allocate (this%blade(this%nb))
     allocate (this%AIC(this%nc*this%ns*this%nb, this%nc*this%ns*this%nb))
@@ -1671,8 +1675,6 @@ contains
     call degtorad(this%coningAngle)
     call degtorad(this%psiStart)
 
-    this%nNwake = min(this%nNwake, nt)
-    this%nFwake = nt - this%nNwake
     this%spanwiseCore = this%spanwiseCore*this%chord
     this%streamwiseCoreVec = this%streamwiseCoreVec*this%chord
     this%rollupStart = ceiling(this%rollupStartRadius*this%ns)
