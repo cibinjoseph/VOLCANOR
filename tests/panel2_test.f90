@@ -1,4 +1,4 @@
-module aic_test
+module panel2_test
   use naturalfruit
   use rotor_classdef
   implicit none
@@ -56,18 +56,21 @@ contains
 
   end subroutine setUp
 
-  subroutine test_2panel()
+  subroutine test_aic()
     integer :: spanSpacingSwitch = 2
     integer :: fdSchemeSwitch = 3
+    real(dp), dimension(2, 2) :: AIC
+
+    call testcase_initialize('test_aic')
 
     call rotor%init(density, dt, nt, spanSpacingSwitch, fdSchemeSwitch)
+    AIC(1, :) = (/1.1223476_dp, -9.2667149E-002_dp/)
+    AIC(2, :) = (/-9.2667149E-002_dp, 1.1223476_dp/)
 
-    call testcase_initialize()
-    print*,rotor%blade(1)%wiP(1,1)%CP
-    call assert_true(.true.)
+    call assert_equal(AIC, rotor%AIC, 1E-6_dp, 'AICs do not match')
+
     call testcase_finalize()
+  end subroutine test_aic
 
-  end subroutine test_2panel
 
-
-end module aic_test
+end module panel2_test

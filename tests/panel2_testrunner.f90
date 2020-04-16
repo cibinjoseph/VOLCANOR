@@ -1,13 +1,13 @@
-program aic_testrunner
-  use aic_test
+program panel2_testrunner
+  use panel2_test
   integer :: exit_code
 
   call testsuite_initialize()
 
   call setUp()
-  call test_1panel()
+  call test_aic()
 
   call testsuite_summary()
   call testsuite_finalize(exit_code)
   call exit(exit_code)
-end program aic_testrunner
+end program panel2_testrunner
