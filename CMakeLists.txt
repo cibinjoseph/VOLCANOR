@@ -30,6 +30,10 @@ set(CMAKE_BUILD_PARALLEL_LEVEL 4)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 
+# Testing
+enable_testing()
+add_subdirectory(tests)
+
 # Libraries
 add_library(Math STATIC ${PROJECT_SOURCE_DIR}/src/libMath.f90)
 
@@ -44,8 +48,6 @@ target_link_libraries(Common classdef C81 Math)
 
 add_library(Postprocess STATIC ${PROJECT_SOURCE_DIR}/src/libPostprocess.f90)
 target_link_libraries(Postprocess classdef)
-
-add_subdirectory(tests)
 
 # Executables
 add_executable(volcanor ${PROJECT_SOURCE_DIR}/src/main.f90)
