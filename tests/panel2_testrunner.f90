@@ -4,7 +4,7 @@ program panel2_testrunner
 
   call testsuite_initialize()
 
-  call setUp()
+  call setup()
   call test_aic()
 
   call testsuite_summary()
