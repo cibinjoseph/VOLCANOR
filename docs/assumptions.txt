@@ -10,12 +10,5 @@ Max number of rotors is 99
 Max number of blades for a rotor is 99
 - bladeNumberChar
 
-Rectangular blade with no sweep
-- inflowLocations
-
 Distance used is from hub centre rather than spanwise distance
 - inflow2file, gamma2file
-
-Force computation from alpha only gives lift
-- blade_calc_force_gamma
-
