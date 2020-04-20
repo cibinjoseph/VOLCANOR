@@ -10,7 +10,7 @@ if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
   set(dbg_flags "-fbacktrace -O0 -Wall -Wextra -Wimplicit-interface -Wunused-parameter \
   -Wcharacter-truncation -Wsurprising -Waliasing -fcheck=all -g -ffpe-trap=invalid,zero,overflow -fbounds-check")
   set(rls_flags "-O2 -fopenmp")
-  set(COMPILERSTATEMENT "Compiler: GFORTRAN")
+  set(COMPILERSTATEMENT "Compiler: GFORTRAN\n")
 endif()
 
 # Variables for ifort
@@ -19,7 +19,7 @@ if(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
   set(dbg_flags "-traceback -O0 -warn all -check bounds -g -fpe0 -debug extended -heap-arrays 200")
   set(rls_flags "-fast -O3 -qopenmp -parallel -heap-arrays 200 \
   -ansi-alias -qopt-jump-tables='large' -xcore-avx2 -ipo")
-  set(COMPILERSTATEMENT "Compiler: IFORT")
+  set(COMPILERSTATEMENT "Compiler: IFORT\n")
 endif()
 
 # Set compiler flags using variables
@@ -28,7 +28,12 @@ set(CMAKE_Fortran_FLAGS_DEBUG "${dbg_flags}")
 set(CMAKE_Fortran_FLAGS_RELEASE "${rls_flags}")
 set(CMAKE_BUILD_PARALLEL_LEVEL 4)
 
+# Set other variables
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
+set(LOG_FILE ${CMAKE_BINARY_DIR}/build.log)
+
+# Write to log file
+file(WRITE ${LOG_FILE} ${COMPILERSTATEMENT})
 
 # Testing
 enable_testing()
