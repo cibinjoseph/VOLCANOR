@@ -1124,8 +1124,8 @@ contains
 
         ! For checking against Katz's fixed wing code
         ! DEBUG
-        velTangentialChord(ic,is)=10._dp*cos(5._dp*pi/180._dp)
-        velTangentialSpan(ic,is)=0._dp
+        ! velTangentialChord(ic,is)=10._dp*cos(5._dp*pi/180._dp)
+        ! velTangentialSpan(ic,is)=0._dp
 
         ! -1.0 multiplied to invert sign of gamma
         unsteadyTerm = (this%wiP(ic, is)%gamTrapz - this%wiP(ic, is)%gamPrev)/dt
