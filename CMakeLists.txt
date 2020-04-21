@@ -18,7 +18,7 @@ if(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
   set(common_flags "-free -implicitnone")
   if(DEFINED PROF)
     if (PROF)
-      set(dbg_flags "-traceback -O2 -fpe0 -qopt-report-phase=all -qopt-report=2 \
+      set(dbg_flags "-traceback -O2 -fpe0 -qopt-report-phase=vec -qopt-report=2 \
       -heap-arrays 200")
     endif()
   else()
