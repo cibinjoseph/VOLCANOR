@@ -17,8 +17,10 @@ endif()
 if(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
   set(common_flags "-free -implicitnone")
   if(DEFINED PROF)
-    set(dbg_flags "-traceback -O2 -fpe0 -qopt-report-phase=vec,loop -qopt-report=2 \
-    -heap-arrays 200")
+    if (PROF)
+      set(dbg_flags "-traceback -O2 -fpe0 -qopt-report-phase=all -qopt-report=2 \
+      -heap-arrays 200")
+    endif()
   else()
     set(dbg_flags "-traceback -O0 -warn all -check bounds -g -fpe0 -debug extended \
     -heap-arrays 200")
@@ -84,6 +86,6 @@ add_custom_target(run_dbg
 
 # Target profile/run_prof to regenerate Makefile
 add_custom_target(run_prof
-  COMMAND ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=Debug -DPROF=True ${PROJECT_SOURCE_DIR}
+  COMMAND ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=Debug -DPROF=TRUE ${PROJECT_SOURCE_DIR}
   COMMENT ${COMPILERSTATEMENT}
   COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target volcanor)
