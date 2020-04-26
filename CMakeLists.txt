@@ -18,15 +18,17 @@ if(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
   set(common_flags "-free -implicitnone")
   if(DEFINED PROF)
     if (PROF)
-      set(dbg_flags "-traceback -O2 -fpe0 -qopt-report-phase=vec -qopt-report=2 \
-      -heap-arrays 200")
+      set(dbg_flags "-traceback -O2 -g -fpe0 -heap-arrays 200")
+      # -qopt-report-phase=vec -qopt-report=2")
+      set(rls_flags "-O3 -g -fpe0 -heap-arrays 200 -qopenmp -xcore-avx2 -parallel")
+      # -qopt-report-phase=vec -qopt-report=2")
     endif()
   else()
     set(dbg_flags "-traceback -O0 -warn all -check bounds -g -fpe0 -debug extended \
     -heap-arrays 200")
+    set(rls_flags "-fast -O3 -qopenmp -parallel -heap-arrays 200 \
+    -ansi-alias -qopt-jump-tables='large' -xcore-avx2 -ipo")
   endif()
-  set(rls_flags "-fast -O3 -qopenmp -parallel -heap-arrays 200 \
-  -ansi-alias -qopt-jump-tables='large' -xcore-avx2 -ipo")
   set(COMPILERSTATEMENT "Compiler: IFORT\n")
 endif()
 
@@ -86,6 +88,12 @@ add_custom_target(run_dbg
 
 # Target profile/run_prof to regenerate Makefile
 add_custom_target(run_prof
+  COMMAND ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=Release -DPROF=TRUE ${PROJECT_SOURCE_DIR}
+  COMMENT ${COMPILERSTATEMENT}
+  COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target volcanor)
+
+# Target profile/run_prof to regenerate Makefile
+add_custom_target(run_dbg_prof
   COMMAND ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=Debug -DPROF=TRUE ${PROJECT_SOURCE_DIR}
   COMMENT ${COMPILERSTATEMENT}
   COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target volcanor)
