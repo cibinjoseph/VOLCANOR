@@ -20,14 +20,16 @@ if(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
     if (PROF)
       set(dbg_flags "-traceback -O2 -g -fpe0 -heap-arrays 200")
       # -qopt-report-phase=vec -qopt-report=2")
-      set(rls_flags "-O3 -g -fpe0 -heap-arrays 200 -qopenmp -xcore-avx2 -parallel")
+      set(rls_flags "-O3 -g -fpe0 -qopenmp -xcore-avx2 -parallel")
       # -qopt-report-phase=vec -qopt-report=2")
     endif()
   else()
-    set(dbg_flags "-traceback -O0 -warn all -check bounds -g -fpe0 -debug extended \
-    -heap-arrays 200")
-    set(rls_flags "-fast -O3 -qopenmp -parallel -heap-arrays 200 \
-    -ansi-alias -qopt-jump-tables='large' -xcore-avx2 -ipo")
+    set(dbg_flags "-traceback -O0 -warn all -check bounds -g -fpe0 -debug extended")
+    set(rls_flags "-fast -O3 -qopenmp -parallel \
+    -ansi-alias -qopt-jump-tables='large' -xcore-avx2 -ipo") 
+    # The following flags were removed on shifting to 
+    # Ubuntu 18.04 due to lowering of speed
+    # -heap-arrays 200
   endif()
   set(COMPILERSTATEMENT "Compiler: IFORT\n")
 endif()
