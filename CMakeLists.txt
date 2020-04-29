@@ -6,9 +6,11 @@ project(VOLCANOR Fortran)
 
 # Variables for gfortran
 if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
-  set(common_flags "-ffree-form -std=f2008 -fimplicit-none -ffree-line-length-none -fall-intrinsics")
-  set(dbg_flags "-fbacktrace -O0 -Wall -Wextra -Wimplicit-interface -Wunused-parameter \
-  -Wcharacter-truncation -Wsurprising -Waliasing -fcheck=all -g -ffpe-trap=invalid,zero,overflow -fbounds-check")
+  set(common_flags "-ffree-form -std=f2008 -fimplicit-none \
+  -ffree-line-length-none -fall-intrinsics")
+  set(dbg_flags "-fbacktrace -O0 -Wall -Wextra -Wimplicit-interface \
+  -Wunused-parameter -Wcharacter-truncation -Wsurprising -Waliasing \
+  -fcheck=all -g -ffpe-trap=invalid,zero,overflow -fbounds-check")
   set(rls_flags "-O2 -fopenmp")
   set(COMPILERSTATEMENT "Compiler: GFORTRAN\n")
 endif()
@@ -18,17 +20,19 @@ if(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
   set(common_flags "-free -implicitnone")
   if(DEFINED PROF)
     if (PROF)
-      set(dbg_flags "-traceback -O2 -g -fpe0 -heap-arrays 200")
+      set(dbg_flags "-traceback -O2 -g -fpe0")
       # -qopt-report-phase=vec -qopt-report=2")
       set(rls_flags "-O3 -g -fpe0 -qopenmp -xcore-avx2 -parallel")
       # -qopt-report-phase=vec -qopt-report=2")
     endif()
   else()
-    set(dbg_flags "-traceback -O0 -warn all -check bounds -g -fpe0 -debug extended")
+    set(dbg_flags "-traceback -O0 -warn all -check bounds -g \
+    -fpe0 -debug extended")
     set(rls_flags "-fast -O3 -qopenmp -parallel \
     -ansi-alias -qopt-jump-tables='large' -xcore-avx2 -ipo") 
     # The following flags were removed on shifting to 
-    # Ubuntu 18.04 due to lowering of speed
+    # Ubuntu 18.04 due to reduction in performance, however for large panel
+    # numbers it seems necessary in order to avoid a segfault
     # -heap-arrays 200
   endif()
   set(COMPILERSTATEMENT "Compiler: IFORT\n")
