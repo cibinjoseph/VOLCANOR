@@ -24,7 +24,7 @@ program main
   call skiplines(11, 5)
   read (11, *) wakePlotSwitch, wakeTipPlotSwitch, gridPlotSwitch
   call skiplines(11, 4)
-  read (11, *) rotorForcePlotSwitch, forceCalcSwitch
+  read (11, *) rotorForcePlotSwitch
   call skiplines(11, 5)
   read (11, *) wakeDissipationSwitch, wakeStrainSwitch, wakeBurstSwitch
   call skiplines(11, 5)
@@ -175,10 +175,10 @@ program main
   ! Compute forces
   if (rotorForcePlotSwitch .ne. 0) then
     call init_plots(nr)    ! Create headers for plot files
-    select case (forceCalcSwitch)
+    do ir = 1, nr
+      select case (rotor(ir)%forceCalcSwitch)
 
-    case (0)  ! Compute using wing circulation
-      do ir = 1, nr
+      case (0)  ! Compute using wing circulation
         call rotor(ir)%calc_force_gamma(density, dt)
 
         ! Compute and plot alpha if requested
@@ -213,10 +213,8 @@ program main
             call alpha2file(timestamp, rotor(ir), ir)
           endif
         endif
-      enddo
 
-    case (1)  ! Compute using alpha
-      do ir = 1, nr
+      case (1)  ! Compute using alpha
         ! Compute alpha
         do ib = 1, rotor(ir)%nb
           do is = 1, rotor(ir)%ns
@@ -251,10 +249,8 @@ program main
             call alpha2file(timestamp, rotor(ir), ir)
           endif
         endif
-      enddo
 
-    case (2)  ! Compute lift using alpha approximated from sec circulation
-      do ir = 1, nr
+      case (2)  ! Compute lift using alpha approximated from sec circulation
         ! Compute sec freestream velocity
         do ib = 1, rotor(ir)%nb
           do is = 1, rotor(ir)%ns
@@ -274,12 +270,12 @@ program main
             call alpha2file(timestamp, rotor(ir), ir)
           endif
         endif
-      enddo
 
-    end select
-    do ir = 1, nr
+      end select
+
       ! Initial force value
       call force2file(timestamp, rotor(ir), ir)
+
     enddo
   endif
 
@@ -448,10 +444,10 @@ program main
     ! Compute forces
     if (rotorForcePlotSwitch .ne. 0) then
       if (mod(iter, rotorForcePlotSwitch) .eq. 0) then
-        select case (forceCalcSwitch)
+        do ir = 1, nr
+          select case (rotor(ir)%forceCalcSwitch)
 
-        case (0)  ! Compute using wing circulation
-          do ir = 1, nr
+          case (0)  ! Compute using wing circulation
             call rotor(ir)%calc_force_gamma(density, dt)
 
             ! Compute and plot alpha if requested
@@ -484,12 +480,10 @@ program main
 
                 call rotor(ir)%calc_secAlpha()
                 call alpha2file(timestamp, rotor(ir), ir)
+                endif
               endif
-            endif
-          enddo
 
-        case (1)  ! Compute using alpha
-          do ir = 1, nr
+          case (1)  ! Compute using alpha
             ! Compute alpha
             do ib = 1, rotor(ir)%nb
               do is = 1, rotor(ir)%ns
@@ -524,10 +518,8 @@ program main
                 call alpha2file(timestamp, rotor(ir), ir)
               endif
             endif
-          enddo
 
-        case (2)  ! Compute lift using alpha approximated from sec circulation
-          do ir = 1, nr
+          case (2)  ! Compute lift using alpha approximated from sec circulation
             ! Compute sec freestream velocity
             do ib = 1, rotor(ir)%nb
               do is = 1, rotor(ir)%ns
@@ -547,11 +539,11 @@ program main
                 call alpha2file(timestamp, rotor(ir), ir)
               endif
             endif
-          enddo
-        end select
 
-        do ir = 1, nr
+          end select
+
           call force2file(timestamp, rotor(ir), ir)
+
         enddo
       endif
     endif

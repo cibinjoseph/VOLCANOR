@@ -1474,7 +1474,7 @@ module rotor_classdef
     character(len=1) :: streamwiseCoreSwitch
     real(dp) :: spanwiseCore
     real(dp), allocatable, dimension(:) :: streamwiseCoreVec
-    real(dp), allocatable, dimension(:, :) :: AIC, AIC_inv  ! Influence coefficient matrix
+    real(dp), allocatable, dimension(:, :) :: AIC, AIC_inv
     real(dp), allocatable, dimension(:) :: gamVec, gamVecPrev, RHS
     real(dp), allocatable, dimension(:) :: airfoilSectionLimit
     real(dp), allocatable, dimension(:) :: CL0, CLa
@@ -1484,6 +1484,7 @@ module rotor_classdef
     integer :: symmetricTau
     integer :: rollupStart, rollupEnd
     integer :: suppressFwakeSwitch
+    integer :: forceCalcSwitch
     integer :: inflowPlotSwitch, bladeforcePlotSwitch
     integer :: gammaPlotSwitch, alphaPlotSwitch
     integer :: rowNear, rowFar
@@ -1596,8 +1597,12 @@ contains
     read (12, *) this%inflowPlotSwitch, this%bladeforcePlotSwitch
     call skiplines(12, 5)
     read (12, *) this%gammaPlotSwitch, this%alphaPlotSwitch
-    call skiplines(12, 4)
-    read (12, *) this%nAirfoils
+    call skiplines(12, 5)
+    read (12, *) this%forceCalcSwitch, this%nAirfoils
+    ! Ensure airfoil tables are provided when force calculation requires them
+    if (this%forceCalcSwitch .gt. 0 .and. this%nAirfoils .eq. 0) then 
+      error stop 'ERROR: No. of airfoil tables set to 0 in rotorXX.in'
+    endif
     call skiplines(12, 4)
     if (this%nAirfoils .gt. 0) then
       allocate (this%airfoilSectionLimit(this%nAirfoils))

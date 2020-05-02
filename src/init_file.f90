@@ -23,7 +23,7 @@ integer :: spanSpacingSwitch
 integer :: wakeDissipationSwitch, wakeStrainSwitch, wakeBurstSwitch
 integer :: slowStartSwitch, slowStartNt
 integer :: wakeTipPlotSwitch, wakePlotSwitch, gridPlotSwitch
-integer :: rotorForcePlotSwitch, forceCalcSwitch
+integer :: rotorForcePlotSwitch
 integer :: fdSchemeSwitch
 integer :: wakeIgnoreNt
 integer :: initWakeVelNt
