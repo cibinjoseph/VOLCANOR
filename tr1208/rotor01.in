@@ -37,7 +37,7 @@ Omega[rad/s]   X-shaftAxis     Y-shaftAxis     Z-shaftAxis
 
 theta0[deg]    thetaC[deg]    thetaS[deg]    thetaTwist[deg]
 -------------------------------------------------------------------
-  16.0             0.0              0.0           0.0
+  25.0             0.0              0.0           0.0
 ===================================================================
 
 u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]    
@@ -108,4 +108,4 @@ No. of airfoil files
 section limit    CL0     CLa(per rad)   Airfoil file names
     (r/R)         [for FELS]
 -------------------------------------------------------------------
-     1.0         0.0      6.2832        NACA63A012_XFOIL.C81
+     1.0         0.0      6.2832        NACA63A012.C81
