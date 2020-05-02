@@ -14,21 +14,16 @@ A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method
 - Predictor-Corrector based wake convection for improved stability and accuracy
 - Visualization of load history, circulation, wake structure etc in VisIt
 
-## Known Issues
-1. Overprediction of induced drag
-
 ## Improvements (To be made)
 ### Stability Improvements
 - Provision to provide precomputed initial solution
 
 ### Feature and Solution Improvements
-- Shift trailing edge vortex by corresponding r*Om
 - Account for pitching velocity
 - Precompute trajectory
 - Provision to restart
 - Write out in binary format
 - Prandtl-glauert, Karman-Tsien compressibility corrections etc.
-- Induced drag computation drastically overpredicted
 - Check 25% of panel span inset of vortices create difference
 - Auto evaluated unit tests for a few standard test cases
 - Include Trim algorithm
