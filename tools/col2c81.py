@@ -19,8 +19,9 @@ CL = []
 airfoilName = lines[0].strip()
 for line in lines[1:]:
     cols = line.split()
-    alpha.append(float(cols[0]))
-    CL.append(float(cols[1]))
+    if len(cols) > 1:
+        alpha.append(float(cols[0]))
+        CL.append(float(cols[1]))
 
 # Convert to C81 object
 mach = [0.0, 0.5, 1.0]
