@@ -560,6 +560,7 @@ module blade_classdef
     type(Nwake_class), allocatable, dimension(:, :) :: waPPredicted
     type(Fwake_class), allocatable, dimension(:) :: waFPredicted
     type(C81_class), allocatable, dimension(:) :: C81
+    integer :: nc, ns
     real(dp) :: theta, psi, pivotLE
     real(dp), dimension(3) :: forceInertial
     real(dp), dimension(3) :: lift, drag, dragInduced, dragProfile, dragUnsteady
@@ -1752,6 +1753,12 @@ contains
     else
       call this%plot3dtoblade(trim(this%geometryFile))
     endif
+
+    ! Copy ns and nc to blade variables to avoid recomputing
+    do ib = 1, this%nb
+      this%blade(ib)%nc = this%nc
+      this%blade(ib)%ns = this%ns
+    enddo
 
     do ib = 1, this%nb
       ! Initialize blade axes
