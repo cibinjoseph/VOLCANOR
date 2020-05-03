@@ -274,7 +274,7 @@ program main
       end select
 
       ! Initial force value
-      call force2file(timestamp, rotor(ir), ir)
+      call force2file(timestamp, rotor(ir), ir, density)
 
     enddo
   endif
@@ -542,7 +542,7 @@ program main
 
           end select
 
-          call force2file(timestamp, rotor(ir), ir)
+          call force2file(timestamp, rotor(ir), ir, density)
 
         enddo
       endif

@@ -1170,7 +1170,7 @@ contains
   end subroutine blade_calc_force_gamma
 
   function getSecDynamicPressure(this, density)
-  class(blade_class), intent(inout) :: this
+  class(blade_class), intent(in) :: this
     real(dp), intent(in) :: density
     real(dp), dimension(size(this%wiP, 2)) :: magsecVelCPTotal
     real(dp), dimension(size(this%wiP, 2)) :: getSecDynamicPressure

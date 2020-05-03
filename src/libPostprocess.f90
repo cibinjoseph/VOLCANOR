@@ -554,11 +554,12 @@ contains
 
   end subroutine tip2file
 
-  subroutine force2file(timestamp, rotor, rotorNumber)
+  subroutine force2file(timestamp, rotor, rotorNumber, density)
     ! Write sec and net force to file
     type(rotor_class), intent(in) :: rotor
     character(len=*), intent(in) :: timestamp
     integer, intent(in) :: rotorNumber
+    real(dp), intent(in) :: density
     character(len=2) :: rotorNumberChar, bladeNumberChar
     integer :: ib, ispan
     character(len=24) :: forceDimFilename
@@ -594,12 +595,20 @@ contains
       do ib = 1, rotor%nb
         write (bladeNumberChar, '(I0.2)') ib
         write (12, *) '# Blade'//bladeNumberChar
+        write (12, *) 'Section  secSpan  secCL  secCD  secArea  secChord'
         do ispan = 1, rotor%ns
-          write (12, *) dot_product(rotor%blade(ib)%wiP(1, ispan)%CP - rotor%hubCoords, rotor%blade(ib)%yAxis), &
-            dot_product(rotor%blade(ib)%secForceInertial(:, ispan), (/0._dp, 0._dp, 1._dp/))
+          write (12, 102) ispan, dot_product(rotor%blade(ib)%wiP(1, ispan)%CP - rotor%hubCoords, rotor%blade(ib)%yAxis), &
+            & norm2(rotor%blade(ib)%secLift(:, ispan)) / & 
+            & (rotor%blade(ib)%getSecDynamicPressure(density) * &
+            & rotor%blade(ib)%secArea), &
+            & norm2(rotor%blade(ib)%secDrag(:, ispan)) / &
+            & (rotor%blade(ib)%getSecDynamicPressure(density) * &
+            & rotor%blade(ib)%secArea), &
+            rotor%blade(ib)%secArea, rotor%blade(ib)%secChord
         enddo
       enddo
       close (12)
+      102 format(I0.5, 5(E15.7))
     endif
   end subroutine force2file
 
