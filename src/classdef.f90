@@ -572,6 +572,7 @@ module blade_classdef
     real(dp), allocatable, dimension(:, :) :: velFwakePredicted, velFwakeStep
     real(dp), dimension(3) :: xAxis, yAxis, zAxis
     ! Sectional quantities
+    real(dp), allocatable, dimension(:) :: secChord, secArea
     real(dp), allocatable, dimension(:, :) :: secForceInertial, secLift, secDrag
     real(dp), allocatable, dimension(:, :) :: secLiftDir, secDragDir
     real(dp), allocatable, dimension(:, :) :: secDragInduced, secDragProfile, secDragUnsteady
@@ -593,7 +594,7 @@ module blade_classdef
     procedure :: convectwake
     procedure :: wake_continuity
     procedure :: getSecDynamicPressure
-    procedure :: getSecArea
+    procedure :: calc_secArea, calc_secChord
     procedure :: calc_force_gamma => blade_calc_force_gamma
     procedure :: calc_force_alpha => blade_calc_force_alpha
     procedure :: calc_force_alphaGamma => blade_calc_force_alphaGamma
@@ -1182,15 +1183,26 @@ contains
     getSecDynamicPressure = 0.5_dp*density*magsecVelCPTotal**2._dp
   end function getSecDynamicPressure
 
-  function getSecArea(this)
+  subroutine calc_secArea(this)
   class(blade_class), intent(inout) :: this
-    real(dp), dimension(size(this%wiP, 2)) :: getSecArea
     integer :: is
 
     do is = 1, size(this%wiP, 2)
-      getSecArea(is) = sum(this%wiP(:, is)%panelArea)
+      this%secArea(is) = sum(this%wiP(:, is)%panelArea)
     enddo
-  end function getSecArea
+  end subroutine calc_secArea
+
+  subroutine calc_secChord(this)
+  class(blade_class), intent(inout) :: this
+    integer :: is, rows
+
+    rows = size(this%wiP, 1)
+    do is = 1, size(this%wiP, 2)
+      this%secChord(is) = norm2(0.5_dp*( &
+        & (this%wiP(1, is)%PC(:,1) + this%wiP(1, is)%PC(:,4)) - &
+        & (this%wiP(rows, is)%PC(:,2) + this%wiP(rows, is)%PC(:,3))))
+    enddo
+  end subroutine calc_secChord
 
   subroutine blade_calc_force_alpha(this, density, velSound)
     ! Compute force using sec alpha
@@ -1212,7 +1224,7 @@ contains
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: density, invertGammaSign, velSound, dt
     real(dp), dimension(3) :: secChordwiseVelFreestream, liftDir
-    real(dp), dimension(size(this%wiP, 2)) :: secDynamicPressure, secArea
+    real(dp), dimension(size(this%wiP, 2)) :: secDynamicPressure
     integer :: is, ns
 
     ns = size(this%wiP, 2)
@@ -1231,14 +1243,13 @@ contains
     enddo
 
     secDynamicPressure = this%getSecDynamicPressure(density)
-    secArea = this%getSecArea()
 
     do is = 1, ns
       ! Extract sectional lift and CL
       liftDir = cross_product(this%secChordwiseResVel(:, is), this%yAxis)
       ! Assuming gamma method only gives lift
       this%secCL(is) = dot_product(this%secForceInertial(:, is), unitVec(liftDir)) &
-        /(secDynamicPressure(is)*secArea(is))
+        /(secDynamicPressure(is)*this%secArea(is))
 
       ! Compute angle of attack from linear CL
       this%secAlpha(is) = (this%secCL(is) - this%CL0(this%airfoilNo(is)))/this%CLa(this%airfoilNo(is))
@@ -1261,7 +1272,7 @@ contains
     integer :: is
     real(dp), dimension(size(this%wiP, 2)) :: leadingTerm
 
-    leadingTerm = this%getSecDynamicPressure(density)*this%getSecArea()
+    leadingTerm = this%getSecDynamicPressure(density)*this%secArea
 
     do is = 1, size(this%wiP, 2)
       ! Lift and Drag vectors
@@ -1655,6 +1666,8 @@ contains
       allocate (this%blade(ib)%secNormalVec(3, this%ns))
       allocate (this%blade(ib)%secVelFreestream(3, this%ns))
       allocate (this%blade(ib)%secForceInertial(3, this%ns))
+      allocate (this%blade(ib)%secChord(this%ns))
+      allocate (this%blade(ib)%secArea(this%ns))
       allocate (this%blade(ib)%secLift(3, this%ns))
       allocate (this%blade(ib)%secDrag(3, this%ns))
       allocate (this%blade(ib)%secLiftDir(3, this%ns))
@@ -1832,6 +1845,10 @@ contains
           call this%blade(ib)%wiP(i, j)%calc_mean_dimensions()
         enddo
       enddo
+
+      ! Compute sectional areas and chords
+      call this%blade(ib)%calc_secArea()
+      call this%blade(ib)%calc_secChord()
 
       ! Invert half of tau vectors for symmetric or swept wings
       if (this%symmetricTau .eq. 1) then
