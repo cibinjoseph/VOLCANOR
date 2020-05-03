@@ -602,7 +602,7 @@ module blade_classdef
     procedure :: calc_secChordwiseResVel => blade_calc_secChordwiseResVel
     procedure :: burst_wake => blade_burst_wake
     procedure :: getSecChordwiseLocations
-    procedure :: calc_secCoeffs
+    procedure :: lookup_secCoeffs
     procedure :: secCoeffsToSecForces
     procedure :: dirLiftDrag => blade_dirLiftDrag
     procedure :: sumSecToNetForces
@@ -1065,6 +1065,7 @@ contains
     real(dp), dimension(size(this%wiP, 1), size(this%wiP, 2)) :: velTangentialChord, velTangentialSpan
     real(dp), dimension(size(this%wiP, 1), size(this%wiP, 2)) :: velInduced
     real(dp), dimension(size(this%wiP, 1), size(this%wiP, 2)) :: gamElementChord, gamElementSpan
+    real(dp), dimension(size(this%wiP, 2)) :: secDynamicPressure
     rows = size(this%wiP, 1)
     cols = size(this%wiP, 2)
 
@@ -1165,6 +1166,13 @@ contains
 
     this%secDrag = this%secDragInduced + this%secDragProfile
 
+    ! Compute sectional coefficients
+    secDynamicPressure = this%getSecDynamicPressure(density)
+    do is = 1, cols
+      this%secCL(is) = norm2(this%secLift(:, is))/(secDynamicPressure(is)*this%secArea(is))
+      this%secCD(is) = norm2(this%secDrag(:, is))/(secDynamicPressure(is)*this%secArea(is))
+    enddo
+
     call this%sumSecToNetForces()
 
   end subroutine blade_calc_force_gamma
@@ -1209,7 +1217,7 @@ contains
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: density, velSound
 
-    call this%calc_secCoeffs(velSound)
+    call this%lookup_secCoeffs(velSound)
 
     call this%secCoeffsTosecForces(density)
     this%secDragInduced = 0._dp  ! To overwrite unit vectors previously assigned in main.f90
@@ -1256,7 +1264,7 @@ contains
     enddo
 
     ! Compute non-linear CL
-    call this%calc_secCoeffs(velSound)
+    call this%lookup_secCoeffs(velSound)
 
     call this%secCoeffsToSecForces(density)
 
@@ -1294,7 +1302,7 @@ contains
     enddo
   end subroutine secCoeffsToSecForces
 
-  subroutine calc_secCoeffs(this, velSound)
+  subroutine lookup_secCoeffs(this, velSound)
     ! Compute sec CL, CD, CM from C81 tables and sec resultant velocity
     ! Assumes only one airfoil section present
   class(blade_class), intent(inout) :: this
@@ -1309,7 +1317,7 @@ contains
       this%secCD(is) = this%C81(this%airfoilNo(is))%getCD(alphaDeg, secMach)
       this%secCM(is) = this%C81(this%airfoilNo(is))%getCM(alphaDeg, secMach)
     enddo
-  end subroutine calc_secCoeffs
+  end subroutine lookup_secCoeffs
 
   subroutine blade_calc_secChordwiseResVel(this)
     ! Compute sec resultant velocity by interpolating local panel velocity
