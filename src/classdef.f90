@@ -616,8 +616,8 @@ contains
     real(dp), intent(in), dimension(3) :: dshift
     integer :: i, j
 
-    do j = 1, size(this%wiP, 2)
-      do i = 1, size(this%wiP, 1)
+    do j = 1, this%ns
+      do i = 1, this%nc
         call this%wiP(i, j)%shiftdP(dshift)
       enddo
     enddo
@@ -650,8 +650,8 @@ contains
       error stop 'ERROR: Wrong option for order'
     end select
 
-    do j = 1, size(this%wiP, 2)
-      do i = 1, size(this%wiP, 1)
+    do j = 1, this%ns
+      do i = 1, this%nc
         call this%wiP(i, j)%shiftdP(-origin)
         call this%wiP(i, j)%rot(TMat)
         call this%wiP(i, j)%shiftdP(origin)
@@ -669,7 +669,7 @@ contains
     enddo
 
     ! Rotate sec vectors
-    do j = 1, size(this%wiP, 2)
+    do j = 1, this%ns
       this%secTauCapChord(:, j) = matmul(TMat, this%secTauCapChord(:, j))
       this%secNormalVec(:, j) = matmul(TMat, this%secNormalVec(:, j))
     enddo
@@ -684,15 +684,12 @@ contains
     real(dp), intent(in) :: theta
     real(dp), dimension(3) :: axis
     real(dp), dimension(3) :: axisOrigin!, axisEnd
-    integer :: rows, cols
 
     if (abs(theta) > eps) then
-      rows = size(this%wiP, 1)
-      cols = size(this%wiP, 2)
       axisOrigin = this%wiP(1, 1)%PC(:, 1)*(1._dp - this%pivotLE) &
-        + this%wiP(rows, 1)%PC(:, 2)*this%pivotLE
-      !axisEnd=this%wiP(1,cols)%PC(:,4)*(1._dp-this%pivotLE) &
-      !  +this%wiP(rows,cols)%PC(:,3)*this%pivotLE
+        + this%wiP(this%nc, 1)%PC(:, 2)*this%pivotLE
+      !axisEnd=this%wiP(1, this%ns)%PC(:,4)*(1._dp-this%pivotLE) &
+      !  +this%wiP(this%nc, this%ns)%PC(:,3)*this%pivotLE
       !
       !! Construct axes of rotation from LE of first panel
       !axis=axisEnd-axisOrigin
@@ -713,12 +710,11 @@ contains
     real(dp), intent(in), dimension(3) :: origin
     real(dp), dimension(3, 3) :: Tmat
     real(dp), dimension(3) :: axis
-    integer :: i, j, rows
+    integer :: i, j
     real(dp) :: ct, st, omct
 
     if (abs(theta) > eps) then
       ! Translate to origin
-      rows = size(this%wiP, 1)
       call this%move(-origin)
 
       ! Ensure axis is normalized
@@ -740,8 +736,8 @@ contains
         ct + axis(3)*axis(3)*omct/)
 
       ! Rotate about axis
-      do j = 1, size(this%wiP, 2)
-        do i = 1, size(this%wiP, 1)
+      do j = 1, this%ns
+        do i = 1, this%nc
           call this%wiP(i, j)%rot(TMat)
         enddo
       enddo
@@ -757,7 +753,7 @@ contains
       enddo
 
       ! Rotate sec vectors also along with blade
-      do j = 1, size(this%wiP, 2)
+      do j = 1, this%ns
         this%secTauCapChord(:, j) = matmul(TMat, this%secTauCapChord(:, j))
         this%secNormalVec(:, j) = matmul(TMat, this%secNormalVec(:, j))
       enddo
@@ -777,8 +773,8 @@ contains
     integer :: i, j
 
     blade_vind_bywing = 0._dp
-    do j = 1, size(this%wiP, 2)
-      do i = 1, size(this%wiP, 1)
+    do j = 1, this%ns
+      do i = 1, this%nc
         blade_vind_bywing = blade_vind_bywing + &
           this%wiP(i, j)%vr%vind(P)*this%wiP(i, j)%vr%gam
       enddo
@@ -791,22 +787,19 @@ contains
   class(blade_class), intent(inout) :: this
     real(dp), intent(in), dimension(3) :: P
     real(dp), dimension(3) :: blade_vind_bywing_boundVortices
-    integer :: i, j, rows, cols
-
-    rows = size(this%wiP, 1)
-    cols = size(this%wiP, 2)
+    integer :: i, j
 
     blade_vind_bywing_boundVortices = 0._dp
-    do j = 1, cols
-      do i = 1, rows
+    do j = 1, this%ns
+      do i = 1, this%nc
         blade_vind_bywing_boundVortices = blade_vind_bywing_boundVortices + &
           (this%wiP(i, j)%vr%vf(2)%vind(P) + this%wiP(i, j)%vr%vf(4)%vind(P))* &
           this%wiP(i, j)%vr%gam
       enddo
     enddo
-    do j = 1, cols
+    do j = 1, this%ns
       blade_vind_bywing_boundVortices = blade_vind_bywing_boundVortices - &
-        this%wiP(rows, j)%vr%vf(2)%vind(P)*this%wiP(rows, j)%vr%gam
+        this%wiP(this%nc, j)%vr%vf(2)%vind(P)*this%wiP(this%nc, j)%vr%gam
     enddo
   end function blade_vind_bywing_boundVortices
 
@@ -815,22 +808,19 @@ contains
   class(blade_class), intent(inout) :: this
     real(dp), intent(in), dimension(3) :: P
     real(dp), dimension(3) :: blade_vind_bywing_chordwiseVortices
-    integer :: i, j, rows, cols
-
-    rows = size(this%wiP, 1)
-    cols = size(this%wiP, 2)
+    integer :: i, j
 
     blade_vind_bywing_chordwiseVortices = 0._dp
-    do j = 1, cols
-      do i = 1, rows
+    do j = 1, this%ns
+      do i = 1, this%nc
         blade_vind_bywing_chordwiseVortices = blade_vind_bywing_chordwiseVortices + &
           (this%wiP(i, j)%vr%vf(1)%vind(P) + this%wiP(i, j)%vr%vf(3)%vind(P))* &
           this%wiP(i, j)%vr%gam
       enddo
     enddo
-    do j = 1, cols
+    do j = 1, this%ns
       blade_vind_bywing_chordwiseVortices = blade_vind_bywing_chordwiseVortices + &
-        this%wiP(rows, j)%vr%vf(2)%vind(P)*this%wiP(rows, j)%vr%gam
+        this%wiP(this%nc, j)%vr%vf(2)%vind(P)*this%wiP(this%nc, j)%vr%gam
     enddo
   end function blade_vind_bywing_chordwiseVortices
 
@@ -919,15 +909,14 @@ contains
     integer, intent(in) :: rowNear, rowFar
     real(dp), intent(in) :: dt
     character(len=1), intent(in) :: wakeType  ! For predicted wake
-    integer :: i, j, cols, nNwake, nFwake
+    integer :: i, j, nNwake, nFwake
 
-    cols = size(this%waP, 2)
     nNwake = size(this%waP, 1)
 
     select case (wakeType)
     case ('C')    ! [C]urrent wake
       !$omp parallel do collapse(2)
-      do j = 1, cols
+      do j = 1, this%ns
         do i = rowNear, nNwake
           call this%waP(i, j)%vr%shiftdP(2, this%velNwake(:, i, j)*dt)
         enddo
@@ -936,7 +925,7 @@ contains
 
       !$omp parallel do
       do i = rowNear, nNwake
-        call this%waP(i, cols)%vr%shiftdP(3, this%velNwake(:, i, cols + 1)*dt)
+        call this%waP(i, this%ns)%vr%shiftdP(3, this%velNwake(:, i, this%ns + 1)*dt)
       enddo
       !$omp end parallel do
 
@@ -949,7 +938,7 @@ contains
 
     case ('P')    ! [P]redicted wake
       !$omp parallel do collapse(2)
-      do j = 1, cols
+      do j = 1, this%ns
         do i = 1, rowNear, nNwake
           call this%waPPredicted(i, j)%vr%shiftdP(2, this%velNwake(:, i, j)*dt)
         enddo
@@ -958,7 +947,7 @@ contains
 
       !$omp parallel do
       do i = 1, rowNear, nNwake
-        call this%waPPredicted(i, cols)%vr%shiftdP(3, this%velNwake(:, i, cols + 1)*dt)
+        call this%waPPredicted(i, this%ns)%vr%shiftdP(3, this%velNwake(:, i, this%ns + 1)*dt)
       enddo
       !$omp end parallel do
 
@@ -981,15 +970,14 @@ contains
   class(blade_class), intent(inout) :: this
     integer, intent(in) :: rowNear, rowFar
     character(len=1), intent(in) :: wakeType  ! For predicted wake
-    integer :: i, j, nNwake, nFwake, cols
+    integer :: i, j, nNwake, nFwake
 
     nNwake = size(this%waP, 1)
-    cols = size(this%waP, 2)
 
     select case (wakeType)
     case ('C')
       !$omp parallel do collapse(2)
-      do j = 1, cols - 1
+      do j = 1, this%ns - 1
         do i = rowNear + 1, nNwake
           call this%waP(i, j)%vr%assignP(1, this%waP(i - 1, j)%vr%vf(2)%fc(:, 1))
           call this%waP(i, j)%vr%assignP(3, this%waP(i, j + 1)%vr%vf(2)%fc(:, 1))
@@ -999,15 +987,15 @@ contains
       !$omp end parallel do
 
       !$omp parallel do
-      do j = 1, cols - 1
+      do j = 1, this%ns - 1
         call this%waP(rowNear, j)%vr%assignP(3, this%waP(rowNear, j + 1)%vr%vf(2)%fc(:, 1))
       enddo
       !$omp end parallel do
 
       !$omp parallel do
       do i = rowNear + 1, nNwake
-        call this%waP(i, cols)%vr%assignP(1, this%waP(i - 1, cols)%vr%vf(2)%fc(:, 1))
-        call this%waP(i, cols)%vr%assignP(4, this%waP(i - 1, cols)%vr%vf(3)%fc(:, 1))
+        call this%waP(i, this%ns)%vr%assignP(1, this%waP(i - 1, this%ns)%vr%vf(2)%fc(:, 1))
+        call this%waP(i, this%ns)%vr%assignP(4, this%waP(i - 1, this%ns)%vr%vf(3)%fc(:, 1))
       enddo
       !$omp end parallel do
 
@@ -1022,7 +1010,7 @@ contains
       ! For predicted wake
 
       !$omp parallel do collapse(2)
-      do j = 1, cols - 1
+      do j = 1, this%ns - 1
         do i = rowNear + 1, nNwake
           call this%waPPredicted(i, j)%vr%assignP(1, this%waPPredicted(i - 1, j)%vr%vf(2)%fc(:, 1))
           call this%waPPredicted(i, j)%vr%assignP(3, this%waPPredicted(i, j + 1)%vr%vf(2)%fc(:, 1))
@@ -1032,15 +1020,15 @@ contains
       !$omp end parallel do
 
       !$omp parallel do
-      do j = 1, cols - 1
+      do j = 1, this%ns - 1
         call this%waPPredicted(rowNear, j)%vr%assignP(3, this%waPPredicted(rowNear, j + 1)%vr%vf(2)%fc(:, 1))
       enddo
       !$omp end parallel do
 
       !$omp parallel do
       do i = rowNear + 1, nNwake
-        call this%waPPredicted(i, cols)%vr%assignP(1, this%waPPredicted(i - 1, cols)%vr%vf(2)%fc(:, 1))
-        call this%waPPredicted(i, cols)%vr%assignP(4, this%waPPredicted(i - 1, cols)%vr%vf(3)%fc(:, 1))
+        call this%waPPredicted(i, this%ns)%vr%assignP(1, this%waPPredicted(i - 1, this%ns)%vr%vf(2)%fc(:, 1))
+        call this%waPPredicted(i, this%ns)%vr%assignP(4, this%waPPredicted(i - 1, this%ns)%vr%vf(3)%fc(:, 1))
       enddo
       !$omp end parallel do
 
@@ -1061,14 +1049,12 @@ contains
     ! Compute force using blade circulation
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: density, invertGammaSign, dt
-    integer :: is, ic, rows, cols
+    integer :: is, ic
     real(dp) :: unsteadyTerm
-    real(dp), dimension(size(this%wiP, 1), size(this%wiP, 2)) :: velTangentialChord, velTangentialSpan
-    real(dp), dimension(size(this%wiP, 1), size(this%wiP, 2)) :: velInduced
-    real(dp), dimension(size(this%wiP, 1), size(this%wiP, 2)) :: gamElementChord, gamElementSpan
-    real(dp), dimension(size(this%wiP, 2)) :: secDynamicPressure
-    rows = size(this%wiP, 1)
-    cols = size(this%wiP, 2)
+    real(dp), dimension(this%nc, this%ns) :: velTangentialChord, velTangentialSpan
+    real(dp), dimension(this%nc, this%ns) :: velInduced
+    real(dp), dimension(this%nc, this%ns) :: gamElementChord, gamElementSpan
+    real(dp), dimension(this%ns) :: secDynamicPressure
 
     this%forceInertial = 0._dp
     this%secForceInertial = 0._dp
@@ -1076,8 +1062,8 @@ contains
     this%secDrag = 0._dp
 
     ! Compute tangential velocity
-    do is = 1, cols
-      do ic = 1, rows
+    do is = 1, this%ns
+      do ic = 1, this%nc
         velTangentialChord(ic, is) = dot_product(this%wiP(ic, is)%velCP, this%wiP(ic, is)%tauCapChord)
         velTangentialSpan(ic, is) = dot_product(this%wiP(ic, is)%velCP, this%wiP(ic, is)%tauCapSpan)
         velInduced(ic, is) = dot_product(this%wiP(ic, is)%velCP + &
@@ -1087,24 +1073,24 @@ contains
     enddo
 
     ! Compute chordwise elemental circulation of edge panels
-    do is = 1, cols
+    do is = 1, this%ns
       gamElementChord(1, is) = this%wiP(1, is)%vr%gam
     enddo
-    do ic = 2, rows
+    do ic = 2, this%nc
       gamElementChord(ic, 1) = this%wiP(ic, 1)%vr%gam - this%wiP(ic - 1, 1)%vr%gam
     enddo
 
     ! Compute spanwise elemental circulation of edge panels
-    do ic = 1, rows
+    do ic = 1, this%nc
       gamElementSpan(ic, 1) = this%wiP(ic, 1)%vr%gam
     enddo
-    do is = 2, cols
+    do is = 2, this%ns
       gamElementSpan(1, is) = this%wiP(1, is)%vr%gam - this%wiP(1, is - 1)%vr%gam
     enddo
 
     ! Compute chordwise and spanwise elemental circulations of inner panels
-    do is = 2, cols
-      do ic = 2, rows
+    do is = 2, this%ns
+      do ic = 2, this%nc
         gamElementChord(ic, is) = this%wiP(ic, is)%vr%gam - this%wiP(ic - 1, is)%vr%gam
         gamElementSpan(ic, is) = this%wiP(ic, is)%vr%gam - this%wiP(ic, is - 1)%vr%gam
       enddo
@@ -1115,8 +1101,8 @@ contains
     gamElementChord = -1._dp*gamElementChord
 
     ! Compute delP
-    do is = 1, cols
-      do ic = 1, rows
+    do is = 1, this%ns
+      do ic = 1, this%nc
         ! Use trapezoidal rule on two points to get current gam
         ! for computing unsteady lift part
         if (ic > 1) then
@@ -1171,7 +1157,7 @@ contains
 
     ! Compute sectional coefficients
     ! Compute secChordwiseResVel for calculating secDynamicPressure
-    do is = 1, cols
+    do is = 1, this%ns
       ! Assuming sec resultant velocity is same as sec freestream vel
       ! for computing corrected alpha later
       this%secChordwiseResVel(:, is) = this%secVelFreestream(:, is) - &
@@ -1179,7 +1165,7 @@ contains
     enddo
     secDynamicPressure = this%getSecDynamicPressure(density)
 
-    do is = 1, cols
+    do is = 1, this%ns
       this%secCL(is) = norm2(this%secLift(:, is))/ &
         & (secDynamicPressure(is)*this%secArea(is))
       this%secCD(is) = norm2(this%secDrag(:, is))/ &
@@ -1193,12 +1179,11 @@ contains
   function getSecDynamicPressure(this, density)
   class(blade_class), intent(in) :: this
     real(dp), intent(in) :: density
-    real(dp), dimension(size(this%wiP, 2)) :: magsecVelCPTotal
-    real(dp), dimension(size(this%wiP, 2)) :: getSecDynamicPressure
-    integer :: is, rows
+    real(dp), dimension(this%ns) :: magsecVelCPTotal
+    real(dp), dimension(this%ns) :: getSecDynamicPressure
+    integer :: is
 
-    rows = size(this%wiP, 1)
-    do is = 1, size(this%wiP, 2)
+    do is = 1, this%ns
       magsecVelCPTotal(is) = norm2(this%secChordwiseResVel(:, is))
     enddo
     getSecDynamicPressure = 0.5_dp*density*magsecVelCPTotal**2._dp
@@ -1208,20 +1193,19 @@ contains
   class(blade_class), intent(inout) :: this
     integer :: is
 
-    do is = 1, size(this%wiP, 2)
+    do is = 1, this%ns
       this%secArea(is) = sum(this%wiP(:, is)%panelArea)
     enddo
   end subroutine calc_secArea
 
   subroutine calc_secChord(this)
   class(blade_class), intent(inout) :: this
-    integer :: is, rows
+    integer :: is
 
-    rows = size(this%wiP, 1)
-    do is = 1, size(this%wiP, 2)
+    do is = 1, this%ns
       this%secChord(is) = norm2(0.5_dp*( &
         & (this%wiP(1, is)%PC(:,1) + this%wiP(1, is)%PC(:,4)) - &
-        & (this%wiP(rows, is)%PC(:,2) + this%wiP(rows, is)%PC(:,3))))
+        & (this%wiP(this%nc, is)%PC(:,2) + this%wiP(this%nc, is)%PC(:,3))))
     enddo
   end subroutine calc_secChord
 
@@ -1245,10 +1229,10 @@ contains
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: density, invertGammaSign, velSound, dt
     real(dp), dimension(3) :: secChordwiseVelFreestream, liftDir
-    real(dp), dimension(size(this%wiP, 2)) :: secDynamicPressure
+    real(dp), dimension(this%ns) :: secDynamicPressure
     integer :: is, ns
 
-    ns = size(this%wiP, 2)
+    ns = this%ns
 
     ! Compute unsteady sec lift from gamma distribution
     call this%calc_force_gamma(density, invertGammaSign, dt)
@@ -1291,11 +1275,11 @@ contains
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: density
     integer :: is
-    real(dp), dimension(size(this%wiP, 2)) :: leadingTerm
+    real(dp), dimension(this%ns) :: leadingTerm
 
     leadingTerm = this%getSecDynamicPressure(density)*this%secArea
 
-    do is = 1, size(this%wiP, 2)
+    do is = 1, this%ns
       ! Lift and Drag vectors
       this%secLift(:, is) = this%secLiftDir(:, is)*leadingTerm(is)*this%secCL(is) 
       this%secDragProfile(:, is) = this%secDragDir(:, is)*leadingTerm(is)*this%secCD(is)
@@ -1335,13 +1319,12 @@ contains
   subroutine blade_calc_secChordwiseResVel(this)
     ! Compute sec resultant velocity by interpolating local panel velocity
   class(blade_class), intent(inout) :: this
-    integer :: i, is, ic, rows
-    real(dp), dimension(size(this%wiP, 1)) :: xDist
+    integer :: i, is, ic
+    real(dp), dimension(this%nc) :: xDist
 
-    rows = size(this%wiP, 1)
-    if (rows .ge. 3) then  ! Use least squares fit to get sec resultant velocity
+    if (this%nc .ge. 3) then  ! Use least squares fit to get sec resultant velocity
       do is = 1, size(this%secChordwiseResVel, 2)
-        do ic = 1, rows
+        do ic = 1, this%nc
           call this%wiP(ic, is)%calc_chordwiseResVel()
           xDist(ic) = dot_product(this%wiP(ic, is)%CP - this%wiP(1, is)%PC(:, 1), &
             this%secTauCapChord(:, is))
@@ -1354,11 +1337,11 @@ contains
       enddo
     else  ! Use average of resultant velocities
       do is = 1, size(this%secChordwiseResVel, 2)
-        do ic = 1, rows
+        do ic = 1, this%nc
           call this%wiP(ic, is)%calc_chordwiseResVel()
         enddo
         do i = 1, 3
-          this%secChordwiseResVel(i, is) = sum(this%wiP(:, is)%chordwiseResVel(i))/rows
+          this%secChordwiseResVel(i, is) = sum(this%wiP(:, is)%chordwiseResVel(i))/this%nc
         enddo
       enddo
     endif
@@ -1387,13 +1370,12 @@ contains
   !subroutine blade_calc_secAlpha(this)
   !  ! Compute sec alpha by interpolating local panel alpha
   !class(blade_class), intent(inout) :: this
-  !  integer :: is, ic, rows
+  !  integer :: is, ic, this%nc
   !  real(dp), dimension(size(this%wiP,1)) :: xDist
 
-  !  rows=size(this%wiP,1)
-  !  if (rows .ge. 3) then  ! Use least squares fit to get alpha
+  !  if (this%nc .ge. 3) then  ! Use least squares fit to get alpha
   !    do is=1,size(this%secAlpha)
-  !      do ic=1,rows
+  !      do ic=1,this%nc
   !        xDist(ic)=dot_product(this%wiP(ic,is)%CP-this%wiP(1,is)%PC(:,1),  &
   !          this%secTauCapChord(:,is))
   !      enddo
@@ -1402,7 +1384,7 @@ contains
   !    enddo
   !  else  ! Use average of alpha values
   !    do is=1,size(this%secAlpha)
-  !      this%secAlpha(is)=sum(this%wiP(:,is)%alpha)/rows
+  !      this%secAlpha(is)=sum(this%wiP(:,is)%alpha)/this%nc
   !    enddo
   !  endif
   !end subroutine blade_calc_secAlpha
@@ -1411,14 +1393,12 @@ contains
     ! Get coordinates of a point located at a fraction of chord on each section
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: chordwiseFraction
-    real(dp), dimension(3, size(this%wiP, 2)) :: getSecChordwiseLocations
-    integer :: is, rows
+    real(dp), dimension(3, this%ns) :: getSecChordwiseLocations
+    integer :: is
 
-    rows = size(this%wiP, 1)
-
-    do is = 1, size(this%wiP, 2)
+    do is = 1, this%ns
       getSecChordwiseLocations(:, is) = (1._dp - chordwiseFraction)*(this%wiP(1, is)%PC(:, 4) + this%wiP(1, is)%PC(:, 1))*0.5_dp + &
-        chordwiseFraction*(this%wiP(rows, is)%PC(:, 3) + this%wiP(rows, is)%PC(:, 2))*0.5_dp
+        chordwiseFraction*(this%wiP(this%nc, is)%PC(:, 3) + this%wiP(this%nc, is)%PC(:, 2))*0.5_dp
     enddo
   end function getSecChordwiseLocations
 
@@ -1459,7 +1439,7 @@ contains
   subroutine blade_dirLiftDrag(this)
   class(blade_class), intent(inout) :: this
     integer :: is
-    do is = 1, size(this%wiP, 2)
+    do is = 1, this%ns
       this%secDragDir(:, is) = unitVec(this%wiP(1, is)%velCPm)
       this%secLiftDir(:, is) = cross_product(this%secDragDir(:, is), this%yAxis)
     enddo

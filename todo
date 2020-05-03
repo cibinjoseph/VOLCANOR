@@ -14,5 +14,4 @@ While computing drag from FELS in unsteady case, ensure unsteady 'induced' drag 
   is not counted twice by neglecting it in force computation using gamma 
 Introduce blade%xAxisNoPitch centered about pitching hinge
 Implement alpha sweep mode
-Introduce nc, ns at blade level to prevent recomputing
 Make secDynamicPressure a variable also to prevent recomputing during plotting
