@@ -601,7 +601,7 @@ contains
             & rotor%hubCoords, rotor%blade(ib)%yAxis), &
             & rotor%blade(ib)%secCL(ispan), & 
             & rotor%blade(ib)%secCD(ispan), &
-            rotor%blade(ib)%secArea, rotor%blade(ib)%secChord
+            rotor%blade(ib)%secArea(ispan), rotor%blade(ib)%secChord(ispan)
         enddo
       enddo
       close (12)

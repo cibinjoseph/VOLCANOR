@@ -176,6 +176,17 @@ program main
   if (rotorForcePlotSwitch .ne. 0) then
     call init_plots(nr)    ! Create headers for plot files
     do ir = 1, nr
+      ! Compute sec freestream velocity for secCL
+      do ib = 1, rotor(ir)%nb
+        do is = 1, rotor(ir)%ns
+          rotor(ir)%blade(ib)%secVelFreestream(:, is) = rotor(ir)%velWind &
+            + cross_product(rotor(ir)%omegaWind, &
+            rotor(ir)%blade(ib)%secCP(:, is) - rotor(ir)%cgCoords) &
+            + cross_product(-rotor(ir)%omegaSlow*rotor(ir)%shaftAxis, &
+            rotor(ir)%blade(ib)%secCP(:, is) - rotor(ir)%hubCoords)
+        enddo
+      enddo
+
       select case (rotor(ir)%forceCalcSwitch)
 
       case (0)  ! Compute using wing circulation
@@ -251,17 +262,6 @@ program main
         endif
 
       case (2)  ! Compute lift using alpha approximated from sec circulation
-        ! Compute sec freestream velocity
-        do ib = 1, rotor(ir)%nb
-          do is = 1, rotor(ir)%ns
-            rotor(ir)%blade(ib)%secVelFreestream(:, is) = rotor(ir)%velWind &
-              + cross_product(rotor(ir)%omegaWind, &
-              rotor(ir)%blade(ib)%secCP(:, is) - rotor(ir)%cgCoords) &
-              + cross_product(-rotor(ir)%omegaSlow*rotor(ir)%shaftAxis, &
-              rotor(ir)%blade(ib)%secCP(:, is) - rotor(ir)%hubCoords)
-          enddo
-        enddo
-
         call rotor(ir)%calc_force_alphaGamma(density, velSound, dt)
 
         ! Plot alpha
@@ -445,6 +445,17 @@ program main
     if (rotorForcePlotSwitch .ne. 0) then
       if (mod(iter, rotorForcePlotSwitch) .eq. 0) then
         do ir = 1, nr
+            ! Compute sec freestream velocity for secCL
+            do ib = 1, rotor(ir)%nb
+              do is = 1, rotor(ir)%ns
+                rotor(ir)%blade(ib)%secVelFreestream(:, is) = rotor(ir)%velWind &
+                  + cross_product(rotor(ir)%omegaWind, &
+                  rotor(ir)%blade(ib)%secCP(:, is) - rotor(ir)%cgCoords) &
+                  + cross_product(-rotor(ir)%omegaSlow*rotor(ir)%shaftAxis, &
+                  rotor(ir)%blade(ib)%secCP(:, is) - rotor(ir)%hubCoords)
+              enddo
+            enddo
+
           select case (rotor(ir)%forceCalcSwitch)
 
           case (0)  ! Compute using wing circulation
@@ -520,17 +531,6 @@ program main
             endif
 
           case (2)  ! Compute lift using alpha approximated from sec circulation
-            ! Compute sec freestream velocity
-            do ib = 1, rotor(ir)%nb
-              do is = 1, rotor(ir)%ns
-                rotor(ir)%blade(ib)%secVelFreestream(:, is) = rotor(ir)%velWind &
-                  + cross_product(rotor(ir)%omegaWind, &
-                  rotor(ir)%blade(ib)%secCP(:, is) - rotor(ir)%cgCoords) &
-                  + cross_product(-rotor(ir)%omegaSlow*rotor(ir)%shaftAxis, &
-                  rotor(ir)%blade(ib)%secCP(:, is) - rotor(ir)%hubCoords)
-              enddo
-            enddo
-
             call rotor(ir)%calc_force_alphaGamma(density, velSound, dt)
 
             ! Plot alpha

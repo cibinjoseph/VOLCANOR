@@ -1162,15 +1162,27 @@ contains
       this%secDragUnsteady(:, is) = this%secDragDir(:, is)* &
         sum(this%wiP(:, is)%delDiUnsteady)
     enddo
-    this%secDragProfile = 0._dp  ! To overwrite unit vectors previously assigned in main.f90
+
+    ! To overwrite unit vectors previously assigned in main.f90
+    this%secDragProfile = 0._dp  
 
     this%secDrag = this%secDragInduced + this%secDragProfile
 
     ! Compute sectional coefficients
-    secDynamicPressure = this%getSecDynamicPressure(density)
+    ! Compute secChordwiseResVel for calculating secDynamicPressure
     do is = 1, cols
-      this%secCL(is) = norm2(this%secLift(:, is))/(secDynamicPressure(is)*this%secArea(is))
-      this%secCD(is) = norm2(this%secDrag(:, is))/(secDynamicPressure(is)*this%secArea(is))
+      ! Assuming sec resultant velocity is same as sec freestream vel
+      ! for computing corrected alpha later
+      this%secChordwiseResVel(:, is) = this%secVelFreestream(:, is) - &
+        dot_product(this%secVelFreestream(:, is), this%yAxis)*this%yAxis
+    enddo
+    secDynamicPressure = this%getSecDynamicPressure(density)
+
+    do is = 1, cols
+      this%secCL(is) = norm2(this%secLift(:, is))/ &
+        & (secDynamicPressure(is)*this%secArea(is))
+      this%secCD(is) = norm2(this%secDrag(:, is))/ &
+        & (secDynamicPressure(is)*this%secArea(is))
     enddo
 
     call this%sumSecToNetForces()
