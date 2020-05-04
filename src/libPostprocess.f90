@@ -46,6 +46,13 @@ contains
     write(10, *) 'root_cut', rotor%root_cut
     write(10, *) 'chord', rotor%chord
     write(10, *) 'Omega', rotor%Omega
+    if (rotor%nAirfoils .gt. 0) then
+      write(10, *) 'CL0', rotor%CL0(1)
+      write(10, *) 'CLa', rotor%CLa(1)
+    else
+      write(10, *) 'CL0', 0.0_dp
+      write(10, *) 'CLa', 0.0_dp
+    endif
     close(10)
   end subroutine params2file
 
