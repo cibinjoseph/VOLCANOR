@@ -50,6 +50,7 @@ program main
     if (.not. fileExists) error stop 'ERROR: A rotorXX.in file does not exist'
     call print_status('Reading file '//rotorFile)
     call rotor(ir)%getdata(rotorFile)
+    call params2file(rotor(ir), ir)
     call print_status()    ! SUCCESS
   enddo
 

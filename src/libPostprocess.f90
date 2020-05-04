@@ -38,7 +38,7 @@ contains
     paramsFilename = 'Results/r'//rotorNumberChar//'Params.dat'
     open(unit=10, file=paramsFilename, action='write')
     write(10, *) 'nb', rotor%nb
-    write(10, *) 'geometryFile', rotor%geometryFile
+    write(10, *) 'geometryFile ', rotor%geometryFile
     write(10, *) 'nc', rotor%nc
     write(10, *) 'ns', rotor%ns
     write(10, *) 'nNwake', rotor%nNwake
@@ -588,7 +588,7 @@ contains
 
     write (rotorNumberChar, '(I0.2)') rotorNumber
 
-    forceNonDimFilename = 'Results/r'//rotorNumberChar//'ForceNonDim.txt'
+    forceNonDimFilename = 'Results/r'//rotorNumberChar//'ForceNonDim.dat'
     open (unit=11, file=forceNonDimFilename, action='write', position='append')
     write (11, 100) timestamp, &
       norm2(rotor%lift) / rotor%nonDimforceDenominator, &          ! CL
