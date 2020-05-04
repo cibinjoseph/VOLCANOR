@@ -13,8 +13,8 @@ contains
 
     do rotorNumber = 1, numOfRotors
       write (rotorNumberChar, '(I0.2)') rotorNumber
-      forceDimFilename = 'Results/r'//rotorNumberChar//'ForceDim.txt'
-      forceNonDimFilename = 'Results/r'//rotorNumberChar//'ForceNonDim.txt'
+      forceDimFilename = 'Results/r'//rotorNumberChar//'ForceDim.dat'
+      forceNonDimFilename = 'Results/r'//rotorNumberChar//'ForceNonDim.dat'
 
       ! Add data headers
       open (unit=11, file=forceDimFilename, action='write')
@@ -590,7 +590,7 @@ contains
     101 format(A, 9(E15.7))
 
     if (rotor%bladeforcePlotSwitch .ne. 0) then
-      open (unit=12, file='Results/r'//rotorNumberChar//'forceDist'//timestamp//'.curve', action='write')
+      open (unit=12, file='Results/r'//rotorNumberChar//'ForceDist'//timestamp//'.dat', action='write')
       do ib = 1, rotor%nb
         write (bladeNumberChar, '(I0.2)') ib
         write (12, *) '# Blade'//bladeNumberChar
