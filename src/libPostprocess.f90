@@ -27,6 +27,28 @@ contains
     enddo
   end subroutine init_plots
 
+  subroutine params2file(rotor, rotorNumber)
+    ! Write rotor parameters to file
+    type(rotor_class), intent(in) :: rotor
+    integer, intent(in) :: rotorNumber
+    character(len=2) :: rotorNumberChar
+    character(len=21) :: paramsFilename
+
+    write (rotorNumberChar, '(I0.2)') rotorNumber
+    paramsFilename = 'Results/r'//rotorNumberChar//'Params.dat'
+    open(unit=10, file=paramsFilename, action='write')
+    write(10, *) 'nb', rotor%nb
+    write(10, *) 'geometryFile', rotor%geometryFile
+    write(10, *) 'nc', rotor%nc
+    write(10, *) 'ns', rotor%ns
+    write(10, *) 'nNwake', rotor%nNwake
+    write(10, *) 'radius', rotor%radius
+    write(10, *) 'root_cut', rotor%root_cut
+    write(10, *) 'chord', rotor%chord
+    write(10, *) 'Omega', rotor%Omega
+    close(10)
+  end subroutine params2file
+
   subroutine rotor2file(timestamp, rotor)
     ! Plot rotor geometry and wake to file
     type(rotor_class), intent(in) :: rotor
@@ -580,7 +602,7 @@ contains
     close (11)
     100 format(A, 8(E15.7))
 
-    forceDimFilename = 'Results/r'//rotorNumberChar//'ForceDim.txt'
+    forceDimFilename = 'Results/r'//rotorNumberChar//'ForceDim.dat'
     open (unit=12, file=forceDimFilename, action='write', position='append')
     write (12, 101) timestamp, &
       rotor%lift(1), rotor%lift(2), rotor%lift(3), &     ! Lift
