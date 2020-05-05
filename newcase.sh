@@ -4,12 +4,16 @@
 set -e
 
 # Make a new case directory
-echo "1. Creating directories"
 if [ $# -eq 0 ]; then
   caseName=caseNew
+elif [ $1 == '-h' ]; then
+  echo 'Usage: newcase.sh [caseName]'
+  exit
 else
   caseName=$1
 fi
+
+echo "1. Creating directories"
 mkdir -v $caseName
 mkdir -v "$caseName/Results"
 
