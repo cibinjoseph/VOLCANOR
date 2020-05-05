@@ -1230,14 +1230,12 @@ contains
     real(dp), intent(in) :: density, invertGammaSign, velSound, dt
     real(dp), dimension(3) :: secChordwiseVelFreestream, liftDir
     real(dp), dimension(this%ns) :: secDynamicPressure
-    integer :: is, ns
-
-    ns = this%ns
+    integer :: is
 
     ! Compute unsteady sec lift from gamma distribution
     call this%calc_force_gamma(density, invertGammaSign, dt)
 
-    do is = 1, ns
+    do is = 1, this%ns
       ! Compute sec freestream velocity
       secChordwiseVelFreestream = this%secVelFreestream(:, is) - &
         dot_product(this%secVelFreestream(:, is), this%yAxis)*this%yAxis
@@ -1249,15 +1247,16 @@ contains
 
     secDynamicPressure = this%getSecDynamicPressure(density)
 
-    do is = 1, ns
+    do is = 1, this%ns
       ! Extract sectional lift and CL
       liftDir = cross_product(this%secChordwiseResVel(:, is), this%yAxis)
       ! Assuming gamma method only gives lift
-      this%secCL(is) = dot_product(this%secForceInertial(:, is), unitVec(liftDir)) &
-        /(secDynamicPressure(is)*this%secArea(is))
+      this%secCL(is) = dot_product(this%secForceInertial(:, is), & 
+        unitVec(liftDir)) / (secDynamicPressure(is)*this%secArea(is))
 
       ! Compute angle of attack from linear CL
-      this%secAlpha(is) = (this%secCL(is) - this%CL0(this%airfoilNo(is)))/this%CLa(this%airfoilNo(is))
+      this%secAlpha(is) = (this%secCL(is) - this%CL0(this%airfoilNo(is))) / &
+        & this%CLa(this%airfoilNo(is))
     enddo
 
     ! Compute non-linear CL
