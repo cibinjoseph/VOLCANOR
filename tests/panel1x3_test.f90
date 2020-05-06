@@ -1,4 +1,4 @@
-module panel2_test
+module panel1x3_test
   use naturalfruit
   use rotor_classdef
   implicit none
@@ -211,4 +211,4 @@ contains
   end subroutine test_force_gamma
 
 
-end module panel2_test
+end module panel1x3_test

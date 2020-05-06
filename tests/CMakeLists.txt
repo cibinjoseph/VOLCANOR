@@ -11,19 +11,19 @@ include_directories(${CMAKE_BINARY_DIR})
 add_library(naturalfruit STATIC naturalfruit.f90)
 
 # Libraries
-add_library(panel2_test STATIC panel2_test.f90)
-target_link_libraries(panel2_test classdef naturalfruit )
+add_library(panel1x2_test STATIC panel1x2_test.f90)
+target_link_libraries(panel1x2_test classdef naturalfruit )
 
-add_library(panel3_test STATIC panel3_test.f90)
-target_link_libraries(panel3_test classdef naturalfruit )
+add_library(panel1x3_test STATIC panel1x3_test.f90)
+target_link_libraries(panel1x3_test classdef naturalfruit )
 
 # Executables
-add_executable(panel2_testrunner panel2_testrunner.f90)
-target_link_libraries(panel2_testrunner panel2_test)
+add_executable(panel1x2_testrunner panel1x2_testrunner.f90)
+target_link_libraries(panel1x2_testrunner panel1x2_test)
 
-add_executable(panel3_testrunner panel3_testrunner.f90)
-target_link_libraries(panel3_testrunner panel3_test)
+add_executable(panel1x3_testrunner panel1x3_testrunner.f90)
+target_link_libraries(panel1x3_testrunner panel1x3_test)
 
 # Testing
-add_test(NAME panel2 COMMAND panel2_testrunner)
-add_test(NAME panel3 COMMAND panel3_testrunner)
+add_test(NAME panel1x2 COMMAND panel1x2_testrunner)
+add_test(NAME panel1x3 COMMAND panel1x3_testrunner)
