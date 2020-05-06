@@ -1132,12 +1132,11 @@ contains
         this%wiP(ic, is)%delDiUnsteady = density*unsteadyTerm*this%wiP(ic, is)%panelArea * &
           dot_product(this%wiP(ic, is)%nCap, unitVec(this%wiP(ic, is)%velCPm))
 
-        ! Invert direction of forceInertial according to sign of omega and collective pitch
+        ! Invert direction of normalForce according to sign of omega and collective pitch
         this%wiP(ic, is)%normalForce = this%wiP(ic, is)%delP* &
-          this%wiP(ic, is)%panelArea*this%wiP(ic, is)%nCap*(-1._dp)*invertGammaSign
+          this%wiP(ic, is)%panelArea*this%wiP(ic, is)%nCap*invertGammaSign
 
         this%secForceInertial(:, is) = this%secForceInertial(:, is) + this%wiP(ic, is)%normalForce
-        this%forceInertial = this%forceInertial + this%wiP(ic, is)%normalForce
 
         this%secLift(:, is) = this%secLift(:, is) + projVec(this%wiP(ic, is)%normalForce, &
           this%secLiftDir(:, is))
