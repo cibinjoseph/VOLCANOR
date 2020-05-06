@@ -6,6 +6,7 @@ program panel2_testrunner
 
   call setup()
   call test_aic()
+  call test_force_gamma()
 
   call testsuite_summary()
   call testsuite_finalize(exit_code)
