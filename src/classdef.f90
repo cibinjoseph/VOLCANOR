@@ -1055,6 +1055,7 @@ contains
     real(dp), dimension(this%nc, this%ns) :: velInduced
     real(dp), dimension(this%nc, this%ns) :: gamElementChord, gamElementSpan
     real(dp), dimension(this%ns) :: secDynamicPressure
+    real(dp) :: signSecCL
 
     this%forceInertial = 0._dp
     this%secForceInertial = 0._dp
@@ -1128,7 +1129,7 @@ contains
         ! Compute induced drag
         ! velInduced in either direction doesnt change drag direction
         this%wiP(ic, is)%delDiConstant = density*abs(velInduced(ic, is))* &
-          gamElementChord(ic, is)*this%wiP(ic, is)%meanSpan
+          abs(gamElementChord(ic, is))*this%wiP(ic, is)%meanSpan
         this%wiP(ic, is)%delDiUnsteady = density*unsteadyTerm*this%wiP(ic, is)%panelArea * &
           dot_product(this%wiP(ic, is)%nCap, unitVec(this%wiP(ic, is)%velCPm))
 
@@ -1165,7 +1166,9 @@ contains
     secDynamicPressure = this%getSecDynamicPressure(density)
 
     do is = 1, this%ns
-      this%secCL(is) = norm2(this%secLift(:, is))/ &
+      ! Use sign of delP to obtain sign of CL
+      signSecCL = sign(1._dp, sum(this%wiP(:, is)%delP))
+      this%secCL(is) = norm2(this%secLift(:, is))*signSecCL/ &
         & (secDynamicPressure(is)*this%secArea(is))
       this%secCD(is) = norm2(this%secDrag(:, is))/ &
         & (secDynamicPressure(is)*this%secArea(is))
