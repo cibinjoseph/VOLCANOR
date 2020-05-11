@@ -104,9 +104,9 @@ CUSTOM WIND FRAME FOR FORCE OUTPUT
  forceCalcSwitch                       
 [0]gamma [1]alpha [2]FELS              No. of airfoil files 
 -------------------------------------------------------------------
-         2                                     1
+         0                                     1
 
 section limit    CL0     CLa(per rad)   Airfoil file names
     (r/R)         [for FELS]
 -------------------------------------------------------------------
-     1.0         0.0      6.2832        NACA63A012_test.C81
+     1.0         0.0      6.2832        NACA63A012.C81
