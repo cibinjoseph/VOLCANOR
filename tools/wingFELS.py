@@ -37,8 +37,10 @@ for CL_Lin in secCL:
     CL_nonLin = c81Airfoil.getCL(alpha, 0.1)
     secCL_nonLin.append(CL_nonLin)
 
+wingCL_Lin    = np.dot(np.array(secCL), secArea) / refArea
 wingCL_nonLin = np.dot(np.array(secCL_nonLin), secArea) / refArea
 
-print(('Net CL =', wingCL_nonLin))
+print(('    Lin CL =', wingCL_Lin))
+print(('Non-lin CL =', wingCL_nonLin))
 for indx, secCL in enumerate(secCL_nonLin):
     print((secAlpha[indx], secCL))
