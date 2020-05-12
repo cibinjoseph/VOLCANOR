@@ -6,7 +6,7 @@ No.of blades,nb     Read wing from file
 
 Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 -------------------------------------------------------------------
-      10                       34                   160
+      10                       34                   350
 ===================================================================
 
 X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
@@ -104,7 +104,7 @@ CUSTOM WIND FRAME FOR FORCE OUTPUT
  forceCalcSwitch                       
 [0]gamma [1]alpha [2]FELS              No. of airfoil files 
 -------------------------------------------------------------------
-         0                                     1
+         2                                     1
 
 section limit    CL0     CLa(per rad)   Airfoil file names
     (r/R)         [for FELS]
