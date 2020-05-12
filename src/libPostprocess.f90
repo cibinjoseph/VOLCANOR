@@ -46,7 +46,7 @@ contains
     write(10, *) 'root_cut', rotor%root_cut
     write(10, *) 'chord', rotor%chord
     write(10, *) 'Omega', rotor%Omega
-    write(10, *) 'theta0', rotor%controlPitch
+    write(10, *) 'theta0', rotor%controlPitch(1)
     if (rotor%nAirfoils .gt. 0) then
       write(10, *) 'CL0', rotor%CL0(1)
       write(10, *) 'CLa', rotor%CLa(1)
