@@ -42,5 +42,5 @@ wingCL_nonLin = np.dot(np.array(secCL_nonLin), secArea) / refArea
 
 print(('    Lin CL =', wingCL_Lin))
 print(('Non-lin CL =', wingCL_nonLin))
-for indx, secCL in enumerate(secCL_nonLin):
-    print((secAlpha[indx], secCL))
+# for indx, secCL in enumerate(secCL_nonLin):
+#     print((secAlpha[indx], secCL))
