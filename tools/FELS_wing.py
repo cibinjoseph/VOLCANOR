@@ -14,6 +14,7 @@ else:
     c81File = None
     paramsFile = None
     forceFile = None
+    printSectional = False
     for arg in args[1:]:
         if '.C81' in arg:
             c81File = arg
@@ -21,6 +22,8 @@ else:
             paramsFile = arg
         if 'ForceDist' in arg:
             forceFile = arg
+        if '-s' in arg:
+            printSectional = True
 
 if c81File == None:
     print('Usage: wingFELS.py a.C81 [r01ForceDistxx.dat] [r01Params.dat]')
@@ -67,5 +70,7 @@ print('    Lin CD = ' + str(wingCD_Lin))
 print()
 print('Non-lin CL = ' + str(wingCL_nonLin))
 print('Non-lin CD = ' + str(wingCD_nonLin))
-# for indx, secCL in enumerate(secCL_nonLin):
-#     print((secAlpha[indx], secCL))
+print()
+if printSectional:
+    for indx, alpha in enumerate(secAlpha):
+        print((alpha, secCL_nonLin[indx], secCD_nonLin[indx]))
