@@ -1,7 +1,11 @@
 """ Extract parameters from parameter file """
 import numpy as np
+from glob import glob
 
-def getParams(paramsFile):
+def getParams(paramsFile='Results/r01Params.dat'):
+    if paramsFile == None:
+        paramsFile = 'Results/r01Params.dat'
+
     with open(paramsFile, 'r') as fh:
         lines = fh.readlines()
 
@@ -10,9 +14,18 @@ def getParams(paramsFile):
         cols = line.split()
         params[cols[0]] = cols[1]
 
-    return params
+    return paramsFile, params
 
-def getForceDist(forceDistFile):
+def getForceDist(forceDistFile=None):
+    if forceDistFile == None:
+        # Parse Results/ and get latest ForceDist file
+        fileNumPrev = 0
+        for file in glob('Results/r01ForceDist*'):
+            fileNum = int(file[20:25])
+            if fileNum > fileNumPrev:
+                forceDistFile = file
+                fileNumPrev = fileNum
+
     with open(forceDistFile, 'r') as fh:
         lines = fh.readlines()
 
@@ -35,4 +48,4 @@ def getForceDist(forceDistFile):
     secArea = np.array(secArea)
     secChord = np.array(secChord)
 
-    return secSpan, secCL, secCD, secArea, secChord
+    return forceDistFile, secSpan, secCL, secCD, secArea, secChord

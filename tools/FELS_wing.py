@@ -8,19 +8,26 @@ import numpy as np
 # Get filenames as arguments
 args = sys.argv
 if len(args) == 1:
-    print('Usage: wingFELS.py a.C81 r01ForceDistxx.dat r01Params.dat')
+    print('Usage: wingFELS.py a.C81 [r01ForceDistxx.dat] [r01Params.dat]')
+    quit()
+else:
+    c81File = None
+    paramsFile = None
+    forceFile = None
+    for arg in args[1:]:
+        if '.C81' in arg:
+            c81File = arg
+        if 'Params' in arg:
+            paramsFile = arg
+        if 'ForceDist' in arg:
+            forceFile = arg
+
+if c81File == None:
+    print('Usage: wingFELS.py a.C81 [r01ForceDistxx.dat] [r01Params.dat]')
     quit()
 
-for arg in args[1:]:
-    if '.C81' in arg:
-        c81File = arg
-    if 'ForceDist' in arg:
-        forceFile = arg
-    if 'Params' in arg:
-        paramsFile = arg
-
-params = getParams(paramsFile)
-secSpan, secCL, secCD, secArea, secChord = getForceDist(forceFile)
+paramsFile, params = getParams(paramsFile)
+forceDistFile, secSpan, secCL, secCD, secArea, secChord = getForceDist(forceFile)
 
 CL0 = float(params['CL0'])
 CLa = float(params['CLa'])
@@ -50,6 +57,10 @@ wingCD_Lin    = np.dot(np.array(secCD), secArea) / refArea
 wingCL_nonLin = np.dot(np.array(secCL_nonLin), secArea) / refArea
 wingCD_nonLin = np.dot(np.array(secCD_nonLin), secArea) / refArea
 
+print('      c81File = ' + c81File)
+print('   ParamsFile = ' + paramsFile)
+print('ForceDistFile = ' + forceDistFile)
+print()
 print('    theta0 = ' + str(params['theta0']))
 print('    Lin CL = ' + str(wingCL_Lin))
 print('    Lin CD = ' + str(wingCD_Lin))
