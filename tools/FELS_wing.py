@@ -31,16 +31,30 @@ with open(c81File, 'r') as fh:
 
 secAlpha = []
 secCL_nonLin = []
+secCD_nonLin = []
 for CL_Lin in secCL:
     alpha = (180.0/np.pi)*(CL_Lin - CL0)/CLa
-    secAlpha.append(alpha)
     CL_nonLin = c81Airfoil.getCL(alpha, 0.1)
+    CD_nonLin = c81Airfoil.getCD(alpha, 0.1)
+    # Record for printing
+    secAlpha.append(alpha)
     secCL_nonLin.append(CL_nonLin)
+    secCD_nonLin.append(CD_nonLin)
+
+# Add induced drag
+secCD_nonLin += secCD
 
 wingCL_Lin    = np.dot(np.array(secCL), secArea) / refArea
-wingCL_nonLin = np.dot(np.array(secCL_nonLin), secArea) / refArea
+wingCD_Lin    = np.dot(np.array(secCD), secArea) / refArea
 
-print(('    Lin CL =', wingCL_Lin))
-print(('Non-lin CL =', wingCL_nonLin))
+wingCL_nonLin = np.dot(np.array(secCL_nonLin), secArea) / refArea
+wingCD_nonLin = np.dot(np.array(secCD_nonLin), secArea) / refArea
+
+print('    theta0 = ' + str(params['theta0']))
+print('    Lin CL = ' + str(wingCL_Lin))
+print('    Lin CD = ' + str(wingCD_Lin))
+print()
+print('Non-lin CL = ' + str(wingCL_nonLin))
+print('Non-lin CD = ' + str(wingCD_nonLin))
 # for indx, secCL in enumerate(secCL_nonLin):
 #     print((secAlpha[indx], secCL))
