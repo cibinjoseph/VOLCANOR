@@ -45,10 +45,10 @@ u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]
  -10.0       0.0        0.0        0.0        0.0         0.0
 ===================================================================
 
-pivot point      flapHinge         invert tauSpan
-from LE[x/c]  from centre[r/R]  for swept/symmetric
+pivot point     flapHinge      SpanwiseLiftTerm    invert tauSpan
+from LE[x/c]  from centre[r/R]    [1]enable     for swept/symmetric
 -------------------------------------------------------------------
-0.00                0.0                  1
+0.00                0.0               0                 1
 ===================================================================
 
 turbulentViscosity           

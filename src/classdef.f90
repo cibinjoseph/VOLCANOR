@@ -581,6 +581,7 @@ module blade_classdef
     real(dp), allocatable, dimension(:, :) :: secNormalVec, secVelFreestream
     real(dp), allocatable, dimension(:, :) :: secChordwiseResVel, secCP
     real(dp), allocatable, dimension(:) :: secAlpha, secCL, secCD, secCM, CL0, CLa
+    integer :: spanwiseLiftSwitch
 
   contains
     procedure :: move => blade_move
@@ -1121,8 +1122,12 @@ contains
         unsteadyTerm = (this%wiP(ic, is)%gamTrapz - this%wiP(ic, is)%gamPrev)/dt
         this%wiP(ic, is)%delP = density * &
           (velTangentialChord(ic, is) * gamElementChord(ic, is) / this%wiP(ic, is)%meanChord + &
-          velTangentialSpan(ic, is) * gamElementSpan(ic, is) / this%wiP(ic, is)%meanSpan + &
           unsteadyTerm)
+        if (this%spanwiseLiftSwitch .ne. 0) then
+          this%wiP(ic, is)%delP = this%wiP(ic, is)%delP + density * &
+            & velTangentialSpan(ic, is) * gamElementSpan(ic, is) / this%wiP(ic, is)%meanSpan
+        endif
+
         ! -1.0 multiplied to invert sign of gamma
         this%wiP(ic, is)%gamPrev = this%wiP(ic, is)%gamTrapz
 
@@ -1499,6 +1504,7 @@ module rotor_classdef
     integer :: suppressFwakeSwitch
     integer :: forceCalcSwitch
     integer :: inflowPlotSwitch, bladeforcePlotSwitch
+    integer :: spanwiseLiftSwitch
     integer :: gammaPlotSwitch, alphaPlotSwitch
     integer :: rowNear, rowFar
     integer :: nAirfoils
@@ -1578,7 +1584,7 @@ contains
     read (12, *) this%velBody(1), this%velBody(2), this%velBody(3) &
       , this%omegaBody(1), this%omegaBody(2), this%omegaBody(3)
     call skiplines(12, 5)
-    read (12, *) this%pivotLE, this%flapHinge, this%symmetricTau
+    read (12, *) this%pivotLE, this%flapHinge, this%spanwiseLiftSwitch, this%symmetricTau
     call skiplines(12, 5)
     read (12, *) this%turbulentViscosity
     call skiplines(12, 4)
@@ -1857,6 +1863,9 @@ contains
       ! Compute sectional areas and chords
       call this%blade(ib)%calc_secArea()
       call this%blade(ib)%calc_secChord()
+
+      ! Assign spanwise lift term switch to blades
+      this%blade(ib)%spanwiseLiftSwitch = this%spanwiseLiftSwitch
 
       ! Invert half of tau vectors for symmetric or swept wings
       if (this%symmetricTau .eq. 1) then
