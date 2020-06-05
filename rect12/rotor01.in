@@ -37,7 +37,7 @@ Omega[rad/s]   X-shaftAxis     Y-shaftAxis     Z-shaftAxis
 
 theta0[deg]    thetaC[deg]    thetaS[deg]    thetaTwist[deg]
 -------------------------------------------------------------------
-  5.0             0.0              0.0           0.0
+  12.0             0.0              0.0           0.0
 ===================================================================
 
 u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]    
@@ -92,7 +92,7 @@ CUSTOM WIND FRAME FOR FORCE OUTPUT
     [0]Off                    [0]Off                
     [n]Every nth iteration    [n]Every nth iteration
 -------------------------------------------------------------------
-       0                              0
+       0                          350
 
   gammaPlotSwitch                 alphaPlotSwitch  
     [0]Off                         [0]Off                      
@@ -109,4 +109,4 @@ CUSTOM WIND FRAME FOR FORCE OUTPUT
 section limit    CL0     CLa(per rad)   Airfoil file names
     (r/R)         [for FELS]
 -------------------------------------------------------------------
-     1.0         0.0      5.41559        NACA63A012.C81
+     1.0      0.43186   5.8898        NACA63A012.C81
