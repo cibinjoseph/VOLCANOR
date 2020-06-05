@@ -14,6 +14,7 @@ else:
     c81File = None
     paramsFile = None
     forceFile = None
+    CLlineFile = None
     printSectional = False
     for arg in args[1:]:
         if '.C81' in arg:
@@ -22,6 +23,8 @@ else:
             paramsFile = arg
         if 'ForceDist' in arg:
             forceFile = arg
+        if 'line' in arg:
+            CLlineFile = arg
         if '-s' in arg:
             printSectional = True
 
@@ -32,8 +35,14 @@ if c81File == None:
 paramsFile, params = getParams(paramsFile)
 forceDistFile, secSpan, secCL, secCD, secArea, secChord = getForceDist(forceFile)
 
-CL0 = float(params['CL0'])
-CLa = float(params['CLa'])
+if (CLlineFile == None):
+    CL0 = float(params['CL0'])
+    CLa = float(params['CLa'])
+else:
+    with open(CLlineFile, 'r') as fh:
+        CL0 = float(fh.readline())
+        CLa = float(fh.readline())
+
 refArea = float(params['radius'])*float(params['chord'])
 
 with open(c81File, 'r') as fh:
@@ -63,6 +72,8 @@ wingCD_nonLin = np.dot(np.array(secCD_nonLin), secArea) / refArea
 print('      c81File = ' + c81File)
 print('   ParamsFile = ' + paramsFile)
 print('ForceDistFile = ' + forceDistFile)
+if (CLlineFile is not None):
+    print('   CLlineFile = ' + CLlineFile)
 print()
 print('    theta0 = ' + str(params['theta0']))
 print('    Lin CL = ' + str(wingCL_Lin))
