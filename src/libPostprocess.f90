@@ -590,7 +590,7 @@ contains
     character(len=*), intent(in) :: timestamp
     integer, intent(in) :: rotorNumber
     character(len=2) :: rotorNumberChar, bladeNumberChar
-    integer :: ib, ispan
+    integer :: ib, ispan, iter
     character(len=24) :: forceDimFilename
     character(len=27) :: forceNonDimFilename
 
@@ -620,22 +620,25 @@ contains
     101 format(A, 9(E15.7))
 
     if (rotor%bladeforcePlotSwitch .ne. 0) then
-      open (unit=12, file='Results/r'//rotorNumberChar//'ForceDist'//timestamp//'.dat', action='write')
-      do ib = 1, rotor%nb
-        write (bladeNumberChar, '(I0.2)') ib
-        write (12, *) '# Blade'//bladeNumberChar
-        write (12, *) 'Section  secSpan  secCL  secCD  secArea  secChord'
-        do ispan = 1, rotor%ns
-          write (12, 102) ispan, &
-            & dot_product(rotor%blade(ib)%wiP(1, ispan)%CP - &
-            & rotor%hubCoords, rotor%blade(ib)%yAxis), &
-            & rotor%blade(ib)%secCL(ispan), & 
-            & rotor%blade(ib)%secCD(ispan), &
-            rotor%blade(ib)%secArea(ispan), rotor%blade(ib)%secChord(ispan)
+      read(timestamp, *) iter
+      if (mod(iter, rotor%bladeforcePlotSwitch) .eq. 0) then
+        open (unit=12, file='Results/r'//rotorNumberChar//'ForceDist'//timestamp//'.dat', action='write')
+        do ib = 1, rotor%nb
+          write (bladeNumberChar, '(I0.2)') ib
+          write (12, *) '# Blade'//bladeNumberChar
+          write (12, *) 'Section  secSpan  secCL  secCD  secArea  secChord'
+          do ispan = 1, rotor%ns
+            write (12, 102) ispan, &
+              & dot_product(rotor%blade(ib)%wiP(1, ispan)%CP - &
+              & rotor%hubCoords, rotor%blade(ib)%yAxis), &
+              & rotor%blade(ib)%secCL(ispan), & 
+              & rotor%blade(ib)%secCD(ispan), &
+              rotor%blade(ib)%secArea(ispan), rotor%blade(ib)%secChord(ispan)
+          enddo
         enddo
-      enddo
-      close (12)
-      102 format(I0.5, 5(E15.7))
+        close (12)
+        102 format(I0.5, 5(E15.7))
+      endif
     endif
   end subroutine force2file
 
