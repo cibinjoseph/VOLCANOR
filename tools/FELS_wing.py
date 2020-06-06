@@ -8,7 +8,7 @@ import numpy as np
 # Get filenames as arguments
 args = sys.argv
 if len(args) == 1:
-    print('Usage: wingFELS.py a.C81 [r01ForceDistxx.dat] [r01Params.dat]')
+    print('Usage: wingFELS.py a.C81 [CLline.dat] [r01ForceDistxx.dat] [r01Params.dat]')
     quit()
 else:
     c81File = None
@@ -29,7 +29,7 @@ else:
             printSectional = True
 
 if c81File == None:
-    print('Usage: wingFELS.py a.C81 [r01ForceDistxx.dat] [r01Params.dat]')
+    print('Usage: wingFELS.py a.C81 [CLline.dat] [r01ForceDistxx.dat] [r01Params.dat]')
     quit()
 
 paramsFile, params = getParams(paramsFile)
