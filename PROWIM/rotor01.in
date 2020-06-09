@@ -6,7 +6,7 @@ No.of blades,nb     Read wing from file
 
 Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 -------------------------------------------------------------------
-      24                       24                  450
+      24                       24                  360
 ===================================================================
 
 X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
@@ -92,7 +92,7 @@ CUSTOM WIND FRAME FOR FORCE OUTPUT
     [0]Off                    [0]Off                
     [n]Every nth iteration    [n]Every nth iteration
 -------------------------------------------------------------------
-       0                              1
+       0                              360
 
   gammaPlotSwitch                 alphaPlotSwitch  
     [0]Off                         [0]Off                      
