@@ -27,10 +27,11 @@ contains
     enddo
   end subroutine init_plots
 
-  subroutine params2file(rotor, rotorNumber)
+  subroutine params2file(rotor, rotorNumber, nt, dt, nr)
     ! Write rotor parameters to file
     type(rotor_class), intent(in) :: rotor
-    integer, intent(in) :: rotorNumber
+    integer, intent(in) :: rotorNumber, nt, nr
+    real(dp), intent(in) :: dt
     character(len=2) :: rotorNumberChar
     character(len=21) :: paramsFilename
 

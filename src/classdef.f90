@@ -1742,6 +1742,17 @@ contains
       call this%plot3dtoblade(trim(this%geometryFile))
     endif
 
+    ! Set dt automatically if not prescribed
+    if (dt <= eps) then
+      if (this%Omega < eps) then  ! Fixed wing
+        dxAvg = sum(dx)/(this%nc*this%ns)
+        dt = dxAvg/(4._dp*norm2(this%velBody))
+      else  ! Rotor
+        ! Time for 5 deg
+        dt = 5._dp*pi/(180._dp*this%Omega)
+      endif
+    endif
+
     ! Copy ns and nc to blade variables to avoid recomputing
     do ib = 1, this%nb
       this%blade(ib)%nc = this%nc
@@ -1912,17 +1923,6 @@ contains
       dx = abs(dx)
       dy = abs(dy)
       dxdymin = min(minval(dx), minval(dy))
-
-      ! Set dt automatically if not prescribed
-      if (dt <= eps) then
-        if (this%Omega < eps) then  ! Fixed wing
-          dxAvg = sum(dx)/(this%nc*this%ns)
-          dt = dxAvg/(4._dp*norm2(this%velBody))
-        else  ! Rotor
-          ! Time for 5 deg
-          dt = 5._dp*pi/(180._dp*this%Omega)
-        endif
-      endif
 
       ! Initialize all core radius of wing vortices to zero
       do i = 1, 4
