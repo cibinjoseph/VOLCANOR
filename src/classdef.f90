@@ -1742,17 +1742,6 @@ contains
       call this%plot3dtoblade(trim(this%geometryFile))
     endif
 
-    ! Set dt automatically if not prescribed
-    if (dt <= eps) then
-      if (this%Omega < eps) then  ! Fixed wing
-        dxAvg = sum(dx)/(this%nc*this%ns)
-        dt = dxAvg/(4._dp*norm2(this%velBody))
-      else  ! Rotor
-        ! Time for 5 deg
-        dt = 5._dp*pi/(180._dp*this%Omega)
-      endif
-    endif
-
     ! Copy ns and nc to blade variables to avoid recomputing
     do ib = 1, this%nb
       this%blade(ib)%nc = this%nc
@@ -1847,6 +1836,28 @@ contains
       this%velWind = -1._dp*this%velBody
       this%omegaWind = -1._dp*this%omegaBody
 
+      ! Find dx and dy vectors
+      do is = 1, this%ns
+        do ic = 1, this%nc
+          dx(ic, is) = norm2(this%blade(ib)%wiP(ic, is)%PC(:, 2) - this%blade(ib)%wiP(ic, is)%PC(:, 1))
+          dy(ic, is) = norm2(this%blade(ib)%wiP(ic, is)%PC(:, 3) - this%blade(ib)%wiP(ic, is)%PC(:, 2))
+        enddo
+      enddo
+      dx = abs(dx)
+      dy = abs(dy)
+      dxdymin = min(minval(dx), minval(dy))
+
+      ! Set dt automatically if not prescribed
+      if (dt <= eps) then
+        if (this%Omega < eps) then  ! Fixed wing
+          dxAvg = sum(dx)/(this%nc*this%ns)
+          dt = dxAvg/(4._dp*norm2(this%velBody))
+        else  ! Rotor
+          ! Time for 5 deg
+          dt = 5._dp*pi/(180._dp*this%Omega)
+        endif
+      endif
+
       ! Shed last row of vortices
       if (abs(norm2(this%velWind)) < eps) then
         velShed = min(0.05*this%Omega*norm2(this%blade(ib)% &
@@ -1912,17 +1923,6 @@ contains
       enddo
 
       this%blade(ib)%waF%vf%age = 0._dp
-
-      ! Find dx and dy vectors
-      do is = 1, this%ns
-        do ic = 1, this%nc
-          dx(ic, is) = norm2(this%blade(ib)%wiP(ic, is)%PC(:, 2) - this%blade(ib)%wiP(ic, is)%PC(:, 1))
-          dy(ic, is) = norm2(this%blade(ib)%wiP(ic, is)%PC(:, 3) - this%blade(ib)%wiP(ic, is)%PC(:, 2))
-        enddo
-      enddo
-      dx = abs(dx)
-      dy = abs(dy)
-      dxdymin = min(minval(dx), minval(dy))
 
       ! Initialize all core radius of wing vortices to zero
       do i = 1, 4
