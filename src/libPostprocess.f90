@@ -37,6 +37,9 @@ contains
     write (rotorNumberChar, '(I0.2)') rotorNumber
     paramsFilename = 'Results/r'//rotorNumberChar//'Params.dat'
     open(unit=10, file=paramsFilename, action='write')
+    write(10, *) 'nt', nt
+    write(10, *) 'dt', dt
+    write(10, *) 'nr', nr
     write(10, *) 'nb', rotor%nb
     write(10, *) 'geometryFile ', rotor%geometryFile
     write(10, *) 'nc', rotor%nc
