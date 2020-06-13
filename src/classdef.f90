@@ -1638,14 +1638,15 @@ contains
   subroutine rotor_init(this, density, dt, nt, spanSpacingSwitch, fdSchemeSwitch)
     ! Initialize variables of rotor geometry and wake
   class(rotor_class) :: this
-    real(dp), intent(in) :: density, dt
+    real(dp), intent(in) :: density
+    real(dp) , intent(inout) :: dt
     integer, intent(in) :: nt, spanSpacingSwitch, fdSchemeSwitch
 
     real(dp), dimension(this%nc + 1) :: xVec
     real(dp), dimension(this%ns + 1) :: yVec
     real(dp), dimension(this%nc, this%ns) :: dx, dy
     real(dp), dimension(3) :: leftTipCP
-    real(dp) :: dxdymin, secCPLoc, rbyR
+    real(dp) :: dxdymin, secCPLoc, rbyR, dxAvg
     integer :: i, j, ib, is, ic
     real(dp) :: bladeOffset
     real(dp) :: velShed
@@ -1911,6 +1912,17 @@ contains
       dx = abs(dx)
       dy = abs(dy)
       dxdymin = min(minval(dx), minval(dy))
+
+      ! Set dt automatically if not prescribed
+      if (dt <= eps) then
+        if (this%Omega < eps) then  ! Fixed wing
+          dxAvg = sum(dx)/(this%nc*this%ns)
+          dt = dxAvg/(4._dp*norm2(this%velBody))
+        else  ! Rotor
+          ! Time for 5 deg
+          dt = 5._dp*pi/(180._dp*this%Omega)
+        endif
+      endif
 
       ! Initialize all core radius of wing vortices to zero
       do i = 1, 4
