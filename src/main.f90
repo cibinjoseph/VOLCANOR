@@ -56,7 +56,6 @@ program main
   ! Rotor and wake initialization
   do ir = 1, nr
     call rotor(ir)%init(density, dt, nt, spanSpacingSwitch, fdSchemeSwitch)
-    print*, dt
     call params2file(rotor(ir), ir, nt, dt, nr)
   enddo
 
