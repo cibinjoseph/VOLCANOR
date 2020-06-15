@@ -35,6 +35,8 @@ program main
   read (11, *) wakeIgnoreNt
   call skiplines(11, 4)
   read (11, *) initWakeVelNt
+  call skiplines(11, 4)
+  read (11, *) probeSwitch
   close (11)
   call print_status()    ! SUCCESS
 
@@ -80,6 +82,18 @@ program main
       read *
     endif
   enddo
+
+  ! Initialize vel probes
+  if (probeSwitch .eq. 1) then
+    open(unit=10, file='probes.in', action='read')
+    read(10, *) nProbes
+    allocate(probe(3, nProbes))
+    allocate(probeVel(3, nProbes))
+    do i = 1, nProbes
+      read(10, *) probe(:, i), probeVel(:, i)
+    enddo
+    close(10)
+  endif
 
   ! Obtain initial solution without wake
   call print_status('Computing initial solution')
@@ -571,6 +585,13 @@ program main
     if (gridPlotSwitch .ne. 0) then
       if (mod(iter, gridPlotSwitch) .eq. 0) then
         call filaments2file(timestamp, rotor)
+      endif
+    endif
+
+    ! Compute probe velocities
+    if (probeSwitch .ne. 0) then
+      if (mod(iter, probeSwitch) .eq. 0) then
+        call probes2file(timestamp, probe, probeVel, rotor, t)
       endif
     endif
 

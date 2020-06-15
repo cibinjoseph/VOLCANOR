@@ -126,14 +126,14 @@ contains
     !$omp parallel do
     do i = 2, size(v_wake_n, 2) - 1
       vel_order2_Fwake(:, i) = (v_wake_np1(:, i) &
-                                + v_wake_np1(:, i - 1) &
-                                + v_wake_n(:, i + 1) &
-                                + v_wake_n(:, i))*0.25_dp
+        + v_wake_np1(:, i - 1) &
+        + v_wake_n(:, i + 1) &
+        + v_wake_n(:, i))*0.25_dp
     enddo
     !$omp end parallel do
     vel_order2_Fwake(:, size(v_wake_n, 2)) = &
       (v_wake_np1(:, size(v_wake_n, 2)) &
-       + v_wake_n(:, size(v_wake_n, 2)))*0.5_dp
+      + v_wake_n(:, size(v_wake_n, 2)))*0.5_dp
   end function vel_order2_Fwake
 
   ! Prints status message (or SUCCESS if left blank)

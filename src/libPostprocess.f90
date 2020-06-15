@@ -180,6 +180,31 @@ contains
     close (10)
   end subroutine rotor2file
 
+  subroutine probes2file(timestamp, probe, probeVel, rotor, t)
+    ! Write velocities at probe locations
+    type(rotor_class), intent(in), dimension(:) :: rotor
+    character(len=*), intent(in) :: timestamp
+    real(dp), intent(in) :: t
+    real(dp), intent(in) , dimension(:, :) :: probe, probeVel
+
+    integer :: ir, i
+    real(dp), dimension(3) :: probeLocation, vel
+
+    open(unit=10, file='Results/probes'//timestamp//'.dat', action='write')
+    do i = 1, size(probe, 2)
+      probeLocation = probe(:, i) + probeVel(:, i) * t
+      vel = probeVel(:, i)
+      do ir = 1, size(rotor)
+        vel = vel &
+          & + rotor(ir)%vind_bywing(probeLocation) &
+          & + rotor(ir)%vind_bywake(probeLocation)
+      enddo
+      write(10, *) vel, probeLocation
+    enddo
+    close(10)
+
+  end subroutine probes2file
+
   subroutine filaments2file(timestamp, rotor)
     ! Write filaments to file for using with grid-based plots
     type(rotor_class), intent(in), dimension(:) :: rotor
@@ -288,7 +313,6 @@ contains
     deallocate (gamNwakeTE)
     deallocate (vfFwake)
     deallocate (gamFwake)
-
   end subroutine filaments2file
 
   subroutine mesh2file(wing_array, wake_array, filename)
