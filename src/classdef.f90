@@ -768,7 +768,7 @@ contains
 
   function blade_vind_bywing(this, P)
     ! Compute induced velocity by blade bound vorticity
-  class(blade_class), intent(inout) :: this
+  class(blade_class), intent(in) :: this
     real(dp), intent(in), dimension(3) :: P
     real(dp), dimension(3) :: blade_vind_bywing
     integer :: i, j
@@ -785,7 +785,7 @@ contains
 
   function blade_vind_bywing_boundVortices(this, P)
     ! Compute induced velocity by bound vortices alone
-  class(blade_class), intent(inout) :: this
+  class(blade_class), intent(in) :: this
     real(dp), intent(in), dimension(3) :: P
     real(dp), dimension(3) :: blade_vind_bywing_boundVortices
     integer :: i, j
@@ -806,7 +806,7 @@ contains
 
   function blade_vind_bywing_chordwiseVortices(this, P)
     ! Compute induced velocity by bound vortices alone
-  class(blade_class), intent(inout) :: this
+  class(blade_class), intent(in) :: this
     real(dp), intent(in), dimension(3) :: P
     real(dp), dimension(3) :: blade_vind_bywing_chordwiseVortices
     integer :: i, j
@@ -844,7 +844,7 @@ contains
 
   function blade_vind_bywake(this, rowNear, rowFar, P, optionalChar)
     ! Compute induced velocity by wake vortex rings
-  class(blade_class), intent(inout) :: this
+  class(blade_class), intent(in) :: this
     integer, intent(in) :: rowNear, rowFar
     real(dp), intent(in), dimension(3) :: P
     character(len=1), optional :: optionalChar
@@ -2565,7 +2565,7 @@ contains
 
   function rotor_vind_bywing(this, P)
     ! Compute induced velocity by all wing vortices at P
-  class(rotor_class), intent(inout) :: this
+  class(rotor_class), intent(in) :: this
     real(dp), intent(in), dimension(3) :: P
     real(dp), dimension(3) :: rotor_vind_bywing
     integer :: ib
@@ -2591,7 +2591,7 @@ contains
 
   function rotor_vind_bywake(this, P, optionalChar)
     ! Compute induced velocity by wake vortices at P
-  class(rotor_class), intent(inout) :: this
+  class(rotor_class), intent(in) :: this
     real(dp), intent(in), dimension(3) :: P
     character(len=1), optional :: optionalChar
     real(dp), dimension(3) :: rotor_vind_bywake
