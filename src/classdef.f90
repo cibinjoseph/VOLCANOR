@@ -1587,7 +1587,7 @@ contains
     read (12, *) this%pivotLE, this%flapHinge, this%spanwiseLiftSwitch, this%symmetricTau
     call skiplines(12, 5)
     read (12, *) this%turbulentViscosity
-    call skiplines(12, 4)
+    call skiplines(12, 5)
     read (12, *) this%spanwiseCore, this%streamwiseCoreSwitch
     call skiplines(12, 3)
     allocate (this%streamwiseCoreVec(this%ns + 1))
