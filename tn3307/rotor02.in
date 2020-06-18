@@ -2,7 +2,7 @@
 ===================================================================
 No.of blades,nb     Read wing from file 
 -------------------------------------------------------------------
-     2                    propCW.xyz
+     2                    propCCW.xyz
 
 Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 -------------------------------------------------------------------
@@ -11,11 +11,11 @@ Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 
 X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
 -------------------------------------------------------------------
-   -0.4269          0.65           0.1144
+   -0.4572          0.381           0.0
 
 X-cgCoords      Y-cgCoords      Z-cgCoords     [all in m]
 -------------------------------------------------------------------
-   -0.4269          0.65           0.1144
+   -0.4572          0.381           0.0
 
 X-from          Y-from          Z-from         [all in m]
 -------------------------------------------------------------------
@@ -23,7 +23,7 @@ X-from          Y-from          Z-from         [all in m]
 
 Phi       Theta       Psi     about cgCoords [all in deg]
 -------------------------------------------------------------------
- 0.0      -90.0       0.0
+ 0.0      0.0       0.0
 ===================================================================
 
 Span[m]      root_cut[r/R]      chord[m]    coningAngle[deg]
@@ -33,7 +33,7 @@ Span[m]      root_cut[r/R]      chord[m]    coningAngle[deg]
 
 Omega[rad/s]   X-shaftAxis     Y-shaftAxis     Z-shaftAxis 
 -------------------------------------------------------------------
-  1164.8          0.0              0.0              1.0
+  -628.32         -1.0              0.0              0.0
 
 theta0[deg]    thetaC[deg]    thetaS[deg]    thetaTwist[deg]
 -------------------------------------------------------------------
@@ -42,7 +42,7 @@ theta0[deg]    thetaC[deg]    thetaS[deg]    thetaTwist[deg]
 
 u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]    
 -------------------------------------------------------------------
- -35.0       0.0        0.0        0.0        0.0         0.0
+ -18.0       0.0        0.0        0.0        0.0         0.0
 ===================================================================
 
 pivot point     flapHinge      SpanwiseLiftTerm    invert tauSpan

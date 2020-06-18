@@ -42,7 +42,7 @@ theta0[deg]    thetaC[deg]    thetaS[deg]    thetaTwist[deg]
 
 u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]    
 -------------------------------------------------------------------
- -10.0       0.0        0.0        0.0        0.0         0.0
+ -18.0       0.0        0.0        0.0        0.0         0.0
 ===================================================================
 
 pivot point     flapHinge      SpanwiseLiftTerm    invert tauSpan
