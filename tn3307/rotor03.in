@@ -1,8 +1,8 @@
-          TN3307 CCW Prop
+          TN3307 CW Prop
 ===================================================================
 No.of blades,nb     Read wing from file 
 -------------------------------------------------------------------
-     2                    propCCW.xyz
+     2                    propCW.xyz
 
 Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 -------------------------------------------------------------------
@@ -11,11 +11,11 @@ Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 
 X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
 -------------------------------------------------------------------
-   -0.4572          0.381           0.0
+   -0.4064          0.813           0.0
 
 X-cgCoords      Y-cgCoords      Z-cgCoords     [all in m]
 -------------------------------------------------------------------
-    0.0             0.381           0.0
+    0.0             0.813           0.0
 
 X-from          Y-from          Z-from         [all in m]
 -------------------------------------------------------------------
@@ -33,7 +33,7 @@ Span[m]      root_cut[r/R]      chord[m]    coningAngle[deg]
 
 Omega[rad/s]   X-shaftAxis     Y-shaftAxis     Z-shaftAxis 
 -------------------------------------------------------------------
-  -628.32         -1.0              0.0              0.0
+ 628.32         -1.0              0.0              0.0
 
 theta0[deg]    thetaC[deg]    thetaS[deg]    thetaTwist[deg]
 -------------------------------------------------------------------
