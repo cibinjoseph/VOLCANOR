@@ -1854,8 +1854,9 @@ contains
           dt = dxAvg/(4._dp*norm2(this%velBody))
         else  ! Rotor
           ! Time for 5 deg
-          dt = 5._dp*pi/(180._dp*this%Omega)
+          dt = 5._dp*pi/(180._dp*abs(this%Omega))
         endif
+        print*, 'dt set to ', dt
       endif
 
       ! Shed last row of vortices
