@@ -1,6 +1,6 @@
  NO. OF TIMESTEPS [nt]    TIMESTEP (sec) [dt]    NO. OF ROTORS [nr]
 -----------------------------------------------------------------------
-     5                      0.00028                   2
+     725                        0.0                   1
 
  NO. OF SUBITERATIONS [ntSub]  NO. OF INITIAL SUBITERATIONS [ntSubInit]    
 -----------------------------------------------------------------------
