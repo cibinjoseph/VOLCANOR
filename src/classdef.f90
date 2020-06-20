@@ -1849,7 +1849,7 @@ contains
 
       ! Set dt automatically if not prescribed
       if (dt <= eps) then
-        if (this%Omega < eps) then  ! Fixed wing
+        if (abs(this%Omega) < eps) then  ! Fixed wing
           dxAvg = sum(dx)/(this%nc*this%ns)
           dt = dxAvg/(4._dp*norm2(this%velBody))
         else  ! Rotor
