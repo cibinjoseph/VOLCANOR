@@ -51,6 +51,7 @@ contains
     write(10, *) 'chord', rotor%chord
     write(10, *) 'Omega', rotor%Omega
     write(10, *) 'theta0', rotor%controlPitch(1)*180._dp/pi
+    write(10, *) 'nonDimForceDenom', rotor%nonDimforceDenominator
     if (rotor%nAirfoils .gt. 0) then
       write(10, *) 'CL0', rotor%CL0(1)
       write(10, *) 'CLa', rotor%CLa(1)
