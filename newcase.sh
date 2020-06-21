@@ -5,7 +5,7 @@ set -e
 
 # Make a new case directory
 if [ $# -eq 0 ]; then
-  caseName=caseNew
+  caseName="new.case"
 elif [ $1 == '-h' ]; then
   echo 'Usage: newcase.sh [caseName]'
   exit
@@ -19,7 +19,7 @@ mkdir -v "$caseName/Results"
 
 # Copy template files
 echo "2. Copying template files"
-cp -v tools/caseTemplate/* $caseName/
+cp -v tools/template.case/* $caseName/
 
 # Create links
 echo "3. Creating links to executables"
