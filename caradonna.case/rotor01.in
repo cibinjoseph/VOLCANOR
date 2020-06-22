@@ -23,7 +23,7 @@ X-from          Y-from          Z-from         [all in m]
 
 Phi       Theta       Psi     about cgCoords [all in deg]
 -------------------------------------------------------------------
- 0.0       90.0        0.0
+ 0.0       0.0        0.0
 ===================================================================
 
 Span[m]      root_cut[r/R]      chord[m]    coningAngle[deg]
