@@ -1057,6 +1057,8 @@ contains
     real(dp), dimension(this%nc, this%ns) :: gamElementChord, gamElementSpan
     real(dp), dimension(this%ns) :: secDynamicPressure
     real(dp) :: signSecCL
+    ! debug
+    print*, invertGammaSign
 
     this%forceInertial = 0._dp
     this%secForceInertial = 0._dp
@@ -2717,7 +2719,11 @@ contains
 
     this%forceInertial = 0._dp
     do ib = 1, this%nb
-      call this%blade(ib)%calc_force_gamma(density, sign(1._dp, this%Omega*this%controlPitch(1)), dt)
+      call this%blade(ib)%calc_force_gamma(density, &
+        & sign(1._dp, this%Omega) * sign(1._dp, this%controlPitch(1)) * &
+        & sign(1._dp, this%shaftAxis(1)) * &
+        & sign(1._dp, this%shaftAxis(2)) * &
+        & sign(1._dp, this%shaftAxis(3)), dt)
     enddo
     call this%sumBladeToNetForces()
   end subroutine rotor_calc_force_gamma
