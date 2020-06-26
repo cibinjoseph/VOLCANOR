@@ -1,3 +1,3 @@
-OpenDatabase("Results/wingNwake*.plt database")
+OpenDatabase("Results/r01wingNwake*.plt database")
 AddPlot("Mesh", "mesh", 1, 1)
 DrawPlots()

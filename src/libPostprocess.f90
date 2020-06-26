@@ -62,17 +62,21 @@ contains
     close(10)
   end subroutine params2file
 
-  subroutine rotor2file(timestamp, rotor)
+  subroutine rotor2file(timestamp, rotor, rotorNumber)
     ! Plot rotor geometry and wake to file
     type(rotor_class), intent(in) :: rotor
     character(len=*), intent(in) :: timestamp
+    integer, intent(in) :: rotorNumber
     character(len=5) :: nxChar, nyChar
+    character(len=2) :: rotorNumberChar
     real(dp), dimension(3, rotor%nc + 1, rotor%ns + 1) :: wingMesh
     real(dp), dimension(3, rotor%nNwake + 1, rotor%ns + 1) :: wakeMesh
     real(dp), dimension(3, rotor%nFwake + 1) :: wakeTip   ! Optimise this by only initialising reqd size
     integer :: i, j, nx, ny, ib
 
-    open (unit=10, file='Results/wingNwake'//timestamp//'.plt', position='append')
+    write (rotorNumberChar, '(I0.2)') rotorNumber
+
+    open (unit=10, file='Results/r'//rotorNumberChar//'wingNwake'//timestamp//'.plt', position='append')
 
     write (10, *) 'Title = "Wing and Wake"'
     write (10, *) 'VARIABLES = "X" "Y" "Z" "GAM"'! "Var5" "Var6"'

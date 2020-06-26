@@ -375,7 +375,7 @@ program main
     do ir = 1, nr
       if (wakePlotSwitch .ne. 0) then
         if (mod(iter, wakePlotSwitch) .eq. 0) &
-          call rotor2file(timestamp, rotor(ir))
+          call rotor2file(timestamp, rotor(ir), ir)
       endif
 
       if (wakeTipPlotSwitch .ne. 0) then
