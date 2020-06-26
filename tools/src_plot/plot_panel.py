@@ -8,7 +8,7 @@ AddPlot("Mesh", "mesh", 1, 1)
 MeshAtts = MeshAttributes()
 MeshAtts.meshColor = (255, 0, 0, 255)  # Red color
 MeshAtts.meshColorSource = MeshAtts.MeshCustom  # Foreground, MeshCustom
-MeshAtts.lineStyle = MeshAtts.DOTDASH  # SOLID, DASH, DOT, DOTDASH
+#MeshAtts.lineStyle = MeshAtts.DOTDASH  # SOLID, DASH, DOT, DOTDASH
 SetPlotOptions(MeshAtts)
 
 #Plot wing PC
@@ -25,7 +25,11 @@ ScatterAtts.pointType = ScatterAtts.Sphere  # Box, Axis, Icosahedron, Octahedron
 ScatterAtts.scaleCube = 0
 ScatterAtts.colorType = ScatterAtts.ColorBySingleColor  # ColorByForegroundColor, ColorBySingleColor, ColorByColorTable
 ScatterAtts.singleColor = (0, 0, 255, 255)  # Blue color
+ScatterAtts.pointSize = 0.002
+ScatterAtts.pointSizePixels = 8
 SetDefaultPlotOptions(ScatterAtts)
 AddPlot("Scatter", "X", 1, 1)
+DefineVectorExpression("surfNorm", "{nx,ny,nz}")
+AddPlot("Vector", "surfNorm", 1, 1)
 
 DrawPlots()

@@ -70,6 +70,9 @@ program main
     enddo
   enddo
 
+  ! Wing geometry plot for checks
+  ! call wingverify(rotor(1)%blade(1)%wiP)
+
   ! Compute AIC and AIC_inv matrices for rotors
   do ir = 1, nr
     call print_status('Computing AIC matrix')

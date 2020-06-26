@@ -435,12 +435,16 @@ contains
     enddo
     open (unit=11, file='Results/wingCP.plt', position='append')
     write (11, *) 'Title = "Coll. points"'
-    write (11, *) 'VARIABLES = "X" "Y" "Z"'
+    write (11, *) 'VARIABLES = "X" "Y" "Z" "nx" "ny" "nz"' 
     write (11, *) 'Zone I='//trim(nxChar)//' J='//trim(nyChar)//' K=1  T="Coll. points"'
     write (11, *) 'DATAPACKING=BLOCK'
+    write (11, *) 'VARLOCATION=([4-6]=CELLCENTERED)'
     write (11, *) ((wingMesh(1, i, j), i=1, nx), j=1, ny)
     write (11, *) ((wingMesh(2, i, j), i=1, nx), j=1, ny)
     write (11, *) ((wingMesh(3, i, j), i=1, nx), j=1, ny)
+    write (11, *) ((wing_array(i, j)%nCap(1), i=1, nx), j=1, ny)
+    write (11, *) ((wing_array(i, j)%nCap(2), i=1, nx), j=1, ny)
+    write (11, *) ((wing_array(i, j)%nCap(3), i=1, nx), j=1, ny)
     close (11)
 
     write (nxChar, '(I5)') nx + 1
