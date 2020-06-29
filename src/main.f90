@@ -4,7 +4,7 @@ program main
 
   ! Initialize variables
   include "init_file.f90"
-  print *
+  print*
 
   ! Ensure all necessary files exist
   inquire(file='config.in', exist=fileExists)

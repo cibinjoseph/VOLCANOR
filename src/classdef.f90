@@ -1057,8 +1057,6 @@ contains
     real(dp), dimension(this%nc, this%ns) :: gamElementChord, gamElementSpan
     real(dp), dimension(this%ns) :: secDynamicPressure
     real(dp) :: signSecCL
-    ! debug
-    print*, invertGammaSign
 
     this%forceInertial = 0._dp
     this%secForceInertial = 0._dp
