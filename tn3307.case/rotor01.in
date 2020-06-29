@@ -1,8 +1,8 @@
-          TN3307 CCW Prop
+          TN3307 CW Prop
 ===================================================================
 No.of blades,nb     Read wing from file 
 -------------------------------------------------------------------
-     2                    propCCW.xyz
+     2                    propCW.xyz
 
 Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 -------------------------------------------------------------------
@@ -23,7 +23,7 @@ X-from          Y-from          Z-from         [all in m]
 
 Phi       Theta       Psi     about cgCoords [all in deg]
 -------------------------------------------------------------------
- 0.0       0.0         0.0
+ 0.0       -90.0         0.0
 ===================================================================
 
 Span[m]      root_cut[r/R]      chord[m]    coningAngle[deg]
@@ -33,7 +33,7 @@ Span[m]      root_cut[r/R]      chord[m]    coningAngle[deg]
 
 Omega[rad/s]   X-shaftAxis     Y-shaftAxis     Z-shaftAxis 
 -------------------------------------------------------------------
-  -628.32         -1.0              0.0              0.0
+  628.32         0.0              0.0              1.0
 
 theta0[deg]    thetaC[deg]    thetaS[deg]    thetaTwist[deg]
 -------------------------------------------------------------------
@@ -48,7 +48,7 @@ u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]
 pivot point     flapHinge      SpanwiseLiftTerm    invert tauSpan
 from LE[x/c]  from centre[r/R]    [1]enable     for swept/symmetric
 -------------------------------------------------------------------
-0.00                0.0               0                 1
+0.00                0.0               0                0
 ===================================================================
 
 turbulentViscosity           
