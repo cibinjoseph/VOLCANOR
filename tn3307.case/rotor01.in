@@ -19,7 +19,7 @@ X-cgCoords      Y-cgCoords      Z-cgCoords     [all in m]
 
 X-from          Y-from          Z-from         [all in m]
 -------------------------------------------------------------------
-   0.0             0.0           0.0
+   0.0             -90.0           0.0
 
 Phi       Theta       Psi     about cgCoords [all in deg]
 -------------------------------------------------------------------
@@ -33,7 +33,7 @@ Span[m]      root_cut[r/R]      chord[m]    coningAngle[deg]
 
 Omega[rad/s]   X-shaftAxis     Y-shaftAxis     Z-shaftAxis 
 -------------------------------------------------------------------
-  0.0         0.0              0.0              1.0
+  628.32         0.0              0.0              1.0
 
 theta0[deg]    thetaC[deg]    thetaS[deg]    thetaTwist[deg]
 -------------------------------------------------------------------
