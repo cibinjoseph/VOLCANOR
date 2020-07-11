@@ -15,3 +15,5 @@ While computing drag from FELS in unsteady case, ensure unsteady 'induced' drag 
 Introduce blade%xAxisNoPitch centered about pitching hinge
 Implement alpha sweep mode
 Make secDynamicPressure a variable also to prevent recomputing during plotting
+Implement FELS for rotors
+Print out secVel
