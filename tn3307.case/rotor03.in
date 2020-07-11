@@ -1,8 +1,8 @@
           TN3307 CW Prop
 ===================================================================
-No.of blades,nb     Read wing from file 
+No.of blades,nb    Prop convention     Read wing from file 
 -------------------------------------------------------------------
-     2                    propCW.xyz
+     2                     1                propCW.xyz
 
 Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 -------------------------------------------------------------------

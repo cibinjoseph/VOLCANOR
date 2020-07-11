@@ -1,8 +1,8 @@
           Fixed wing testcase
 ===================================================================
-No.of blades,nb     Read wing from file 
+No.of blades,nb     Prop convention    Read wing from file 
 -------------------------------------------------------------------
-     2                    mars.xyz
+     2                    0                mars.xyz
 
 Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 -------------------------------------------------------------------
