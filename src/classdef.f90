@@ -1499,6 +1499,7 @@ module rotor_classdef
     real(dp) :: initWakeVel, psiStart, skewLimit
     real(dp) :: turbulentViscosity
     real(dp) :: rollupStartRadius, rollupEndRadius
+    integer :: propConvention
     integer :: symmetricTau
     integer :: rollupStart, rollupEnd
     integer :: suppressFwakeSwitch
@@ -1554,7 +1555,7 @@ contains
 
     open (unit=12, file=filename)
     call skiplines(12, 4)
-    read (12, *) this%nb, this%geometryFile
+    read (12, *) this%nb, this%propConvention, this%geometryFile
     call skiplines(12, 3)
     read (12, *) this%nc, this%ns, this%nNwake
     ! If nNwake is -ve, far wake is suppressed
@@ -1989,12 +1990,15 @@ contains
 
     ! Compute denominators for non-dimensionalisation
     if (abs(this%Omega) .gt. eps) then
-      ! Rotary-wing
-      this%nonDimforceDenominator = density*(pi*this%radius**2._dp)* &
-        (this%radius*this%Omega)**2._dp
-      ! Propeller
-      !this%nonDimforceDenominator = density*(this%Omega/(2._dp*pi))**2._dp* &
-      !(2._dp*this%radius)**4._dp
+      if (this%propConvention .eq. 0) then
+        ! Rotary-wing
+        this%nonDimforceDenominator = density*(pi*this%radius**2._dp)* &
+          (this%radius*this%Omega)**2._dp
+      else
+        ! Propeller
+        this%nonDimforceDenominator = density*(this%Omega/(2._dp*pi))**2._dp* &
+          (2._dp*this%radius)**4._dp
+      endif
     else
       ! Fixed-wing
       this%nonDimforceDenominator = 0.5_dp*density*(this%radius*(1._dp - this%root_cut)* &
