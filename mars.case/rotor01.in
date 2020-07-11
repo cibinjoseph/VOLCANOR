@@ -6,7 +6,7 @@ No.of blades,nb     Read wing from file
 
 Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 -------------------------------------------------------------------
-      12                       17                   80
+      12                       17                   20
 ===================================================================
 
 X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
@@ -54,7 +54,7 @@ from LE[x/c]  from centre[r/R]    [1]enable     for swept/symmetric
 turbulentViscosity           
 (10-10000)                   
 -------------------------------------------------------------------
-  500
+  2000
 ===================================================================
 
   spanwise core radius[x/c]       streamwise core_switch
