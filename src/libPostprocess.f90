@@ -662,10 +662,9 @@ contains
         do ib = 1, rotor%nb
           write (bladeNumberChar, '(I0.2)') ib
           write (12, *) '# Blade'//bladeNumberChar
-          write (12, 202) 'Section','secSpan','secCL','secCD','secArea','secVel','secChord'
+          write (12, 202) 'secSpan','secCL','secCD','secArea','secVel','secChord'
           do ispan = 1, rotor%ns
-            write (12, 102) ispan, &
-              & dot_product(rotor%blade(ib)%wiP(1, ispan)%CP - &
+            write (12, 102) dot_product(rotor%blade(ib)%wiP(1, ispan)%CP - &
               & rotor%hubCoords, rotor%blade(ib)%yAxis), &
               & rotor%blade(ib)%secCL(ispan), & 
               & rotor%blade(ib)%secCD(ispan), &
@@ -676,7 +675,7 @@ contains
         enddo
         close (12)
         202 format(6(A15))
-        102 format(I0.5, 6(E15.7))
+        102 format(6(E15.7))
       endif
     endif
   end subroutine force2file
