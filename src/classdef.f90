@@ -561,7 +561,7 @@ module blade_classdef
     type(Fwake_class), allocatable, dimension(:) :: waFPredicted
     type(C81_class), allocatable, dimension(:) :: C81
     integer :: nc, ns
-    real(dp) :: theta, psi, pivotLE
+    real(dp) :: theta, psi, pivotLE, omega
     real(dp), dimension(3) :: forceInertial
     real(dp), dimension(3) :: lift, drag, dragInduced, dragProfile, dragUnsteady
     integer, allocatable, dimension(:) :: airfoilNo
@@ -1046,10 +1046,11 @@ contains
 
   end subroutine wake_continuity
 
-  subroutine blade_calc_force_gamma(this, density, invertGammaSign, dt)
+  subroutine blade_calc_force_gamma(this, density, invertGammaSign, dt, omegaVec)
     ! Compute force using blade circulation
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: density, invertGammaSign, dt
+    real(dp), intent(in), dimension(3) :: omegaVec
     integer :: is, ic
     real(dp) :: unsteadyTerm
     real(dp), dimension(this%nc, this%ns) :: velTangentialChord, velTangentialSpan
@@ -1166,8 +1167,14 @@ contains
       ! Assuming sec resultant velocity is same as sec freestream vel
       ! for computing corrected alpha later
       this%secChordwiseResVel(:, is) = this%secVelFreestream(:, is) - &
-        dot_product(this%secVelFreestream(:, is), this%yAxis)*this%yAxis
+        & dot_product(this%secVelFreestream(:, is), this%yAxis)*this%yAxis
     enddo
+    if (norm2(omegaVec) > eps) then
+      do is = 1, this%ns
+        this%secChordwiseResVel(:, is) = this%secChordwiseResVel(:, is) + &
+          & cross_product(omegaVec, this%secCP(:, is)) 
+      enddo
+    endif
     secDynamicPressure = this%getSecDynamicPressure(density)
 
     do is = 1, this%ns
@@ -1231,16 +1238,17 @@ contains
 
   end subroutine blade_calc_force_alpha
 
-  subroutine blade_calc_force_alphaGamma(this, density, invertGammaSign, velSound, dt)
+  subroutine blade_calc_force_alphaGamma(this, density, invertGammaSign, velSound, dt, omegaVec)
     ! Compute force using alpha approximated from sec circulation
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: density, invertGammaSign, velSound, dt
+    real(dp), intent(in), dimension(3) :: omegaVec
     real(dp), dimension(3) :: secChordwiseVelFreestream, liftDir
     real(dp), dimension(this%ns) :: secDynamicPressure
     integer :: is
 
     ! Compute unsteady sec lift from gamma distribution
-    call this%calc_force_gamma(density, invertGammaSign, dt)
+    call this%calc_force_gamma(density, invertGammaSign, dt, omegaVec)
 
     do is = 1, this%ns
       ! Compute sec freestream velocity
@@ -2725,7 +2733,8 @@ contains
         & sign(1._dp, this%Omega) * sign(1._dp, this%controlPitch(1)) * &
         & sign(1._dp, this%shaftAxis(1)) * &
         & sign(1._dp, this%shaftAxis(2)) * &
-        & sign(1._dp, this%shaftAxis(3)), dt)
+        & sign(1._dp, this%shaftAxis(3)), dt, &
+        & this%Omega*this%shaftAxis)
     enddo
     call this%sumBladeToNetForces()
   end subroutine rotor_calc_force_gamma
@@ -2751,8 +2760,9 @@ contains
 
     this%forceInertial = 0._dp
     do ib = 1, this%nb
-      call this%blade(ib)%calc_force_alphaGamma(density, sign(1._dp, this%Omega*this%controlPitch(1)), &
-        velSound, dt)
+      call this%blade(ib)%calc_force_alphaGamma(density, &
+        & sign(1._dp, this%Omega*this%controlPitch(1)), &
+        & velSound, dt, this%Omega*this%shaftAxis)
     enddo
     call this%sumBladeToNetForces()
   end subroutine rotor_calc_force_alphaGamma
