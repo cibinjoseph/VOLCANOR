@@ -669,7 +669,7 @@ contains
               & rotor%hubCoords, rotor%blade(ib)%yAxis), &
               & rotor%blade(ib)%secCL(ispan), & 
               & rotor%blade(ib)%secCD(ispan), &
-              & norm2(rotor%blade(ib)%secChordwiseResVel(:, is)), &
+              & norm2(rotor%blade(ib)%secChordwiseResVel(:, ispan)), &
               & rotor%blade(ib)%secArea(ispan), &
               & rotor%blade(ib)%secChord(ispan)
           enddo
