@@ -34,18 +34,21 @@ def getForceDist(forceDistFile=None):
     secCD = []
     secArea = []
     secChord = []
+    secVel = []
     for line in lines[2:]:
         cols = line.split()
         secSpan.append(float(cols[1]))
         secCL.append(float(cols[2]))
         secCD.append(float(cols[3]))
         secArea.append(float(cols[4]))
-        secChord.append(float(cols[5]))
+        secVel.append(float(cols[5]))
+        secChord.append(float(cols[6]))
 
     secSpan = np.array(secSpan)
     secCL = np.array(secCL)
     secCD = np.array(secCD)
     secArea = np.array(secArea)
+    secVel = np.array(secVel)
     secChord = np.array(secChord)
 
-    return forceDistFile, secSpan, secCL, secCD, secArea, secChord
+    return forceDistFile, secSpan, secCL, secCD, secArea, secVel, secChord
