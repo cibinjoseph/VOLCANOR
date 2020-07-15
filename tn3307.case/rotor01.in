@@ -42,7 +42,7 @@ theta0[deg]    thetaC[deg]    thetaS[deg]    thetaTwist[deg]
 
 u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]    
 -------------------------------------------------------------------
- -18.0       0.0        0.0        0.0        0.0         0.0
+ -5.0       0.0        0.0        0.0        0.0         0.0
 ===================================================================
 
 pivot point     flapHinge      SpanwiseLiftTerm    invert tauSpan
@@ -93,7 +93,7 @@ CUSTOM WIND FRAME FOR FORCE OUTPUT
     [0]Off                    [0]Off                
     [n]Every nth iteration    [n]Every nth iteration
 -------------------------------------------------------------------
-       0                              145
+       0                              1
 
   gammaPlotSwitch                 alphaPlotSwitch  
     [0]Off                         [0]Off                      
