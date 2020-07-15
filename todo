@@ -16,4 +16,5 @@ Introduce blade%xAxisNoPitch centered about pitching hinge
 Implement alpha sweep mode
 Make secDynamicPressure a variable also to prevent recomputing during plotting
 Implement FELS for rotors
-Print out secVel
+Pass num of blades to resultsparser
+Use header to extract data

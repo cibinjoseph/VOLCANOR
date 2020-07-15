@@ -1166,7 +1166,7 @@ contains
       ! Assuming sec resultant velocity is same as sec freestream vel
       ! for computing corrected alpha later
       this%secChordwiseResVel(:, is) = this%secVelFreestream(:, is) - &
-        dot_product(this%secVelFreestream(:, is), this%yAxis)*this%yAxis
+        & dot_product(this%secVelFreestream(:, is), this%yAxis)*this%yAxis
     enddo
     secDynamicPressure = this%getSecDynamicPressure(density)
 
@@ -2751,8 +2751,9 @@ contains
 
     this%forceInertial = 0._dp
     do ib = 1, this%nb
-      call this%blade(ib)%calc_force_alphaGamma(density, sign(1._dp, this%Omega*this%controlPitch(1)), &
-        velSound, dt)
+      call this%blade(ib)%calc_force_alphaGamma(density, &
+        & sign(1._dp, this%Omega*this%controlPitch(1)), &
+        & velSound, dt)
     enddo
     call this%sumBladeToNetForces()
   end subroutine rotor_calc_force_alphaGamma
