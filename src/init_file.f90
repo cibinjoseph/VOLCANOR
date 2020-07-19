@@ -6,6 +6,7 @@ integer :: nt, nr
 real(dp) :: dt
 
 ! Other Variables
+integer :: iterStart
 real(dp) :: t
 real(dp) :: density, velSound
 character(len=5) :: timestamp

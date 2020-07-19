@@ -300,7 +300,17 @@ program main
   currentTime = ''
 
   ! ------- MAIN LOOP START -------
-  do iter = 1, nt
+
+  iterStart = 1
+  if (restartFromNt .gt. 0) then
+    ! Read restart file here and initialize all values
+    ! Containing variables:
+    ! 1. All global variables (that change like t,)
+    ! 2. All rotor variables
+    iterStart = restartFromNt + 1
+  endif
+
+  do iter = iterStart, nt
     t = t + dt
 
     ! In case current time is required in status.txt
@@ -1053,6 +1063,11 @@ program main
       endif
     enddo
 
+    ! Write out restart file in binary format
+    if (restartWriteNt .ne. 0) then
+      if (mod(iter, restartWriteNt) .eq. 0) then
+      endif
+    endif
   enddo
 
   close (22)  ! Close status.txt
