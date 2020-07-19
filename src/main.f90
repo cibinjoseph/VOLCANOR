@@ -16,6 +16,8 @@ program main
   call skiplines(11, 2)
   read (11, *) nt, dt, nr
   call skiplines(11, 3)
+  read (11, *) restartWriteNt, restartFromNt
+  call skiplines(11, 4)
   read (11, *) ntSub, ntSubInit
   call skiplines(11, 4)
   read (11, *) spanSpacingSwitch

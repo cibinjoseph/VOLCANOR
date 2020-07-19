@@ -25,8 +25,8 @@ integer :: slowStartSwitch, slowStartNt
 integer :: wakeTipPlotSwitch, wakePlotSwitch, gridPlotSwitch
 integer :: rotorForcePlotSwitch
 integer :: fdSchemeSwitch, probeSwitch, nProbes
-integer :: wakeIgnoreNt
-integer :: initWakeVelNt
+integer :: wakeIgnoreNt, initWakeVelNt
+integer :: restartFromNt, restartWriteNt
 
 ! Probes for velocity
 real(dp), allocatable, dimension(:, :) :: probe, probeVel
