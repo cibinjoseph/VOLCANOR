@@ -40,11 +40,11 @@ wakePlotSwitch   wakeTipPlotSwitch   forcePlotSwitch   gridPlotSwitch
        3
 
  IGNORE WAKE WAKE INTERACTION: [0]Off [1..]timesteps
-  wakeIgnoreNt  *** NOT IMPLEMENTED ***
+  wakeIgnoreNt  *** NOT IMPLEMENTED ***           initWakeVelNt
 -----------------------------------------------------------------------
-       0
+       0                                               0
 
- INITIAL WAKE VELOCITY: [0]Off [1..]timesteps  
-  initWakeVelNt                                 
+ USE VEL PROBES: [0]Off [1]On  
+  probeSwitch                                 
 -----------------------------------------------------------------------
        0                                          

@@ -31,9 +31,7 @@ program main
   call skiplines(11, 4)
   read (11, *) fdSchemeSwitch
   call skiplines(11, 4)
-  read (11, *) wakeIgnoreNt
-  call skiplines(11, 4)
-  read (11, *) initWakeVelNt
+  read (11, *) wakeIgnoreNt, initWakeVelNt
   call skiplines(11, 4)
   read (11, *) probeSwitch
   close (11)
