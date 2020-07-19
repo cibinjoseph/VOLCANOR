@@ -19,3 +19,4 @@ Implement FELS for rotors
 Pass num of blades to resultsparser
 Use header to extract data
 Create provision to restart
+Create file not found error subroutine and return error code to user
