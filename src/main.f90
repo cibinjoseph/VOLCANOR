@@ -22,9 +22,8 @@ program main
   call skiplines(11, 4)
   read (11, *) density, velSound
   call skiplines(11, 5)
-  read (11, *) wakePlotSwitch, wakeTipPlotSwitch, gridPlotSwitch
-  call skiplines(11, 4)
-  read (11, *) rotorForcePlotSwitch
+  read (11, *) wakePlotSwitch, wakeTipPlotSwitch, &
+    & rotorForcePlotSwitch, gridPlotSwitch
   call skiplines(11, 5)
   read (11, *) wakeDissipationSwitch, wakeStrainSwitch, wakeBurstSwitch
   call skiplines(11, 5)
