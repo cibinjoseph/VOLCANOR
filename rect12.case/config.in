@@ -17,15 +17,10 @@
       1.2                330.0
 =======================================================================
 
- PLOT WAKE: [0]Off [n]Every nth iteration
-  wakePlotSwitch         wakeTipPlotSwitch      gridPlotSwitch
+PLOT WAKE: [0]Off [n]Every nth iteration
+wakePlotSwitch   wakeTipPlotSwitch   forcePlotSwitch   gridPlotSwitch
 -----------------------------------------------------------------------
-       0                       0                      0
-
- PLOT FORCES: [0]Off [n]th iteration
-  forcePlotSwitch                  
------------------------------------------------------------------------
-       1                          
+       0                0                  1                0
 =======================================================================
 
  WAKE PROPERTY SWITCHES: [0]Off [1]On  
