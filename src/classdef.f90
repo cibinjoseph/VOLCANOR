@@ -1536,7 +1536,6 @@ module rotor_classdef
     real(dp), dimension(3) :: shaftAxis
     real(dp), dimension(3) :: hubCoords, cgCoords, fromCoords
     real(dp) :: radius, chord, root_cut, coningAngle
-    real(dp) :: CT
     real(dp), dimension(3) :: forceInertial, lift, drag
     real(dp), dimension(3) :: dragInduced, dragProfile, dragUnsteady
     real(dp), dimension(3) :: liftUnitVec, dragUnitVec, sideUnitVec
