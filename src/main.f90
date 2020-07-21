@@ -12,7 +12,7 @@ program main
 
   ! Read config.in file
   call print_status('Reading file '//'config.in')
-  open (unit=11, file='config.in')
+  open (unit=11, file='config.in', status='old', action='read')
   call skiplines(11, 2)
   read (11, *) nt, dt, nr
   call skiplines(11, 3)
@@ -87,7 +87,7 @@ program main
 
   ! Initialize vel probes
   if (probeSwitch .eq. 1) then
-    open(unit=10, file='probes.in', action='read')
+    open(unit=10, file='probes.in', status='old', action='read')
     read(10, *) nProbes
     allocate(probe(3, nProbes))
     allocate(probeVel(3, nProbes))

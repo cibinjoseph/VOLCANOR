@@ -19,7 +19,7 @@ program gridgen
 
   ! Read gridconfig.in file
   call print_status('Reading file '//'gridconfig.in')
-  open (unit=11, file='gridconfig.in')
+  open (unit=11, file='gridconfig.in', status='old', action='read')
   call skiplines(11, 3)
   read (11, *) nx, ny, nz
   call skiplines(11, 4)
@@ -84,7 +84,8 @@ program gridgen
     ! Read from filaments file
     write (timestamp, '(I0.5)') fileRange
     call print_status('Reading file '//'filaments'//timestamp//'.dat')
-    open (unit=12, file='Results/filaments'//timestamp//'.dat', form='unformatted')
+    open (unit=12, file='Results/filaments'//timestamp//'.dat', &
+      & status='old', action='read', form='unformatted')
     read (12) nVrWing
     read (12) nVrNwake
     read (12) nVfNwakeTE
@@ -139,7 +140,8 @@ program gridgen
     ! Write to file
     call print_status('Writing file '//'grid'//timestamp//'.plt')
     write (timestamp, '(I0.5)') fileRange
-    open (unit=13, file='Results/grid'//timestamp//'.plt')
+    open (unit=13, file='Results/grid'//timestamp//'.plt', &
+      & status='old', action='read')
 
     write (13, *) 'TITLE = "Grid"'
     write (13, *) 'VARIABLES = "X" "Y" "Z" "U" "V" "W"'

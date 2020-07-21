@@ -17,11 +17,13 @@ contains
       forceNonDimFilename = 'Results/r'//rotorNumberChar//'ForceNonDim.dat'
 
       ! Add data headers
-      open (unit=11, file=forceDimFilename, action='write')
+      open (unit=11, file=forceDimFilename, &
+        & status='replace', action='write')
       write (11, '(A)') 'timestamp(iters)  Lift(x,y,z)  Drag(x,y,z)  ForceInertial(x,y,z)'
       close (11)
 
-      open (unit=12, file=forceNonDimFilename, action='write')
+      open (unit=12, file=forceNonDimFilename, &
+        & status='replace', action='write')
       write (12, '(A)') 'timestamp(iters)  CL CD CDi CD0 CDu  CFx CFy CFz'
       close (12)
     enddo
@@ -37,7 +39,7 @@ contains
 
     write (rotorNumberChar, '(I0.2)') rotorNumber
     paramsFilename = 'Results/r'//rotorNumberChar//'Params.dat'
-    open(unit=10, file=paramsFilename, action='write')
+    open(unit=10, file=paramsFilename, status='replace', action='write')
     write(10, *) 'nt', nt
     write(10, *) 'dt', dt
     write(10, *) 'nr', nr
@@ -195,7 +197,8 @@ contains
     integer :: ir, i
     real(dp), dimension(3) :: probeLocation, vel
 
-    open(unit=10, file='Results/probes'//timestamp//'.dat', action='write')
+    open(unit=10, file='Results/probes'//timestamp//'.dat', &
+      & status='replace',  action='write')
     do i = 1, size(probe, 2)
       probeLocation = probe(:, i) + probeVel(:, i) * t
       vel = probeVel(:, i)
@@ -301,7 +304,8 @@ contains
     enddo
 
     ! Write to filamentsXXXXX.dat binary file
-    open (unit=10, file='Results/filaments'//timestamp//'.dat', form='unformatted')
+    open (unit=10, file='Results/filaments'//timestamp//'.dat', &
+      & status='replace', action='write', form='unformatted')
     write (10) nvrWing
     write (10) nvrNwake
     write (10) nvfNwakeTE
@@ -335,7 +339,7 @@ contains
     write (nxChar, '(I5)') nx + 1
     write (nyChar, '(I5)') ny + 1
 
-    open (unit=10, file=filename, position='append')
+    open (unit=10, file=filename, action='write', position='append')
     do j = 1, ny
       do i = 1, nx
         wingMesh(:, i, j) = wing_array(i, j)%pc(:, 1)
@@ -416,7 +420,8 @@ contains
     enddo
     wingMesh(:, nx + 1, ny + 1) = wing_array(nx, ny)%pc(:, 3)
 
-    open (unit=10, file='Results/wingPC.plt', position='append')
+    open (unit=10, file='Results/wingPC.plt', &
+      & action='write', position='append')
     write (10, *) 'Title = "Panel Vertices"'
     write (10, *) 'VARIABLES = "X" "Y" "Z"'
     write (10, *) 'Zone I='//trim(nxChar)//' J='//trim(nyChar)//' K=1  T="Panel Vertices"'
@@ -433,7 +438,8 @@ contains
         wingMesh(:, i, j) = wing_array(i, j)%CP
       enddo
     enddo
-    open (unit=11, file='Results/wingCP.plt', position='append')
+    open (unit=11, file='Results/wingCP.plt', &
+      & action='write', position='append')
     write (11, *) 'Title = "Coll. points"'
     write (11, *) 'VARIABLES = "X" "Y" "Z" "nx" "ny" "nz"' 
     write (11, *) 'Zone I='//trim(nxChar)//' J='//trim(nyChar)//' K=1  T="Coll. points"'
@@ -461,7 +467,8 @@ contains
     enddo
     wingMesh(:, nx + 1, ny + 1) = wing_array(nx, ny)%vr%vf(3)%fc(:, 1)
 
-    open (unit=12, file='Results/wingVR.plt', position='append')
+    open (unit=12, file='Results/wingVR.plt', &
+      & action='write', position='append')
     write (12, *) 'Title = "Vortex Rings"'
     write (12, *) 'VARIABLES = "X" "Y" "Z"'
     write (12, *) 'Zone I='//trim(nxChar)//' J='//trim(nyChar)//' K=1  T="Vortex Rings"'
@@ -483,7 +490,8 @@ contains
     real(dp) :: gamSum
     integer :: ib, i, j, nx, ny
 
-    open (unit=10, file='Results/tip'//timestamp//'.plt', position='append')
+    open (unit=10, file='Results/tip'//timestamp//'.plt', &
+      & action='write', position='append')
 
     write (10, *) 'Title = "Wing and Tip"'
     write (10, *) 'VARIABLES = "X" "Y" "Z" "GAM"'! "Var5" "Var6"'
@@ -658,7 +666,7 @@ contains
     if (rotor%bladeforcePlotSwitch .ne. 0) then
       read(timestamp, *) iter
       if (mod(iter, rotor%bladeforcePlotSwitch) .eq. 0) then
-        open (unit=12, file='Results/r'//rotorNumberChar//'ForceDist'//timestamp//'.dat', action='write')
+        open (unit=12, file='Results/r'//rotorNumberChar//'ForceDist'//timestamp//'.dat', action='write', position='append')
         do ib = 1, rotor%nb
           write (bladeNumberChar, '(I0.2)') ib
           write (12, *) '# Blade'//bladeNumberChar
@@ -707,7 +715,7 @@ contains
 
     ! Write to file
     write (rotorNumberChar, '(I0.2)') rotorNumber
-    open (unit=12, file='Results/r'//rotorNumberChar//'inflowDist'//timestamp//'.curve', action='write')
+    open (unit=12, file='Results/r'//rotorNumberChar//'inflowDist'//timestamp//'.curve', action='write', position='append')
     do ib = 1, rotorArray(rotorNumber)%nb
       write (bladeNumberChar, '(I0.2)') ib
       write (12, *) '# Blade'//bladeNumberChar
@@ -731,7 +739,7 @@ contains
 
     ! Write to file
     write (rotorNumberChar, '(I0.2)') rotorNumber
-    open (unit=12, file='Results/r'//rotorNumberChar//'gammaDist'//timestamp//'.curve', action='write')
+    open (unit=12, file='Results/r'//rotorNumberChar//'gammaDist'//timestamp//'.curve', action='write', position='append')
     do ib = 1, rotor%nb
       write (bladeNumberChar, '(I0.2)') ib
       ic = 1
@@ -756,7 +764,7 @@ contains
 
     ! Write to file
     write (rotorNumberChar, '(I0.2)') rotorNumber
-    open (unit=12, file='Results/r'//rotorNumberChar//'alphaDist'//timestamp//'.curve', action='write')
+    open (unit=12, file='Results/r'//rotorNumberChar//'alphaDist'//timestamp//'.curve', action='write', position='append')
     do ib = 1, rotor%nb
       write (bladeNumberChar, '(I0.2)') ib
       write (12, *) '# Blade'//bladeNumberChar

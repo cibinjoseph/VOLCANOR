@@ -1616,7 +1616,7 @@ contains
     character(len=*), intent(in) :: filename
     integer :: i
 
-    open (unit=12, file=filename)
+    open (unit=12, file=filename, status='old', action='read')
     call skiplines(12, 4)
     read (12, *) this%nb, this%propConvention, this%geometryFile
     call skiplines(12, 3)
