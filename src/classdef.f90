@@ -608,6 +608,11 @@ module blade_classdef
     procedure :: secCoeffsToSecForces
     procedure :: dirLiftDrag => blade_dirLiftDrag
     procedure :: sumSecToNetForces
+    ! I/O subroutines
+    procedure :: blade_write
+    generic :: write(unformatted) => blade_write
+    procedure :: blade_read
+    generic :: read(unformatted) => blade_read
   end type blade_class
 contains
 
@@ -1462,6 +1467,60 @@ contains
     this%dragInduced = sum(this%secDragInduced, 2)
   end subroutine sumSecToNetForces
 
+  subroutine blade_write(this, unit, iostat, iomsg)
+  class(blade_class), intent(in) :: this
+    integer, intent(in) :: unit
+    integer, intent(out) :: iostat
+    character(len=*), intent(inout) :: iomsg
+
+    write(unit, iostat=iostat, iomsg=iomsg) this%wiP, this%waP, this%waF, &
+      & this%waPPredicted, this%waFPredicted, &
+      & this%theta, this%psi, &
+      & this%forceInertial, this%lift, & 
+      & this%drag, this%dragInduced, this%dragProfile, this%dragUnsteady, & 
+      & this%velNwake, this%velNwake1, this%velNwake2, this%velNwake3, &
+      & this%velNwakePredicted, this%velNwakeStep, &
+      & this%velFwake, this%velFwake1, this%velFwake2, this%velFwake3, &
+      & this%velFwakePredicted, this%velFwakeStep, &
+      & this%xAxis, this%yAxis, this%zAxis, &
+      & this%secChord, this%secArea, &
+      & this%secForceInertial, this%secLift, this%secDrag, &
+      & this%secLiftDir, this%secDragDir, &
+      & this%secDragInduced, this%secDragProfile, this%secDragUnsteady, &
+      & this%secTauCapChord, this%secTauCapSpan, &
+      & this%secNormalVec, this%secVelFreestream, &
+      & this%secChordwiseResVel, this%secCP, &
+      & this%secAlpha, this%secCL, this%secCD, this%secCM, &
+      & this%CL0, this%CLa
+  end subroutine blade_write
+
+  subroutine blade_read(this, unit, iostat, iomsg)
+  class(blade_class), intent(inout) :: this
+    integer, intent(in) :: unit
+    integer, intent(out) :: iostat
+    character(len=*), intent(inout) :: iomsg
+
+    read(unit, iostat=iostat, iomsg=iomsg) this%wiP, this%waP, this%waF, &
+      & this%waPPredicted, this%waFPredicted, &
+      & this%theta, this%psi, &
+      & this%forceInertial, this%lift, & 
+      & this%drag, this%dragInduced, this%dragProfile, this%dragUnsteady, & 
+      & this%velNwake, this%velNwake1, this%velNwake2, this%velNwake3, &
+      & this%velNwakePredicted, this%velNwakeStep, &
+      & this%velFwake, this%velFwake1, this%velFwake2, this%velFwake3, &
+      & this%velFwakePredicted, this%velFwakeStep, &
+      & this%xAxis, this%yAxis, this%zAxis, &
+      & this%secChord, this%secArea, &
+      & this%secForceInertial, this%secLift, this%secDrag, &
+      & this%secLiftDir, this%secDragDir, &
+      & this%secDragInduced, this%secDragProfile, this%secDragUnsteady, &
+      & this%secTauCapChord, this%secTauCapSpan, &
+      & this%secNormalVec, this%secVelFreestream, &
+      & this%secChordwiseResVel, this%secCP, &
+      & this%secAlpha, this%secCL, this%secCD, this%secCM, &
+      & this%CL0, this%CLa
+  end subroutine blade_read
+
 end module blade_classdef
 
 !------+-------------------+------|
@@ -1540,6 +1599,11 @@ module rotor_classdef
     procedure :: burst_wake => rotor_burst_wake
     procedure :: dirLiftDrag => rotor_dirLiftDrag
     procedure :: sumBladeToNetForces
+    ! I/O subroutines
+    procedure :: rotor_write
+    generic :: write(unformatted) => rotor_write
+    procedure :: rotor_read
+    generic :: read(unformatted) => rotor_read
   end type rotor_class
 
 contains
@@ -2805,4 +2869,38 @@ contains
     enddo
 
   end subroutine sumBladeToNetForces
+
+  subroutine rotor_read(this, unit, iostat, iomsg)
+  class(rotor_class), intent(inout) :: this
+    integer, intent(in) :: unit
+    integer, intent(out) :: iostat
+    character(len=*), intent(inout) :: iomsg
+
+    read(unit, iostat=iostat, iomsg=iomsg) this%blade, &
+      & this%nNwake, this%nFwake, this%omegaSlow, this%shaftAxis, &
+      & this%hubCoords, this%cgCoords, &
+      & this%forceInertial, this%lift, this%drag, &
+      & this%dragInduced, this%dragProfile, this%dragUnsteady, &
+      & this%liftUnitVec, this%dragUnitVec, this%sideUnitVec, &
+      & this%psi, this%AIC, this%AIC_inv, &
+      & this%gamVec, this%gamVecPrev, this%RHS, &
+      & this%rowNear, this%rowFar
+  end subroutine rotor_read
+
+  subroutine rotor_write(this, unit, iostat, iomsg)
+  class(rotor_class), intent(in) :: this
+    integer, intent(in) :: unit
+    integer, intent(out) :: iostat
+    character(len=*), intent(inout) :: iomsg
+
+    write(unit, iostat=iostat, iomsg=iomsg) this%blade, &
+      & this%nNwake, this%nFwake, this%omegaSlow, this%shaftAxis, &
+      & this%hubCoords, this%cgCoords, &
+      & this%forceInertial, this%lift, this%drag, &
+      & this%dragInduced, this%dragProfile, this%dragUnsteady, &
+      & this%liftUnitVec, this%dragUnitVec, this%sideUnitVec, &
+      & this%psi, this%AIC, this%AIC_inv, &
+      & this%gamVec, this%gamVecPrev, this%RHS, &
+      & this%rowNear, this%rowFar
+  end subroutine rotor_write
 end module rotor_classdef

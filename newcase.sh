@@ -16,6 +16,7 @@ fi
 echo "1. Creating directories"
 mkdir -v $caseName
 mkdir -v "$caseName/Results"
+mkdir -v "$caseName/Restart"
 
 # Copy template files
 echo "2. Copying template files"

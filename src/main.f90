@@ -17,7 +17,7 @@ program main
   read (11, *) nt, dt, nr
   call skiplines(11, 3)
   read (11, *) restartWriteNt, restartFromNt
-  call skiplines(11, 4)
+  call skiplines(11, 3)
   read (11, *) ntSub, ntSubInit
   call skiplines(11, 4)
   read (11, *) spanSpacingSwitch
@@ -303,10 +303,12 @@ program main
 
   iterStart = 1
   if (restartFromNt .gt. 0) then
-    ! Read restart file here and initialize all values
-    ! Containing variables:
-    ! 1. All global variables (that change like t,)
-    ! 2. All rotor variables
+    write (timestamp, '(I0.5)') restartFromNt
+    open(unit=23, file='Restart/restart'//timestamp//'.dat', &
+      & status='old', action='read', form='unformatted')
+    read(23) t
+    read(23) rotor
+    close(23)
     iterStart = restartFromNt + 1
   endif
 
@@ -1066,6 +1068,11 @@ program main
     ! Write out restart file in binary format
     if (restartWriteNt .ne. 0) then
       if (mod(iter, restartWriteNt) .eq. 0) then
+        open(unit=24, file='Restart/restart'//timestamp//'.dat', &
+          & status='replace', action='write', form='unformatted')
+        write(24) t
+        write(24) rotor
+        close(24)
       endif
     endif
   enddo
