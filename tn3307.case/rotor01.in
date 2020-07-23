@@ -42,7 +42,7 @@ theta0[deg]    thetaC[deg]    thetaS[deg]    thetaTwist[deg]
 
 u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]    
 -------------------------------------------------------------------
- -18.0       0.0        0.0        0.0        0.0         0.0
+ -12.5       0.0        0.0        0.0        0.0         0.0
 ===================================================================
 
 pivot point     flapHinge      SpanwiseLiftTerm    invert tauSpan
@@ -54,7 +54,7 @@ from LE[x/c]  from centre[r/R]    [1]enable     for swept/symmetric
 turbulentViscosity           
 (10-10000)                   
 -------------------------------------------------------------------
-  100
+  500
 ===================================================================
 
   spanwise core radius[x/c]       streamwise core_switch
@@ -93,13 +93,13 @@ CUSTOM WIND FRAME FOR FORCE OUTPUT
     [0]Off                    [0]Off                
     [n]Every nth iteration    [n]Every nth iteration
 -------------------------------------------------------------------
-       0                              1
+       0                              10
 
   gammaPlotSwitch                 alphaPlotSwitch  
     [0]Off                         [0]Off                      
     [n]Every nth iteration         [n]Every nth iteration      
 -------------------------------------------------------------------
-       0                                 1
+       0                                 0
 ===================================================================
 
  forceCalcSwitch

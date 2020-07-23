@@ -4,7 +4,7 @@
 
  restartWriteNt    restartFromNt [0]Off [1..]timesteps
 -----------------------------------------------------------------------
-     0                  0
+     100                  0
 
  NO. OF SUBITERATIONS [ntSub]  NO. OF INITIAL SUBITERATIONS [ntSubInit]    
 -----------------------------------------------------------------------
@@ -24,13 +24,13 @@
 PLOT WAKE: [0]Off [n]Every nth iteration
 wakePlotSwitch   wakeTipPlotSwitch   forcePlotSwitch   gridPlotSwitch
 -----------------------------------------------------------------------
-      100                0                  1                0
+      100                0                  10                0
 =======================================================================
 
  WAKE PROPERTY SWITCHES: [0]Off [1]On  
  wakeDissipationSwitch            wakeStrainSwitch   wakeBurstSwitch
 -----------------------------------------------------------------------
-       0                                0                  0
+       1                                0                  0
 
  SLOW START TO AVOID LARGE STARTING VORTEX:
  [0]Off [1]linear [2]tanh [3]extended tanh
