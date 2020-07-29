@@ -2,7 +2,7 @@
 ===================================================================
 No.of blades,nb    Prop convention     Read wing from file 
 -------------------------------------------------------------------
-     2                    0                propCW.xyz
+     2                    1                propCW.xyz
 
 Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 -------------------------------------------------------------------
@@ -23,7 +23,7 @@ X-from          Y-from          Z-from         [all in m]
 
 Phi       Theta       Psi     about cgCoords [all in deg]
 -------------------------------------------------------------------
- 0.0       -90.0         0.0
+ 0.0      -70.0       0.0
 ===================================================================
 
 Span[m]      root_cut[r/R]      chord[m]    coningAngle[deg]
@@ -33,7 +33,7 @@ Span[m]      root_cut[r/R]      chord[m]    coningAngle[deg]
 
 Omega[rad/s]   X-shaftAxis     Y-shaftAxis     Z-shaftAxis 
 -------------------------------------------------------------------
-  628.32         0.0              0.0              1.0
+  628.31         0.0              0.0              1.0
 
 theta0[deg]    thetaC[deg]    thetaS[deg]    thetaTwist[deg]
 -------------------------------------------------------------------
@@ -42,7 +42,7 @@ theta0[deg]    thetaC[deg]    thetaS[deg]    thetaTwist[deg]
 
 u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]    
 -------------------------------------------------------------------
- -12.5       0.0        0.0        0.0        0.0         0.0
+ -12.5       0.0      0.0        0.0        0.0         0.0
 ===================================================================
 
 pivot point     flapHinge      SpanwiseLiftTerm    invert tauSpan
@@ -93,13 +93,13 @@ CUSTOM WIND FRAME FOR FORCE OUTPUT
     [0]Off                    [0]Off                
     [n]Every nth iteration    [n]Every nth iteration
 -------------------------------------------------------------------
-       0                              10
+       0                              1
 
   gammaPlotSwitch                 alphaPlotSwitch  
     [0]Off                         [0]Off                      
     [n]Every nth iteration         [n]Every nth iteration      
 -------------------------------------------------------------------
-       0                                 0
+       0                                 1
 ===================================================================
 
  forceCalcSwitch
