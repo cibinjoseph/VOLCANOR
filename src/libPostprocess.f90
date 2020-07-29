@@ -19,14 +19,19 @@ contains
       ! Add data headers
       open (unit=11, file=forceDimFilename, &
         & status='replace', action='write')
-      write (11, '(A)') 'timestamp(iters)  Lift(x,y,z)  Drag(x,y,z)  ForceInertial(x,y,z)'
+      write (11, 100) 'iter','LiftMag','DragMag', &
+        & 'Lx','Ly','Lz', &
+        & 'Dx','Dy','Dz', &
+        & 'FInertx','FInerty','FInertz'
       close (11)
 
       open (unit=12, file=forceNonDimFilename, &
         & status='replace', action='write')
-      write (12, '(A)') 'timestamp(iters)  CL CD CDi CD0 CDu  CFx CFy CFz'
+      write (12, '(A)') 'iter','CL/CT','CD/CQ','CDi','CD0','CDu','CFx','CFy','CFz'
       close (12)
     enddo
+    100 format (A5,11(A15))
+    101 format (A5,11(A8))
   end subroutine init_plots
 
   subroutine params2file(rotor, rotorNumber, nt, dt, nr)
@@ -656,12 +661,12 @@ contains
 
     forceDimFilename = 'Results/r'//rotorNumberChar//'ForceDim.dat'
     open (unit=12, file=forceDimFilename, action='write', position='append')
-    write (12, 101) timestamp, &
+    write (12, 101) timestamp, norm2(rotor%lift), norm2(rotor%drag)&
       rotor%lift(1), rotor%lift(2), rotor%lift(3), &     ! Lift
       rotor%drag(1), rotor%drag(2), rotor%drag(3), &     ! Drag
       rotor%forceInertial(1), rotor%forceInertial(2), rotor%forceInertial(3)  ! forceInertial 
     close (12)
-    101 format(A, 9(E15.7))
+    101 format(A, 11(E15.7))
 
     if (rotor%bladeforcePlotSwitch .ne. 0) then
       read(timestamp, *) iter
