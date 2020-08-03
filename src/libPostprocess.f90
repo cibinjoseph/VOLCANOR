@@ -27,11 +27,12 @@ contains
 
       open (unit=12, file=forceNonDimFilename, &
         & status='replace', action='write')
-      write (12, '(A)') 'iter','CL/CT','CD/CQ','CDi','CD0','CDu','CFx','CFy','CFz'
+      write (12, 101) 'iter','CL/CT','CD/CQ','CDi','CD0','CDu', &
+        & 'CFx','CFy','CFz'
       close (12)
     enddo
     100 format (A5,11(A15))
-    101 format (A5,11(A8))
+    101 format (A5,8(A15))
   end subroutine init_plots
 
   subroutine params2file(rotor, rotorNumber, nt, dt, nr)
