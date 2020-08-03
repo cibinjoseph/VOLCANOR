@@ -1924,15 +1924,15 @@ contains
       endif
 
       ! Shed last row of vortices
-      if (abs(norm2(this%velWind)) < eps) then
-        velShed = min(0.05*this%Omega*norm2(this%blade(ib)% &
+      if (abs(this%Omega) > eps) then
+        velShed = min(0.05*abs(this%Omega)*norm2(this%blade(ib)% &
           wiP(this%nc, this%ns)%vr%vf(2)%fc(:, 1) - this%hubCoords), 0.125_dp*this%chord/dt)
       else
         velShed = 0.3_dp*norm2(this%velWind)
       endif
       do j = 1, this%ns
-        call this%blade(ib)%wiP(this%nc, j)%vr%shiftdP(2, (/velShed*dt, 0._dp, 0._dp/))
-        call this%blade(ib)%wiP(this%nc, j)%vr%shiftdP(3, (/velShed*dt, 0._dp, 0._dp/))
+        call this%blade(ib)%wiP(this%nc, j)%vr%shiftdP(2, (/sign(1._dp,this%Omega)*velShed*dt, 0._dp, 0._dp/))
+        call this%blade(ib)%wiP(this%nc, j)%vr%shiftdP(3, (/sign(1._dp,this%Omega)*velShed*dt, 0._dp, 0._dp/))
       enddo
 
       ! Initialize CP coords, nCap, panelArea and pivotLE
