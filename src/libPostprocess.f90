@@ -787,12 +787,15 @@ contains
         & 'r'//rotorNumberChar//'b'//bladeNumberChar// &
         & 'alphaDist'//timestamp//'.curve', &
         & action='write', position='append')
+      write(12, 100) 'secSpan', 'alpha'
       do is = 1, rotor%ns
-        write (12, *) dot_product(rotor%blade(ib)%wiP(1, is)%CP - rotor%hubCoords, rotor%blade(ib)%yAxis), &
-          rotor%blade(ib)%secAlpha(is)*180._dp/pi
+        write (12, 101) dot_product(rotor%blade(ib)%secCP(:, is) - rotor%hubCoords, &
+          & rotor%blade(ib)%yAxis), rotor%blade(ib)%secAlpha(is)*180._dp/pi
       enddo
       close (12)
     enddo
+    100 format (2(A15))
+    101 format (2(F15.7))
 
   end subroutine alpha2file
 
