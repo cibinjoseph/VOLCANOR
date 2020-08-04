@@ -682,7 +682,7 @@ contains
             & action='write', position='append')
           write (12, 202) 'secSpan','secCL','secCD','secArea','secVel','secChord'
           do ispan = 1, rotor%ns
-            write (12, 102) dot_product(rotor%blade(ib)%wiP(1, ispan)%CP - &
+            write (12, 102) dot_product(rotor%blade(ib)%secCP(:, ispan) - &
               & rotor%hubCoords, rotor%blade(ib)%yAxis), &
               & rotor%blade(ib)%secCL(ispan), & 
               & rotor%blade(ib)%secCD(ispan), &
@@ -706,7 +706,7 @@ contains
     integer, intent(in) :: rotorNumber
     real(dp), intent(in), dimension(3) :: directionVector
     character(len=2) :: rotorNumberChar, bladeNumberChar
-    integer :: il, ir, ib
+    integer :: is, ir, ib
 
     real(dp), dimension(3) :: P
     real(dp), dimension(rotorArray(rotorNumber)%ns, rotorArray(rotorNumber)%nb) :: inflowVel
@@ -714,11 +714,11 @@ contains
     inflowVel = 0._dp
     do ir = 1, size(rotorArray)
       do ib = 1, rotorArray(rotorNumber)%nb
-        do il = 1, rotorArray(rotorNumber)%ns
-          P = rotorArray(rotorNumber)%blade(ib)%secCP(:, il)
-          inflowVel(il, ib) = inflowVel(il, ib) + dot_product(rotorArray(ir)%vind_bywing(P), directionVector)
-          inflowVel(il, ib) = inflowVel(il, ib) - dot_product(rotorArray(ir)%vind_bywing_boundVortices(P), directionVector)
-          inflowVel(il, ib) = inflowVel(il, ib) + dot_product(rotorArray(ir)%vind_bywake(P), directionVector)
+        do is = 1, rotorArray(rotorNumber)%ns
+          P = rotorArray(rotorNumber)%blade(ib)%secCP(:, is)
+          inflowVel(is, ib) = inflowVel(is, ib) + dot_product(rotorArray(ir)%vind_bywing(P), directionVector)
+          inflowVel(is, ib) = inflowVel(is, ib) - dot_product(rotorArray(ir)%vind_bywing_boundVortices(P), directionVector)
+          inflowVel(is, ib) = inflowVel(is, ib) + dot_product(rotorArray(ir)%vind_bywake(P), directionVector)
         enddo
       enddo
     enddo
@@ -731,12 +731,17 @@ contains
         & 'r'//rotorNumberChar//'b'//bladeNumberChar// &
         & 'inflowDist'//timestamp//'.curve', & 
         & action='write', position='append')
-      do il = 1, rotorArray(rotorNumber)%ns
-        write (12, *) norm2(rotorArray(rotorNumber)%hubCoords - rotorArray(rotorNumber)%blade(ib)%secCP(:, il)), &
-          inflowVel(il, ib)
+      write(12, 100) 'secSpan', 'inflowVel'
+      do is = 1, rotorArray(rotorNumber)%ns
+        write (12, 101) dot_product(rotorArray(rotorNumber)%blade(ib)%secCP(:, is), &
+          & rotorArray(rotorNumber)%hubCoords - &
+          & rotorArray(rotorNumber)%blade(ib)%yAxis), &
+          & inflowVel(is, ib)
       enddo
       close (12)
     enddo
+    100 format (2(A15))
+    101 format (2(F15.7))
 
   end subroutine inflow2file
 
