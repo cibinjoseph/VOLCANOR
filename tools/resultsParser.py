@@ -2,53 +2,56 @@
 import numpy as np
 from glob import glob
 
-def getParams(paramsFile='Results/r01Params.dat'):
-    if paramsFile == None:
-        paramsFile = 'Results/r01Params.dat'
+ResultsDir = 'Results/'
 
-    with open(paramsFile, 'r') as fh:
+def getHeader(file):
+    ''' Returns variables in header as list of strings '''
+    with open(file, 'r') as fh:
+        line = fh.readline()
+    return line.split()
+
+def getParams(file=ResultsDir + 'r01Params.dat'):
+    """ Extract parameters from params file """
+    with open(file, 'r') as fh:
         lines = fh.readlines()
 
     params = {}
     for line in lines:
         cols = line.split()
         params[cols[0]] = cols[1]
+    return params
 
-    return paramsFile, params
+def getData(file):
+    """ Parse File and extract header and data """
+    mat = np.loadtxt(file, skiprows=1)
+    data = {}
+    for col, var in enumerate(getHeader(file)):
+        data[var] = mat[:, col]
+    return data
 
-def getForceDist(forceDistFile=None):
-    if forceDistFile == None:
-        # Parse Results/ and get latest ForceDist file
-        fileNumPrev = 0
-        for file in glob('Results/r01ForceDist*'):
-            fileNum = int(file[20:25])
-            if fileNum > fileNumPrev:
-                forceDistFile = file
-                fileNumPrev = fileNum
+def getLatestFile(filename):
+    """ Return filename of latest file with starting string """
+    fileNumPrev = 0
+    filenameLen = len(filename)
+    for currentFile in glob(filename+'*'):
+        fileNum = int(currentFile[filenameLen:filenameLen+5])
+        if fileNum > fileNumPrev:
+            latestFile = currentFile
+            fileNumPrev = fileNum
+    return latestFile
 
-    with open(forceDistFile, 'r') as fh:
-        lines = fh.readlines()
+def getForceDist(file=None):
+    """ Extract data from forcedist file """
+    if file == None:
+        # Parse ResultsDir and get latest ForceDist file
+        file = getLatestFile(ResultsDir + 'r01b01ForceDist')
+    return getData(file)
 
-    secSpan = []
-    secCL = []
-    secCD = []
-    secArea = []
-    secChord = []
-    secVel = []
-    for line in lines[2:]:
-        cols = line.split()
-        secSpan.append(float(cols[1]))
-        secCL.append(float(cols[2]))
-        secCD.append(float(cols[3]))
-        secArea.append(float(cols[4]))
-        secVel.append(float(cols[5]))
-        secChord.append(float(cols[6]))
 
-    secSpan = np.array(secSpan)
-    secCL = np.array(secCL)
-    secCD = np.array(secCD)
-    secArea = np.array(secArea)
-    secVel = np.array(secVel)
-    secChord = np.array(secChord)
+def getForceDim(file=ResultsDir + 'r01ForceDim.dat'):
+    """ Extract data from ForceDim file """
+    return getData(file)
 
-    return forceDistFile, secSpan, secCL, secCD, secArea, secVel, secChord
+def getForceNonDim(file=ResultsDir + 'r01ForceNonDim.dat'):
+    """ Extract data from ForceDim file """
+    return getData(file)
