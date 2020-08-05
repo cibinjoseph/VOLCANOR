@@ -16,4 +16,3 @@ Introduce blade%xAxisNoPitch centered about pitching hinge
 Implement alpha sweep mode
 Make secDynamicPressure a variable also to prevent recomputing during plotting
 Implement FELS for rotors
-Write all rotor inputs to params file, extract only necessary ones using resultsParser
