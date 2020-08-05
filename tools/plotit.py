@@ -1,7 +1,6 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # code to quickly plot wake, tip, lift and drag curves using VisIt
 
-import visit
 import argparse
 import signal
 import os
