@@ -40,8 +40,8 @@ dt = float(propParams['dt'])
 propLift = []
 nsteps = []
 for i in range(4):
-    propLift.append(pr.getForceDim(file=pr.ResultsDir+ \
-                                   'r0'+str(i+1)+'ForceDim.dat')['Lz'])
+    propLift.append(abs(pr.getForceDim(file=pr.ResultsDir+ \
+                                   'r0'+str(i+1)+'ForceDim.dat')['Lz']))
     omega = float(pr.getParams(file=pr.ResultsDir + \
                          'r0'+str(i+1)+'Params.dat')['Omega'])
     nsteps.append(round(2*np.pi/(omega*dt)))
