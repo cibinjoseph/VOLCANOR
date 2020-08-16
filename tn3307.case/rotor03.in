@@ -33,7 +33,7 @@ Span[m]      root_cut[r/R]      chord[m]    coningAngle[deg]
 
 Omega[rad/s]   X-shaftAxis     Y-shaftAxis     Z-shaftAxis 
 -------------------------------------------------------------------
-  400.3         0.0              0.0              1.0
+  526.45         0.0              0.0              1.0
 
 theta0[deg]    thetaC[deg]    thetaS[deg]    thetaTwist[deg]
 -------------------------------------------------------------------
