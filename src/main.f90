@@ -177,7 +177,7 @@ program main
   enddo ntSubInitLoop
 
   if ((i .gt. ntSubInit) .and. (ntSubInit .ne. 0)) then
-    error stop "Initial solution did not converge. Try increasing sub-iterations."
+    print*, "Initial solution did not converge. Try increasing sub-iterations."
   else
     call print_status()    ! SUCCESS
   endif
@@ -467,7 +467,7 @@ program main
     if (ntSub .ne. 0) then
       print *, 'Sub-iterations ', i
       if (i .gt. ntSub) &
-        error stop "Solution did not converge. Try increasing sub-iterations."
+        print*, "Solution did not converge. Try increasing sub-iterations."
     endif
 
     ! Compute forces
