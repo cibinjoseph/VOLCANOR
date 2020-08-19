@@ -25,7 +25,7 @@ vinf = secSpan*omega
 
 alphalist = (180.0/np.pi)*(secCL - CLo_lin)/CLa_lin
 
-c81File = "NACA5605_short.C81"
+c81File = "NACA5605.C81"
 with open(c81File, 'r') as fh:
     c81Airfoil = c81.load(fh)
 
