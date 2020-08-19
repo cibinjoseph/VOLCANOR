@@ -36,8 +36,10 @@ for alpha in alphalist:
 secLift = CL_nonlin*(0.5*rhoMars*secArea*vinf*vinf)
 ThrustMars = 2.0*np.sum(secLift)
 CTMars = ThrustMars / (rhoMars*np.pi*Rad*Rad*(vTip)**2.0)
+print('Max. alpha (deg) = ' + str(np.max(alphalist)))
 print('Thrust in Mars = ' + str(ThrustMars))
 print('CT in Mars = ' + str(CTMars))
 
-plt.plot(secSpan/Rad, secLift)
-plt.show()
+# plt.plot(secSpan/Rad, secLift)
+# plt.show()
+np.savetxt([secSpan/Rad, secLift])
