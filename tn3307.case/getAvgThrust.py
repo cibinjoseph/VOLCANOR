@@ -38,20 +38,23 @@ dt = float(propParams['dt'])
 
 # Find inst. Tz of each propeller from ForceDim file
 propLift = []
+propThrust = []
 nsteps = []
 for i in range(4):
     propLift.append(abs(pr.getForceDim(file=pr.ResultsDir+ \
                                    'r0'+str(i+1)+'ForceDim.dat')['Lz']))
+    propThrust.append(abs(pr.getForceDim(file=pr.ResultsDir+ \
+                                   'r0'+str(i+1)+'ForceDim.dat')['LiftMag']))
     omega = float(pr.getParams(file=pr.ResultsDir + \
                          'r0'+str(i+1)+'Params.dat')['Omega'])
     nsteps.append(round(2*np.pi/(omega*dt)))
 
 # Print Tz for props
-print('Average Fz over last 1 rev')
-print('Prop 1 : ' + str(averageOver(propLift[0], nsteps[0], 1)))
-print('Prop 2 : ' + str(averageOver(propLift[1], nsteps[1], 1)))
-print('Prop 3 : ' + str(averageOver(propLift[2], nsteps[2], 1)))
-print('Prop 4 : ' + str(averageOver(propLift[3], nsteps[3], 1)))
+print('Average Thrust over last 1 rev')
+print('Prop 1 : ' + str(averageOver(propThrust[0], nsteps[0], 1)))
+print('Prop 2 : ' + str(averageOver(propThrust[1], nsteps[1], 1)))
+print('Prop 3 : ' + str(averageOver(propThrust[2], nsteps[2], 1)))
+print('Prop 4 : ' + str(averageOver(propThrust[3], nsteps[3], 1)))
 
 # Find inst. Lz of wing from ForceDim file
 wingLift = pr.getForceDim(file=pr.ResultsDir+'r05ForceDim.dat')['Lz']
