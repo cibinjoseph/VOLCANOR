@@ -688,20 +688,23 @@ contains
             & 'r'//rotorNumberChar// 'b'//bladeNumberChar// &
             & 'ForceDist'//timestamp//'.dat', & 
             & action='write', position='append')
-          write (12, 202) 'secSpan','secCL','secCD','secArea','secVel','secChord'
+          write (12, 202) 'secSpan', 'secCL', 'secCD', 'secLift', 'secDrag', &
+            & 'secArea', 'secVel', 'secChord'
           do ispan = 1, rotor%ns
             write (12, 102) dot_product(rotor%blade(ib)%secCP(:, ispan) - &
               & rotor%hubCoords, rotor%blade(ib)%yAxis), &
-              & rotor%blade(ib)%secCL(ispan), & 
+              & rotor%blade(ib)%secCL(ispan), &
               & rotor%blade(ib)%secCD(ispan), &
+              & norm2(rotor%blade(ib)%secLift(:, ispan)), &
+              & norm2(rotor%blade(ib)%secDrag(:, ispan)), &
               & rotor%blade(ib)%secArea(ispan), &
               & norm2(rotor%blade(ib)%secChordwiseResVel(:, ispan)), &
               & rotor%blade(ib)%secChord(ispan)
           enddo
           close (12)
         enddo
-        202 format(6(A15))
-        102 format(6(E15.7))
+        202 format(8(A15))
+        102 format(8(E15.7))
       endif
     endif
   end subroutine force2file
