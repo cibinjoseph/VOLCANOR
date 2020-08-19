@@ -1,30 +1,25 @@
+#!/usr/bin/python3
+
 import numpy as np
 import c81utils as c81
+import parseResults as pr
+import matplotlib.pyplot as plt
 
-with open('Results/r01ForceDist00720.dat', 'r') as fh:
-    lines = fh.readlines()[2:]
+params = pr.getParams()
+data = pr.getForceDist()
 
-omega = 314.16
 CLa_lin = 4.584
-# CLa_lin = 5.8
 CLo_lin = 0.8326
-rho = 1.2
-rhoMars = 0.0205
-Rad = 0.518
+
+omega = float(params['Omega'])
+rho = float(params['density'])
+rhoMars = 0.022
+Rad = float(params['radius'])
 vTip = Rad*omega
 
-secSpan = []
-secCL = []
-secArea = []
-for line in lines[0:17]:
-    cols = line.split()
-    secSpan.append(float(cols[1]))
-    secCL.append(float(cols[2]))
-    secArea.append(float(cols[4]))
-
-secSpan = np.array(secSpan)
-secCL = np.array(secCL)
-secArea = np.array(secArea)
+secSpan = np.array(data['secSpan'])
+secCL = np.array(data['secCL'])
+secArea = np.array(data['secArea'])
 
 vinf = secSpan*omega
 
@@ -43,3 +38,6 @@ ThrustMars = 2.0*np.sum(secLift)
 CTMars = ThrustMars / (rhoMars*np.pi*Rad*Rad*(vTip)**2.0)
 print('Thrust in Mars = ' + str(ThrustMars))
 print('CT in Mars = ' + str(CTMars))
+
+plt.plot(secSpan/Rad, secLift)
+plt.show()
