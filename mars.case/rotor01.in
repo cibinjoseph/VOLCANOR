@@ -2,7 +2,7 @@
 ===================================================================
 No.of blades,nb     Prop convention    Read wing from file 
 -------------------------------------------------------------------
-     2                    0                mars.xyz
+     2                    0                marsFlat.xyz
 
 Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 -------------------------------------------------------------------
