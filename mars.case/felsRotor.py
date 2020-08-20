@@ -8,8 +8,8 @@ import matplotlib.pyplot as plt
 params = pr.getParams()
 data = pr.getForceDist()
 
-CLa_lin = 4.584
-CLo_lin = 0.8326
+CLa_lin = 5.792
+CLo_lin = 0.614
 
 omega = float(params['Omega'])
 rho = float(params['density'])
@@ -26,6 +26,8 @@ secArea = np.array(data['secArea'])
 vinf = secSpan*omega
 
 alphalist = (180.0/np.pi)*(secCL - CLo_lin)/CLa_lin
+print(alphalist)
+quit()
 
 c81File = "NACA5605.C81"
 with open(c81File, 'r') as fh:
