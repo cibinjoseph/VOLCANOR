@@ -40,5 +40,8 @@ print('Min/Max alpha (deg) = ' + str(np.min(alphalist)) +' / ' + str(np.max(alph
 print('Thrust in Mars = ' + str(ThrustMars))
 print('CT in Mars = ' + str(CTMars))
 
+# Write distribution to file
+outMat = np.column_stack((secSpan/Rad, secLift))
+np.savetxt('forceDist.dat', outMat, delimiter=',')
 # plt.plot(secSpan/Rad, secLift)
 # plt.show()
