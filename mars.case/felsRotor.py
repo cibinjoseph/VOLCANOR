@@ -13,8 +13,10 @@ CLo_lin = 0.8326
 
 omega = float(params['Omega'])
 rho = float(params['density'])
-rhoMars = 0.022
 Rad = float(params['radius'])
+nb = float(params['nb'])
+
+rhoMars = 0.022
 vTip = Rad*omega
 
 secSpan = np.array(data['secSpan'])
@@ -34,7 +36,7 @@ for alpha in alphalist:
     CL_nonlin.append(c81Airfoil.getCL(alpha, 0.5))
 
 secLift = CL_nonlin*(0.5*rhoMars*secArea*vinf*vinf)
-ThrustMars = 2.0*np.sum(secLift)
+ThrustMars = nb*np.sum(secLift)
 CTMars = ThrustMars / (rhoMars*np.pi*Rad*Rad*(vTip)**2.0)
 print('Min/Max alpha (deg) = ' + str(np.min(alphalist)) +' / ' + str(np.max(alphalist)))
 print('Thrust in Mars = ' + str(ThrustMars))
@@ -43,5 +45,6 @@ print('CT in Mars = ' + str(CTMars))
 # Write distribution to file
 outMat = np.column_stack((secSpan/Rad, alphalist, secLift))
 np.savetxt('forceDist.dat', outMat, delimiter=',')
+
 # plt.plot(secSpan/Rad, secLift)
 # plt.show()
