@@ -41,7 +41,7 @@ print('Thrust in Mars = ' + str(ThrustMars))
 print('CT in Mars = ' + str(CTMars))
 
 # Write distribution to file
-outMat = np.column_stack((secSpan/Rad, secLift))
+outMat = np.column_stack((secSpan/Rad, alphalist, secLift))
 np.savetxt('forceDist.dat', outMat, delimiter=',')
 # plt.plot(secSpan/Rad, secLift)
 # plt.show()
