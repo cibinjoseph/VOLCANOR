@@ -8,8 +8,8 @@ import matplotlib.pyplot as plt
 params = pr.getParams()
 data = pr.getForceDist()
 
-CLa_lin = 5.792
-CLo_lin = 0.614
+CLa_lin = 6.283185
+CLo_lin = 0.710635
 
 omega = float(params['Omega'])
 rho = float(params['density'])

@@ -2,7 +2,7 @@
 ===================================================================
 No.of blades,nb     Prop convention    Read wing from file 
 -------------------------------------------------------------------
-     2                    0                marsFlat.xyz
+     2                    0                mars.xyz
 
 Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 -------------------------------------------------------------------
@@ -99,7 +99,7 @@ CUSTOM WIND FRAME FOR FORCE OUTPUT
     [0]Off                         [0]Off                      
     [n]Every nth iteration         [n]Every nth iteration      
 -------------------------------------------------------------------
-       0                                 0
+       0                                 10
 ===================================================================
 
  forceCalcSwitch
