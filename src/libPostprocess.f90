@@ -700,7 +700,7 @@ contains
               & rotor%blade(ib)%secArea(ispan), &
               & norm2(rotor%blade(ib)%secChordwiseResVel(:, ispan)), &
               & rotor%blade(ib)%secChord(ispan), &
-              & rotor%blade(ib)%secAlpha(ispan)
+              & rotor%blade(ib)%secAlpha(ispan)*180._dp/pi
           enddo
           close (12)
         enddo
