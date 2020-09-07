@@ -447,7 +447,8 @@ contains
   end function Tbg
 
   function Tgb(cs_phi, cs_theta, cs_psi)
-    real(dp), dimension(2), intent(in) :: cs_phi, cs_theta, cs_psi  ! cos and sin
+    real(dp), dimension(2), intent(in) :: cs_phi, cs_theta, cs_psi  
+    ! cs_ represent cos and sin
     real(dp), dimension(3, 3) :: Tgb
     Tgb(1, 1) = cs_psi(1)*cs_theta(1)
     Tgb(1, 2) = cs_phi(2)*cs_theta(2)*cs_psi(1) - cs_psi(2)*cs_phi(1)
@@ -459,6 +460,23 @@ contains
     Tgb(3, 2) = cs_phi(2)*cs_theta(1)
     Tgb(3, 3) = cs_phi(1)*cs_theta(1)
   end function Tgb
+
+  function trapz(y, x)
+    !! Trapezoid integration unequal intervals
+    real(dp) :: trapz
+    real(dp), intent(in), dimension(:) :: x, y
+    integer :: i, n
+
+    if (size(x) .ne. size(y)) then
+      error stop 'ERROR: Sizes of vectors do not match'
+    endif
+
+    trapz = 0._dp
+    do i = 2, size(x)
+      trapz = trapz + (x(i)-x(i-1))*(y(i)+y(i-1))
+    enddo
+    trapz = 0.5_dp*trapz
+  end function trapz
 
   !|------+----------------------+------|
   !| ++++ | Bookeeping functions | ++++ |
