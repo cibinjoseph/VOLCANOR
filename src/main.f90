@@ -211,7 +211,7 @@ program main
 
         ! Compute and plot alpha if requested
         if (rotor(ir)%alphaPlotSwitch .ne. 0) then
-          if (mod(iter, rotor(ir)%alphaPlotSwitch) .eq. 0) then
+          if (mod(iter, rotor(ir)%bladeforcePlotSwitch) .eq. 0) then
             ! Compute alpha
             do ib = 1, rotor(ir)%nb
               do is = 1, rotor(ir)%ns
@@ -238,7 +238,6 @@ program main
             enddo
 
             call rotor(ir)%calc_secAlpha()
-            call alpha2file(timestamp, rotor(ir), ir)
           endif
         endif
 
@@ -271,22 +270,8 @@ program main
         call rotor(ir)%calc_secAlpha()
         call rotor(ir)%calc_force_alpha(density, velSound)
 
-        ! Plot alpha
-        if (rotor(ir)%alphaPlotSwitch .ne. 0) then
-          if (mod(iter, rotor(ir)%alphaPlotSwitch) .eq. 0) then
-            call alpha2file(timestamp, rotor(ir), ir)
-          endif
-        endif
-
       case (2)  ! Compute lift using alpha approximated from sec circulation
         call rotor(ir)%calc_force_alphaGamma(density, velSound, dt)
-
-        ! Plot alpha
-        if (rotor(ir)%alphaPlotSwitch .ne. 0) then
-          if (mod(iter, rotor(ir)%alphaPlotSwitch) .eq. 0) then
-            call alpha2file(timestamp, rotor(ir), ir)
-          endif
-        endif
 
       end select
 
@@ -492,7 +477,7 @@ program main
 
             ! Compute and plot alpha if requested
             if (rotor(ir)%alphaPlotSwitch .ne. 0) then
-              if (mod(iter, rotor(ir)%alphaPlotSwitch) .eq. 0) then
+              if (mod(iter, rotor(ir)%bladeforcePlotSwitch) .eq. 0) then
                 ! Compute alpha
                 do ib = 1, rotor(ir)%nb
                   do is = 1, rotor(ir)%ns
@@ -519,7 +504,7 @@ program main
                 enddo
 
                 call rotor(ir)%calc_secAlpha()
-                call alpha2file(timestamp, rotor(ir), ir)
+                ! call alpha2file(timestamp, rotor(ir), ir)
                 endif
               endif
 
@@ -552,22 +537,8 @@ program main
             call rotor(ir)%calc_secAlpha()
             call rotor(ir)%calc_force_alpha(density, velSound)
 
-            ! Plot alpha
-            if (rotor(ir)%alphaPlotSwitch .ne. 0) then
-              if (mod(iter, rotor(ir)%alphaPlotSwitch) .eq. 0) then
-                call alpha2file(timestamp, rotor(ir), ir)
-              endif
-            endif
-
           case (2)  ! Compute lift using alpha approximated from sec circulation
             call rotor(ir)%calc_force_alphaGamma(density, velSound, dt)
-
-            ! Plot alpha
-            if (rotor(ir)%alphaPlotSwitch .ne. 0) then
-              if (mod(iter, rotor(ir)%alphaPlotSwitch) .eq. 0) then
-                call alpha2file(timestamp, rotor(ir), ir)
-              endif
-            endif
 
           end select
 

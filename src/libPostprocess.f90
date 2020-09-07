@@ -689,7 +689,7 @@ contains
             & 'ForceDist'//timestamp//'.dat', & 
             & action='write', position='append')
           write (12, 202) 'secSpan', 'secCL', 'secCD', 'secLift', 'secDrag', &
-            & 'secArea', 'secVel', 'secChord'
+            & 'secArea', 'secVel', 'secChord', 'secAlpha'
           do ispan = 1, rotor%ns
             write (12, 102) dot_product(rotor%blade(ib)%secCP(:, ispan) - &
               & rotor%hubCoords, rotor%blade(ib)%yAxis), &
@@ -699,12 +699,13 @@ contains
               & norm2(rotor%blade(ib)%secDrag(:, ispan)), &
               & rotor%blade(ib)%secArea(ispan), &
               & norm2(rotor%blade(ib)%secChordwiseResVel(:, ispan)), &
-              & rotor%blade(ib)%secChord(ispan)
+              & rotor%blade(ib)%secChord(ispan), &
+              & rotor%blade(ib)%secAlpha(ispan)
           enddo
           close (12)
         enddo
-        202 format(8(A15))
-        102 format(8(E15.7))
+        202 format(9(A15))
+        102 format(9(E15.7))
       endif
     endif
   end subroutine force2file
@@ -786,34 +787,34 @@ contains
 
   end subroutine gamma2file
 
-  subroutine alpha2file(timestamp, rotor, rotorNumber)
-    ! Write sec alpha to file
-    character(len=*), intent(in) :: timestamp
-    type(rotor_class), intent(inout) :: rotor
-    integer, intent(in) :: rotorNumber
-    integer :: ib, is
-    character(len=2) :: rotorNumberChar, bladeNumberChar
+  ! subroutine alpha2file(timestamp, rotor, rotorNumber)
+  !   ! Write sec alpha to file
+  !   character(len=*), intent(in) :: timestamp
+  !   type(rotor_class), intent(inout) :: rotor
+  !   integer, intent(in) :: rotorNumber
+  !   integer :: ib, is
+  !   character(len=2) :: rotorNumberChar, bladeNumberChar
 
-    ! Write to file
-    write (rotorNumberChar, '(I0.2)') rotorNumber
-    do ib = 1, rotor%nb
-      write (bladeNumberChar, '(I0.2)') ib
-      open (unit=12, & 
-        & file=ResultsDir// &
-        & 'r'//rotorNumberChar//'b'//bladeNumberChar// &
-        & 'alphaDist'//timestamp//'.curve', &
-        & action='write', position='append')
-      write(12, 100) 'secSpan', 'alpha'
-      do is = 1, rotor%ns
-        write (12, 101) dot_product(rotor%blade(ib)%secCP(:, is) - rotor%hubCoords, &
-          & rotor%blade(ib)%yAxis), rotor%blade(ib)%secAlpha(is)*180._dp/pi
-      enddo
-      close (12)
-    enddo
-    100 format (2(A15))
-    101 format (2(F15.7))
+  !   ! Write to file
+  !   write (rotorNumberChar, '(I0.2)') rotorNumber
+  !   do ib = 1, rotor%nb
+  !     write (bladeNumberChar, '(I0.2)') ib
+  !     open (unit=12, & 
+  !       & file=ResultsDir// &
+  !       & 'r'//rotorNumberChar//'b'//bladeNumberChar// &
+  !       & 'alphaDist'//timestamp//'.curve', &
+  !       & action='write', position='append')
+  !     write(12, 100) 'secSpan', 'alpha'
+  !     do is = 1, rotor%ns
+  !       write (12, 101) dot_product(rotor%blade(ib)%secCP(:, is) - rotor%hubCoords, &
+  !         & rotor%blade(ib)%yAxis), rotor%blade(ib)%secAlpha(is)*180._dp/pi
+  !     enddo
+  !     close (12)
+  !   enddo
+  !   100 format (2(A15))
+  !   101 format (2(F15.7))
 
-  end subroutine alpha2file
+  ! end subroutine alpha2file
 
 end module libPostprocess
 
