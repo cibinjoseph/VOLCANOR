@@ -6,7 +6,7 @@ No.of blades,nb      Prop convention     Read wing from file
 
 Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 -------------------------------------------------------------------
-      4                      16                   200
+      20                      30                   1500
 ===================================================================
 
 X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
@@ -28,7 +28,7 @@ Phi       Theta       Psi     about cgCoords [all in deg]
 
 Span[m]      root_cut[r/R]      chord[m]    coningAngle[deg]
 -------------------------------------------------------------------
- 8.0           0.0            1.0            0.0
+ 200.0           0.0            1.0            0.0
 ===================================================================
 
 Omega[rad/s]   X-shaftAxis     Y-shaftAxis     Z-shaftAxis 
@@ -93,13 +93,13 @@ CUSTOM WIND FRAME FOR FORCE OUTPUT
     [0]Off                    [0]Off                
     [n]Every nth iteration    [n]Every nth iteration
 -------------------------------------------------------------------
-       0                              50
+       0                              1
 
   gammaPlotSwitch                 alphaPlotSwitch  
     [0]Off                         [0]Off                      
     [n]Every nth iteration         [n]Every nth iteration      
 -------------------------------------------------------------------
-       0                                 50
+       0                                 1
 ===================================================================
 
  forceCalcSwitch
