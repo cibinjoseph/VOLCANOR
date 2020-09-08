@@ -93,13 +93,13 @@ CUSTOM WIND FRAME FOR FORCE OUTPUT
     [0]Off                    [0]Off                
     [n]Every nth iteration    [n]Every nth iteration
 -------------------------------------------------------------------
-       0                              1
+       0                              20
 
   gammaPlotSwitch                 alphaPlotSwitch  
     [0]Off                         [0]Off                      
     [n]Every nth iteration         [n]Every nth iteration      
 -------------------------------------------------------------------
-       0                                 1
+       0                                 20
 ===================================================================
 
  forceCalcSwitch
