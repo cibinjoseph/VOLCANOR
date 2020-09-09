@@ -24,7 +24,7 @@
 PLOT WAKE: [0]Off [n]Every nth iteration
 wakePlotSwitch   wakeTipPlotSwitch   forcePlotSwitch   gridPlotSwitch
 -----------------------------------------------------------------------
-       1                0                  1                0
+       36                0                  1                0
 =======================================================================
 
  WAKE PROPERTY SWITCHES: [0]Off [1]On  
