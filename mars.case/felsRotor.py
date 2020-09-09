@@ -8,9 +8,10 @@ import matplotlib.pyplot as plt
 params = pr.getParams()
 data = pr.getForceDist()
 
-CLa_lin = 6.283185
-CLo_lin = 0.710635
+CLa_lin = 2.0*np.pi
+alf0_deg = -6.480218
 
+alf0 = alf0_deg*np.pi/180.0
 omega = float(params['Omega'])
 rho = float(params['density'])
 Rad = float(params['radius'])
@@ -25,7 +26,7 @@ secArea = np.array(data['secArea'])
 
 vinf = secSpan*omega
 
-alphalist = (180.0/np.pi)*(secCL - CLo_lin)/CLa_lin
+alphalist = (180.0/np.pi)*(secCL/CLa_lin + alf0)
 print(alphalist)
 quit()
 
