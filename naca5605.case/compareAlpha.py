@@ -4,7 +4,7 @@ import numpy as np
 import parseResults as pr
 import matplotlib.pyplot as plt
 
-alpha0_deg = -4.154481
+alpha0_deg = -6.480218
 
 CLa = 2.0*np.pi  # per rad
 alpha0 = alpha0_deg * np.pi/180.0
