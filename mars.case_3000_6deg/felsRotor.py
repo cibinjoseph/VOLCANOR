@@ -8,13 +8,16 @@ import matplotlib.pyplot as plt
 params = pr.getParams()
 data = pr.getForceDist()
 
-CLa_lin = 4.584
-CLo_lin = 0.8326
+CLa_lin = 2.0*np.pi
+alf0_deg = -6.480218
 
+alf0 = alf0_deg*np.pi/180.0
 omega = float(params['Omega'])
 rho = float(params['density'])
-rhoMars = 0.022
 Rad = float(params['radius'])
+nb = float(params['nb'])
+
+rhoMars = 0.022
 vTip = Rad*omega
 
 secSpan = np.array(data['secSpan'])
@@ -23,7 +26,9 @@ secArea = np.array(data['secArea'])
 
 vinf = secSpan*omega
 
-alphalist = (180.0/np.pi)*(secCL - CLo_lin)/CLa_lin
+alphalist = (180.0/np.pi)*(secCL/CLa_lin + alf0)
+print(alphalist)
+quit()
 
 c81File = "NACA5605.C81"
 with open(c81File, 'r') as fh:
@@ -34,7 +39,7 @@ for alpha in alphalist:
     CL_nonlin.append(c81Airfoil.getCL(alpha, 0.5))
 
 secLift = CL_nonlin*(0.5*rhoMars*secArea*vinf*vinf)
-ThrustMars = 2.0*np.sum(secLift)
+ThrustMars = nb*np.sum(secLift)
 CTMars = ThrustMars / (rhoMars*np.pi*Rad*Rad*(vTip)**2.0)
 print('Min/Max alpha (deg) = ' + str(np.min(alphalist)) +' / ' + str(np.max(alphalist)))
 print('Thrust in Mars = ' + str(ThrustMars))
@@ -43,5 +48,6 @@ print('CT in Mars = ' + str(CTMars))
 # Write distribution to file
 outMat = np.column_stack((secSpan/Rad, alphalist, secLift))
 np.savetxt('forceDist.dat', outMat, delimiter=',')
+
 # plt.plot(secSpan/Rad, secLift)
 # plt.show()
