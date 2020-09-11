@@ -6,7 +6,7 @@ No.of blades,nb     Prop convention    Read wing from file
 
 Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 -------------------------------------------------------------------
-      52                       17                   45
+      100                       17                   45
 ===================================================================
 
 X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
