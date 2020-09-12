@@ -27,10 +27,14 @@ secArea = np.array(data['secArea'])
 vinf = secSpan*omega
 
 alphalist = (180.0/np.pi)*(secCL/CLa_lin + alf0)
-print(alphalist)
-quit()
+# print(alphalist)
 
-c81File = "NACA5605.C81"
+fig, ax = plt.subplots(2)
+ax[0].plot(secSpan/Rad, alphalist)
+ax[0].set_ylabel('Alpha (deg)')
+ax[0].grid(True)
+
+c81File = "NACA5605_short.C81"
 with open(c81File, 'r') as fh:
     c81Airfoil = c81.load(fh)
 
@@ -49,5 +53,9 @@ print('CT in Mars = ' + str(CTMars))
 outMat = np.column_stack((secSpan/Rad, alphalist, secLift))
 np.savetxt('forceDist.dat', outMat, delimiter=',')
 
-# plt.plot(secSpan/Rad, secLift)
-# plt.show()
+ax[1].plot(secSpan/Rad, secLift)
+ax[1].set_ylabel('Lift')
+ax[1].grid(True)
+plt.xlabel('sec. span (r/R)')
+
+plt.show()
