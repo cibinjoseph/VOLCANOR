@@ -13,18 +13,18 @@ CLa_lin = 2.0*np.pi
 alf0_deg = 0.0
 
 alf0 = alf0_deg*np.pi/180.0
-omega = float(params['Omega'])
-rho = float(params['density'])
-Rad = float(params['radius'])
-nb = float(params['nb'])
+omega = params['Omega']
+rho = params['density']
+Rad = params['radius']
+nb = params['nb']
 
 rhoMars = 0.022
 vTip = Rad*omega
 
-secSpan = np.array(data['secSpan'])
-secCL = np.array(data['secCL'])
-secArea = np.array(data['secArea'])
-secAlpha = np.array(data['secAlpha'])
+secSpan = data['secSpan']
+secCL = data['secCL']
+secArea = data['secArea']
+secAlpha = data['secAlpha']
 
 vinf = secSpan*omega
 

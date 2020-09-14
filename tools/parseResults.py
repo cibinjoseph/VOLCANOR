@@ -15,7 +15,10 @@ def _getDataDict(file):
     mat = np.loadtxt(file, skiprows=1)
     dataDict = {}
     for col, var in enumerate(_getHeader(file)):
-        dataDict[var] = mat[:, col]
+        try:
+            dataDict[var] = np.array(mat[:, col], dtype='float64')
+        except:
+            dataDict[var] = mat[:, col]
     return dataDict
 
 def _getLatestFile(filename):
@@ -37,7 +40,10 @@ def getParams(file=ResultsDir + 'r01Params.dat'):
     params = {}
     for line in lines:
         cols = line.split()
-        params[cols[0]] = cols[1]
+        try:
+            params[cols[0]] = float(cols[1])
+        except ValueError:
+            params[cols[0]] = cols[1]
     return params
 
 def getForceDist(file=None):
@@ -46,7 +52,6 @@ def getForceDist(file=None):
         # Parse ResultsDir and get latest ForceDist file
         file = _getLatestFile(ResultsDir + 'r01b01ForceDist')
     return _getDataDict(file)
-
 
 def getForceDim(file=ResultsDir + 'r01ForceDim.dat'):
     """ Extract dataDict from ForceDim file """
