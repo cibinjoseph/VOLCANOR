@@ -9,8 +9,7 @@ params = pr.getParams()
 data = pr.getForceDist()
 
 CLa_lin = 2.0*np.pi
-# alf0_deg = -6.480218
-alf0_deg = 0.0
+alf0_deg = -6.480218
 
 alf0 = alf0_deg*np.pi/180.0
 omega = params['Omega']
@@ -32,8 +31,8 @@ alphalist = (180.0/np.pi)*(secCL/CLa_lin + alf0)
 # print(alphalist)
 
 fig, ax = plt.subplots(2)
-ax[0].plot(secSpan/Rad, alphalist, label='FELS')
-ax[0].plot(secSpan/Rad, secAlpha, label='Ind. vel.')
+ax[0].plot(secSpan/Rad, alphalist, 'b*-', label='FELS')
+ax[0].plot(secSpan/Rad, secAlpha, 'r*-', label='Ind. vel.')
 ax[0].legend()
 ax[0].set_ylabel('Alpha (deg)')
 ax[0].grid(True)
@@ -57,9 +56,10 @@ print('CT in Mars = ' + str(CTMars))
 outMat = np.column_stack((secSpan/Rad, alphalist, secLift))
 np.savetxt('forceDist.dat', outMat, delimiter=',')
 
-ax[1].plot(secSpan/Rad, secLift)
+ax[1].plot(secSpan/Rad, secLift, label='FELS')
 ax[1].set_ylabel('Lift')
 ax[1].grid(True)
+ax[1].legend()
 plt.xlabel('sec. span (r/R)')
 
 plt.show()
