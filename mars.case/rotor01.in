@@ -2,7 +2,7 @@
 ===================================================================
 No.of blades,nb     Prop convention    Read wing from file 
 -------------------------------------------------------------------
-     2                    0                mars_notwist.xyz
+     2                    0                mars.xyz
 
 Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 -------------------------------------------------------------------
@@ -37,7 +37,7 @@ Omega[rad/s]   X-shaftAxis     Y-shaftAxis     Z-shaftAxis
 
 theta0[deg]    thetaC[deg]    thetaS[deg]    thetaTwist[deg]
 -------------------------------------------------------------------
-  5.0             0.0              0.0           0.0
+  0.0             0.0              0.0           0.0
 ===================================================================
 
 u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]    
