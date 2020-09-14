@@ -9,7 +9,8 @@ params = pr.getParams()
 data = pr.getForceDist()
 
 CLa_lin = 2.0*np.pi
-alf0_deg = -6.480218
+# alf0_deg = -6.480218
+alf0_deg = 0.0
 
 alf0 = alf0_deg*np.pi/180.0
 omega = float(params['Omega'])
@@ -23,6 +24,7 @@ vTip = Rad*omega
 secSpan = np.array(data['secSpan'])
 secCL = np.array(data['secCL'])
 secArea = np.array(data['secArea'])
+secAlpha = np.array(data['secAlpha'])
 
 vinf = secSpan*omega
 
@@ -30,7 +32,9 @@ alphalist = (180.0/np.pi)*(secCL/CLa_lin + alf0)
 # print(alphalist)
 
 fig, ax = plt.subplots(2)
-ax[0].plot(secSpan/Rad, alphalist)
+ax[0].plot(secSpan/Rad, alphalist, label='FELS')
+ax[0].plot(secSpan/Rad, secAlpha, label='Ind. vel.')
+ax[0].legend()
 ax[0].set_ylabel('Alpha (deg)')
 ax[0].grid(True)
 
