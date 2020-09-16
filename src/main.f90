@@ -39,7 +39,6 @@ program main
   close (11)
   call print_status()    ! SUCCESS
 
-
   ! Allocate rotor objects
   allocate (rotor(nr))
 
@@ -84,6 +83,16 @@ program main
       read *
     endif
   enddo
+
+  ! Initialize plot switches
+  if (wakePlotSwitch .lt. 0) &
+    & wakePlotSwitch = int(nt/abs(wakePlotSwitch))
+  if (wakeTipPlotSwitch .lt. 0) &
+    & wakeTipPlotSwitch = int(nt/abs(wakeTipPlotSwitch))
+  if (rotorForcePlotSwitch .lt. 0) &
+    & rotorForcePlotSwitch = int(nt/abs(rotorForcePlotSwitch))
+  if (gridPlotSwitch .lt. 0) &
+    & gridPlotSwitch = int(nt/abs(gridPlotSwitch))
 
   ! Initialize vel probes
   if (probeSwitch .eq. 1) then

@@ -1676,9 +1676,9 @@ contains
     read (12, *) this%sideUnitVec(1), this%sideUnitVec(2), this%sideUnitVec(3)
     call skiplines(12, 2)
     read (12, *) this%liftUnitVec(1), this%liftUnitVec(2), this%liftUnitVec(3)
-    call skiplines(12, 7)
+    call skiplines(12, 8)
     read (12, *) this%inflowPlotSwitch, this%bladeforcePlotSwitch
-    call skiplines(12, 5)
+    call skiplines(12, 6)
     read (12, *) this%gammaPlotSwitch, this%alphaPlotSwitch
     call skiplines(12, 5)
     read (12, *) this%forceCalcSwitch, this%nAirfoils
@@ -2263,6 +2263,19 @@ contains
         this%liftUnitVec = this%shaftAxis
       endif
     endif
+
+    ! Initialize plot switches
+    if (this%inflowPlotSwitch .lt. 0) &
+      & this%inflowPlotSwitch = int(nt/abs(this%inflowPlotSwitch))
+
+    if (this%bladeforcePlotSwitch .lt. 0) &
+      & this%bladeforcePlotSwitch = int(nt/abs(this%bladeforcePlotSwitch))
+
+    if (this%gammaPlotSwitch .lt. 0) &
+      & this%gammaPlotSwitch = int(nt/abs(this%gammaPlotSwitch))
+
+    if (this%alphaPlotSwitch .lt. 0) &
+      & this%alphaPlotSwitch = int(nt/abs(this%alphaPlotSwitch))
 
   end subroutine rotor_init
 

@@ -89,17 +89,19 @@ CUSTOM WIND FRAME FOR FORCE OUTPUT
 ===================================================================
 
  PLOTS OF SPANWISE DISTRIBUTIONS: 
-  inflowPlotSwitch            bladeForcePlotSwitch          
-    [0]Off                    [0]Off                
-    [n]Every nth iteration    [n]Every nth iteration
+  inflowPlotSwitch              bladeForcePlotSwitch
+    [0] Off                      [0] Off
+    [n] Every n'th iteration     [n] Every n'th iteration
+    [-n]Every nt/n'th iteration  [-n]Every nt/n'th iteration
 -------------------------------------------------------------------
        0                              10
 
   gammaPlotSwitch                 alphaPlotSwitch  
-    [0]Off                         [0]Off                      
-    [n]Every nth iteration         [n]Every nth iteration      
+    [0] Off                        [0] Off
+    [n] Every n'th iteration       [n] Every n'th iteration
+    [-n]Every nt/n'th iteration    [-n]Every nt/n'th iteration
 -------------------------------------------------------------------
-       0                                 10
+       0                              10
 ===================================================================
 
  forceCalcSwitch
