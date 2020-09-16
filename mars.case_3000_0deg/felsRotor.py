@@ -12,17 +12,18 @@ CLa_lin = 2.0*np.pi
 alf0_deg = -6.480218
 
 alf0 = alf0_deg*np.pi/180.0
-omega = float(params['Omega'])
-rho = float(params['density'])
-Rad = float(params['radius'])
-nb = float(params['nb'])
+omega = params['Omega']
+rho = params['density']
+Rad = params['radius']
+nb = params['nb']
 
 rhoMars = 0.022
 vTip = Rad*omega
 
-secSpan = np.array(data['secSpan'])
-secCL = np.array(data['secCL'])
-secArea = np.array(data['secArea'])
+secSpan = data['secSpan']
+secCL = np.abs(data['secCL'])  # This is a hack for the mars rotor
+secArea = data['secArea']
+secAlpha = data['secAlpha']
 
 vinf = secSpan*omega
 
@@ -30,7 +31,9 @@ alphalist = (180.0/np.pi)*(secCL/CLa_lin + alf0)
 # print(alphalist)
 
 fig, ax = plt.subplots(2)
-ax[0].plot(secSpan/Rad, alphalist)
+ax[0].plot(secSpan/Rad, alphalist, 'b*-', label='FELS')
+ax[0].plot(secSpan/Rad, secAlpha, 'r*-', label='Ind. vel.')
+ax[0].legend()
 ax[0].set_ylabel('Alpha (deg)')
 ax[0].grid(True)
 
@@ -53,9 +56,10 @@ print('CT in Mars = ' + str(CTMars))
 outMat = np.column_stack((secSpan/Rad, alphalist, secLift))
 np.savetxt('forceDist.dat', outMat, delimiter=',')
 
-ax[1].plot(secSpan/Rad, secLift)
+ax[1].plot(secSpan/Rad, secLift, label='FELS')
 ax[1].set_ylabel('Lift')
 ax[1].grid(True)
+ax[1].legend()
 plt.xlabel('sec. span (r/R)')
 
 plt.show()
