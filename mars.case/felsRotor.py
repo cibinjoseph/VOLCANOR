@@ -21,7 +21,7 @@ rhoMars = 0.022
 vTip = Rad*omega
 
 secSpan = data['secSpan']
-secCL = data['secCL']
+secCL = np.abs(data['secCL'])  # This is a hack for the mars rotor
 secArea = data['secArea']
 secAlpha = data['secAlpha']
 
