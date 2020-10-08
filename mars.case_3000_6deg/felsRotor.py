@@ -17,13 +17,14 @@ rho = params['density']
 Rad = params['radius']
 nb = params['nb']
 
-rhoMars = 0.022
+rhoMars = 0.0205
 vTip = Rad*omega
 
 secSpan = data['secSpan']
 secCL = np.abs(data['secCL'])  # This is a hack for the mars rotor
 secArea = data['secArea']
 secAlpha = data['secAlpha']
+dx = secArea/data['secChord']
 
 vinf = secSpan*omega
 
@@ -53,11 +54,11 @@ print('Thrust in Mars = ' + str(ThrustMars))
 print('CT in Mars = ' + str(CTMars))
 
 # Write distribution to file
-outMat = np.column_stack((secSpan/Rad, alphalist, secLift))
-np.savetxt('forceDist.dat', outMat, delimiter=',')
+outMat = np.column_stack((secSpan/Rad, alphalist, secLift/dx))
+np.savetxt('loadVLM.txt', outMat, delimiter=',')
 
-ax[1].plot(secSpan/Rad, secLift, label='FELS')
-ax[1].set_ylabel('Lift')
+ax[1].plot(secSpan/Rad, secLift/dx, label='FELS')
+ax[1].set_ylabel('Lift per unit span')
 ax[1].grid(True)
 ax[1].legend()
 plt.xlabel('sec. span (r/R)')
