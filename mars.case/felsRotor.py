@@ -55,7 +55,7 @@ print('CT in Mars = ' + str(CTMars))
 
 # Write distribution to file
 outMat = np.column_stack((secSpan/Rad, alphalist, secLift/dx))
-np.savetxt('forceDist.dat', outMat, delimiter=',')
+np.savetxt('vlm_climb.txt', outMat, delimiter=',')
 
 ax[1].plot(secSpan/Rad, secLift/dx, label='FELS')
 ax[1].set_ylabel('Lift per unit span')
