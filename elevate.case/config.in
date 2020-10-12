@@ -1,54 +1,54 @@
- NO. OF TIMESTEPS [nt]    TIMESTEP (sec) [dt]    NO. OF ROTORS [nr]
------------------------------------------------------------------------
+#  NO. OF TIMESTEPS [nt]    TIMESTEP (sec) [dt]    NO. OF ROTORS [nr]
+# -----------------------------------------------------------------------
      300                      0.0                      1
-
- restartWriteNt    restartFromNt [0]Off [1..]timesteps
------------------------------------------------------------------------
+# 
+#  restartWriteNt    restartFromNt [0]Off [1..]timesteps
+# -----------------------------------------------------------------------
      0                   0
-
- NO. OF SUBITERATIONS [ntSub]  NO. OF INITIAL SUBITERATIONS [ntSubInit]    
------------------------------------------------------------------------
+# 
+#  NO. OF SUBITERATIONS [ntSub]  NO. OF INITIAL SUBITERATIONS [ntSubInit]    
+# -----------------------------------------------------------------------
      0                          0
-
- SPAN DISCRETIZATION : [1]linear [2]cosine [3]halfsine
- spanSpacingSwitch
------------------------------------------------------------------------
+# 
+#  SPAN DISCRETIZATION : [1]linear [2]cosine [3]halfsine
+#  spanSpacingSwitch
+# -----------------------------------------------------------------------
        2
-=======================================================================
-
-   DENSITY [kg/m3]    SOUND VEL. [m/s]
------------------------------------------------------------------------
+# =======================================================================
+# 
+#    DENSITY [kg/m3]    SOUND VEL. [m/s]
+# -----------------------------------------------------------------------
       1.0                330.0
-=======================================================================
-
-PLOT WAKE: [0]Off [n]Every n'th iteration [-n] Every nt/n'th iteration
-wakePlotSwitch   wakeTipPlotSwitch   forcePlotSwitch   gridPlotSwitch
------------------------------------------------------------------------
+# =======================================================================
+# 
+# PLOT WAKE: [0]Off [n]Every n'th iteration [-n] Every nt/n'th iteration
+# wakePlotSwitch   wakeTipPlotSwitch   forcePlotSwitch   gridPlotSwitch
+# -----------------------------------------------------------------------
      -10                 0                 1                 0
-=======================================================================
-
- WAKE PROPERTY SWITCHES: [0]Off [1]On  
- wakeDissipationSwitch            wakeStrainSwitch   wakeBurstSwitch
------------------------------------------------------------------------
+# =======================================================================
+# 
+#  WAKE PROPERTY SWITCHES: [0]Off [1]On  
+#  wakeDissipationSwitch            wakeStrainSwitch   wakeBurstSwitch
+# -----------------------------------------------------------------------
        1                                0                  0
-
- SLOW START TO AVOID LARGE STARTING VORTEX:
- [0]Off [1]linear [2]tanh [3]extended tanh
-  slowStartSwitch       slowStartNt
------------------------------------------------------------------------
+# 
+#  SLOW START TO AVOID LARGE STARTING VORTEX:
+#  [0]Off [1]linear [2]tanh [3]extended tanh
+#   slowStartSwitch       slowStartNt
+# -----------------------------------------------------------------------
        0                      0
-
- WAKE CONVECTION FINITE-DIFFERENCE SCHEME:
-  fdSchemeSwitch  [0]FT1 [1]PC2 [2]AB2 [3]AM2 [4]AM3 [5]AM4
------------------------------------------------------------------------
+# 
+#  WAKE CONVECTION FINITE-DIFFERENCE SCHEME:
+#   fdSchemeSwitch  [0]FT1 [1]PC2 [2]AB2 [3]AM2 [4]AM3 [5]AM4
+# -----------------------------------------------------------------------
        3
-
- IGNORE WAKE WAKE INTERACTION: [0]Off [1..]timesteps
-  wakeIgnoreNt  *** NOT IMPLEMENTED ***            initWakeVelNt
------------------------------------------------------------------------
+# 
+#  IGNORE WAKE WAKE INTERACTION: [0]Off [1..]timesteps
+#   wakeIgnoreNt  *** NOT IMPLEMENTED ***            initWakeVelNt
+# -----------------------------------------------------------------------
        0                                                0   
-
- USE VEL PROBES       
-  probeSwitch [0]Off [1]On
------------------------------------------------------------------------
+# 
+#  USE VEL PROBES       
+#   probeSwitch [0]Off [1]On
+# -----------------------------------------------------------------------
        0                                          
