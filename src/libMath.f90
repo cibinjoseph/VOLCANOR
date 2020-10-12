@@ -467,7 +467,7 @@ contains
     !! Trapezoid integration unequal intervals
     real(dp) :: trapz
     real(dp), intent(in), dimension(:) :: x, y
-    integer :: i, n
+    integer :: i
 
     if (size(x) .ne. size(y)) then
       error stop 'ERROR: Sizes of vectors do not match'
