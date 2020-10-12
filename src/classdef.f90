@@ -1617,9 +1617,9 @@ contains
     integer :: i
 
     open (unit=12, file=filename, status='old', action='read')
-    call skiplines(12, 4)
+    call skip_comments(12)
     read (12, *) this%nb, this%propConvention, this%geometryFile
-    call skiplines(12, 3)
+    call skip_comments(12)
     read (12, *) this%nc, this%ns, this%nNwake
     ! If nNwake is -ve, far wake is suppressed
     if (this%nNwake < 0) then
@@ -1630,30 +1630,30 @@ contains
     endif
 
     if (this%nNwake < 2) error stop 'ERROR: Atleast 2 near wake rows mandatory'
-    call skiplines(12, 4)
+    call skip_comments(12)
     read (12, *) this%hubCoords(1), this%hubCoords(2), this%hubCoords(3)
-    call skiplines(12, 3)
+    call skip_comments(12)
     read (12, *) this%cgCoords(1), this%cgCoords(2), this%cgCoords(3)
-    call skiplines(12, 3)
+    call skip_comments(12)
     read (12, *) this%fromCoords(1), this%fromCoords(2), this%fromCoords(3)
-    call skiplines(12, 3)
+    call skip_comments(12)
     read (12, *) this%pts(1), this%pts(2), this%pts(3)
-    call skiplines(12, 4)
+    call skip_comments(12)
     read (12, *) this%radius, this%root_cut, this%chord, this%coningAngle
-    call skiplines(12, 4)
+    call skip_comments(12)
     read (12, *) this%Omega, this%shaftAxis(1), this%shaftAxis(2), this%shaftAxis(3)
-    call skiplines(12, 3)
+    call skip_comments(12)
     read (12, *) this%controlPitch(1), this%controlPitch(2), this%controlPitch(3), this%thetaTwist
-    call skiplines(12, 4)
+    call skip_comments(12)
     read (12, *) this%velBody(1), this%velBody(2), this%velBody(3) &
       , this%omegaBody(1), this%omegaBody(2), this%omegaBody(3)
-    call skiplines(12, 5)
+    call skip_comments(12)
     read (12, *) this%pivotLE, this%flapHinge, this%spanwiseLiftSwitch, this%symmetricTau
-    call skiplines(12, 5)
+    call skip_comments(12)
     read (12, *) this%turbulentViscosity
-    call skiplines(12, 5)
+    call skip_comments(12)
     read (12, *) this%spanwiseCore, this%streamwiseCoreSwitch
-    call skiplines(12, 3)
+    call skip_comments(12)
     allocate (this%streamwiseCoreVec(this%ns + 1))
     if (this%streamwiseCoreSwitch .eq. 'i') then  ! [i]dentical
       read (12, *) this%streamwiseCoreVec(1)
@@ -1665,28 +1665,28 @@ contains
     else
       error stop 'ERROR: Wrong input for streamwiseCoreSwitch in rotorXX.in'
     endif
-    call skiplines(12, 4)
+    call skip_comments(12)
     ! Dimensional quantities
     read (12, *) this%rollupStartRadius, this%rollupEndRadius
-    call skiplines(12, 3)
+    call skip_comments(12)
     read (12, *) this%initWakeVel, this%psiStart, this%skewLimit
-    call skiplines(12, 5)
+    call skip_comments(12)
     read (12, *) this%dragUnitVec(1), this%dragUnitVec(2), this%dragUnitVec(3)
-    call skiplines(12, 2)
+    call skip_comments(12)
     read (12, *) this%sideUnitVec(1), this%sideUnitVec(2), this%sideUnitVec(3)
-    call skiplines(12, 2)
+    call skip_comments(12)
     read (12, *) this%liftUnitVec(1), this%liftUnitVec(2), this%liftUnitVec(3)
-    call skiplines(12, 8)
+    call skip_comments(12)
     read (12, *) this%inflowPlotSwitch, this%bladeforcePlotSwitch
-    call skiplines(12, 6)
+    call skip_comments(12)
     read (12, *) this%gammaPlotSwitch, this%alphaPlotSwitch
-    call skiplines(12, 5)
+    call skip_comments(12)
     read (12, *) this%forceCalcSwitch, this%nAirfoils
     ! Ensure airfoil tables are provided when force calculation requires them
     if (this%forceCalcSwitch .gt. 0 .and. this%nAirfoils .eq. 0) then 
       error stop 'ERROR: No. of airfoil tables set to 0 in rotorXX.in'
     endif
-    call skiplines(12, 4)
+    call skip_comments(12)
     if (this%nAirfoils .gt. 0) then
       allocate (this%airfoilSectionLimit(this%nAirfoils))
       allocate (this%airfoilFile(this%nAirfoils))

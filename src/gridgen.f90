@@ -20,15 +20,15 @@ program gridgen
   ! Read gridconfig.in file
   call print_status('Reading file '//'gridconfig.in')
   open (unit=11, file='gridconfig.in', status='old', action='read')
-  call skiplines(11, 3)
+  call skip_comments(11)
   read (11, *) nx, ny, nz
-  call skiplines(11, 4)
+  call skip_comments(11)
   read (11, *) cMin(1), cMin(2), cMin(3)
-  call skiplines(11, 3)
+  call skip_comments(11)
   read (11, *) cMax(1), cMax(2), cMax(3)
-  call skiplines(11, 4)
+  call skip_comments(11)
   read (11, *) vel(1), vel(2), vel(3)
-  call skiplines(11, 5)
+  call skip_comments(11)
   read (11, *) fileRangeStart, fileRangeStep, fileRangeEnd
   close (11)
 

@@ -13,28 +13,28 @@ program main
   ! Read config.in file
   call print_status('Reading file '//'config.in')
   open (unit=11, file='config.in', status='old', action='read')
-  call skiplines(11, 2)
+  call skip_comments(11)
   read (11, *) nt, dt, nr
-  call skiplines(11, 3)
+  call skip_comments(11)
   read (11, *) restartWriteNt, restartFromNt
-  call skiplines(11, 3)
+  call skip_comments(11)
   read (11, *) ntSub, ntSubInit
-  call skiplines(11, 4)
+  call skip_comments(11)
   read (11, *) spanSpacingSwitch
-  call skiplines(11, 4)
+  call skip_comments(11)
   read (11, *) density, velSound
-  call skiplines(11, 5)
+  call skip_comments(11)
   read (11, *) wakePlotSwitch, wakeTipPlotSwitch, &
     & rotorForcePlotSwitch, gridPlotSwitch
-  call skiplines(11, 5)
+  call skip_comments(11)
   read (11, *) wakeDissipationSwitch, wakeStrainSwitch, wakeBurstSwitch
-  call skiplines(11, 5)
+  call skip_comments(11)
   read (11, *) slowStartSwitch, slowStartNt
-  call skiplines(11, 4)
+  call skip_comments(11)
   read (11, *) fdSchemeSwitch
-  call skiplines(11, 4)
+  call skip_comments(11)
   read (11, *) wakeIgnoreNt, initWakeVelNt
-  call skiplines(11, 4)
+  call skip_comments(11)
   read (11, *) probeSwitch
   close (11)
   call print_status()    ! SUCCESS
