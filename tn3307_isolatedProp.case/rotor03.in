@@ -92,12 +92,14 @@ CUSTOM WIND FRAME FOR FORCE OUTPUT
   inflowPlotSwitch            bladeForcePlotSwitch          
     [0]Off                    [0]Off                
     [n]Every nth iteration    [n]Every nth iteration
+    [-n]Every nt/n'th iteration   [-n]Every nt/n'th iteration
 -------------------------------------------------------------------
        0                              1
 
   gammaPlotSwitch                 alphaPlotSwitch  
     [0]Off                         [0]Off                      
     [n]Every nth iteration         [n]Every nth iteration      
+    [-n]Every nt/n'th iteration   [-n]Every nt/n'th iteration
 -------------------------------------------------------------------
        0                                 0
 ===================================================================
