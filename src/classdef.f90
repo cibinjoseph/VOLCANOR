@@ -1544,7 +1544,6 @@ module rotor_classdef
     real(dp) :: pivotLE  ! pivot location from LE [x/c]
     real(dp) :: flapHinge  ! hinge location from centre [x/R]
     real(dp), dimension(3) :: velBody, omegaBody
-    real(dp), dimension(3) :: velWind, omegaWind
     real(dp) :: psi
     real(dp), dimension(3) :: pts  ! phi,theta,psi about cgCoords
     character(len=1) :: streamwiseCoreSwitch
@@ -1896,10 +1895,6 @@ contains
           this%blade(ib)%wiP(i, j)%PC(3, 4)/))
       enddo
 
-      ! Assign wind velocities
-      this%velWind = -1._dp*this%velBody
-      this%omegaWind = -1._dp*this%omegaBody
-
       ! Find dx and dy vectors
       do is = 1, this%ns
         do ic = 1, this%nc
@@ -1928,7 +1923,7 @@ contains
         velShed = min(0.05*abs(this%Omega)*norm2(this%blade(ib)% &
           wiP(this%nc, this%ns)%vr%vf(2)%fc(:, 1) - this%hubCoords), 0.125_dp*this%chord/dt)
       else
-        velShed = 0.3_dp*norm2(this%velWind)
+        velShed = -0.3_dp*norm2(this%velBody)
       endif
       do j = 1, this%ns
         call this%blade(ib)%wiP(this%nc, j)%vr%shiftdP(2, (/sign(1._dp,this%Omega)*velShed*dt, 0._dp, 0._dp/))
@@ -2234,27 +2229,27 @@ contains
 
     enddo
 
-    ! Compute direction of wind frame forces
+    ! Compute direction of wind frame forces (-body)
     ! Assuming sideslip is not present
     if ((norm2(this%dragUnitVec) .le. eps) &
       .and. (norm2(this%sideUnitVec) .le. eps) &
       .and. (norm2(this%liftUnitVec) .le. eps)) then
       if (abs(this%Omega) .le. eps) then
-        if (abs(this%velWind(1)) .gt. eps) then  ! v is assumed zero
-          this%dragUnitVec = unitVec((/this%velWind(1), 0._dp, this%velWind(3)/))
+        if (abs(this%velBody(1)) .gt. eps) then  ! v is assumed zero
+          this%dragUnitVec = -1._dp*unitVec((/this%velBody(1), 0._dp, this%velBody(3)/))
           this%sideUnitVec = yAxis
         else  ! u is assumed zero
-          this%dragUnitVec = unitVec((/0._dp, this%velWind(2), this%velWind(3)/))
+          this%dragUnitVec = -1._dp*unitVec((/0._dp, this%velBody(2), this%velBody(3)/))
           this%sideUnitVec = xAxis
         endif
         this%liftUnitVec = cross_product(this%dragUnitVec, this%sideUnitVec)
       else
         ! Drag along forward velocity direction
-        if (abs(this%velWind(1)) .gt. eps) then
-          this%dragUnitVec = unitVec((/this%velWind(1), 0._dp, this%velWind(3)/))
+        if (abs(this%velBody(1)) .gt. eps) then
+          this%dragUnitVec = -1._dp*unitVec((/this%velBody(1), 0._dp, this%velBody(3)/))
           this%sideUnitVec = yAxis
-        elseif (abs(this%velWind(2)) .gt. eps) then
-          this%dragUnitVec = unitVec((/this%velWind(1), 0._dp, this%velWind(3)/))
+        elseif (abs(this%velBody(2)) .gt. eps) then
+          this%dragUnitVec = -1._dp*unitVec((/this%velBody(1), 0._dp, this%velBody(3)/))
           this%sideUnitVec = xAxis
         else
           this%sideUnitVec = yAxis

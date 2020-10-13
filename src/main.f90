@@ -105,10 +105,11 @@ program main
               + rotor(ir)%ns*rotor(ir)%nc*(ib - 1)
 
             ! Translational vel
-            rotor(ir)%blade(ib)%wiP(ic, is)%velCP = rotor(ir)%velWind + &
+            rotor(ir)%blade(ib)%wiP(ic, is)%velCP = &
+              -1._dp*rotor(ir)%velBody &
               ! Rotational vel
-            cross_product(rotor(ir)%omegaWind, rotor(ir)%blade(ib)%wiP(ic, is)%CP - &
-              rotor(ir)%cgCoords) + &
+            - cross_product(rotor(ir)%omegaBody, &
+              rotor(ir)%blade(ib)%wiP(ic, is)%CP - rotor(ir)%cgCoords) + &
               ! Omega vel
             cross_product(-rotor(ir)%omegaSlow*rotor(ir)%shaftAxis, &
               rotor(ir)%blade(ib)%wiP(ic, is)%CP - rotor(ir)%hubCoords)
@@ -178,8 +179,9 @@ program main
       ! Compute sec freestream velocity for secCL
       do ib = 1, rotor(ir)%nb
         do is = 1, rotor(ir)%ns
-          rotor(ir)%blade(ib)%secVelFreestream(:, is) = rotor(ir)%velWind &
-            + cross_product(rotor(ir)%omegaWind, &
+          rotor(ir)%blade(ib)%secVelFreestream(:, is) = &
+            -1._dp*rotor(ir)%velBody &
+            - cross_product(rotor(ir)%omegaBody, &
             rotor(ir)%blade(ib)%secCP(:, is) - rotor(ir)%cgCoords) &
             + cross_product(-rotor(ir)%omegaSlow*rotor(ir)%shaftAxis, &
             rotor(ir)%blade(ib)%secCP(:, is) - rotor(ir)%hubCoords)
@@ -376,9 +378,10 @@ program main
                 + rotor(ir)%ns*rotor(ir)%nc*(ib - 1)
 
               ! Translational vel
-              rotor(ir)%blade(ib)%wiP(ic, is)%velCP = rotor(ir)%velWind + &
+              rotor(ir)%blade(ib)%wiP(ic, is)%velCP = &
+                -1._dp*rotor(ir)%velBody &
                 ! Rotational vel
-              cross_product(rotor(ir)%omegaWind, &
+              - cross_product(rotor(ir)%omegaBody, &
                 rotor(ir)%blade(ib)%wiP(ic, is)%CP - rotor(ir)%cgCoords) + &
                 ! Omega vel
               cross_product(-rotor(ir)%omegaSlow*rotor(ir)%shaftAxis, &
@@ -441,16 +444,17 @@ program main
     if (rotorForcePlotSwitch .ne. 0) then
       if (mod(iter, rotorForcePlotSwitch) .eq. 0) then
         do ir = 1, nr
-            ! Compute sec freestream velocity for secCL
-            do ib = 1, rotor(ir)%nb
-              do is = 1, rotor(ir)%ns
-                rotor(ir)%blade(ib)%secVelFreestream(:, is) = rotor(ir)%velWind &
-                  + cross_product(rotor(ir)%omegaWind, &
-                  rotor(ir)%blade(ib)%secCP(:, is) - rotor(ir)%cgCoords) &
-                  + cross_product(-rotor(ir)%omegaSlow*rotor(ir)%shaftAxis, &
-                  rotor(ir)%blade(ib)%secCP(:, is) - rotor(ir)%hubCoords)
-              enddo
+          ! Compute sec freestream velocity for secCL
+          do ib = 1, rotor(ir)%nb
+            do is = 1, rotor(ir)%ns
+              rotor(ir)%blade(ib)%secVelFreestream(:, is) = &
+                -1._dp*rotor(ir)%velBody &
+                - cross_product(rotor(ir)%omegaBody, &
+                rotor(ir)%blade(ib)%secCP(:, is) - rotor(ir)%cgCoords) &
+                + cross_product(-rotor(ir)%omegaSlow*rotor(ir)%shaftAxis, &
+                rotor(ir)%blade(ib)%secCP(:, is) - rotor(ir)%hubCoords)
             enddo
+          enddo
 
           select case (rotor(ir)%forceCalcSwitch)
 
@@ -487,8 +491,8 @@ program main
 
                 call rotor(ir)%calc_secAlpha()
                 ! call alpha2file(timestamp, rotor(ir), ir)
-                endif
               endif
+            endif
 
           case (1)  ! Compute using alpha
             ! Compute alpha
