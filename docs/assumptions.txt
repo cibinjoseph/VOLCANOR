@@ -12,3 +12,6 @@ Max number of blades for a rotor is 99
 
 Distance used is from hub centre rather than spanwise distance
 - inflow2file, gamma2file
+
+u,v,w i.e. velBody is in Inertial frame
+p,q,r i.e. velOmega is in body frame
