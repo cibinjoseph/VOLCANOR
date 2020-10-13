@@ -1544,6 +1544,7 @@ module rotor_classdef
     real(dp) :: pivotLE  ! pivot location from LE [x/c]
     real(dp) :: flapHinge  ! hinge location from centre [x/R]
     real(dp), dimension(3) :: velBody, omegaBody
+    real(dp), allocatable, dimension(:, :) :: velBodyHistory, omegaBodyHistory
     real(dp) :: psi
     real(dp), dimension(3) :: pts  ! phi,theta,psi about cgCoords
     character(len=1) :: streamwiseCoreSwitch
@@ -1562,7 +1563,7 @@ module rotor_classdef
     integer :: suppressFwakeSwitch
     integer :: forceCalcSwitch
     integer :: inflowPlotSwitch, bladeforcePlotSwitch
-    integer :: spanwiseLiftSwitch
+    integer :: spanwiseLiftSwitch, customTrajectorySwitch
     integer :: gammaPlotSwitch, alphaPlotSwitch
     integer :: rowNear, rowFar
     integer :: nAirfoils
@@ -1644,6 +1645,8 @@ contains
     call skip_comments(12)
     read (12, *) this%controlPitch(1), this%controlPitch(2), this%controlPitch(3), this%thetaTwist
     call skip_comments(12)
+    read(12, *) this%customTrajectorySwitch
+    call skip_comments(12)
     read (12, *) this%velBody(1), this%velBody(2), this%velBody(3) &
       , this%omegaBody(1), this%omegaBody(2), this%omegaBody(3)
     call skip_comments(12)
@@ -1698,9 +1701,10 @@ contains
     close (12)
   end subroutine getdata
 
-  subroutine rotor_init(this, density, dt, nt, spanSpacingSwitch, fdSchemeSwitch)
+  subroutine rotor_init(this, rotorNumber, density, dt, nt, spanSpacingSwitch, fdSchemeSwitch)
     ! Initialize variables of rotor geometry and wake
   class(rotor_class) :: this
+    integer, intent(in) :: rotorNumber
     real(dp), intent(in) :: density
     real(dp) , intent(inout) :: dt
     integer, intent(in) :: nt, spanSpacingSwitch, fdSchemeSwitch
@@ -1714,6 +1718,7 @@ contains
     real(dp) :: bladeOffset
     real(dp) :: velShed
     real(dp), dimension(4) :: xshift
+    character(len=2) :: rotorChar
     logical :: warnUser
 
     ! Initialize variables for use in allocating
@@ -1727,6 +1732,26 @@ contains
     allocate (this%gamVec(this%nc*this%ns*this%nb))
     allocate (this%gamVecPrev(this%nc*this%ns*this%nb))
     allocate (this%RHS(this%nc*this%ns*this%nb))
+
+    ! Read custom trajectory file if specified
+    if (this%customTrajectorySwitch .eq. 1) then
+      write(rotorChar, '(I0.2)') rotorNumber
+      allocate(this%velBodyHistory(3, nt))
+      allocate(this%omegaBodyHistory(3, nt))
+
+      open (unit=13, file='trajectory'//rotorChar//'.in', &
+        & status='old', action='read')
+      call skip_comments(13)
+      do i = 1, nt
+        read(13, *) this%velBodyHistory(1, i), &
+          & this%velBodyHistory(2, i), &
+          & this%velBodyHistory(3, i), &
+          & this%omegaBodyHistory(1, i), &
+          & this%omegaBodyHistory(2, i), &
+          & this%omegaBodyHistory(3, i)
+      enddo
+      close(13)
+    endif
 
     ! Allocate blade object variables
     do ib = 1, this%nb

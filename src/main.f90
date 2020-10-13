@@ -28,7 +28,7 @@ program main
 
   ! Rotor and wake initialization
   do ir = 1, nr
-    call rotor(ir)%init(density, dt, nt, spanSpacingSwitch, fdSchemeSwitch)
+    call rotor(ir)%init(ir, density, dt, nt, spanSpacingSwitch, fdSchemeSwitch)
     call params2file(rotor(ir), ir, nt, dt, nr, density)
   enddo
 
@@ -94,6 +94,14 @@ program main
   t = 0._dp
   iter = 0
   write (timestamp, '(I0.5)') iter
+
+  ! Custom trajectory
+  do ir = 1, nr
+    if (rotor(ir)%customTrajectorySwitch .eq. 1) then
+      rotor(ir)%velBody = rotor(ir)%velBodyHistory(:, 1)
+      rotor(ir)%omegaBody = rotor(ir)%omegaBodyHistory(:, 1)
+    endif
+  enddo
 
   ! Compute RHS for initial solution without wake
   ntSubInitLoop: do i = 0, ntSubInit
@@ -298,7 +306,15 @@ program main
       rotor(ir)%rowNear = max(rotor(ir)%nNwake - (iter - 1), 1)
       rotor(ir)%rowFar = nt - (iter - 1)
       ! 0 => no roll up
-      if (iter <= rotor(ir)%nNwake) rotor(ir)%rowFar = rotor(ir)%nFwake + 1    
+      if (iter <= rotor(ir)%nNwake) rotor(ir)%rowFar = rotor(ir)%nFwake + 1
+    enddo
+
+    ! Use custom trajectory if specified
+    do ir = 1, nr
+      if (rotor(ir)%customTrajectorySwitch .eq. 1) then
+        rotor(ir)%velBody = rotor(ir)%velBodyHistory(:, iter)
+        rotor(ir)%omegaBody = rotor(ir)%omegaBodyHistory(:, iter)
+      endif
     enddo
 
     ! In case of slow start, determine RPM
