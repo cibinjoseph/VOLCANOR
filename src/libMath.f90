@@ -480,15 +480,16 @@ contains
     trapz = 0.5_dp*trapz
   end function trapz
 
-  ! Skips comments and blank lines in input file
+  ! Skips comments in input file
   ! Comment character is set using the global var commentChar
   subroutine skip_comments(fileUnit)
     integer, intent(in) :: fileUnit
     character(len=1) :: firstChar
 
     firstChar = commentChar
-    do while (firstChar .eq. commentChar .or. firstChar .eq. '')
+    do while (firstChar .eq. commentChar)
       read(fileUnit, '(A)') firstChar
+      print*, firstChar
     enddo
     backspace(fileUnit)
   end subroutine skip_comments
