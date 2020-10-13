@@ -489,7 +489,6 @@ contains
     firstChar = commentChar
     do while (firstChar .eq. commentChar)
       read(fileUnit, '(A)') firstChar
-      print*, firstChar
     enddo
     backspace(fileUnit)
   end subroutine skip_comments
