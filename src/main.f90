@@ -2,41 +2,14 @@ program main
   use libCommon
   use libPostprocess
 
-  ! Initialize variables
-  include "init_file.f90"
-  print*
-
   ! Ensure all necessary files exist
   inquire(file='config.in', exist=fileExists)
   if (.not. fileExists) error stop 'ERROR: config.in does not exist'
 
   ! Read config.in file
+  print*
   call print_status('Reading file '//'config.in')
-  open (unit=11, file='config.in', status='old', action='read')
-  call skip_comments(11)
-  read (11, *) nt, dt, nr
-  call skip_comments(11)
-  read (11, *) restartWriteNt, restartFromNt
-  call skip_comments(11)
-  read (11, *) ntSub, ntSubInit
-  call skip_comments(11)
-  read (11, *) spanSpacingSwitch
-  call skip_comments(11)
-  read (11, *) density, velSound
-  call skip_comments(11)
-  read (11, *) wakePlotSwitch, wakeTipPlotSwitch, &
-    & rotorForcePlotSwitch, gridPlotSwitch
-  call skip_comments(11)
-  read (11, *) wakeDissipationSwitch, wakeStrainSwitch, wakeBurstSwitch
-  call skip_comments(11)
-  read (11, *) slowStartSwitch, slowStartNt
-  call skip_comments(11)
-  read (11, *) fdSchemeSwitch
-  call skip_comments(11)
-  read (11, *) wakeIgnoreNt, initWakeVelNt
-  call skip_comments(11)
-  read (11, *) probeSwitch
-  close (11)
+  call read_config('config.in')
   call print_status()    ! SUCCESS
 
   ! Allocate rotor objects

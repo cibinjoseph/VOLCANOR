@@ -1,8 +1,39 @@
 module libCommon
   use rotor_classdef
   implicit none
+  include "init_file.f90"
 
 contains
+
+  subroutine read_config(filename)
+    character(len=*), intent(in) :: filename
+    open (unit=11, file=filename, status='old', action='read')
+    call skip_comments(11)
+    read (11, *) nt, dt, nr
+    call skip_comments(11)
+    read (11, *) restartWriteNt, restartFromNt
+    call skip_comments(11)
+    read (11, *) ntSub, ntSubInit
+    call skip_comments(11)
+    read (11, *) spanSpacingSwitch
+    call skip_comments(11)
+    read (11, *) density, velSound
+    call skip_comments(11)
+    read (11, *) wakePlotSwitch, wakeTipPlotSwitch, &
+      & rotorForcePlotSwitch, gridPlotSwitch
+    call skip_comments(11)
+    read (11, *) wakeDissipationSwitch, wakeStrainSwitch, wakeBurstSwitch
+    call skip_comments(11)
+    read (11, *) slowStartSwitch, slowStartNt
+    call skip_comments(11)
+    read (11, *) fdSchemeSwitch
+    call skip_comments(11)
+    read (11, *) wakeIgnoreNt, initWakeVelNt
+    call skip_comments(11)
+    read (11, *) probeSwitch
+    close (11)
+
+  end subroutine read_config
 
   !--------------------------------------------------------!
   !                Induced Velocity Functions              !
@@ -25,7 +56,7 @@ contains
       do j = 1, cols
         do i = 1, rows
           vindArray(:, i, j) = rotor%vind_bywing(Nwake(i, j)%vr%vf(2)%fc(:, 1)) &
-                               + rotor%vind_bywake(Nwake(i, j)%vr%vf(2)%fc(:, 1))
+            + rotor%vind_bywake(Nwake(i, j)%vr%vf(2)%fc(:, 1))
         enddo
       enddo
       !$omp end parallel do
@@ -33,7 +64,7 @@ contains
       !$omp parallel do
       do i = 1, rows
         vindArray(:, i, cols + 1) = rotor%vind_bywing(Nwake(i, cols)%vr%vf(3)%fc(:, 1)) &
-                                    + rotor%vind_bywake(Nwake(i, cols)%vr%vf(3)%fc(:, 1))
+          + rotor%vind_bywake(Nwake(i, cols)%vr%vf(3)%fc(:, 1))
       enddo
       !$omp end parallel do
 
