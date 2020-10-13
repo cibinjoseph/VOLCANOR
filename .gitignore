@@ -18,3 +18,4 @@ tools/src_plot/*.pyc
 tools/*.xyz
 tools/*.vsp3
 status.txt
+*.mod
