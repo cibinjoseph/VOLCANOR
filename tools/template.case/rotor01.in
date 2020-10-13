@@ -45,7 +45,7 @@
  -10.0       0.0        0.0        0.0        0.0         0.0
 # ===================================================================
 # 
-# pivot point     flapHinge      SpanwiseLiftTerm    invert tauSpan
+# pivot point     flapHinge      spanwiseLiftTerm    invert tauSpan
 # from LE[x/c]  from centre[r/R]    [1]enable     for swept/symmetric
 # -------------------------------------------------------------------
 0.00                0.0               0                 1
