@@ -1,5 +1,7 @@
 language: bash
 
+dist: bionic
+
 branches:
   only:
   - test
