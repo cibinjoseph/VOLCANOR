@@ -139,9 +139,9 @@ contains
     call assert_equal(rotor%blade(1)%wiP(1, :)%delDiUnsteady, delDiUnsteady, &
       & tol, 'delDiUnsteady does not match')
 
-    normalForce(:, 1) = (/0.525977713977048_dp, 0.0_dp, -4.28374471602321_dp/)
-    normalForce(:, 2) = (/1.09446133444262_dp, 0.0_dp, -8.91367225972409_dp/)
-    normalForce(:, 3) = (/0.525977713977048_dp, 0.0_dp, -4.28374471602321_dp/)
+    normalForce(:, 1) = (/-0.525977713977048_dp, 0.0_dp, 4.28374471602321_dp/)
+    normalForce(:, 2) = (/-1.09446133444262_dp, 0.0_dp, 8.91367225972409_dp/)
+    normalForce(:, 3) = (/-0.525977713977048_dp, 0.0_dp, 4.28374471602321_dp/)
     call assert_equal(rotor%blade(1)%wiP(1, 1)%normalForce, normalForce(:, 1), &
       & tol, 'normalForce does not match')
     call assert_equal(rotor%blade(1)%wiP(1, 2)%normalForce, normalForce(:, 2), &
@@ -187,11 +187,11 @@ contains
     call assert_equal(rotor%blade(1)%secCD, secCD, tol, 'secCD does not match')
 
     ! Net forces
-    forceInertial = (/2.14641676239672_dp, 0.0_dp, -17.4811616917705_dp/)
+    forceInertial = (/-2.14641676239672_dp, 0.0_dp, 17.4811616917705_dp/)
     call assert_equal(rotor%blade(1)%forceInertial, forceInertial, &
       & tol, 'forceInertial does not match')
 
-    lift = (/0._dp, 0._dp, -17.4811616917705_dp/)
+    lift = (/0._dp, 0._dp, 17.4811616917705_dp/)
     call assert_equal(rotor%blade(1)%lift, lift, &
       & tol, 'lift does not match')
 
