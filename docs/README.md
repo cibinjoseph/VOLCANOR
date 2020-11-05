@@ -1,4 +1,5 @@
-[![](https://img.shields.io/badge/status-under%20development-green.svg)]()  [![](https://img.shields.io/badge/Last%20Updated-June%202018-green.svg)]()  
+[![](https://img.shields.io/badge/status-under%20development-green.svg)]()  [![](https://img.shields.io/badge/Last%20Updated-Nov%202020-green.svg)]()  
+[![Build Status](https://travis-ci.com/cibinjoseph/VOLCANOR.svg?token=FMmn3XQeRECGNsy6mT6B&branch=test)](https://travis-ci.com/github/cibinjoseph/VOLCANOR)
 
 ![VOLCANOR](logo/VOLCANOR.png)
 
@@ -13,6 +14,7 @@ A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method
 - Wake strain to prevent violation of Helmholtz's Law
 - Predictor-Corrector based wake convection for improved stability and accuracy
 - Visualization of load history, circulation, wake structure etc in VisIt
+- Arbitrary prescribed trajectory
 
 ## Improvements (To be made)
 ### Stability Improvements
@@ -20,7 +22,6 @@ A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method
 
 ### Feature and Solution Improvements
 - Account for pitching velocity
-- Precompute trajectory
 - Write out in binary format
 - Prandtl-glauert, Karman-Tsien compressibility corrections etc.
 - Check 25% of panel span inset of vortices create difference
