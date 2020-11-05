@@ -2,6 +2,13 @@ language: bash
 
 dist: bionic
 
+addons:
+  apt:
+    sources:
+      - ppa:ubuntu-toolchain-r/test
+    packages:
+      - gfortran-9
+
 branches:
   only:
   - test
