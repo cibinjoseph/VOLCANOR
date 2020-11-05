@@ -5,6 +5,7 @@ program panel1x2_testrunner
   call testsuite_initialize()
 
   call setup()
+  call test_coords()
   call test_aic()
   call test_force_gamma()
 

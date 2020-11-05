@@ -64,8 +64,90 @@ contains
     call rotor%init(1, density, dt, nt, spanSpacingSwitch, fdSchemeSwitch)
   end subroutine setup
 
+  subroutine test_coords()
+    real(dp), dimension(3, 4) :: coords
+
+    call testcase_initialize('test_coords')
+
+    ! Panel (1, 1) PC
+    coords(:, 1) = (/-1._dp, 0._dp, 0._dp/)
+    coords(:, 2) = (/ 0._dp, 0._dp, 0._dp/)
+    coords(:, 3) = (/ 0._dp, 1._dp, 0._dp/)
+    coords(:, 4) = (/-1._dp, 1._dp, 0._dp/)
+
+    call assert_equal(coords, rotor%blade(1)%wiP(1, 1)%pc, &
+      & message = 'Panel 1, 1 PC do not match')
+
+    ! Panel (1, 2) PC
+    coords(:, 1) = (/-1._dp, 1._dp, 0._dp/)
+    coords(:, 2) = (/ 0._dp, 1._dp, 0._dp/)
+    coords(:, 3) = (/ 0._dp, 2._dp, 0._dp/)
+    coords(:, 4) = (/-1._dp, 2._dp, 0._dp/)
+
+    call assert_equal(coords, rotor%blade(1)%wiP(1, 2)%pc, &
+      & message = 'Panel 1, 2 PC do not match')
+
+    ! Panel (1, 1) vf
+    coords(:, 1) = (/-0.75_dp, 0._dp, 0._dp/)
+    coords(:, 2) = (/ 0.01875_dp, 0._dp, 0._dp/)
+    coords(:, 3) = (/ 0.01875_dp, 1._dp, 0._dp/)
+    coords(:, 4) = (/-0.75_dp, 1._dp, 0._dp/)
+
+    call assert_equal(coords(:, 1), &
+      & rotor%blade(1)%wiP(1, 1)%vr%vf(1)%fc(:, 1), &
+      & message = 'Panel 1, 1 vf1 do not match')
+
+    call assert_equal(coords(:, 2), &
+      & rotor%blade(1)%wiP(1, 1)%vr%vf(2)%fc(:, 1), &
+      & message = 'Panel 1, 1 vf2 do not match')
+
+    call assert_equal(coords(:, 3), &
+      & rotor%blade(1)%wiP(1, 1)%vr%vf(3)%fc(:, 1), &
+      & message = 'Panel 1, 1 vf3 do not match')
+
+    call assert_equal(coords(:, 4), &
+      & rotor%blade(1)%wiP(1, 1)%vr%vf(4)%fc(:, 1), &
+      & message = 'Panel 1, 1 vf4 do not match')
+
+    ! Panel (1, 2) vf
+    coords(:, 1) = (/-0.75_dp, 1._dp, 0._dp/)
+    coords(:, 2) = (/ 0.01875_dp, 1._dp, 0._dp/)
+    coords(:, 3) = (/ 0.01875_dp, 2._dp, 0._dp/)
+    coords(:, 4) = (/-0.75_dp, 2._dp, 0._dp/)
+
+    call assert_equal(coords(:, 1), &
+      & rotor%blade(1)%wiP(1, 2)%vr%vf(1)%fc(:, 1), &
+      & message = 'Panel 1, 2 vf1 do not match')
+
+    call assert_equal(coords(:, 2), &
+      & rotor%blade(1)%wiP(1, 2)%vr%vf(2)%fc(:, 1), &
+      & message = 'Panel 1, 2 vf2 do not match')
+
+    call assert_equal(coords(:, 3), &
+      & rotor%blade(1)%wiP(1, 2)%vr%vf(3)%fc(:, 1), &
+      & message = 'Panel 1, 2 vf3 do not match')
+
+    call assert_equal(coords(:, 4), &
+      & rotor%blade(1)%wiP(1, 2)%vr%vf(4)%fc(:, 1), &
+      & message = 'Panel 1, 2 vf4 do not match')
+
+    ! Panel (1, 1) CP
+    call assert_equal((/-0.25_dp, 0.5_dp, 0._dp/), &
+      & rotor%blade(1)%wiP(1, 1)%CP, &
+      & message = 'Panel 1, 1 CP do not match')
+
+    ! Panel (1, 2) CP
+    call assert_equal((/-0.25_dp, 1.5_dp, 0._dp/), &
+      & rotor%blade(1)%wiP(1, 2)%CP, &
+      & message = 'Panel 1, 2 vf4 do not match')
+
+    call testcase_finalize()
+  end subroutine test_coords
+
   subroutine test_aic()
     real(dp), dimension(2, 2) :: AIC
+    print*, rotor%blade(1)%wiP(1, 1)%cp
+    print*, rotor%blade(1)%wiP(1, 2)%cp
 
     call testcase_initialize('test_aic')
 
