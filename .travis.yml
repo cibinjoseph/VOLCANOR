@@ -2,18 +2,12 @@ language: bash
 
 dist: bionic
 
-addons:
-  apt:
-    sources:
-      - ppa:ubuntu-toolchain-r/test
-    packages:
-      - gfortran-9
-
 branches:
   only:
   - test
 
 before_install:
+  - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
   - sudo apt-get -q update
   - sudo apt-get -y install gfortran-9
 
