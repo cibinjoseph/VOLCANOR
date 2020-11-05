@@ -6,10 +6,10 @@ branches:
 
 before_install:
   - sudo apt-get -q update
-  - sudo apt-get -y install gfortran
+  - sudo apt-get -y install gfortran-9
 
 script:
   - mkdir -p build
-  - cd build; FC=gfortran cmake ..
+  - cd build; FC=gfortran-9 cmake ..
   - make testrunners -B
   - make test
