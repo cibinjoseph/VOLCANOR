@@ -1,0 +1,11 @@
+language: bash
+
+before_install:
+  - sudo apt-get -q update
+  - sudo apt-get -y install gfortran
+
+script:
+  - rm -rvf build/*
+  - cd build; FC=gfortran cmake ..
+  - make testrunners -B
+  - make test
