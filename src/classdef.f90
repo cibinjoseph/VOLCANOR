@@ -1948,7 +1948,7 @@ contains
         velShed = min(0.05*abs(this%Omega)*norm2(this%blade(ib)% &
           wiP(this%nc, this%ns)%vr%vf(2)%fc(:, 1) - this%hubCoords), 0.125_dp*this%chord/dt)
       else
-        velShed = -0.3_dp*norm2(this%velBody)
+        velShed = 0.3_dp*norm2(-1._dp*this%velBody)
       endif
       do j = 1, this%ns
         call this%blade(ib)%wiP(this%nc, j)%vr%shiftdP(2, (/sign(1._dp,this%Omega)*velShed*dt, 0._dp, 0._dp/))

@@ -61,7 +61,7 @@ contains
 
     rotor%nAirfoils = 0
 
-    call rotor%init(density, dt, nt, spanSpacingSwitch, fdSchemeSwitch)
+    call rotor%init(1, density, dt, nt, spanSpacingSwitch, fdSchemeSwitch)
   end subroutine setup
 
   subroutine test_aic()
