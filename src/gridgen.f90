@@ -10,7 +10,7 @@ program gridgen
   real(dp), allocatable, dimension(:) :: xVec, yVec, zVec
   real(dp), allocatable, dimension(:, :, :, :) :: grid, gridCentre, velCentre
   character(len=5) :: nx_char, ny_char, nz_char
-  character(len=5) :: timestamp
+  character(len=5) :: filetimestamp
 
   integer :: nVrWing, nVrNwake, nVfNwakeTE, nVfFwake
   type(vr_class), allocatable, dimension(:) :: vrWing, vrNwake
@@ -82,9 +82,9 @@ program gridgen
   ! Iterate through filaments files
   do fileRange = fileRangeStart, fileRangeEnd, fileRangeStep
     ! Read from filaments file
-    write (timestamp, '(I0.5)') fileRange
-    call print_status('Reading file '//'filaments'//timestamp//'.dat')
-    open (unit=12, file='Results/filaments'//timestamp//'.dat', &
+    write (filetimestamp, '(I0.5)') fileRange
+    call print_status('Reading file '//'filaments'//filetimestamp//'.dat')
+    open (unit=12, file='Results/filaments'//filetimestamp//'.dat', &
       & status='old', action='read', form='unformatted')
     read (12) nVrWing
     read (12) nVrNwake
@@ -138,9 +138,9 @@ program gridgen
     velCentre(3, :, :, :) = velCentre(3, :, :, :) + vel(3)
 
     ! Write to file
-    call print_status('Writing file '//'grid'//timestamp//'.plt')
-    write (timestamp, '(I0.5)') fileRange
-    open (unit=13, file='Results/grid'//timestamp//'.plt', &
+    call print_status('Writing file '//'grid'//filetimestamp//'.plt')
+    write (filetimestamp, '(I0.5)') fileRange
+    open (unit=13, file='Results/grid'//filetimestamp//'.plt', &
       & status='old', action='read')
 
     write (13, *) 'TITLE = "Grid"'
