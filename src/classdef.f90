@@ -1714,7 +1714,7 @@ contains
     real(dp), dimension(this%ns + 1) :: yVec
     real(dp), dimension(this%nc, this%ns) :: dx, dy
     real(dp), dimension(3) :: leftTipCP
-    real(dp) :: dxdymin, secCPLoc, rbyR, dxAvg
+    real(dp) :: dxdymin, secCPLoc, rbyR, dxMAC
     integer :: i, j, ib, is, ic
     real(dp) :: bladeOffset
     real(dp) :: velShed
@@ -1725,8 +1725,8 @@ contains
     ! Set dt automatically if not prescribed
     if (dt <= eps) then
       if (abs(this%Omega) < eps) then  ! Fixed wing
-        dxAvg = sum(dx)/(this%nc*this%ns)
-        dt = dxAvg/(4._dp*norm2(this%velBody))
+        dxMAC = this%chord/this%nc
+        dt = dxMAC/(4._dp*norm2(this%velBody))
       else  ! Rotor
         ! Time for 5 deg
         dt = 5._dp*pi/(180._dp*abs(this%Omega))
@@ -1739,7 +1739,7 @@ contains
     if (nt .lt. 0) then
       if (abs(this%Omega) < eps) then ! Fixed wing
         ! nt chord distance
-        nt = norm2(this%velBody)/(abs(nt)*this%chord*dt)
+        nt = abs(nt)*this%chord/(dt*norm2(this%velBody))
       else  ! Rotor
         ! nt revs
         nt = 2._dp*pi*abs(nt)/(abs(this%Omega)*dt)
