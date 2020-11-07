@@ -16,4 +16,3 @@ Introduce blade%xAxisNoPitch centered about pitching hinge
 Implement alpha sweep mode
 Make secDynamicPressure a variable also to prevent recomputing during plotting
 Implement specifying trajectory as uvw(inertial velocities) and pqr(body rates)
-Default n chords or revs in timesteps with -ve

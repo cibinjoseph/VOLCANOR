@@ -1707,7 +1707,8 @@ contains
     integer, intent(in) :: rotorNumber
     real(dp), intent(in) :: density
     real(dp) , intent(inout) :: dt
-    integer, intent(in) :: nt, spanSpacingSwitch, fdSchemeSwitch
+    integer, intent(inout) :: nt
+    integer, intent(in) :: spanSpacingSwitch, fdSchemeSwitch
 
     real(dp), dimension(this%nc + 1) :: xVec
     real(dp), dimension(this%ns + 1) :: yVec
@@ -1720,6 +1721,31 @@ contains
     real(dp), dimension(4) :: xshift
     character(len=2) :: rotorChar
     logical :: warnUser
+
+    ! Set dt automatically if not prescribed
+    if (dt <= eps) then
+      if (abs(this%Omega) < eps) then  ! Fixed wing
+        dxAvg = sum(dx)/(this%nc*this%ns)
+        dt = dxAvg/(4._dp*norm2(this%velBody))
+      else  ! Rotor
+        ! Time for 5 deg
+        dt = 5._dp*pi/(180._dp*abs(this%Omega))
+      endif
+      print*, 'dt set to ', dt
+    endif
+
+    ! Check if nt requires preprocessing
+    if (nt .eq. 0) nt = -10
+    if (nt .lt. 0) then
+      if (abs(this%Omega) < eps) then ! Fixed wing
+        ! nt chord distance
+        nt = norm2(this%velBody)/(abs(nt)*this%chord*dt)
+      else  ! Rotor
+        ! nt revs
+        nt = 2._dp*pi*abs(nt)/(abs(this%Omega)*dt)
+      endif
+      print*, 'nt set to ', nt
+    endif
 
     ! Initialize variables for use in allocating
     this%nNwake = min(this%nNwake, nt)
@@ -1930,18 +1956,6 @@ contains
       dx = abs(dx)
       dy = abs(dy)
       dxdymin = min(minval(dx), minval(dy))
-
-      ! Set dt automatically if not prescribed
-      if (dt <= eps) then
-        if (abs(this%Omega) < eps) then  ! Fixed wing
-          dxAvg = sum(dx)/(this%nc*this%ns)
-          dt = dxAvg/(4._dp*norm2(this%velBody))
-        else  ! Rotor
-          ! Time for 5 deg
-          dt = 5._dp*pi/(180._dp*abs(this%Omega))
-        endif
-        print*, 'dt set to ', dt
-      endif
 
       ! Shed last row of vortices
       if (abs(this%Omega) > eps) then
