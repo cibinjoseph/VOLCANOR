@@ -4,6 +4,7 @@
 ##################################
 
 resultspath=./Results
+restartpath=./Restart
 
 all:
 	make run
@@ -16,6 +17,6 @@ fileclean:
 	-rm -f status.txt
 
 run:
-	mkdir -p $(resultspath)
+	mkdir -p $(resultspath) ${restartpath}
 	make fileclean
 	./volcanor
