@@ -105,7 +105,7 @@
 #     [n] Every nth iteration       [n] Every nth iteration
 #     [-n]Every nt/n'th iteration   [-n]Every nt/n'th iteration
 # -------------------------------------------------------------------
-       0                                 0
+       0                                 1
 # ===================================================================
 # 
 #  forceCalcSwitch
