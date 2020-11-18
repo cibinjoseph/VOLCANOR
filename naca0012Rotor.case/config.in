@@ -37,7 +37,7 @@
 #  [0]Off [1]linear [2]tanh [3]extended tanh
 #   slowStartSwitch       slowStartNt
 # -----------------------------------------------------------------------
-       3                      2
+       3                      45
 # 
 #  WAKE CONVECTION FINITE-DIFFERENCE SCHEME:
 #   fdSchemeSwitch  [0]FT1 [1]PC2 [2]AB2 [3]AM2 [4]AM3 [5]AM4
