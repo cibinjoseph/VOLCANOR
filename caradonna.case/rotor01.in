@@ -6,7 +6,7 @@
 # 
 # Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 # -------------------------------------------------------------------
-      1                       13                   50
+      30                     24                   50
 # ===================================================================
 # 
 # X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
