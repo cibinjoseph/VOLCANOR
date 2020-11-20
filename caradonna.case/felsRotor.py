@@ -17,7 +17,7 @@ rho = params['density']
 Rad = params['radius']
 nb = params['nb']
 
-rhoMars = rho
+rhoFELS = rho
 vTip = Rad*omega
 
 secSpan = data['secSpan']
@@ -44,19 +44,20 @@ with open(c81File, 'r') as fh:
 
 CL_nonlin = []
 for alpha in alphalist:
-    CL_nonlin.append(c81Airfoil.getCL(alpha, 0.5))
+    CL_nonlin.append(c81Airfoil.getCL(alpha, 0.2))
 
-secLift = CL_nonlin*(0.5*rhoMars*secArea*vinf*vinf)
-ThrustMars = nb*np.sum(secLift)
-CTMars = ThrustMars / (rhoMars*np.pi*Rad*Rad*(vTip)**2.0)
+secLift = CL_nonlin*(0.5*rhoFELS*secArea*vinf*vinf)
+ThrustFELS = nb*np.sum(secLift)
+CTFELS = ThrustFELS / (rhoFELS*np.pi*Rad*Rad*(vTip)**2.0)
 print('Min/Max alpha (deg) = ' + str(np.min(alphalist)) +' / ' + str(np.max(alphalist)))
-print('Thrust = ' + str(ThrustMars))
-print('CT = ' + str(CTMars))
+print('Thrust = ' + str(ThrustFELS))
+print('CT = ' + str(CTFELS))
 
 # Write distribution to file
 outMat = np.column_stack((secSpan/Rad, alphalist, secLift/dx))
 np.savetxt('loadVLM.dat', outMat, delimiter='  ')
 
+# ax[1].plot(secSpan/Rad, CL_nonlin, label='FELS')
 ax[1].plot(secSpan/Rad, secLift/dx, label='FELS')
 ax[1].set_ylabel('Lift per unit span')
 ax[1].grid(True)
