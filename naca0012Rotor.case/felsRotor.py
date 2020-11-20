@@ -4,6 +4,7 @@ import numpy as np
 import c81utils as c81
 import parseResults as pr
 import matplotlib.pyplot as plt
+import sys
 
 params = pr.getParams()
 data = pr.getForceDist()
@@ -69,4 +70,6 @@ ax[1].grid(True)
 ax[1].legend()
 plt.xlabel('sec. span (r/R)')
 
-plt.show()
+# Suppress plot with -q for quiet
+if sys.argv[-1] != '-q':
+    plt.show()
