@@ -16,6 +16,10 @@ omega = params['Omega']
 rho = params['density']
 Rad = params['radius']
 nb = params['nb']
+try:
+    velSound = data['velSound']
+except KeyError:
+    velSound = 330.0
 
 rhoMars = rho
 vTip = Rad*omega
@@ -24,11 +28,13 @@ secSpan = data['secSpan']
 secCL = data['secCL']
 secArea = data['secArea']
 secAlpha = data['secAlpha']
+secVel = data['secVel']
 dx = secArea/data['secChord']
 
 vinf = secSpan*omega
 
 alphalist = (180.0/np.pi)*(secCL/CLa_lin + alf0)
+machlist = secVel/velSound
 # print(alphalist)
 
 fig, ax = plt.subplots(2)
@@ -43,8 +49,8 @@ with open(c81File, 'r') as fh:
     c81Airfoil = c81.load(fh)
 
 CL_nonlin = []
-for alpha in alphalist:
-    CL_nonlin.append(c81Airfoil.getCL(alpha, 0.5))
+for i, alpha in enumerate(alphalist):
+    CL_nonlin.append(c81Airfoil.getCL(alpha, machlist[i]))
 
 secLift = CL_nonlin*(0.5*rhoMars*secArea*vinf*vinf)
 ThrustMars = nb*np.sum(secLift)
