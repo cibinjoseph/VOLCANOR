@@ -21,7 +21,7 @@ try:
 except KeyError:
     velSound = 330.0
 
-rhoMars = rho
+rhoFELS = rho
 vTip = Rad*omega
 
 secSpan = data['secSpan']
@@ -52,11 +52,11 @@ CL_nonlin = []
 for i, alpha in enumerate(alphalist):
     CL_nonlin.append(c81Airfoil.getCL(alpha, machlist[i]))
 
-secLift = CL_nonlin*(0.5*rhoMars*secArea*vinf*vinf)
-ThrustMars = nb*np.sum(secLift)
-CTMars = ThrustMars / (rhoMars*np.pi*Rad*Rad*(vTip)**2.0)
+secLift = CL_nonlin*(0.5*rhoFELS*secArea*vinf*vinf)
+ThrustFELS = nb*np.sum(secLift)
+CTMars = ThrustFELS / (rhoFELS*np.pi*Rad*Rad*(vTip)**2.0)
 print('Min/Max alpha (deg) = ' + str(np.min(alphalist)) +' / ' + str(np.max(alphalist)))
-print('Thrust = ' + str(ThrustMars))
+print('Thrust = ' + str(ThrustFELS))
 print('CT = ' + str(CTMars))
 
 # Write distribution to file
