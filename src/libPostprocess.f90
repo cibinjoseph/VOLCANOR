@@ -36,11 +36,11 @@ contains
     101 format (A5,8(A15))
   end subroutine init_plots
 
-  subroutine params2file(rotor, rotorNumber, nt, dt, nr, density)
+  subroutine params2file(rotor, rotorNumber, nt, dt, nr, density, velSound)
     ! Write rotor parameters to file
     type(rotor_class), intent(in) :: rotor
     integer, intent(in) :: rotorNumber, nt, nr
-    real(dp), intent(in) :: dt, density
+    real(dp), intent(in) :: dt, density, velSound
     character(len=2) :: rotorNumberChar
     character(len=21) :: paramsFilename
 
@@ -51,6 +51,7 @@ contains
     write(10, *) 'dt', dt
     write(10, *) 'nr', nr
     write(10, *) 'density', density
+    write(10, *) 'velSound', velSound
     write(10, *) 'nb', rotor%nb
     write(10, *) 'propConvention', rotor%propConvention
     write(10, *) 'geometryFile ', rotor%geometryFile
