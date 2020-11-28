@@ -163,7 +163,13 @@ contains
   function projVec(aVec, dirVec)
     real(dp), intent(in), dimension(3) :: aVec, dirVec
     real(dp), dimension(3) :: projVec
-    projVec = dot_product(aVec, dirVec)*dirVec/(sum(dirVec**2._dp))
+    real(dp) :: normSq
+    normSq = sum(dirVec**2._dp)
+    if (normSq > eps) then
+      projVec = dot_product(aVec, dirVec)*dirVec/normSq
+    else
+      projVec = 0._dp
+    endif
   end function projVec
 
   ! -------------------------------------------------
