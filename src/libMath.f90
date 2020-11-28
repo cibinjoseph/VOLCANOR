@@ -147,8 +147,14 @@ contains
   function unitVec(aVec)
     real(dp), intent(in), dimension(:) :: aVec
     real(dp), dimension(size(aVec)) :: unitVec
+    real(dp) :: normVal
 
-    unitVec = aVec/norm2(aVec)
+    normVal = norm2(aVec)
+    if (normVal > eps) then
+      unitVec = aVec/normVal
+    else
+      unitVec = 0.0
+    endif
   end function unitVec
 
   ! -------------------------------------------------
