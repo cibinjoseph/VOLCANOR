@@ -88,6 +88,7 @@ module vr_classdef
     procedure :: rot => vrclass_rot
     procedure :: calclength => vrclass_calclength
     procedure :: strain => vrclass_strain
+    procedure :: calc_skew => calc_skew
     procedure :: burst
     procedure :: getInteriorAngles
     procedure :: getMedianAngle
@@ -255,6 +256,18 @@ contains
     getMedianCos = abs(dot_product(x1Vec, x2Vec)/ &
       sqrt(dot_product(x1Vec, x1Vec)*dot_product(x2Vec, x2Vec)))
   end function getMedianCos
+
+  subroutine calc_skew(this)
+    ! Compute skew
+  class(vr_class) :: this
+
+    if (abs(this%gam) > eps) then
+      ! skew:  0-good, 1-bad
+      this%skew = this%getMedianCos()
+    else
+      this%skew = 0._dp
+    endif
+  end subroutine calc_skew
 
   subroutine burst(this, skewLimit)
     ! Burst vortex filaments if skewLimit is hit
@@ -603,6 +616,7 @@ module blade_classdef
     procedure :: calc_secAlpha => blade_calc_secAlpha
     procedure :: calc_secChordwiseResVel => blade_calc_secChordwiseResVel
     procedure :: burst_wake => blade_burst_wake
+    procedure :: calc_skew => blade_calc_skew
     procedure :: getSecChordwiseLocations
     procedure :: lookup_secCoeffs
     procedure :: secCoeffsToSecForces
@@ -1447,6 +1461,18 @@ contains
     endif
   end subroutine blade_burst_wake
 
+  subroutine blade_calc_skew(this, rowFar)
+  class(blade_class), intent(inout) :: this
+    integer, intent(in) :: rowFar
+    integer :: irow, icol
+
+    do icol = rowFar, size(this%waP, 2)
+      do irow = 1, size(this%waP, 1)
+        call this%waP(irow, icol)%vr%calc_skew()
+      enddo
+    enddo
+  end subroutine blade_calc_skew
+
   subroutine blade_dirLiftDrag(this)
   class(blade_class), intent(inout) :: this
     integer :: is
@@ -1596,6 +1622,7 @@ module rotor_classdef
     procedure :: calc_force_alphaGamma => rotor_calc_force_alphaGamma
     procedure :: calc_secAlpha => rotor_calc_secAlpha
     procedure :: burst_wake => rotor_burst_wake
+    procedure :: calc_skew => rotor_calc_skew
     procedure :: dirLiftDrag => rotor_dirLiftDrag
     procedure :: sumBladeToNetForces
     ! I/O subroutines
@@ -2884,6 +2911,14 @@ contains
       call this%blade(ib)%burst_wake(this%rowFar, this%skewLimit, this%chord)
     enddo
   end subroutine rotor_burst_wake
+
+  subroutine rotor_calc_skew(this)
+  class(rotor_class), intent(inout) :: this
+    integer :: ib
+    do ib = 1, this%nb
+      call this%blade(ib)%calc_skew(this%rowFar)
+    enddo
+  end subroutine rotor_calc_skew
 
   subroutine rotor_dirLiftDrag(this)
   class(rotor_class), intent(inout) :: this

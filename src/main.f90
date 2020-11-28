@@ -368,6 +368,9 @@ program main
         if (mod(iter, wakeBurstSwitch) .eq. 0) &
           call rotor(ir)%burst_wake()
       endif
+      ! Plot wake skew parameter
+      call rotor(ir)%calc_skew()
+      call skew2file(timestamp, rotor(ir), ir)
     enddo
 
     ! Write out wing n' wake

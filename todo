@@ -17,3 +17,4 @@ Implement alpha sweep mode
 Make secDynamicPressure a variable also to prevent recomputing during plotting
 Change slowstartNT to -revs and in rotorXX.in
 Change rotorXX.in to geomXX.in
+Change name of getMedianCos to getBimedianCos

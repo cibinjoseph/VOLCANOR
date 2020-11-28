@@ -645,6 +645,33 @@ contains
 
   end subroutine tip2file
 
+  subroutine skew2file(timestamp, rotor, rotorNumber)
+    type(rotor_class), intent(in) :: rotor
+    character(len=*), intent(in) :: timestamp
+    integer, intent(in) :: rotorNumber
+    character(len=2) :: rotorNumberChar, bladeNumberChar
+    integer :: ib, irow, nrow, ncol
+
+    write (rotorNumberChar, '(I0.2)') rotorNumber
+
+    nrow = size(rotor%blade(1)%waP, 1)
+    ncol = size(rotor%blade(1)%waP, 2)
+
+    do ib = 1, rotor%nb
+      write (bladeNumberChar, '(I0.2)') ib
+      open (unit=12, file=ResultsDir// &
+        & 'r'//rotorNumberChar// 'b'//bladeNumberChar// &
+        & 'skew'//timestamp//'.dat', & 
+        & action='write')
+
+      do irow = nrow, rotor%rowNear, -1
+        write(12, *) sum(rotor%blade(ib)%waP(irow, :)%vr%skew)/ncol
+      enddo
+
+      close(12)
+    enddo
+  end subroutine skew2file
+
   subroutine force2file(timestamp, rotor, rotorNumber)
     ! Write sec and net force to file
     type(rotor_class), intent(in) :: rotor
