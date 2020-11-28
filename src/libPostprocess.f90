@@ -665,7 +665,8 @@ contains
         & action='write')
 
       do irow = nrow, rotor%rowNear, -1
-        write(12, *) sum(rotor%blade(ib)%waP(irow, :)%vr%skew)/ncol
+        write(12, *) maxval(rotor%blade(ib)%waP(irow, :)%vr%skew), &
+          & sum(rotor%blade(ib)%waP(irow, :)%vr%skew)/ncol
       enddo
 
       close(12)
