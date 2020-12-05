@@ -1461,13 +1461,13 @@ contains
     endif
   end subroutine blade_burst_wake
 
-  subroutine blade_calc_skew(this, rowFar)
+  subroutine blade_calc_skew(this, rowNear)
   class(blade_class), intent(inout) :: this
-    integer, intent(in) :: rowFar
+    integer, intent(in) :: rowNear
     integer :: irow, icol
 
-    do icol = rowFar, size(this%waP, 2)
-      do irow = 1, size(this%waP, 1)
+    do icol = 1, size(this%waP, 2)
+      do irow = rowNear, size(this%waP, 1)
         call this%waP(irow, icol)%vr%calc_skew()
       enddo
     enddo
@@ -2916,7 +2916,7 @@ contains
   class(rotor_class), intent(inout) :: this
     integer :: ib
     do ib = 1, this%nb
-      call this%blade(ib)%calc_skew(this%rowFar)
+      call this%blade(ib)%calc_skew(this%rowNear)
     enddo
   end subroutine rotor_calc_skew
 
