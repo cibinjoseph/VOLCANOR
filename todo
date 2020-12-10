@@ -10,8 +10,7 @@ Convert grid output to binary format
 Implement non-lifting surfaces
 Resolve issue of blending multiple airfoils along span
 Check sweep cases by KnP
-While computing drag from FELS in unsteady case, ensure unsteady 'induced' drag term 
-  is not counted twice by neglecting it in force computation using gamma 
+While computing drag from FELS in unsteady case, ensure unsteady 'induced' drag term is not counted twice by neglecting it in force computation using gamma 
 Introduce blade%xAxisNoPitch centered about pitching hinge
 Implement alpha sweep mode
 Make secDynamicPressure a variable also to prevent recomputing during plotting
@@ -20,3 +19,4 @@ Change rotorXX.in to geomXX.in
 Change name of getMedianCos to getBimedianCos
 Correct dbg compile-time errors
 Parallelize skew computation
+Unify fels scripts for fixed and rotary wings
