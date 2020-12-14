@@ -68,7 +68,7 @@
 #   spanwise core radius[x/c]       streamwise core_switch
 #   [s]ectional  [i]dentical
 # -------------------------------------------------------------------
-  0.04                                       i
+  0.0                                       i
 # 
 # streamwise core radius[x/c]   root <----> tip  (ns+1 entries)
 # -------------------------------------------------------------------
