@@ -52,10 +52,8 @@ program main
       call print_status()    ! SUCCESS
     else
       ! if (rotor(ir)%surfaceType == 0) then
-      call print_status()    ! SUCCESS
-      print*, 'Warning: Computed AIC_inv does not seem &
+      stop 'Warning: Computed AIC_inv does not seem &
         & to be correct within given tolerance'
-      read *
       ! endif
     endif
   enddo
