@@ -357,27 +357,58 @@ contains
 
   end subroutine wingpanel_class_assignP
 
-  subroutine wingpanel_class_calcCP(this)
+  subroutine wingpanel_class_calcCP(this, isTriangle)
     ! Compute collocation point location
   class(wingpanel_class) :: this
-    this%CP = ((this%PC(:, 1) + this%PC(:, 4))*0.25_dp &
-      + (this%PC(:, 2) + this%PC(:, 3))*0.75_dp)*0.5_dp
+    logical, optional :: isTriangle
+    logical :: triPanel
+
+    triPanel = .false.  ! Assumes quad panel by default
+    if (present(isTriangle)) triPanel = isTriangle
+
+    if (triPanel) then
+      this%CP = (this%PC(:, 1) + this%PC(:, 2) + this%PC(:, 3))/3.0_dp
+    else
+      this%CP = ((this%PC(:, 1) + this%PC(:, 4))*0.25_dp &
+        + (this%PC(:, 2) + this%PC(:, 3))*0.75_dp)*0.5_dp
+    endif
   end subroutine wingpanel_class_calcCP
 
-  subroutine wingpanel_class_calcN(this)
+  subroutine wingpanel_class_calcN(this, isTriangle)
     ! Compute normal vector
   class(wingpanel_class) :: this
-    this%nCap = unitVec(cross_product(this%pc(:, 3) - this%pc(:, 1), &
-      this%pc(:, 4) - this%pc(:, 2)))
+    logical, optional :: isTriangle
+    logical :: triPanel
+
+    triPanel = .false.  ! Assumes quad panel by default
+    if (present(isTriangle)) triPanel = isTriangle
+
+    if (triPanel) then
+      this%nCap = unitvec(this%nCap)
+    else
+      this%nCap = unitVec(cross_product(this%pc(:, 3) - this%pc(:, 1), &
+        this%pc(:, 4) - this%pc(:, 2)))
+    endif
   end subroutine wingpanel_class_calcN
 
-  subroutine wingpanel_class_calcTau(this)
+  subroutine wingpanel_class_calcTau(this, isTriangle)
     ! Compute chordwise and spanwise tangential vectors
   class(wingpanel_class) :: this
-    this%tauCapChord = unitVec(0.5_dp*((this%pc(:, 2) + this%pc(:, 3)) &
-      - (this%pc(:, 1) + this%pc(:, 4))))
-    this%tauCapSpan = unitVec(0.5_dp*((this%pc(:, 3) + this%pc(:, 4)) &
-      - (this%pc(:, 2) + this%pc(:, 1))))
+    logical, optional :: isTriangle
+    logical :: triPanel
+
+    triPanel = .false.  ! Assumes quad panel by default
+    if (present(isTriangle)) triPanel = isTriangle
+
+    if (triPanel) then
+      this%tauCapChord = unitvec(this%PC(:, 3)-this%PC(:, 1))
+      this%tauCapSpan = unitvec(this%PC(:, 4)-this%PC(:, 2))
+    else
+      this%tauCapChord = unitVec(0.5_dp*((this%pc(:, 2) + this%pc(:, 3)) &
+        - (this%pc(:, 1) + this%pc(:, 4))))
+      this%tauCapSpan = unitVec(0.5_dp*((this%pc(:, 3) + this%pc(:, 4)) &
+        - (this%pc(:, 2) + this%pc(:, 1))))
+    endif
   end subroutine wingpanel_class_calcTau
 
   subroutine wingpanel_class_rot(this, Tmat)
@@ -584,6 +615,9 @@ module blade_classdef
     real(dp), allocatable, dimension(:, :, :) :: velNwakePredicted, velNwakeStep
     real(dp), allocatable, dimension(:, :) :: velFwake, velFwake1, velFwake2, velFwake3
     real(dp), allocatable, dimension(:, :) :: velFwakePredicted, velFwakeStep
+    integer :: stlNodesCols  ! Cols of stlNodes array
+    real(dp), allocatable, dimension(:, :) :: stlNodes ! (3, stlNodesCols)
+    integer, allocatable, dimension(:, :) :: stlElementNodes ! 3 Vertices of each element
     real(dp), dimension(3) :: xAxis, yAxis, zAxis
     ! Sectional quantities
     real(dp), allocatable, dimension(:) :: secChord, secArea
@@ -622,6 +656,7 @@ module blade_classdef
     procedure :: secCoeffsToSecForces
     procedure :: dirLiftDrag => blade_dirLiftDrag
     procedure :: sumSecToNetForces
+    procedure :: calc_stlStats
     ! I/O subroutines
     procedure :: blade_write
     generic :: write(unformatted) => blade_write
@@ -1493,6 +1528,63 @@ contains
     this%dragInduced = sum(this%secDragInduced, 2)
   end subroutine sumSecToNetForces
 
+  subroutine calc_stlStats(this)
+  class(blade_class), intent(inout) :: this
+    real(dp), dimension(3) :: vertex
+    integer :: icell, ivertex, irow
+    logical :: isNewVertex
+    ! Dummy arrays
+    real(dp), allocatable, dimension(:, :) :: stlNodes
+
+    ! Naive allocations
+    allocate(stlNodes(3, this%nc*3))
+    allocate(this%stlElementNodes(3,this%nc))
+
+    this%stlNodesCols = 0
+    do icell = 1, this%nc
+      do ivertex = 1, 3
+        vertex = this%wiP(icell, 1)%PC(:, ivertex)
+
+        ! Check if vertex is present in vertices array
+        isNewVertex = .true.
+        do irow = 1, this%stlNodesCols
+          if (all(abs(stlNodes(:, irow) - vertex) < eps)) then
+            isNewVertex = .false.
+            exit
+          endif
+        enddo
+
+        if (isNewVertex) then
+          ! Record to vertices array
+          this%stlNodesCols = this%stlNodesCols + 1
+          stlNodes(:, this%stlNodesCols) = vertex
+        endif
+      enddo
+    enddo
+
+    allocate(this%stlNodes(3, this%stlNodesCols))
+    this%stlNodes = stlNodes(:, 1:this%stlNodesCols)
+
+    ! Deallocate dummy arrays
+    deallocate(stlNodes)
+
+    ! For each element find the 3 node indices in stlNodes array 
+    do icell = 1, this%nc
+      do ivertex = 1,3
+        vertex = this%wiP(icell, 1)%PC(:, ivertex)
+
+        do irow = 1, this%stlNodesCols
+          if (all(abs(this%stlNodes(:, irow) - vertex) < eps)) then
+            ! Record row number
+            this%stlElementNodes(ivertex, icell) = irow
+            exit
+          endif
+        enddo
+
+      enddo
+    enddo
+  end subroutine calc_stlStats
+
   subroutine blade_write(this, unit, iostat, iomsg)
   class(blade_class), intent(in) :: this
     integer, intent(in) :: unit
@@ -1593,6 +1685,7 @@ module rotor_classdef
     integer :: gammaPlotSwitch, alphaPlotSwitch
     integer :: rowNear, rowFar
     integer :: nAirfoils
+    integer :: surfaceType  ! [0]lifting surface [1]non-lifting surface
     character(len=30), allocatable, dimension(:) :: airfoilFile
     character(len=30) :: geometryFile
     real(dp) :: nonDimforceDenominator
@@ -1600,7 +1693,7 @@ module rotor_classdef
     procedure :: getdata
     procedure :: init => rotor_init
     procedure :: deinit => rotor_deinit
-    procedure :: plot3dtoblade
+    procedure :: plot3dtoblade, stltoblade
     procedure :: gettheta
     procedure :: getthetadot
     procedure :: move => rotor_move
@@ -1647,13 +1740,17 @@ contains
     call skip_comments(12)
     read (12, *) this%nb, this%propConvention, this%geometryFile
     call skip_comments(12)
+    read (12, *) this%surfaceType  ! [0]Lifting [1]Non-lifting
+    call skip_comments(12)
     read (12, *) this%nc, this%ns, this%nNwake
     ! If nNwake is -ve, far wake is suppressed
-    if (this%nNwake < 0) then
-      this%suppressFwakeSwitch = 1
-      this%nNwake = abs(this%nNwake)
-    else
-      this%suppressFwakeSwitch = 0
+    if (this%surfaceType == 0) then
+      if (this%nNwake < 0) then
+        this%suppressFwakeSwitch = 1
+        this%nNwake = abs(this%nNwake)
+      else
+        this%suppressFwakeSwitch = 0
+      endif
     endif
 
     if (this%nNwake < 2) error stop 'ERROR: Atleast 2 near wake rows mandatory'
@@ -1774,9 +1871,17 @@ contains
       print*, 'nt set to ', nt
     endif
 
+    ! Override ns to 1 if non-lifting surface
+    if (this%surfaceType .ne. 0) this%ns = 1
+
     ! Initialize variables for use in allocating
-    this%nNwake = min(this%nNwake, nt)
-    this%nFwake = nt - this%nNwake
+    if (this%surfaceType == 0) then
+      this%nNwake = min(this%nNwake, nt)
+      this%nFwake = nt - this%nNwake
+    else
+      this%nNwake = 0
+      this%nFwake = 0
+    endif
 
     ! Allocate rotor object variables
     allocate (this%blade(this%nb))
@@ -1880,7 +1985,16 @@ contains
         enddo
       enddo
     else
-      call this%plot3dtoblade(trim(this%geometryFile))
+      if (this%surfaceType == 0) then
+        call this%plot3dtoblade(trim(this%geometryFile))
+      else
+        call this%stltoblade(trim(this%geometryFile))
+        do ib = 1, this%nb
+          this%blade(ib)%nc = this%nc
+          this%blade(ib)%ns = this%ns
+          call this%blade(ib)%calc_stlStats()
+        enddo
+      endif
     endif
 
     ! Copy ns and nc to blade variables to avoid recomputing
@@ -1898,80 +2012,82 @@ contains
       this%blade(ib)%zAxis = zAxis
 
       ! Initialize sec vectors
-      do j = 1, this%ns
-        this%blade(ib)%secTauCapChord(:, j) = &
-          (this%blade(ib)%wiP(this%nc, j)%PC(:, 3) + this%blade(ib)%wiP(this%nc, j)%PC(:, 2) - &
-          (this%blade(ib)%wiP(1, j)%PC(:, 4) + this%blade(ib)%wiP(1, j)%PC(:, 1)))*0.5_dp
+      if (this%surfaceType == 0) then
+        do j = 1, this%ns
+          this%blade(ib)%secTauCapChord(:, j) = &
+            (this%blade(ib)%wiP(this%nc, j)%PC(:, 3) + this%blade(ib)%wiP(this%nc, j)%PC(:, 2) - &
+            (this%blade(ib)%wiP(1, j)%PC(:, 4) + this%blade(ib)%wiP(1, j)%PC(:, 1)))*0.5_dp
 
-        this%blade(ib)%secTauCapSpan(:, j) = yAxis
+          this%blade(ib)%secTauCapSpan(:, j) = yAxis
 
-        this%blade(ib)%secNormalVec(:, j) = &
-          cross_product(this%blade(ib)%wiP(this%nc, j)%PC(:, 2) - this%blade(ib)%wiP(1, j)%PC(:, 4), &
-          this%blade(ib)%wiP(this%nc, j)%PC(:, 3) - this%blade(ib)%wiP(1, j)%PC(:, 1))
+          this%blade(ib)%secNormalVec(:, j) = &
+            cross_product(this%blade(ib)%wiP(this%nc, j)%PC(:, 2) - this%blade(ib)%wiP(1, j)%PC(:, 4), &
+            this%blade(ib)%wiP(this%nc, j)%PC(:, 3) - this%blade(ib)%wiP(1, j)%PC(:, 1))
 
-        ! Normalize
-        this%blade(ib)%secTauCapChord(:, j) = unitVec(this%blade(ib)%secTauCapChord(:, j))
+          ! Normalize
+          this%blade(ib)%secTauCapChord(:, j) = unitVec(this%blade(ib)%secTauCapChord(:, j))
 
-        this%blade(ib)%secNormalVec(:, j) = unitVec(this%blade(ib)%secNormalVec(:, j))
-      enddo
+          this%blade(ib)%secNormalVec(:, j) = unitVec(this%blade(ib)%secNormalVec(:, j))
+        enddo
 
-      ! Initialize vr coords of all panels except last row (to accomodate mismatch of vr coords when using unequal spacing)
-      do j = 1, this%ns
-        do i = 1, this%nc - 1
-          xshift(1) = (this%blade(ib)%wiP(i, j)%PC(1, 2) &
-            - this%blade(ib)%wiP(i, j)%PC(1, 1))*0.25_dp
-          xshift(2) = (this%blade(ib)%wiP(i + 1, j)%PC(1, 2) &
-            - this%blade(ib)%wiP(i, j)%PC(1, 2))*0.25_dp
-          xshift(3) = (this%blade(ib)%wiP(i + 1, j)%PC(1, 3) &
-            - this%blade(ib)%wiP(i, j)%PC(1, 3))*0.25_dp
-          xshift(4) = (this%blade(ib)%wiP(i, j)%PC(1, 3) &
-            - this%blade(ib)%wiP(i, j)%PC(1, 4))*0.25_dp
+        ! Initialize vr coords of all panels except last row (to accomodate mismatch of vr coords when using unequal spacing)
+        do j = 1, this%ns
+          do i = 1, this%nc - 1
+            xshift(1) = (this%blade(ib)%wiP(i, j)%PC(1, 2) &
+              - this%blade(ib)%wiP(i, j)%PC(1, 1))*0.25_dp
+            xshift(2) = (this%blade(ib)%wiP(i + 1, j)%PC(1, 2) &
+              - this%blade(ib)%wiP(i, j)%PC(1, 2))*0.25_dp
+            xshift(3) = (this%blade(ib)%wiP(i + 1, j)%PC(1, 3) &
+              - this%blade(ib)%wiP(i, j)%PC(1, 3))*0.25_dp
+            xshift(4) = (this%blade(ib)%wiP(i, j)%PC(1, 3) &
+              - this%blade(ib)%wiP(i, j)%PC(1, 4))*0.25_dp
 
-          call this%blade(ib)%wiP(i, j)%vr%assignP(1, &
+            call this%blade(ib)%wiP(i, j)%vr%assignP(1, &
+              (/this%blade(ib)%wiP(i, j)%PC(1, 1) &
+              + xshift(1), this%blade(ib)%wiP(i, j)%PC(2, 1), &
+              this%blade(ib)%wiP(i, j)%PC(3, 1)/))
+            call this%blade(ib)%wiP(i, j)%vr%assignP(2, &
+              (/this%blade(ib)%wiP(i, j)%PC(1, 2) &
+              + xshift(2), this%blade(ib)%wiP(i, j)%PC(2, 2), &
+              this%blade(ib)%wiP(i, j)%PC(3, 2)/))
+            call this%blade(ib)%wiP(i, j)%vr%assignP(3, &
+              (/this%blade(ib)%wiP(i, j)%PC(1, 3) &
+              + xshift(3), this%blade(ib)%wiP(i, j)%PC(2, 3), &
+              this%blade(ib)%wiP(i, j)%PC(3, 3)/))
+            call this%blade(ib)%wiP(i, j)%vr%assignP(4, &
+              (/this%blade(ib)%wiP(i, j)%PC(1, 4) &
+              + xshift(4), this%blade(ib)%wiP(i, j)%PC(2, 4), &
+              this%blade(ib)%wiP(i, j)%PC(3, 4)/))
+          enddo
+        enddo
+
+        ! Initialize vr coords of last row
+        do j = 1, this%ns
+          xshift(1) = (this%blade(ib)%wiP(this%nc, j)%PC(1, 2) &
+            - this%blade(ib)%wiP(this%nc, j)%PC(1, 1))*0.25_dp  ! Shift x coord by dx/4
+          xshift(2) = 0._dp
+          xshift(3) = 0._dp
+          xshift(4) = (this%blade(ib)%wiP(this%nc, j)%PC(1, 3) &
+            - this%blade(ib)%wiP(this%nc, j)%PC(1, 4))*0.25_dp  ! Shift x coord by dx/4
+
+          call this%blade(ib)%wiP(this%nc, j)%vr%assignP(1, &
             (/this%blade(ib)%wiP(i, j)%PC(1, 1) &
             + xshift(1), this%blade(ib)%wiP(i, j)%PC(2, 1), &
             this%blade(ib)%wiP(i, j)%PC(3, 1)/))
-          call this%blade(ib)%wiP(i, j)%vr%assignP(2, &
+          call this%blade(ib)%wiP(this%nc, j)%vr%assignP(2, &
             (/this%blade(ib)%wiP(i, j)%PC(1, 2) &
             + xshift(2), this%blade(ib)%wiP(i, j)%PC(2, 2), &
             this%blade(ib)%wiP(i, j)%PC(3, 2)/))
-          call this%blade(ib)%wiP(i, j)%vr%assignP(3, &
+          call this%blade(ib)%wiP(this%nc, j)%vr%assignP(3, &
             (/this%blade(ib)%wiP(i, j)%PC(1, 3) &
             + xshift(3), this%blade(ib)%wiP(i, j)%PC(2, 3), &
             this%blade(ib)%wiP(i, j)%PC(3, 3)/))
-          call this%blade(ib)%wiP(i, j)%vr%assignP(4, &
+          call this%blade(ib)%wiP(this%nc, j)%vr%assignP(4, &
             (/this%blade(ib)%wiP(i, j)%PC(1, 4) &
             + xshift(4), this%blade(ib)%wiP(i, j)%PC(2, 4), &
             this%blade(ib)%wiP(i, j)%PC(3, 4)/))
         enddo
-      enddo
-
-      ! Initialize vr coords of last row
-      do j = 1, this%ns
-        xshift(1) = (this%blade(ib)%wiP(this%nc, j)%PC(1, 2) &
-          - this%blade(ib)%wiP(this%nc, j)%PC(1, 1))*0.25_dp  ! Shift x coord by dx/4
-        xshift(2) = 0._dp
-        xshift(3) = 0._dp
-        xshift(4) = (this%blade(ib)%wiP(this%nc, j)%PC(1, 3) &
-          - this%blade(ib)%wiP(this%nc, j)%PC(1, 4))*0.25_dp  ! Shift x coord by dx/4
-
-        call this%blade(ib)%wiP(this%nc, j)%vr%assignP(1, &
-          (/this%blade(ib)%wiP(i, j)%PC(1, 1) &
-          + xshift(1), this%blade(ib)%wiP(i, j)%PC(2, 1), &
-          this%blade(ib)%wiP(i, j)%PC(3, 1)/))
-        call this%blade(ib)%wiP(this%nc, j)%vr%assignP(2, &
-          (/this%blade(ib)%wiP(i, j)%PC(1, 2) &
-          + xshift(2), this%blade(ib)%wiP(i, j)%PC(2, 2), &
-          this%blade(ib)%wiP(i, j)%PC(3, 2)/))
-        call this%blade(ib)%wiP(this%nc, j)%vr%assignP(3, &
-          (/this%blade(ib)%wiP(i, j)%PC(1, 3) &
-          + xshift(3), this%blade(ib)%wiP(i, j)%PC(2, 3), &
-          this%blade(ib)%wiP(i, j)%PC(3, 3)/))
-        call this%blade(ib)%wiP(this%nc, j)%vr%assignP(4, &
-          (/this%blade(ib)%wiP(i, j)%PC(1, 4) &
-          + xshift(4), this%blade(ib)%wiP(i, j)%PC(2, 4), &
-          this%blade(ib)%wiP(i, j)%PC(3, 4)/))
-      enddo
+      endif
 
       ! Find dx and dy vectors
       do is = 1, this%ns
@@ -1985,29 +2101,47 @@ contains
       dxdymin = min(minval(dx), minval(dy))
 
       ! Shed last row of vortices
-      if (abs(this%Omega) > eps) then
-        velShed = min(0.05*abs(this%Omega)*norm2(this%blade(ib)% &
-          wiP(this%nc, this%ns)%vr%vf(2)%fc(:, 1) - this%hubCoords), 0.125_dp*this%chord/dt)
-      else
-        velShed = 0.3_dp*norm2(-1._dp*this%velBody)
+      if (this%surfaceType == 0) then
+        if (abs(this%Omega) > eps) then
+          velShed = min(0.05*abs(this%Omega)*norm2(this%blade(ib)% &
+            wiP(this%nc, this%ns)%vr%vf(2)%fc(:, 1) - this%hubCoords), 0.125_dp*this%chord/dt)
+        else
+          velShed = 0.3_dp*norm2(-1._dp*this%velBody)
+        endif
+        do j = 1, this%ns
+          call this%blade(ib)%wiP(this%nc, j)%vr%shiftdP(2, (/sign(1._dp,this%Omega)*velShed*dt, 0._dp, 0._dp/))
+          call this%blade(ib)%wiP(this%nc, j)%vr%shiftdP(3, (/sign(1._dp,this%Omega)*velShed*dt, 0._dp, 0._dp/))
+        enddo
       endif
-      do j = 1, this%ns
-        call this%blade(ib)%wiP(this%nc, j)%vr%shiftdP(2, (/sign(1._dp,this%Omega)*velShed*dt, 0._dp, 0._dp/))
-        call this%blade(ib)%wiP(this%nc, j)%vr%shiftdP(3, (/sign(1._dp,this%Omega)*velShed*dt, 0._dp, 0._dp/))
-      enddo
 
       ! Initialize CP coords, nCap, panelArea and pivotLE
-      do j = 1, this%ns
-        do i = 1, this%nc
-          call this%blade(ib)%wiP(i, j)%calcCP()
-          call this%blade(ib)%wiP(i, j)%calcN()
-          call this%blade(ib)%wiP(i, j)%calcTau()
-          this%blade(ib)%wiP(i, j)%rHinge = length3d((this%blade(ib)%wiP(1, j)%pc(:, 1) &
-            + this%blade(ib)%wiP(1, j)%pc(:, 4))*0.5_dp, this%blade(ib)%wiP(i, j)%CP)
-          call this%blade(ib)%wiP(i, j)%calc_area()
-          call this%blade(ib)%wiP(i, j)%calc_mean_dimensions()
+      if (this%surfaceType == 0) then
+        do j = 1, this%ns
+          do i = 1, this%nc
+            call this%blade(ib)%wiP(i, j)%calcCP()
+            call this%blade(ib)%wiP(i, j)%calcN()
+            call this%blade(ib)%wiP(i, j)%calcTau()
+            this%blade(ib)%wiP(i, j)%rHinge = length3d((this%blade(ib)%wiP(1, j)%pc(:, 1) &
+              + this%blade(ib)%wiP(1, j)%pc(:, 4))*0.5_dp, this%blade(ib)%wiP(i, j)%CP)
+            call this%blade(ib)%wiP(i, j)%calc_area()
+            call this%blade(ib)%wiP(i, j)%calc_mean_dimensions()
+          enddo
         enddo
-      enddo
+      else
+        do j = 1, this%ns
+          do i = 1, this%nc
+            call this%blade(ib)%wiP(i, j)%calcCP(isTriangle=.true.)
+            call this%blade(ib)%wiP(i, j)%calcN(isTriangle=.true.)
+            call this%blade(ib)%wiP(i, j)%calcTau(isTriangle=.true.)
+            ! this%blade(ib)%wiP(i, j)%rHinge = &
+            ! & length3d((this%blade(ib)%wiP(1, j)%pc(:, 1) &
+            ! & + this%blade(ib)%wiP(1, j)%pc(:, 4))*0.5_dp, &
+            ! & this%blade(ib)%wiP(i, j)%CP)
+            call this%blade(ib)%wiP(i, j)%calc_area()
+            call this%blade(ib)%wiP(i, j)%calc_mean_dimensions()
+          enddo
+        enddo
+      endif
 
       ! Compute sectional areas and chords
       call this%blade(ib)%calc_secArea()
@@ -2052,10 +2186,15 @@ contains
 
       ! Initialize all core radius of wing vortices to zero
       do i = 1, 4
-        this%blade(ib)%wiP%vr%vf(i)%rVc0 = min(this%spanwiseCore, dxdymin*0.1_dp)
+        this%blade(ib)%wiP%vr%vf(i)%rVc0 = &
+          & min(this%spanwiseCore, dxdymin*0.1_dp)
       enddo
 
-      !print*,'Wing vortex core radius set to ',min(this%spanwiseCore,dxdymin*0.1_dp)/this%chord,'times chord'
+      if (min(this%spanwiseCore, dxdymin*0.1_dp) < eps) then
+        print*, 'Warning: Wing vortex core radius set to zero'
+      endif
+
+      ! print*,'Wing vortex core radius set to ',min(this%spanwiseCore,dxdymin*0.1_dp)/this%chord,'times chord'
 
       ! Initialize spanwise vortex core radius for last row of wing to that of wake
       this%blade(ib)%wiP(this%nc, :)%vr%vf(2)%rVc0 = this%spanwiseCore
@@ -2447,6 +2586,45 @@ contains
     enddo
 
   end subroutine plot3dtoblade
+
+  subroutine stltoblade(this, stlfilename)
+    !! Read ASCII stl file for non-lifting surface geometry
+  class(rotor_class) :: this
+    character(len=*), intent(in) :: stlfilename
+    character(len=5) :: facet
+    character(len=6) :: normal, vertex
+    integer :: i
+
+    open(unit=10, file=stlfilename, action='read', status='old')
+    read(10, *) ! solid
+    do i = 1, this%nc
+      read(10, *) facet, normal, this%blade(1)%wiP(i, 1)%nCap
+      read(10, *) ! outer loop
+      read(10, *) vertex, this%blade(1)%wiP(i, 1)%PC(:, 1)
+      read(10, *) vertex, this%blade(1)%wiP(i, 1)%PC(:, 2)
+      read(10, *) vertex, this%blade(1)%wiP(i, 1)%PC(:, 3)
+      read(10, *) ! endloop
+      read(10, *) ! endfacet
+    enddo
+    read(10, *) ! endsolid
+    close(10)
+
+    ! Compute vortex ring coordinates
+    !$omp parallel do
+    do i = 1, this%nc
+      this%blade(1)%wiP(i, 1)%PC(:, 4) = this%blade(1)%wiP(i, 1)%PC(:, 3)
+      call this%blade(1)%wiP(i, 1)%vr%assignP(1, &
+        & this%blade(1)%wiP(i, 1)%PC(:, 1))
+      call this%blade(1)%wiP(i, 1)%vr%assignP(2, &
+        & this%blade(1)%wiP(i, 1)%PC(:, 2))
+      call this%blade(1)%wiP(i, 1)%vr%assignP(3, &
+        & this%blade(1)%wiP(i, 1)%PC(:, 3))
+      call this%blade(1)%wiP(i, 1)%vr%assignP(4, &
+        & this%blade(1)%wiP(i, 1)%PC(:, 4))
+    enddo
+    !$omp end parallel do
+  end subroutine stltoblade
+
 
   function gettheta(this, psi, ib)
     ! Get pitch angle corresponding to blade azimuthal location
