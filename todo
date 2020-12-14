@@ -17,7 +17,6 @@ Make secDynamicPressure a variable also to prevent recomputing during plotting
 Change slowstartNT to -revs and in rotorXX.in
 Change rotorXX.in to geomXX.in
 Change name of getMedianCos to getBimedianCos
-Correct dbg compile-time errors
 Parallelize skew computation
 Unify fels scripts for fixed and rotary wings
-For surfaceType = 1 (non-lifting surface), change the wing n wake plot type to unstructured tecplot
+Prevent newcase.sh from running when folder already exists
