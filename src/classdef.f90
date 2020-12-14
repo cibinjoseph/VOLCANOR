@@ -92,7 +92,7 @@ module vr_classdef
     procedure :: burst
     procedure :: getInteriorAngles
     procedure :: getMedianAngle
-    procedure :: getMedianCos
+    procedure :: getBimedianCos
   end type vr_class
 
 contains
@@ -240,9 +240,9 @@ contains
     getMedianAngle = getAngleCos(p3 + p4 - p1 - p2, p4 + p1 - p2 - p3)
   end function getMedianAngle
 
-  function getMedianCos(this)
+  function getBimedianCos(this)
   class(vr_class) :: this
-    real(dp) :: getMedianCos
+    real(dp) :: getBimedianCos
     real(dp), dimension(3) :: p1, p2, p3, p4
     real(dp), dimension(3) :: x1Vec, x2Vec
 
@@ -253,9 +253,9 @@ contains
 
     x1Vec = p3 + p4 - p1 - p2
     x2Vec = p4 + p1 - p2 - p3
-    getMedianCos = abs(dot_product(x1Vec, x2Vec)/ &
+    getBimedianCos = abs(dot_product(x1Vec, x2Vec)/ &
       sqrt(dot_product(x1Vec, x1Vec)*dot_product(x2Vec, x2Vec)))
-  end function getMedianCos
+  end function getBimedianCos
 
   subroutine calc_skew(this)
     ! Compute skew
@@ -263,7 +263,7 @@ contains
 
     if (abs(this%gam) > eps) then
       ! skew:  0-good, 1-bad
-      this%skew = this%getMedianCos()
+      this%skew = this%getBimedianCos()
     else
       this%skew = 0._dp
     endif
@@ -277,7 +277,7 @@ contains
 
     if ((abs(this%gam) > eps) .and. (skewLimit > eps)) then
       ! skew:  0-good, 1-bad
-      skewVal = this%getMedianCos()
+      skewVal = this%getBimedianCos()
       if (skewVal .ge. skewLimit) this%gam = 0._dp
     endif
     this%skew = skewVal

@@ -16,7 +16,7 @@ Implement alpha sweep mode
 Make secDynamicPressure a variable also to prevent recomputing during plotting
 Change slowstartNT to -revs and in rotorXX.in
 Change rotorXX.in to geomXX.in
-Change name of getMedianCos to getBimedianCos
 Parallelize skew computation
 Unify fels scripts for fixed and rotary wings
 Prevent newcase.sh from running when folder already exists
+Use source induced velocity for non-lifting surfaces in vind
