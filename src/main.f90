@@ -51,13 +51,12 @@ program main
     if (isInverse(rotor(ir)%AIC, rotor(ir)%AIC_inv)) then
       call print_status()    ! SUCCESS
     else
-      if (rotor(ir)%surfaceType == 0) then
-        stop 'Warning: Computed AIC_inv does not seem &
-          &to be correct within given tolerance'
-        read *
-      else
-        call print_status()    ! SUCCESS
-      endif
+      ! if (rotor(ir)%surfaceType == 0) then
+      call print_status()    ! SUCCESS
+      print*, 'Warning: Computed AIC_inv does not seem &
+        & to be correct within given tolerance'
+      read *
+      ! endif
     endif
   enddo
 
