@@ -3,6 +3,10 @@
 # No.of blades,nb    Prop convention     Read wing from file 
 # -------------------------------------------------------------------
      2                     1                propCCW.xyz
+#
+# Surface type [0]Lifting  [1]Non-lifting
+# -------------------------------------------------------------------
+     0
 # 
 # Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 # -------------------------------------------------------------------
