@@ -1225,12 +1225,17 @@ contains
     secDynamicPressure = this%getSecDynamicPressure(density)
 
     do is = 1, this%ns
-      ! Use sign of delP to obtain sign of CL
-      signSecCL = sign(1._dp, sum(this%wiP(:, is)%delP))
-      this%secCL(is) = norm2(this%secLift(:, is))*signSecCL/ &
-        & (secDynamicPressure(is)*this%secArea(is))
-      this%secCD(is) = norm2(this%secDrag(:, is))/ &
-        & (secDynamicPressure(is)*this%secArea(is))
+      if (abs(secDynamicPressure(is)) > eps) then
+        ! Use sign of delP to obtain sign of CL
+        signSecCL = sign(1._dp, sum(this%wiP(:, is)%delP))
+        this%secCL(is) = norm2(this%secLift(:, is))*signSecCL/ &
+          & (secDynamicPressure(is)*this%secArea(is))
+        this%secCD(is) = norm2(this%secDrag(:, is))/ &
+          & (secDynamicPressure(is)*this%secArea(is))
+      else
+        this%secCL(is) = 0._dp
+        this%secCD(is) = 0._dp
+      endif
     enddo
 
     call this%sumSecToNetForces()
