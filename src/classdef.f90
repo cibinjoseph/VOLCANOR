@@ -1506,11 +1506,13 @@ contains
     integer, intent(in) :: rowNear
     integer :: irow, icol
 
+    !$omp parallel do collapse(2)
     do icol = 1, size(this%waP, 2)
       do irow = rowNear, size(this%waP, 1)
         call this%waP(irow, icol)%vr%calc_skew()
       enddo
     enddo
+    !$omp end parallel do
   end subroutine blade_calc_skew
 
   subroutine blade_dirLiftDrag(this)
