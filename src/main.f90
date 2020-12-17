@@ -18,7 +18,7 @@ program main
   ! Read rotor??.in files
   do ir = 1, nr
     write (rotorChar, '(I0.2)') ir
-    rotorFile = 'rotor'//rotorChar//'.in'
+    rotorFile = 'geom'//rotorChar//'.in'
     inquire(file=rotorFile, exist=fileExists)
     if (.not. fileExists) error stop 'ERROR: A rotorXX.in file does not exist'
     call print_status('Reading file '//rotorFile)

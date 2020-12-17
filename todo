@@ -16,5 +16,4 @@ Introduce blade%xAxisNoPitch centered about pitching hinge
 Implement alpha sweep mode
 Make secDynamicPressure a variable also to prevent recomputing during plotting
 Change slowstartNT to -revs and in rotorXX.in
-Change rotorXX.in to geomXX.in
 Unify fels scripts for fixed and rotary wings
