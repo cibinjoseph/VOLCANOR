@@ -28,9 +28,10 @@ contains
   function vfclass_vind(this, P) result(vind)
     ! Compute induced velocity by unit strength vortex filament
   class(vf_class) :: this
-    real(dp), dimension(3) :: vind, P
-    real(dp) :: r1Xr2Abs2
+    real(dp), intent(in), dimension(3) :: P
+    real(dp), dimension(3) :: vind
     real(dp), dimension(3) :: r1, r2, r0, r1Xr2
+    real(dp) :: r1Xr2Abs2
 
     r1 = P - this%fc(:, 1)
     r2 = P - this%fc(:, 2)
@@ -83,6 +84,7 @@ module vr_classdef
     real(dp) :: skew
   contains
     procedure :: vind => vrclass_vind
+    procedure :: vindSource => vrclass_vindSource
     procedure :: assignP => vrclass_assignP
     procedure :: shiftdP => vrclass_shiftdP
     procedure :: rot => vrclass_rot
@@ -98,7 +100,8 @@ module vr_classdef
 contains
 
   function vrclass_vind(this, P) result(vind)
-    ! Compute induced velocity by unit strength vortex ring
+    ! Compute induced velocity by
+    ! unit strength 4-element vortex ring
   class(vr_class) :: this
     real(dp), dimension(3) :: P, vind
     real(dp), dimension(4, 3) :: vindMat
@@ -112,6 +115,22 @@ contains
     vind = sum(vindMat, 1)
 
   end function vrclass_vind
+
+  function vrclass_vindSource(this, P, nCap) result(vind)
+    ! Compute induced velocity by
+    ! unit strength 3-element source ring
+  class(vr_class) :: this
+    real(dp), intent(in), dimension(3) :: P, nCap
+    real(dp), dimension(3) :: vind
+    real(dp), dimension(3, 3) :: vindMat
+    integer :: i
+
+    vind = 0._dp
+
+    ! DEBUG
+    ! Add velocity induced by 3d source triangle here
+
+  end function vrclass_vindSource
 
   ! Panel coordinates
   ! o---------> Y along span
@@ -636,6 +655,7 @@ module blade_classdef
     procedure :: rot_axis
     procedure :: rot_pts => blade_rot_pts
     procedure :: vind_bywing => blade_vind_bywing
+    procedure :: vindSource_bywing => blade_vindSource_bywing
     procedure :: vind_bywing_boundVortices => blade_vind_bywing_boundVortices
     procedure :: vind_bywing_chordwiseVortices => blade_vind_bywing_chordwiseVortices
     procedure :: vind_boundVortex => blade_vind_boundVortex
@@ -836,6 +856,23 @@ contains
     enddo
 
   end function blade_vind_bywing
+
+  function blade_vindSource_bywing(this, P)
+    ! Compute induced velocity by blade bound vorticity
+  class(blade_class), intent(in) :: this
+    real(dp), intent(in), dimension(3) :: P
+    real(dp), dimension(3) :: blade_vindSource_bywing
+    integer :: i, j
+
+    blade_vindSource_bywing = 0._dp
+    do j = 1, this%ns
+      do i = 1, this%nc
+        blade_vindSource_bywing = blade_vindSource_bywing + &
+          this%wiP(i, j)%vr%vindSource(P, this%wiP(i,j)%nCap)* &
+          & this%wiP(i, j)%vr%gam
+      enddo
+    enddo
+  end function blade_vindSource_bywing
 
   function blade_vind_bywing_boundVortices(this, P)
     ! Compute induced velocity by bound vortices alone
@@ -2898,9 +2935,15 @@ contains
     integer :: ib
 
     rotor_vind_bywing = 0._dp
-    do ib = 1, this%nb
-      rotor_vind_bywing = rotor_vind_bywing + this%blade(ib)%vind_bywing(P)
-    enddo
+    if (this%surfaceType == 0) then
+      do ib = 1, this%nb
+        rotor_vind_bywing = rotor_vind_bywing + this%blade(ib)%vind_bywing(P)
+      enddo
+    else
+      do ib = 1, this%nb
+        rotor_vind_bywing = rotor_vind_bywing + this%blade(ib)%vindSource_bywing(P)
+      enddo
+    endif
   end function rotor_vind_bywing
 
   function rotor_vind_bywing_boundVortices(this, P)
