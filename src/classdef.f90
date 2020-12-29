@@ -1833,7 +1833,7 @@ contains
     elseif (this%streamwiseCoreSwitch .eq. 's') then  ! [s]ectional
       read (12, *) (this%streamwiseCoreVec(i), i=1, this%ns + 1)
     else
-      error stop 'ERROR: Wrong input for streamwiseCoreSwitch in rotorXX.in'
+      error stop 'ERROR: Wrong input for streamwiseCoreSwitch in geomXX.in'
     endif
     call skip_comments(12)
     ! Dimensional quantities
@@ -1854,7 +1854,7 @@ contains
     read (12, *) this%forceCalcSwitch, this%nAirfoils
     ! Ensure airfoil tables are provided when force calculation requires them
     if (this%forceCalcSwitch .gt. 0 .and. this%nAirfoils .eq. 0) then 
-      error stop 'ERROR: No. of airfoil tables set to 0 in rotorXX.in'
+      error stop 'ERROR: No. of airfoil tables set to 0 in geomXX.in'
     endif
     call skip_comments(12)
     if (this%nAirfoils .gt. 0) then
