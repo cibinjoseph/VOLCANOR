@@ -19,3 +19,6 @@ tools/*.xyz
 tools/*.vsp3
 status.txt
 *.mod
+sub.cmd
+*.err
+*.log
