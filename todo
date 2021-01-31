@@ -17,3 +17,4 @@ Implement alpha sweep mode
 Make secDynamicPressure a variable also to prevent recomputing during plotting
 Change slowstartNT to -revs and in rotorXX.in
 Unify fels scripts for fixed and rotary wings
+Use default 2*pi for CLa and use alpha0 for FELS
