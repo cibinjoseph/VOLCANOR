@@ -6,6 +6,15 @@ import parseResults as pr
 import matplotlib.pyplot as plt
 import sys
 
+if len(sys.argv) > 1:
+    args = sys.argv[1:]
+else:
+    args = []
+
+for arg in args:
+    if 'Results' in arg:
+        pr.ResultsDir = arg
+
 params = pr.getParams()
 data = pr.getForceDist()
 
@@ -71,5 +80,5 @@ ax[1].legend()
 plt.xlabel('sec. span (r/R)')
 
 # Suppress plot with -q for quiet
-if sys.argv[-1] != '-q':
+if '-q' not in args:
     plt.show()
