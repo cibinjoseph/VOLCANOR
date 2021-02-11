@@ -44,7 +44,7 @@ Vortex filament  | vf
 **Input files**  
 All input files have the extension _.in_    
 _config.in_  -  Main configuration file containing general solver inputs  
-_rotorXX.in_  -  Configuration file for each rotor containing rotor parameters  
+_geomXX.in_  -  Configuration file for each geometry containing geometric parameters  
 _gridconfig.in_  -  Configuration file for generating grid-based solutions during postprocessing  
 
 **Code files**  
