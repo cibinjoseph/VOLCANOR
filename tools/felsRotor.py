@@ -5,6 +5,11 @@ import c81utils as c81
 import parseResults as pr
 import matplotlib.pyplot as plt
 
+try:
+    pr.ResultsDir = sys.argv[1]
+except:
+    pass
+
 params = pr.getParams()
 data = pr.getForceDist()
 
