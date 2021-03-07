@@ -24,5 +24,4 @@ for i, _ in enumerate(CT):
     else:
         CTAvg[i] = CT[i]
     rev = i/ntPerRev
-    print(str(rev) + '  ' + str(CTAvg[i]))
-
+    print(str(i) + ' ' + str(rev) + '  ' + str(CTAvg[i]))
