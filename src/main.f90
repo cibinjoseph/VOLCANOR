@@ -28,7 +28,7 @@ program main
 
   ! Rotor and wake initialization
   do ir = 1, nr
-    call rotor(ir)%init(ir, density, dt, nt, spanSpacingSwitch, fdSchemeSwitch)
+    call rotor(ir)%init(ir, density, dt, nt, switches)
     call params2file(rotor(ir), ir, nt, dt, nr, density, velSound)
   enddo
 
@@ -59,22 +59,22 @@ program main
   enddo
 
   ! Initialize plot switches
-  if (wakePlotSwitch .lt. 0) &
-    & wakePlotSwitch = int(nt/abs(wakePlotSwitch))
-  if (wakeTipPlotSwitch .lt. 0) &
-    & wakeTipPlotSwitch = int(nt/abs(wakeTipPlotSwitch))
-  if (rotorForcePlotSwitch .lt. 0) &
-    & rotorForcePlotSwitch = int(nt/abs(rotorForcePlotSwitch))
-  if (gridPlotSwitch .lt. 0) &
-    & gridPlotSwitch = int(nt/abs(gridPlotSwitch))
+  if (switches%wakePlot .lt. 0) &
+    & switches%wakePlot = int(nt/abs(switches%wakePlot))
+  if (switches%wakeTipPlot.lt. 0) &
+    & switches%wakeTipPlot = int(nt/abs(switches%wakeTipPlot))
+  if (switches%rotorForcePlot .lt. 0) &
+    & switches%rotorForcePlot = int(nt/abs(switches%rotorForcePlot))
+  if (switches%gridPlot .lt. 0) &
+    & switches%gridPlot = int(nt/abs(switches%gridPlot))
 
   ! Initialize vel probes
-  if (probeSwitch .eq. 1) then
+  if (switches%probe .eq. 1) then
     open(unit=10, file='probes.in', status='old', action='read')
-    read(10, *) nProbes
-    allocate(probe(3, nProbes))
-    allocate(probeVel(3, nProbes))
-    do i = 1, nProbes
+    read(10, *) switches%nProbes
+    allocate(probe(3, switches%nProbes))
+    allocate(probeVel(3, switches%nProbes))
+    do i = 1, switches%nProbes
       read(10, *) probe(:, i), probeVel(:, i)
     enddo
     close(10)
@@ -82,7 +82,7 @@ program main
 
   ! Obtain initial solution without wake
   call print_status('Computing initial solution')
-  if (slowStartSwitch .ne. 0) then
+  if (switches%slowStart .ne. 0) then
     do ir = 1, nr
       rotor(ir)%omegaSlow = 0._dp
     enddo
@@ -105,7 +105,7 @@ program main
   enddo
 
   ! Compute RHS for initial solution without wake
-  ntSubInitLoop: do i = 0, ntSubInit
+  ntSubInitLoop: do i = 0, switches%ntSubInit
     do ir = 1, nr
       do ib = 1, rotor(ir)%nb
         do is = 1, rotor(ir)%ns
@@ -161,14 +161,14 @@ program main
       call rotor(ir)%map_gam()
 
       ! Check if initialization using converged soultion is requested
-      if (ntSubInit .ne. 0) then
+      if (switches%ntSubInit .ne. 0) then
         if (norm2(rotor(ir)%gamVec - rotor(ir)%gamVecPrev) .le. eps) &
           exit ntSubInitLoop
       endif
     enddo
   enddo ntSubInitLoop
 
-  if ((i .gt. ntSubInit) .and. (ntSubInit .ne. 0)) then
+  if ((i .gt. switches%ntSubInit) .and. (switches%ntSubInit .ne. 0)) then
     print*, "Initial solution did not converge. Try increasing sub-iterations."
   else
     call print_status()    ! SUCCESS
@@ -182,7 +182,7 @@ program main
   enddo
 
   ! Compute forces
-  if (rotorForcePlotSwitch .ne. 0) then
+  if (switches%rotorForcePlot .ne. 0) then
     call init_plots(nr)    ! Create headers for plot files
     do ir = 1, nr
       ! Compute sec freestream velocity for secCL
@@ -280,14 +280,14 @@ program main
   ! ------- MAIN LOOP START -------
 
   iterStart = 1
-  if (restartFromNt .gt. 0) then
-    write (timestamp, '(I0.5)') restartFromNt
+  if (switches%restartFromNt .gt. 0) then
+    write (timestamp, '(I0.5)') switches%restartFromNt
     open(unit=23, file='Restart/restart'//timestamp//'.dat', &
       & status='old', action='read', form='unformatted')
     read(23) t
     read(23) rotor
     close(23)
-    iterStart = restartFromNt + 1
+    iterStart = switches%restartFromNt + 1
   endif
 
   do iter = iterStart, nt
@@ -319,7 +319,7 @@ program main
     enddo
 
     ! In case of slow start, determine RPM
-    select case (slowStartSwitch)
+    select case (switches%slowStart)
     case (0)    ! No slow start
       do ir = 1, nr
         rotor(ir)%omegaSlow = rotor(ir)%Omega
@@ -327,20 +327,20 @@ program main
     case (1)    ! Linear slope
       do ir = 1, nr
         rotor(ir)%omegaSlow = &
-          min(real(slowStartNt), real(iter + 1))*rotor(ir)%Omega/slowStartNt
+          min(real(switches%slowStartNt), real(iter + 1))*rotor(ir)%Omega/switches%slowStartNt
       enddo
     case (2)    ! tanh slope
       do ir = 1, nr
-        rotor(ir)%omegaSlow = tanh(5._dp*iter/slowStartNt)*rotor(ir)%Omega
+        rotor(ir)%omegaSlow = tanh(5._dp*iter/switches%slowStartNt)*rotor(ir)%Omega
       enddo
     case (3)    ! tanh slope
       do ir = 1, nr
         rotor(ir)%omegaSlow = &
-          (tanh(6._dp*real(iter)/real(slowStartNt) - 3._dp) + 1._dp)* &
+          (tanh(6._dp*real(iter)/real(switches%slowStartNt) - 3._dp) + 1._dp)* &
           0.5_dp*rotor(ir)%Omega
       enddo
     case default
-      error stop "Assign correct slowStartSwitch"
+      error stop "Assign correct slowStart"
     end select
 
     ! Move wing to next position
@@ -356,7 +356,7 @@ program main
     enddo
 
     ! Dissipate wake
-    if (wakeDissipationSwitch .eq. 1) then
+    if (switches%wakeDissipation .eq. 1) then
       do ir = 1, nr
         ! Wake tip dissipation
         call rotor(ir)%dissipate_wake(dt)
@@ -365,8 +365,8 @@ program main
 
     ! Burst wake
     do ir = 1, nr
-      if (wakeBurstSwitch .ne. 0) then
-        if (mod(iter, wakeBurstSwitch) .eq. 0) &
+      if (switches%wakeBurst .ne. 0) then
+        if (mod(iter, switches%wakeBurst) .eq. 0) &
           call rotor(ir)%burst_wake()
       endif
       ! Plot wake skew parameter
@@ -376,19 +376,19 @@ program main
 
     ! Write out wing n' wake
     do ir = 1, nr
-      if (wakePlotSwitch .ne. 0) then
-        if (mod(iter, wakePlotSwitch) .eq. 0) &
+      if (switches%wakePlot .ne. 0) then
+        if (mod(iter, switches%wakePlot) .eq. 0) &
           call rotor2file(timestamp, rotor(ir), ir)
       endif
 
-      if (wakeTipPlotSwitch .ne. 0) then
-        if (mod(iter, wakeTipPlotSwitch) .eq. 0) &
+      if (switches%wakeTipPlot .ne. 0) then
+        if (mod(iter, switches%wakeTipPlot) .eq. 0) &
           call tip2file(timestamp, rotor(ir))
       endif
     enddo
 
     ! Compute RHS
-    ntSubLoop: do i = 0, ntSub
+    ntSubLoop: do i = 0, switches%ntSub
       do ir = 1, nr
         rotor(ir)%RHS = 0._dp
         do ib = 1, rotor(ir)%nb
@@ -447,22 +447,22 @@ program main
         call rotor(ir)%map_gam()
 
         ! Check if sub-iterations are requested
-        if (ntSub .ne. 0) then
+        if (switches%ntSub .ne. 0) then
           if (norm2(rotor(ir)%gamVec - rotor(ir)%gamVecPrev) .le. eps) &
             exit ntSubLoop
         endif
       enddo
     enddo ntSubLoop
 
-    if (ntSub .ne. 0) then
+    if (switches%ntSub .ne. 0) then
       print *, 'Sub-iterations ', i
-      if (i .gt. ntSub) &
+      if (i .gt. switches%ntSub) &
         print*, "Solution did not converge. Try increasing sub-iterations."
     endif
 
     ! Compute forces
-    if (rotorForcePlotSwitch .ne. 0) then
-      if (mod(iter, rotorForcePlotSwitch) .eq. 0) then
+    if (switches%rotorForcePlot .ne. 0) then
+      if (mod(iter, switches%rotorForcePlot) .eq. 0) then
         do ir = 1, nr
           ! Compute sec freestream velocity for secCL
           do ib = 1, rotor(ir)%nb
@@ -573,15 +573,15 @@ program main
     enddo
 
     ! Record filaments for grid plot computation
-    if (gridPlotSwitch .ne. 0) then
-      if (mod(iter, gridPlotSwitch) .eq. 0) then
+    if (switches%gridPlot .ne. 0) then
+      if (mod(iter, switches%gridPlot) .eq. 0) then
         call filaments2file(timestamp, rotor)
       endif
     endif
 
     ! Compute probe velocities
-    if (probeSwitch .ne. 0) then
-      if (mod(iter, probeSwitch) .eq. 0) then
+    if (switches%probe .ne. 0) then
+      if (mod(iter, switches%probe) .eq. 0) then
         call probes2file(timestamp, probe, probeVel, rotor, t)
       endif
     endif
@@ -612,7 +612,7 @@ program main
         enddo
 
         ! Add initial wake velocity if provided
-        if (iter < initWakeVelNt) then
+        if (iter < switches%initWakeVelNt) then
           do i = 1, 3
             rotor(ir)%blade(ib)%velNwake(i, rotor(ir)%rowNear:rotor(ir)%nNwake, :) = &
               rotor(ir)%blade(ib)%velNwake(i, rotor(ir)%rowNear:rotor(ir)%nNwake, :) + &
@@ -628,7 +628,7 @@ program main
     enddo
 
     ! Update wake vortex locations if lifting surface
-    select case (fdSchemeSwitch)
+    select case (switches%fdScheme)
 
     case (0)    ! Explicit Forward Diff (1st order)
       do ir = 1, nr
@@ -671,7 +671,7 @@ program main
               vind_onFwake_byRotor(rotor(jr), &
               rotor(ir)%blade(ib)%waFPredicted(rotor(ir)%rowFar:rotor(ir)%nFwake), 'P')
           enddo
-          if (iter < initWakeVelNt) then
+          if (iter < switches%initWakeVelNt) then
             do i = 1, 3
               rotor(ir)%blade(ib)%velNwakePredicted(i, rotor(ir)%rowNear:rotor(ir)%nNwake, :) = &
                 rotor(ir)%blade(ib)%velNwakePredicted(i, rotor(ir)%rowNear:rotor(ir)%nNwake, :) - &
@@ -801,7 +801,7 @@ program main
                   vind_onFwake_byRotor(rotor(jr), &
                   rotor(ir)%blade(ib)%waFPredicted(rotor(ir)%rowFar:rotor(ir)%nFwake), 'P')
               enddo
-              if (iter < initWakeVelNt) then
+              if (iter < switches%initWakeVelNt) then
                 do i = 1, 3
                   rotor(ir)%blade(ib)%velNwakePredicted(i, rotor(ir)%rowNear:rotor(ir)%nNwake, :) = &
                     rotor(ir)%blade(ib)%velNwakePredicted(i, rotor(ir)%rowNear:rotor(ir)%nNwake, :) - &
@@ -901,7 +901,7 @@ program main
                   vind_onFwake_byRotor(rotor(jr), &
                   rotor(ir)%blade(ib)%waFPredicted(rotor(ir)%rowFar:rotor(ir)%nFwake), 'P')
               enddo
-              if (iter < initWakeVelNt) then
+              if (iter < switches%initWakeVelNt) then
                 do i = 1, 3
                   rotor(ir)%blade(ib)%velNwakePredicted(i, rotor(ir)%rowNear:rotor(ir)%nNwake, :) = &
                     rotor(ir)%blade(ib)%velNwakePredicted(i, rotor(ir)%rowNear:rotor(ir)%nNwake, :) - &
@@ -1018,7 +1018,7 @@ program main
                   vind_onFwake_byRotor(rotor(jr), &
                   rotor(ir)%blade(ib)%waFPredicted(rotor(ir)%rowFar:rotor(ir)%nFwake), 'P')
               enddo
-              if (iter < initWakeVelNt) then
+              if (iter < switches%initWakeVelNt) then
                 do i = 1, 3
                   rotor(ir)%blade(ib)%velNwakePredicted(i, rotor(ir)%rowNear:rotor(ir)%nNwake, :) = &
                     rotor(ir)%blade(ib)%velNwakePredicted(i, rotor(ir)%rowNear:rotor(ir)%nNwake, :) - &
@@ -1065,7 +1065,7 @@ program main
     end select
 
     ! Strain wake
-    if (wakeStrainSwitch .eq. 1) then
+    if (switches%wakeStrain .eq. 1) then
       do ir = 1, nr
         if (rotor(ir)%surfaceType == 0) &
           & call rotor(ir)%strain_wake()
@@ -1088,8 +1088,8 @@ program main
     enddo
 
     ! Write out restart file in binary format
-    if (restartWriteNt .ne. 0) then
-      if (mod(iter, restartWriteNt) .eq. 0) then
+    if (switches%restartWriteNt .ne. 0) then
+      if (mod(iter, switches%restartWriteNt) .eq. 0) then
         open(unit=24, file='Restart/restart'//timestamp//'.dat', &
           & status='replace', action='write', form='unformatted')
         write(24) t
@@ -1103,7 +1103,7 @@ program main
 
   ! Deinitialize all variables
   do ir = 1, nr
-    call rotor(ir)%deinit(fdSchemeSwitch)
+    call rotor(ir)%deinit(switches)
   enddo
 
 end program main

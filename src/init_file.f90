@@ -19,15 +19,7 @@ logical :: fileExists
 integer :: i, is, ic, row, iter, ir, jr, ib
 
 ! Switches
-integer :: ntSub, ntSubInit
-integer :: spanSpacingSwitch
-integer :: wakeDissipationSwitch, wakeStrainSwitch, wakeBurstSwitch
-integer :: slowStartSwitch, slowStartNt
-integer :: wakeTipPlotSwitch, wakePlotSwitch, gridPlotSwitch
-integer :: rotorForcePlotSwitch
-integer :: fdSchemeSwitch, probeSwitch, nProbes
-integer :: wakeIgnoreNt, initWakeVelNt
-integer :: restartFromNt, restartWriteNt
+type(switches_class) :: switches
 
 ! Probes for velocity
 real(dp), allocatable, dimension(:, :) :: probe, probeVel

@@ -1,5 +1,6 @@
 module libCommon
   use rotor_classdef
+  use switches_classdef
   implicit none
   include "init_file.f90"
 
@@ -11,26 +12,26 @@ contains
     call skip_comments(11)
     read (11, *) nt, dt, nr
     call skip_comments(11)
-    read (11, *) restartWriteNt, restartFromNt
+    read (11, *) switches%restartWriteNt, switches%restartFromNt
     call skip_comments(11)
-    read (11, *) ntSub, ntSubInit
+    read (11, *) switches%ntSub, switches%ntSubInit
     call skip_comments(11)
-    read (11, *) spanSpacingSwitch
+    read (11, *) switches%spanSpacing
     call skip_comments(11)
     read (11, *) density, velSound
     call skip_comments(11)
-    read (11, *) wakePlotSwitch, wakeTipPlotSwitch, &
-      & rotorForcePlotSwitch, gridPlotSwitch
+    read (11, *) switches%wakePlot, switches%wakeTipPlot, &
+      & switches%rotorForcePlot, switches%gridPlot
     call skip_comments(11)
-    read (11, *) wakeDissipationSwitch, wakeStrainSwitch, wakeBurstSwitch
+    read (11, *) switches%wakeDissipation, switches%wakeStrain, switches%wakeBurst
     call skip_comments(11)
-    read (11, *) slowStartSwitch, slowStartNt
+    read (11, *) switches%slowStart, switches%slowStartNt
     call skip_comments(11)
-    read (11, *) fdSchemeSwitch
+    read (11, *) switches%fdScheme
     call skip_comments(11)
-    read (11, *) wakeIgnoreNt, initWakeVelNt
+    read (11, *) switches%wakeIgnoreNt, switches%initWakeVelNt
     call skip_comments(11)
-    read (11, *) probeSwitch
+    read (11, *) switches%probe
     close (11)
 
   end subroutine read_config

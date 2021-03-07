@@ -1,6 +1,24 @@
 !------+-------------------+------|
 ! ++++ | MODULE DEFINITION | ++++ |
 !------+-------------------+------|
+module switches_classdef
+  implicit none
+  type switches_class
+    integer :: ntSub, ntSubInit
+    integer :: spanSpacing
+    integer :: wakeDissipation, wakeStrain, wakeBurst
+    integer :: slowStart, slowStartNt
+    integer :: wakeTipPlot, wakePlot, gridPlot
+    integer :: rotorForcePlot
+    integer :: fdScheme, probe, nProbes
+    integer :: wakeIgnoreNt, initWakeVelNt
+    integer :: restartFromNt, restartWriteNt
+  end type switches_class
+end module switches_classdef
+
+!------+-------------------+------|
+! ++++ | MODULE DEFINITION | ++++ |
+!------+-------------------+------|
 module vf_classdef
   use libMath
   implicit none
@@ -1689,6 +1707,7 @@ end module blade_classdef
 ! ++++ | MODULE DEFINITION | ++++ |
 !------+-------------------+------|
 module rotor_classdef
+  use switches_classdef
   use blade_classdef
   implicit none
   type rotor_class
@@ -1869,14 +1888,14 @@ contains
     close (12)
   end subroutine getdata
 
-  subroutine rotor_init(this, rotorNumber, density, dt, nt, spanSpacingSwitch, fdSchemeSwitch)
+  subroutine rotor_init(this, rotorNumber, density, dt, nt, switches)
     ! Initialize variables of rotor geometry and wake
   class(rotor_class) :: this
     integer, intent(in) :: rotorNumber
     real(dp), intent(in) :: density
     real(dp) , intent(inout) :: dt
     integer, intent(inout) :: nt
-    integer, intent(in) :: spanSpacingSwitch, fdSchemeSwitch
+    type(switches_class), intent(in) :: switches
 
     real(dp), dimension(this%nc + 1) :: xVec
     real(dp), dimension(this%ns + 1) :: yVec
@@ -2008,7 +2027,7 @@ contains
       else
         xVec = linspace(this%chord, 0._dp, this%nc + 1)
       endif
-      select case (spanSpacingSwitch)
+      select case (switches%spanSpacing)
       case (1)
         yVec = linspace(this%root_cut*this%radius, this%radius, this%ns + 1)
       case (2)
@@ -2360,7 +2379,7 @@ contains
       this%blade(ib)%velNwake = 0._dp
       this%blade(ib)%velFwake = 0._dp
 
-      select case (fdSchemeSwitch)
+      select case (switches%fdScheme)
       case (0)
         ! Do nothing
       case (1)
@@ -2523,17 +2542,17 @@ contains
 
   end subroutine rotor_init
 
-  subroutine rotor_deinit(this, fdSchemeSwitch)
+  subroutine rotor_deinit(this, switches)
     ! Deinitialise rotor variables
   class(rotor_class) :: this
-    integer, intent(in) :: fdSchemeSwitch
+    type(switches_class), intent(in) :: switches
     integer :: ib
     ! Deallocate variables
     do ib = 1, this%nb
       deallocate (this%blade(ib)%velNwake)
       deallocate (this%blade(ib)%velFwake)
 
-      select case (fdSchemeSwitch)
+      select case (switches%fdScheme)
       case (0)
         ! Nothing to deallocate
       case (1)
