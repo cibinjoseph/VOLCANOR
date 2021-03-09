@@ -1,9 +1,11 @@
 module panel1x3NegPitch_test
   use naturalfruit
   use rotor_classdef
+  use switches_classdef
   implicit none
 
   type(rotor_class) :: rotor
+  type(switches_class) :: switches
   real(dp) :: dt, density
   integer :: nt
 
@@ -60,8 +62,10 @@ contains
     rotor%liftUnitVec = 0._dp
 
     rotor%nAirfoils = 0
+    switches%spanSpacing = spanSpacingSwitch
+    switches%fdScheme = fdSchemeSwitch
 
-    call rotor%init(1, density, dt, nt, spanSpacingSwitch, fdSchemeSwitch)
+    call rotor%init(1, density, dt, nt, switches)
   end subroutine setup
 
   subroutine test_aic()
