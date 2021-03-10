@@ -65,12 +65,19 @@ parser.add_argument('-l', '--lift', help='Plot lift', action='store_true')
 parser.add_argument('-d', '--drag', help='Plot drag', action='store_true')
 parser.add_argument(
     '-c', '--custom', help='Use custom script', action='store_true')
+parser.add_argument('-r', '--resultsDir', help='Specify Results directory')
 
 # Parse args and obtain arguments
 args = parser.parse_args()
 
 # Convert to dict type for iterating through
 argsDict = vars(args)
+
+if args.resultsDir:
+    resultsDir = currentDir + args.resultsDir
+    argsDict['resultsDir'] = False
+
+print('Reading results from: ' + resultsDir)
 
 # Obtain filename for first argument that is True
 pyFilename = 'plot_wake.py'  # default plot
