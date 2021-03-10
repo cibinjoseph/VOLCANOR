@@ -1,5 +1,6 @@
 module libPostprocess
   use rotor_classdef
+  use switches_classdef
   character(len=8) :: ResultsDir = 'Results/'
 
 contains
@@ -36,9 +37,11 @@ contains
     101 format (A5,8(A15))
   end subroutine init_plots
 
-  subroutine params2file(rotor, rotorNumber, nt, dt, nr, density, velSound)
+  subroutine params2file(rotor, rotorNumber, nt, dt, nr, &
+      & density, velSound, switches)
     ! Write rotor parameters to file
     type(rotor_class), intent(in) :: rotor
+    type(switches_class), intent(in) :: switches
     integer, intent(in) :: rotorNumber, nt, nr
     real(dp), intent(in) :: dt, density, velSound
     character(len=2) :: rotorNumberChar
@@ -76,6 +79,11 @@ contains
     else
       write(10, *) 'CL0', 0.0_dp
       write(10, *) 'CLa', 0.0_dp
+    endif
+    if (switches%wakeDissipation .gt. 0) then
+      write(10, *) 'turbulentViscosity', rotor%turbulentViscosity
+    else
+      write(10, *) 'turbulentViscosity', 0.0
     endif
     close(10)
   end subroutine params2file

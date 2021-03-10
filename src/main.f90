@@ -29,7 +29,7 @@ program main
   ! Rotor and wake initialization
   do ir = 1, nr
     call rotor(ir)%init(ir, density, dt, nt, switches)
-    call params2file(rotor(ir), ir, nt, dt, nr, density, velSound)
+    call params2file(rotor(ir), ir, nt, dt, nr, density, velSound, switches)
   enddo
 
   ! Rotate wing pc, vr, cp and nCap by initial pitch angle
