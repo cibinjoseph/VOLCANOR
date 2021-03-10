@@ -274,7 +274,6 @@ program main
     enddo
   endif
 
-  open (unit=22, file='status.txt', status='replace', action='write')
   currentTime = ''
 
   ! ------- MAIN LOOP START -------
@@ -387,6 +386,8 @@ program main
       endif
     enddo
 
+    open (unit=22, file='status.txt', status='replace', action='write')
+
     ! Compute RHS
     ntSubLoop: do i = 0, switches%ntSub
       do ir = 1, nr
@@ -456,8 +457,10 @@ program main
 
     if (switches%ntSub .ne. 0) then
       print *, 'Sub-iterations ', i
+      write(22, *) 'Sub-iterations ', i
       if (i .gt. switches%ntSub) &
-        print*, "Solution did not converge. Try increasing sub-iterations."
+        print*, 'Solution did not converge. Try increasing sub-iterations.'
+        write(22, *) 'Solution did not converge. Try increasing sub-iterations.'
     endif
 
     ! Compute forces
