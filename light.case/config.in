@@ -8,7 +8,7 @@
 # 
 #  NO. OF SUBITERATIONS [ntSub]  NO. OF INITIAL SUBITERATIONS [ntSubInit]    
 # -----------------------------------------------------------------------
-     0                          0
+     15                          15
 # 
 #  SPAN DISCRETIZATION : [1]linear [2]cosine [3]halfsine
 #  spanSpacingSwitch
@@ -24,7 +24,7 @@
 # PLOT WAKE: [0]Off [n]Every n'th iteration [-n] Every nt/n'th iteration
 # wakePlotSwitch   wakeTipPlotSwitch   forcePlotSwitch   gridPlotSwitch
 # -----------------------------------------------------------------------
-      -1                 0                 1                 0
+      -2                 0                 1                 0
 # =======================================================================
 # 
 #  WAKE PROPERTY SWITCHES: [0]Off [1]On  
