@@ -35,5 +35,5 @@ fi
 if [ -f bin/gridgen ]; then
   ln -v -s "$PWD/bin/gridgen" "$caseName/gridgen"
 fi
-ln -v -s "$PWD/tools/plotit.py" "$caseName/plotit.py"
+ln -v -s "$PWD/tools" "$caseName/tools"
 
