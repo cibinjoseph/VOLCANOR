@@ -1748,6 +1748,7 @@ module rotor_classdef
     integer :: gammaPlotSwitch, alphaPlotSwitch
     integer :: rowNear, rowFar
     integer :: nAirfoils
+    integer :: inheritedGamma, inheritedGammaRotorNum
     integer :: surfaceType  ! [0]lifting surface [1]non-lifting surface
     character(len=30), allocatable, dimension(:) :: airfoilFile
     character(len=30) :: geometryFile
@@ -1781,6 +1782,7 @@ module rotor_classdef
     procedure :: calc_skew => rotor_calc_skew
     procedure :: dirLiftDrag => rotor_dirLiftDrag
     procedure :: sumBladeToNetForces
+    procedure :: inheritGamma
     ! I/O subroutines
     procedure :: rotor_write
     generic :: write(unformatted) => rotor_write
@@ -1803,7 +1805,8 @@ contains
     call skip_comments(12)
     read (12, *) this%nb, this%propConvention, this%geometryFile
     call skip_comments(12)
-    read (12, *) this%surfaceType  ! [0]Lifting [1]Non-lifting
+    ! [0]Lifting [1]Non-lifting
+    read (12, *) this%surfaceType, this%inheritedGamma, this%inheritedGammaRotorNum
     call skip_comments(12)
     read (12, *) this%nc, this%ns, this%nNwake
     ! If nNwake is -ve, far wake is suppressed
@@ -3197,6 +3200,13 @@ contains
     enddo
 
   end subroutine sumBladeToNetForces
+
+  subroutine inheritGamma(this, inheritedFromRotor)
+    !! Copies gamma from another rotor
+  class(rotor_class), intent(inout) :: this
+  class(rotor_class), intent(in) :: inheritedFromRotor
+    this%gamVec = this%inheritedGamma * inheritedFromRotor%gamVec
+  end subroutine inheritGamma
 
   subroutine rotor_read(this, unit, iostat, iomsg)
   class(rotor_class), intent(inout) :: this

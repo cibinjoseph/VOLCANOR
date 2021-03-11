@@ -155,7 +155,11 @@ program main
 
     do ir = 1, nr
       rotor(ir)%gamVecPrev = rotor(ir)%gamVec
-      rotor(ir)%gamVec = matmul(rotor(ir)%AIC_inv, rotor(ir)%RHS)
+      if (rotor(ir)%inheritedGamma .eq. 0) then
+        rotor(ir)%gamVec = matmul(rotor(ir)%AIC_inv, rotor(ir)%RHS)
+      else
+        call rotor(ir)%inheritGamma(rotor(rotor(ir)%inheritedGammaRotorNum))
+      endif
 
       ! Map gamVec to wing gam for each blade in rotor
       call rotor(ir)%map_gam()
@@ -441,7 +445,11 @@ program main
 
       do ir = 1, nr
         rotor(ir)%gamvecPrev = rotor(ir)%gamVec
+      if (rotor(ir)%inheritedGamma .eq. 0) then
         rotor(ir)%gamVec = matmul(rotor(ir)%AIC_inv, rotor(ir)%RHS)
+      else
+        call rotor(ir)%inheritGamma(rotor(rotor(ir)%inheritedGammaRotorNum))
+      endif
 
         ! Map gamVec to wing gam for each blade in rotor
         call rotor(ir)%map_gam()
