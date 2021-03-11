@@ -107,11 +107,6 @@ program main
   ! Compute RHS for initial solution without wake
   ntSubInitLoop: do i = 0, switches%ntSubInit
     do ir = 1, nr
-
-      if (rotor(ir)%inheritedGamma .ne. 0) then
-        call rotor(ir)%inheritGamma(rotor(rotor(ir)%inheritedGammaRotorNum))
-      endif
-
       do ib = 1, rotor(ir)%nb
         do is = 1, rotor(ir)%ns
           do ic = 1, rotor(ir)%nc
@@ -157,27 +152,39 @@ program main
       call rotor(ir)%dirLiftDrag()
       rotor(ir)%RHS = -1._dp*rotor(ir)%RHS
     enddo
+    ! DEBUG
+    print*, 'v'
+    print*, rotor(1)%vind_bywing(rotor(2)%blade(1)%wiP(1, 1)%CP)
+    print*, rotor(2)%vind_bywing(rotor(1)%blade(1)%wiP(1, 1)%CP)
 
     do ir = 1, nr
       rotor(ir)%gamVecPrev = rotor(ir)%gamVec
       if (rotor(ir)%inheritedGamma .eq. 0) then
         rotor(ir)%gamVec = matmul(rotor(ir)%AIC_inv, rotor(ir)%RHS)
+      else
+        call rotor(ir)%inheritGamma(rotor(rotor(ir)%inheritedGammaRotorNum))
       endif
 
       ! Map gamVec to wing gam for each blade in rotor
       call rotor(ir)%map_gam()
-
-      ! Check if initialization using converged soultion is requested
-      if (switches%ntSubInit .ne. 0) then
-        subIterResidual = norm2(rotor(ir)%gamVec - rotor(ir)%gamVecPrev)
-        if ( subIterResidual .le. eps) &
-          exit ntSubInitLoop
-      endif
     enddo
+
+    ! Check if initialization using converged soultion is requested
+    if (switches%ntSubInit .ne. 0) then
+      subIterResidual = 0._dp
+      do ir = 1, nr
+        subIterResidual = max(subIterResidual, &
+          & norm2(rotor(ir)%gamVec - rotor(ir)%gamVecPrev))
+        print *, 'Sub-iterations ', i, subIterResidual
+      enddo
+      do ir = 1, nr
+        if (subIterResidual .le. eps) &
+          exit ntSubInitLoop
+      enddo
+    endif
   enddo ntSubInitLoop
 
   if ((i .gt. switches%ntSubInit) .and. (switches%ntSubInit .ne. 0)) then
-    print *, 'Sub-iterations ', i, subIterResidual
     print*, "Initial solution did not converge. Try increasing sub-iterations."
   else
     call print_status()    ! SUCCESS
@@ -194,6 +201,8 @@ program main
   if (switches%rotorForcePlot .ne. 0) then
     call init_plots(nr)    ! Create headers for plot files
     do ir = 1, nr
+      !DEBUG
+      print*, 'Rotor ', ir
       ! Compute sec freestream velocity for secCL
       do ib = 1, rotor(ir)%nb
         do is = 1, rotor(ir)%ns
@@ -282,6 +291,8 @@ program main
 
     enddo
   endif
+  ! DEBUG
+  stop
 
   currentTime = ''
 

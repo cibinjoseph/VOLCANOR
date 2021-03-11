@@ -1236,6 +1236,8 @@ contains
           this%wiP(ic, is)%delP = this%wiP(ic, is)%delP + density * &
             & velTangentialSpan(ic, is) * gamElementSpan(ic, is) / this%wiP(ic, is)%meanSpan
         endif
+        ! DEBUG
+        print*, ic, is, 'dp', this%wiP(ic, is)%delP
 
         ! -1.0 multiplied to invert sign of gamma
         this%wiP(ic, is)%gamPrev = this%wiP(ic, is)%gamTrapz
@@ -1250,6 +1252,8 @@ contains
         ! Invert direction of normalForce according to sign of omega and collective pitch
         this%wiP(ic, is)%normalForce = this%wiP(ic, is)%delP* &
           this%wiP(ic, is)%panelArea*this%wiP(ic, is)%nCap*invertGammaSign
+        ! DEBUG
+        print*, 'dFn', this%wiP(ic, is)%normalForce
 
         this%secForceInertial(:, is) = this%secForceInertial(:, is) + this%wiP(ic, is)%normalForce
 
