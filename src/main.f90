@@ -292,10 +292,9 @@ program main
   do iter = iterStart, nt
     t = t + dt
 
-    ! In case current time is required in status.txt
+    ! In case current time is required uncomment below line
     ! call date_and_time(time=currentTime)
 
-    write (22, *) currentTime, iter, nt
     print *, currentTime, iter, nt
 
     write (timestamp, '(I0.5)') iter
@@ -386,8 +385,6 @@ program main
       endif
     enddo
 
-    open (unit=22, file='status.txt', status='replace', action='write')
-
     ! Compute RHS
     ntSubLoop: do i = 0, switches%ntSub
       do ir = 1, nr
@@ -457,10 +454,8 @@ program main
 
     if (switches%ntSub .ne. 0) then
       print *, 'Sub-iterations ', i
-      write(22, *) 'Sub-iterations ', i
       if (i .gt. switches%ntSub) &
         print*, 'Solution did not converge. Try increasing sub-iterations.'
-        write(22, *) 'Solution did not converge. Try increasing sub-iterations.'
     endif
 
     ! Compute forces
@@ -1101,8 +1096,6 @@ program main
       endif
     endif
   enddo
-
-  close (22)  ! Close status.txt
 
   ! Deinitialize all variables
   do ir = 1, nr

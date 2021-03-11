@@ -13,9 +13,9 @@ fileclean:
 	-rm -f $(resultspath)/*.curve
 	-rm -f $(resultspath)/*.dat
 	-rm -f $(resultspath)/*.txt
-	-rm -f status.txt
+	-rm -f volcanor.log
 
 run:
 	mkdir -p $(resultspath)
 	make fileclean
-	./volcanor
+	./volcanor 2>&1 | tee volcanor.log
