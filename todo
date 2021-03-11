@@ -20,3 +20,10 @@ Unify fels scripts for fixed and rotary wings - Create output folder with nonlin
 Use default 2*pi for CLa and use alpha0 for FELS
 Compute blade flap moment and rotor moments
 Check why flow is unsymmetric in rotor ground effect
+ * Induced velocities computed have numerical errors causing unsymmetry
+ * Use mirrored rotor by performing the following operations:
+    - gamma is inverted
+    - velCPz is inverted
+    - wake CPz is inverted
+ * Specify plane of symmetry [1,2,3]X,Y,Z
+
