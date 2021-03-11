@@ -4,13 +4,14 @@
 # -------------------------------------------------------------------
      2                     0                      0
 #
-# Surface type [0]Lifting  [1]Non-lifting
+# Surface type                       Inherited gamma
+# [0]Lifting  [1]Non-lifting   [0]Off [1, -1]Multipy by   from rotor
 # -------------------------------------------------------------------
-     0
+     0                           -1                           1
 # 
 # Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 # -------------------------------------------------------------------
-      6                       10                   10
+      2                       5                   10
 # ===================================================================
 # 
 # X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
@@ -109,7 +110,7 @@
 #     [n] Every nth iteration       [n] Every nth iteration
 #     [-n]Every nt/n'th iteration   [-n]Every nt/n'th iteration
 # -------------------------------------------------------------------
-       10                                 1
+       1                                 1
 # ===================================================================
 # 
 #  forceCalcSwitch
