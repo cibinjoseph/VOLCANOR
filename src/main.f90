@@ -107,6 +107,11 @@ program main
   ! Compute RHS for initial solution without wake
   ntSubInitLoop: do i = 0, switches%ntSubInit
     do ir = 1, nr
+
+      if (rotor(ir)%inheritedGamma .ne. 0) then
+        call rotor(ir)%inheritGamma(rotor(rotor(ir)%inheritedGammaRotorNum))
+      endif
+
       do ib = 1, rotor(ir)%nb
         do is = 1, rotor(ir)%ns
           do ic = 1, rotor(ir)%nc
@@ -157,8 +162,6 @@ program main
       rotor(ir)%gamVecPrev = rotor(ir)%gamVec
       if (rotor(ir)%inheritedGamma .eq. 0) then
         rotor(ir)%gamVec = matmul(rotor(ir)%AIC_inv, rotor(ir)%RHS)
-      else
-        call rotor(ir)%inheritGamma(rotor(rotor(ir)%inheritedGammaRotorNum))
       endif
 
       ! Map gamVec to wing gam for each blade in rotor
@@ -394,6 +397,11 @@ program main
     ! Compute RHS
     ntSubLoop: do i = 0, switches%ntSub
       do ir = 1, nr
+
+        if (rotor(ir)%inheritedGamma .ne. 0) then
+          call rotor(ir)%inheritGamma(rotor(rotor(ir)%inheritedGammaRotorNum))
+        endif
+
         rotor(ir)%RHS = 0._dp
         do ib = 1, rotor(ir)%nb
           do is = 1, rotor(ir)%ns
@@ -445,11 +453,9 @@ program main
 
       do ir = 1, nr
         rotor(ir)%gamvecPrev = rotor(ir)%gamVec
-      if (rotor(ir)%inheritedGamma .eq. 0) then
-        rotor(ir)%gamVec = matmul(rotor(ir)%AIC_inv, rotor(ir)%RHS)
-      else
-        call rotor(ir)%inheritGamma(rotor(rotor(ir)%inheritedGammaRotorNum))
-      endif
+        if (rotor(ir)%inheritedGamma .eq. 0) then
+          rotor(ir)%gamVec = matmul(rotor(ir)%AIC_inv, rotor(ir)%RHS)
+        endif
 
         ! Map gamVec to wing gam for each blade in rotor
         call rotor(ir)%map_gam()
