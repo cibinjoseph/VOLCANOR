@@ -162,13 +162,15 @@ program main
 
       ! Check if initialization using converged soultion is requested
       if (switches%ntSubInit .ne. 0) then
-        if (norm2(rotor(ir)%gamVec - rotor(ir)%gamVecPrev) .le. eps) &
+        subIterResidual = norm2(rotor(ir)%gamVec - rotor(ir)%gamVecPrev)
+        if ( subIterResidual .le. eps) &
           exit ntSubInitLoop
       endif
     enddo
   enddo ntSubInitLoop
 
   if ((i .gt. switches%ntSubInit) .and. (switches%ntSubInit .ne. 0)) then
+    print *, 'Sub-iterations ', i, subIterResidual
     print*, "Initial solution did not converge. Try increasing sub-iterations."
   else
     call print_status()    ! SUCCESS
@@ -446,14 +448,15 @@ program main
 
         ! Check if sub-iterations are requested
         if (switches%ntSub .ne. 0) then
-          if (norm2(rotor(ir)%gamVec - rotor(ir)%gamVecPrev) .le. eps) &
+          subIterResidual = norm2(rotor(ir)%gamVec - rotor(ir)%gamVecPrev)
+          if (subIterResidual .le. eps) &
             exit ntSubLoop
         endif
       enddo
     enddo ntSubLoop
 
     if (switches%ntSub .ne. 0) then
-      print *, 'Sub-iterations ', i
+      print *, 'Sub-iterations ', i, subIterResidual
       if (i .gt. switches%ntSub) &
         print*, 'Solution did not converge. Try increasing sub-iterations.'
     endif

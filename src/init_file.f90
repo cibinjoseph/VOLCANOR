@@ -14,6 +14,7 @@ character(len=2) :: rotorChar
 character(len=10) :: rotorFile
 character(len=10) :: currentTime
 logical :: fileExists
+real(dp) :: subIterResidual
 
 ! Iterators
 integer :: i, is, ic, row, iter, ir, jr, ib
