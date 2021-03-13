@@ -5,8 +5,8 @@
 # -------------------------------------------------------------------
      2                     0                        0
 #
-# Surface type                            Mirrored about
-# [0]Lifting [1]Non-lifting [-1]Image  [1,2,3]X,Y,Z plane  from rotor
+# Surface type [0/1]Lifting [2]Non-lifting    Mirrored about X/Y/Z
+# [-1]Lifting Image [-2]Non-lifting Image    [1/2/3]plane  from rotor
 # -------------------------------------------------------------------
      0
 #
