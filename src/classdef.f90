@@ -1753,7 +1753,7 @@ module rotor_classdef
     integer :: rowNear, rowFar
     integer :: nAirfoils
     integer :: inheritedGamma, inheritedGammaRotorNum
-    integer :: surfaceType  ! [0]lifting surface [1]non-lifting surface [-1] image surface
+    integer :: surfaceType  
     character(len=30), allocatable, dimension(:) :: airfoilFile
     character(len=30) :: geometryFile
     real(dp) :: nonDimforceDenominator
@@ -1809,17 +1809,20 @@ contains
     call skip_comments(12)
     read (12, *) this%nb, this%propConvention, this%geometryFile
     call skip_comments(12)
-    ! [0]Lifting [1]Non-lifting [-1]Image surface
+
+    ! [0/1]Lifting [2]Non-lifting [-1]Lifting Image [-2]Non-lifting Image
     read (12, *) this%surfaceType, this%inheritedGamma, this%inheritedGammaRotorNum
+    if (this%surfaceType == 0) this%surfaceType = 1
     call skip_comments(12)
+
     read (12, *) this%nc, this%ns, this%nNwake
     ! If nNwake is -ve, far wake is suppressed
-    if (this%surfaceType == 0) then
+    if (abs(this%surfaceType) == 1) then
       if (this%nNwake < 0) then
         this%suppressFwakeSwitch = 1
         this%nNwake = abs(this%nNwake)
       else
-        this%suppressFwakeSwitch = 0
+        if (abs(this%surfaceType) == 2) this%suppressFwakeSwitch = 0
       endif
     endif
 
@@ -1942,13 +1945,13 @@ contains
     endif
 
     ! Override ns to 1 if non-lifting surface
-    if (this%surfaceType .ne. 0) this%ns = 1
+    if (abs(this%surfaceType) .eq. 2) this%ns = 1
 
     ! Initialize variables for use in allocating
-    if (this%surfaceType == 0) then
+    if (abs(this%surfaceType) == 1) then
       this%nNwake = min(this%nNwake, nt)
       this%nFwake = nt - this%nNwake
-    else
+    elseif (abs(this%surfaceType) .eq. 2) then
       this%nNwake = 0
       this%nFwake = 0
     endif
@@ -2055,9 +2058,9 @@ contains
         enddo
       enddo
     else
-      if (this%surfaceType == 0) then
+      if (abs(this%surfaceType) == 1) then
         call this%plot3dtoblade(trim(this%geometryFile))
-      else
+      elseif (abs(this%surfaceType) == 2) then
         call this%stltoblade(trim(this%geometryFile))
         do ib = 1, this%nb
           this%blade(ib)%nc = this%nc
@@ -2082,7 +2085,7 @@ contains
       this%blade(ib)%zAxis = zAxis
 
       ! Initialize sec vectors
-      if (this%surfaceType == 0) then
+      if (abs(this%surfaceType) == 1) then
         do j = 1, this%ns
           this%blade(ib)%secTauCapChord(:, j) = &
             (this%blade(ib)%wiP(this%nc, j)%PC(:, 3) + this%blade(ib)%wiP(this%nc, j)%PC(:, 2) - &
@@ -2171,7 +2174,7 @@ contains
       dxdymin = min(minval(dx), minval(dy))
 
       ! Shed last row of vortices
-      if (this%surfaceType == 0) then
+      if (abs(this%surfaceType) == 1) then
         if (abs(this%Omega) > eps) then
           velShed = min(0.05*abs(this%Omega)*norm2(this%blade(ib)% &
             wiP(this%nc, this%ns)%vr%vf(2)%fc(:, 1) - this%hubCoords), 0.125_dp*this%chord/dt)
@@ -2185,7 +2188,7 @@ contains
       endif
 
       ! Initialize CP coords, nCap, panelArea and pivotLE
-      if (this%surfaceType == 0) then
+      if (abs(this%surfaceType) == 1) then
         do j = 1, this%ns
           do i = 1, this%nc
             call this%blade(ib)%wiP(i, j)%calcCP()
@@ -2197,7 +2200,7 @@ contains
             call this%blade(ib)%wiP(i, j)%calc_mean_dimensions()
           enddo
         enddo
-      else
+      elseif(abs(this%surfaceType) == 2) then
         do j = 1, this%ns
           do i = 1, this%nc
             call this%blade(ib)%wiP(i, j)%calcCP(isTriangle=.true.)
@@ -2961,11 +2964,11 @@ contains
     integer :: ib
 
     rotor_vind_bywing = 0._dp
-    if (this%surfaceType == 0) then
+    if (abs(this%surfaceType) == 1) then
       do ib = 1, this%nb
         rotor_vind_bywing = rotor_vind_bywing + this%blade(ib)%vind_bywing(P)
       enddo
-    else
+    elseif (abs(this%surfaceType) == 2) then
       do ib = 1, this%nb
         rotor_vind_bywing = rotor_vind_bywing + this%blade(ib)%vindSource_bywing(P)
       enddo

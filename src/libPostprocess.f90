@@ -105,7 +105,7 @@ contains
     open (unit=10, file=ResultsDir// &
       & 'r'//rotorNumberChar//'wingNwake'//timestamp//'.plt', position='append')
 
-    if (rotor%surfaceType == 0) then
+    if (abs(rotor%surfaceType) == 1) then
       ! Lifting surface
       write (10, *) 'Title = "Wing and Wake"'
       write (10, *) 'VARIABLES = "X" "Y" "Z" "GAM" "skew"' ! "Var6"'
@@ -211,7 +211,7 @@ contains
         endif
 
       enddo
-    else
+    elseif (abs(rotor%surfaceType) == 2) then
       ! Non-lifting surface
       write (10, *) 'Title = "Non-lifting surface"'
       write (10, *) 'VARIABLES = "X" "Y" "Z" "GAM"' ! "skew" "Var6"'

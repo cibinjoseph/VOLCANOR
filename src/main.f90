@@ -51,7 +51,7 @@ program main
     if (isInverse(rotor(ir)%AIC, rotor(ir)%AIC_inv)) then
       call print_status()    ! SUCCESS
     else
-      ! if (rotor(ir)%surfaceType == 0) then
+      ! if (abs(rotor(ir)%surfaceType) == 1) then
       stop 'Warning: Computed AIC_inv does not seem &
         & to be correct within given tolerance'
       ! endif
@@ -658,7 +658,7 @@ program main
 
     case (0)    ! Explicit Forward Diff (1st order)
       do ir = 1, nr
-        if (rotor(ir)%surfaceType == 0) then
+        if (abs(rotor(ir)%surfaceType) == 1) then
           do ib = 1, rotor(ir)%nb
             call rotor(ir)%blade(ib)%convectwake( &
               rotor(ir)%rowNear, rotor(ir)%rowFar, dt, 'C')
@@ -669,7 +669,7 @@ program main
     case (1)    ! Predictor-Corrector (2nd order)
       ! Compute predicted wake
       do ir = 1, nr
-        if (rotor(ir)%surfaceType == 0) then
+        if (abs(rotor(ir)%surfaceType) == 1) then
         do ib = 1, rotor(ir)%nb
           rotor(ir)%blade(ib)%waPPredicted(rotor(ir)%rowNear:rotor(ir)%nNwake, :) = &
             rotor(ir)%blade(ib)%waP(rotor(ir)%rowNear:rotor(ir)%nNwake, :)
@@ -683,7 +683,7 @@ program main
 
       ! Compute velocity on predicted wake
       do ir = 1, nr
-        if (rotor(ir)%surfaceType == 0) then
+        if (abs(rotor(ir)%surfaceType) == 1) then
         do ib = 1, rotor(ir)%nb
           rotor(ir)%blade(ib)%velNwakePredicted(:, rotor(ir)%rowNear:rotor(ir)%nNwake, :) = 0._dp
           rotor(ir)%blade(ib)%velFwakePredicted(:, rotor(ir)%rowFar:rotor(ir)%nFwake) = 0._dp
@@ -711,11 +711,11 @@ program main
           endif
         enddo
       endif
-      enddo
+    enddo
 
-      ! Compute averaged velocity and convect wake
-      do ir = 1, nr
-        if (rotor(ir)%surfaceType == 0) then
+    ! Compute averaged velocity and convect wake
+    do ir = 1, nr
+      if (abs(rotor(ir)%surfaceType) == 1) then
         do ib = 1, rotor(ir)%nb
           rotor(ir)%blade(ib)%velNwake(:, rotor(ir)%rowNear:rotor(ir)%nNwake, :) = &
             vel_order2_Nwake(rotor(ir)%blade(ib)%velNwake(:, &
@@ -740,7 +740,7 @@ program main
   case (2)    ! Explicit Adams-Bashforth (2nd order)
     if (iter == 1) then
       do ir = 1, nr
-        if (rotor(ir)%surfaceType == 0) then
+        if (abs(rotor(ir)%surfaceType) == 1) then
           do ib = 1, rotor(ir)%nb
             call rotor(ir)%blade(ib)%convectwake(rotor(ir)%rowNear, &
               rotor(ir)%rowFar, dt, 'C')
@@ -751,7 +751,7 @@ program main
       enddo
     else
       do ir = 1, nr
-        if (rotor(ir)%surfaceType == 0) then
+        if (abs(rotor(ir)%surfaceType) == 1) then
           do ib = 1, rotor(ir)%nb
             rotor(ir)%blade(ib)%velNwakeStep = &
               0.5_dp*(3._dp*rotor(ir)%blade(ib)%velNwake - &
@@ -778,7 +778,7 @@ program main
   case (3)    ! Predictor-Corrector Adams-Moulton (2nd order)
     if (iter == 1) then
         do ir = 1, nr
-        if (rotor(ir)%surfaceType == 0) then
+        if (abs(rotor(ir)%surfaceType) == 1) then
           do ib = 1, rotor(ir)%nb
             call rotor(ir)%blade(ib)%convectwake(rotor(ir)%rowNear, &
               rotor(ir)%rowFar, dt, 'C')
@@ -789,7 +789,7 @@ program main
         enddo
       else
         do ir = 1, nr
-        if (rotor(ir)%surfaceType == 0) then
+        if (abs(rotor(ir)%surfaceType) == 1) then
           do ib = 1, rotor(ir)%nb
             rotor(ir)%blade(ib)%waPPredicted(rotor(ir)%rowNear:rotor(ir)%nNwake, :) = &
               rotor(ir)%blade(ib)%waP(rotor(ir)%rowNear:rotor(ir)%nNwake, :)
@@ -813,7 +813,7 @@ program main
         enddo
 
         do ir = 1, nr
-          if (rotor(ir)%surfaceType == 0) then
+        if (abs(rotor(ir)%surfaceType) == 1) then
             do ib = 1, rotor(ir)%nb
               rotor(ir)%blade(ib)%velNwakePredicted(:, rotor(ir)%rowNear:rotor(ir)%nNwake, :) = 0._dp
               rotor(ir)%blade(ib)%velFwakePredicted(:, rotor(ir)%rowFar:rotor(ir)%nFwake) = 0._dp
@@ -844,7 +844,7 @@ program main
         enddo
 
         do ir = 1, nr
-          if (rotor(ir)%surfaceType == 0) then
+        if (abs(rotor(ir)%surfaceType) == 1) then
             do ib = 1, rotor(ir)%nb
               rotor(ir)%blade(ib)%velNwake = &
                 (rotor(ir)%blade(ib)%velNwakePredicted &
@@ -866,7 +866,7 @@ program main
     case (4)    ! Predictor-Corrector Adams-Moulton (3rd order)
       if (iter == 1) then
         do ir = 1, nr
-          if (rotor(ir)%surfaceType == 0) then
+        if (abs(rotor(ir)%surfaceType) == 1) then
             do ib = 1, rotor(ir)%nb
               call rotor(ir)%blade(ib)%convectwake(rotor(ir)%rowNear, &
                 rotor(ir)%rowFar, dt, 'C')
@@ -877,7 +877,7 @@ program main
         enddo
       elseif (iter == 2) then
         do ir = 1, nr
-          if (rotor(ir)%surfaceType == 0) then
+        if (abs(rotor(ir)%surfaceType) == 1) then
             do ib = 1, rotor(ir)%nb
               call rotor(ir)%blade(ib)%convectwake(rotor(ir)%rowNear, &
                 rotor(ir)%rowFar, dt, 'C')
@@ -888,7 +888,7 @@ program main
         enddo
       else
         do ir = 1, nr
-          if (rotor(ir)%surfaceType == 0) then
+        if (abs(rotor(ir)%surfaceType) == 1) then
             do ib = 1, rotor(ir)%nb
               rotor(ir)%blade(ib)%waPPredicted(rotor(ir)%rowNear:rotor(ir)%nNwake, :) = &
                 rotor(ir)%blade(ib)%waP(rotor(ir)%rowNear:rotor(ir)%nNwake, :)
@@ -913,7 +913,7 @@ program main
         enddo
 
         do ir = 1, nr
-          if (rotor(ir)%surfaceType == 0) then
+        if (abs(rotor(ir)%surfaceType) == 1) then
             do ib = 1, rotor(ir)%nb
               rotor(ir)%blade(ib)%velNwakePredicted(:, rotor(ir)%rowNear:rotor(ir)%nNwake, :) = 0._dp
               rotor(ir)%blade(ib)%velFwakePredicted(:, rotor(ir)%rowFar:rotor(ir)%nFwake) = 0._dp
@@ -944,7 +944,7 @@ program main
         enddo
 
         do ir = 1, nr
-          if (rotor(ir)%surfaceType == 0) then
+        if (abs(rotor(ir)%surfaceType) == 1) then
             do ib = 1, rotor(ir)%nb
               rotor(ir)%blade(ib)%velNwake = &
                 (05._dp*rotor(ir)%blade(ib)%velNwakePredicted &
@@ -970,7 +970,7 @@ program main
     case (5)    ! Predictor-Corrector Adams-Moulton (4th order)
       if (iter == 1) then
         do ir = 1, nr
-          if (rotor(ir)%surfaceType == 0) then
+        if (abs(rotor(ir)%surfaceType) == 1) then
             do ib = 1, rotor(ir)%nb
               call rotor(ir)%blade(ib)%convectwake(rotor(ir)%rowNear, &
                 rotor(ir)%rowFar, dt, 'C')
@@ -981,7 +981,7 @@ program main
         enddo
       elseif (iter == 2) then
         do ir = 1, nr
-          if (rotor(ir)%surfaceType == 0) then
+        if (abs(rotor(ir)%surfaceType) == 1) then
             do ib = 1, rotor(ir)%nb
               call rotor(ir)%blade(ib)%convectwake(rotor(ir)%rowNear, &
                 rotor(ir)%rowFar, dt, 'C')
@@ -992,7 +992,7 @@ program main
         enddo
       elseif (iter == 3) then
         do ir = 1, nr
-          if (rotor(ir)%surfaceType == 0) then
+        if (abs(rotor(ir)%surfaceType) == 1) then
             do ib = 1, rotor(ir)%nb
               call rotor(ir)%blade(ib)%convectwake(rotor(ir)%rowNear, &
                 rotor(ir)%rowFar, dt, 'C')
@@ -1003,7 +1003,7 @@ program main
         enddo
       else
         do ir = 1, nr
-          if (rotor(ir)%surfaceType == 0) then
+        if (abs(rotor(ir)%surfaceType) == 1) then
             do ib = 1, rotor(ir)%nb
               rotor(ir)%blade(ib)%waPPredicted(rotor(ir)%rowNear:rotor(ir)%nNwake, :) = &
                 rotor(ir)%blade(ib)%waP(rotor(ir)%rowNear:rotor(ir)%nNwake, :)
@@ -1030,7 +1030,7 @@ program main
         enddo
 
         do ir = 1, nr
-          if (rotor(ir)%surfaceType == 0) then
+        if (abs(rotor(ir)%surfaceType) == 1) then
             do ib = 1, rotor(ir)%nb
               rotor(ir)%blade(ib)%velNwakePredicted(:, rotor(ir)%rowNear:rotor(ir)%nNwake, :) = 0._dp
               rotor(ir)%blade(ib)%velFwakePredicted(:, rotor(ir)%rowFar:rotor(ir)%nFwake) = 0._dp
@@ -1061,7 +1061,7 @@ program main
         enddo
 
         do ir = 1, nr
-          if (rotor(ir)%surfaceType == 0) then
+        if (abs(rotor(ir)%surfaceType) == 1) then
             do ib = 1, rotor(ir)%nb
               rotor(ir)%blade(ib)%velNwake = &
                 09._dp/24._dp*rotor(ir)%blade(ib)%velNwakePredicted &
@@ -1093,14 +1093,14 @@ program main
     ! Strain wake
     if (switches%wakeStrain .eq. 1) then
       do ir = 1, nr
-        if (rotor(ir)%surfaceType == 0) &
+        if (abs(rotor(ir)%surfaceType) == 1) &
           & call rotor(ir)%strain_wake()
       enddo
     endif
 
     ! Assign TE of wake and compute rollup
     do ir = 1, nr
-      if (rotor(ir)%surfaceType == 0) then
+        if (abs(rotor(ir)%surfaceType) == 1) then
         if ((rotor(ir)%rowNear .eq. 1) .and. (rotor(ir)%rowFar /= 1)) then
           ! Last step of near wake or later steps
           call rotor(ir)%rollup()       ! Rollup wake for next far wake panel
