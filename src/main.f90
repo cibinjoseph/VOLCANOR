@@ -152,10 +152,6 @@ program main
       call rotor(ir)%dirLiftDrag()
       rotor(ir)%RHS = -1._dp*rotor(ir)%RHS
     enddo
-    ! DEBUG
-    print*, 'v'
-    print*, rotor(1)%vind_bywing(rotor(2)%blade(1)%wiP(1, 1)%CP)
-    print*, rotor(2)%vind_bywing(rotor(1)%blade(1)%wiP(1, 1)%CP)
 
     do ir = 1, nr
       rotor(ir)%gamVecPrev = rotor(ir)%gamVec
@@ -201,8 +197,6 @@ program main
   if (switches%rotorForcePlot .ne. 0) then
     call init_plots(nr)    ! Create headers for plot files
     do ir = 1, nr
-      !DEBUG
-      print*, 'Rotor ', ir
       ! Compute sec freestream velocity for secCL
       do ib = 1, rotor(ir)%nb
         do is = 1, rotor(ir)%ns
@@ -291,8 +285,6 @@ program main
 
     enddo
   endif
-  ! DEBUG
-  stop
 
   currentTime = ''
 
