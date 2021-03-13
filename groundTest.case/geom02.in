@@ -4,8 +4,8 @@
 # -------------------------------------------------------------------
      2                     0                      0
 #
-# Surface type                       Inherited gamma
-# [0]Lifting  [1]Non-lifting   [0]Off [1, -1]Multipy by   from rotor
+# Surface type                            Mirrored about 
+# [0]Lifting [1]Non-lifting [-1]Image  [1,2,3]X,Y,Z plane  from rotor
 # -------------------------------------------------------------------
      0                           -1                           1
 # 
