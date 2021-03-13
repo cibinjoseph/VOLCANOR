@@ -1752,7 +1752,7 @@ module rotor_classdef
     integer :: gammaPlotSwitch, alphaPlotSwitch
     integer :: rowNear, rowFar
     integer :: nAirfoils
-    integer :: inheritedGamma, inheritedGammaRotorNum
+    integer :: imagePlane, imageRotorNum
     integer :: surfaceType  
     character(len=30), allocatable, dimension(:) :: airfoilFile
     character(len=30) :: geometryFile
@@ -1786,7 +1786,9 @@ module rotor_classdef
     procedure :: calc_skew => rotor_calc_skew
     procedure :: dirLiftDrag => rotor_dirLiftDrag
     procedure :: sumBladeToNetForces
-    procedure :: inheritGamma
+    procedure :: mirrorGamma
+    procedure :: mirrorVelCP
+    procedure :: mirrorVelWake
     ! I/O subroutines
     procedure :: rotor_write
     generic :: write(unformatted) => rotor_write
@@ -1811,7 +1813,7 @@ contains
     call skip_comments(12)
 
     ! [0/1]Lifting [2]Non-lifting [-1]Lifting Image [-2]Non-lifting Image
-    read (12, *) this%surfaceType, this%inheritedGamma, this%inheritedGammaRotorNum
+    read (12, *) this%surfaceType, this%imagePlane, this%imageRotorNum
     if (this%surfaceType == 0) this%surfaceType = 1
     call skip_comments(12)
 
@@ -3208,12 +3210,58 @@ contains
 
   end subroutine sumBladeToNetForces
 
-  subroutine inheritGamma(this, inheritedFromRotor)
-    !! Copies gamma from another rotor
+  subroutine mirrorGamma(this, fromRotor)
+    !! Mirrors gamma from another rotor
   class(rotor_class), intent(inout) :: this
-  class(rotor_class), intent(in) :: inheritedFromRotor
-    this%gamVec = this%inheritedGamma * inheritedFromRotor%gamVec
-  end subroutine inheritGamma
+  class(rotor_class), intent(in) :: fromRotor
+    this%gamVec = -1_dp * fromRotor%gamVec
+  end subroutine mirrorGamma
+
+  subroutine mirrorVelCP(this, fromRotor)
+    !! Mirrors velCP, velCPm from another rotor
+  class(rotor_class), intent(inout) :: this
+  class(rotor_class), intent(in) :: fromRotor
+    integer :: ic, is, ib
+
+    do ib = 1, this%nb
+      !$omp parallel do collapse (2)
+      do is = 1, this%ns
+        do ic = 1, this%nc
+          this%blade(ib)%wiP(ic, is)%velCP = &
+            & fromRotor%blade(ib)%wip(ic, is)%velCP
+          this%blade(ib)%wiP(ic, is)%velCPm = &
+            & fromRotor%blade(ib)%wip(ic, is)%velCPm
+        enddo
+      enddo
+      !$omp end parallel do
+    enddo
+
+    do ib = 1, this%nb
+      this%blade(ib)%wiP%velCP(this%imagePlane) = &
+        & -1._dp * this%blade(ib)%wiP%velCP(this%imagePlane)
+      this%blade(ib)%wiP%velCPm(this%imagePlane) = &
+        & -1._dp * this%blade(ib)%wiP%velCPm(this%imagePlane)
+    enddo
+  end subroutine mirrorVelCP
+
+  ! DEBUG
+  subroutine mirrorVelWake(this, fromRotor)
+    !! Mirrors velCP from another rotor
+  class(rotor_class), intent(inout) :: this
+  class(rotor_class), intent(in) :: fromRotor
+    integer :: ic, is, ib
+
+    do ib = 1, this%nb
+      !$omp parallel do collapse (2)
+      do is = 1, this%ns
+        do ic = 1, this%nc
+          this%blade(ib)%wiP(ic, is)%velCP = &
+            & fromRotor%blade(ib)%wip(ic, is)%velCP
+        enddo
+      enddo
+      !$omp end parallel do
+    enddo
+  end subroutine mirrorVelWake
 
   subroutine rotor_read(this, unit, iostat, iomsg)
   class(rotor_class), intent(inout) :: this

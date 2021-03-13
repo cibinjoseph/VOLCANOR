@@ -107,58 +107,67 @@ program main
   ! Compute RHS for initial solution without wake
   ntSubInitLoop: do i = 0, switches%ntSubInit
     do ir = 1, nr
-      do ib = 1, rotor(ir)%nb
-        do is = 1, rotor(ir)%ns
-          do ic = 1, rotor(ir)%nc
-            row = ic + rotor(ir)%nc*(is - 1) &
-              + rotor(ir)%ns*rotor(ir)%nc*(ib - 1)
+      if (rotor(ir)%surfaceType .gt. 0) then
+        ! Compute velCP and RHS for lifting and non-lifting surfaces
+        do ib = 1, rotor(ir)%nb
+          do is = 1, rotor(ir)%ns
+            do ic = 1, rotor(ir)%nc
+              row = ic + rotor(ir)%nc*(is - 1) &
+                + rotor(ir)%ns*rotor(ir)%nc*(ib - 1)
 
-            ! Translational vel
-            rotor(ir)%blade(ib)%wiP(ic, is)%velCP = &
-              -1._dp*rotor(ir)%velBody &
-              ! Rotational vel
-            - cross_product(rotor(ir)%omegaBody, &
-              rotor(ir)%blade(ib)%wiP(ic, is)%CP - rotor(ir)%cgCoords) + &
-              ! Omega vel
-            cross_product(-rotor(ir)%omegaSlow*rotor(ir)%shaftAxis, &
-              rotor(ir)%blade(ib)%wiP(ic, is)%CP - rotor(ir)%hubCoords)
+              ! Translational vel
+              rotor(ir)%blade(ib)%wiP(ic, is)%velCP = &
+                -1._dp*rotor(ir)%velBody &
+                ! Rotational vel
+              - cross_product(rotor(ir)%omegaBody, &
+                rotor(ir)%blade(ib)%wiP(ic, is)%CP - rotor(ir)%cgCoords) + &
+                ! Omega vel
+              cross_product(-rotor(ir)%omegaSlow*rotor(ir)%shaftAxis, &
+                rotor(ir)%blade(ib)%wiP(ic, is)%CP - rotor(ir)%hubCoords)
 
-            ! Record velocities due to motion for 
-            ! computing lift and drag directions
-            rotor(ir)%blade(ib)%wiP(ic, is)%velCPm = &
-              rotor(ir)%blade(ib)%wiP(ic, is)%velCP
+              ! Record velocities due to motion for 
+              ! computing lift and drag directions
+              rotor(ir)%blade(ib)%wiP(ic, is)%velCPm = &
+                rotor(ir)%blade(ib)%wiP(ic, is)%velCP
 
-            ! Velocity due to wing vortices of other rotors
-            do jr = 1, nr
-              if (ir .ne. jr) then
-                rotor(ir)%blade(ib)%wiP(ic, is)%velCP = &
-                  rotor(ir)%blade(ib)%wiP(ic, is)%velCP + &
-                  rotor(jr)%vind_bywing(rotor(ir)%blade(ib)%wiP(ic, is)%CP)
-              endif
+              ! Velocity due to wing vortices of other rotors
+              do jr = 1, nr
+                if (ir .ne. jr) then
+                  rotor(ir)%blade(ib)%wiP(ic, is)%velCP = &
+                    rotor(ir)%blade(ib)%wiP(ic, is)%velCP + &
+                    rotor(jr)%vind_bywing(rotor(ir)%blade(ib)%wiP(ic, is)%CP)
+                endif
+              enddo
+
+              rotor(ir)%RHS(row) = &
+                dot_product(rotor(ir)%blade(ib)%wiP(ic, is)%velCP, &
+                rotor(ir)%blade(ib)%wiP(ic, is)%nCap)
+
+              ! Pitch vel
+              !rotor(ir)%blade%(ib)%wing(ic,is)%velPitch= &
+              !  rotor(ir)%thetadot_pitch(0._dp,ib)* &
+              !  rotor(ir)%blade(ib)%wiP(ic,is)%rHinge
+              !rotor(ir)%RHS(row)= RHS(row)+wing(ib,ic,is)%velPitch
             enddo
-
-            rotor(ir)%RHS(row) = &
-              dot_product(rotor(ir)%blade(ib)%wiP(ic, is)%velCP, &
-              rotor(ir)%blade(ib)%wiP(ic, is)%nCap)
-
-            ! Pitch vel
-            !rotor(ir)%blade%(ib)%wing(ic,is)%velPitch= &
-            !  rotor(ir)%thetadot_pitch(0._dp,ib)* &
-            !  rotor(ir)%blade(ib)%wiP(ic,is)%rHinge
-            !rotor(ir)%RHS(row)= RHS(row)+wing(ib,ic,is)%velPitch
           enddo
         enddo
-      enddo
+
+      else
+        ! For image lifting and non-lifting surfaces,
+        ! copy velCp and velCPm
+        call rotor(ir)%mirrorVelCP(rotor(rotor(ir)%imageRotorNum))
+      endif
+
       call rotor(ir)%dirLiftDrag()
       rotor(ir)%RHS = -1._dp*rotor(ir)%RHS
     enddo
 
     do ir = 1, nr
       rotor(ir)%gamVecPrev = rotor(ir)%gamVec
-      if (rotor(ir)%inheritedGamma .eq. 0) then
+      if (rotor(ir)%surfaceType .gt. 0) then
         rotor(ir)%gamVec = matmul(rotor(ir)%AIC_inv, rotor(ir)%RHS)
-      else
-        call rotor(ir)%inheritGamma(rotor(rotor(ir)%inheritedGammaRotorNum))
+      else  ! Image lifting or non-lifting surface
+        call rotor(ir)%mirrorGamma(rotor(rotor(ir)%imageRotorNum))
       endif
 
       ! Map gamVec to wing gam for each blade in rotor
@@ -286,6 +295,8 @@ program main
     enddo
   endif
 
+  ! DEBUG
+  stop
   currentTime = ''
 
   ! ------- MAIN LOOP START -------
@@ -401,10 +412,6 @@ program main
     ntSubLoop: do i = 0, switches%ntSub
       do ir = 1, nr
 
-        if (rotor(ir)%inheritedGamma .ne. 0) then
-          call rotor(ir)%inheritGamma(rotor(rotor(ir)%inheritedGammaRotorNum))
-        endif
-
         rotor(ir)%RHS = 0._dp
         do ib = 1, rotor(ir)%nb
           do is = 1, rotor(ir)%ns
@@ -456,9 +463,7 @@ program main
 
       do ir = 1, nr
         rotor(ir)%gamvecPrev = rotor(ir)%gamVec
-        if (rotor(ir)%inheritedGamma .eq. 0) then
-          rotor(ir)%gamVec = matmul(rotor(ir)%AIC_inv, rotor(ir)%RHS)
-        endif
+        rotor(ir)%gamVec = matmul(rotor(ir)%AIC_inv, rotor(ir)%RHS)
 
         ! Map gamVec to wing gam for each blade in rotor
         call rotor(ir)%map_gam()
