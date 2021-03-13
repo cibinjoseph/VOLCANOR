@@ -1753,7 +1753,7 @@ module rotor_classdef
     integer :: rowNear, rowFar
     integer :: nAirfoils
     integer :: inheritedGamma, inheritedGammaRotorNum
-    integer :: surfaceType  ! [0]lifting surface [1]non-lifting surface
+    integer :: surfaceType  ! [0]lifting surface [1]non-lifting surface [-1] image surface
     character(len=30), allocatable, dimension(:) :: airfoilFile
     character(len=30) :: geometryFile
     real(dp) :: nonDimforceDenominator
@@ -1809,7 +1809,7 @@ contains
     call skip_comments(12)
     read (12, *) this%nb, this%propConvention, this%geometryFile
     call skip_comments(12)
-    ! [0]Lifting [1]Non-lifting
+    ! [0]Lifting [1]Non-lifting [-1]Image surface
     read (12, *) this%surfaceType, this%inheritedGamma, this%inheritedGammaRotorNum
     call skip_comments(12)
     read (12, *) this%nc, this%ns, this%nNwake
