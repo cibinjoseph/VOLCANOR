@@ -1236,8 +1236,6 @@ contains
           this%wiP(ic, is)%delP = this%wiP(ic, is)%delP + density * &
             & velTangentialSpan(ic, is) * gamElementSpan(ic, is) / this%wiP(ic, is)%meanSpan
         endif
-        ! DEBUG
-        print*, ic, is, 'dp', this%wiP(ic, is)%delP
 
         ! -1.0 multiplied to invert sign of gamma
         this%wiP(ic, is)%gamPrev = this%wiP(ic, is)%gamTrapz
@@ -1251,9 +1249,7 @@ contains
 
         ! Invert direction of normalForce according to sign of omega and collective pitch
         this%wiP(ic, is)%normalForce = this%wiP(ic, is)%delP* &
-          this%wiP(ic, is)%panelArea*this%wiP(ic, is)%nCap*invertGammaSign
-        ! DEBUG
-        print*, 'dFn', this%wiP(ic, is)%normalForce
+          & this%wiP(ic, is)%panelArea*this%wiP(ic, is)%nCap*invertGammaSign
 
         this%secForceInertial(:, is) = this%secForceInertial(:, is) + this%wiP(ic, is)%normalForce
 
@@ -1788,7 +1784,7 @@ module rotor_classdef
     procedure :: sumBladeToNetForces
     procedure :: mirrorGamma
     procedure :: mirrorVelCP
-    procedure :: mirrorVelWake
+    procedure :: mirrorWake
     ! I/O subroutines
     procedure :: rotor_write
     generic :: write(unformatted) => rotor_write
@@ -3244,24 +3240,49 @@ contains
     enddo
   end subroutine mirrorVelCP
 
-  ! DEBUG
-  subroutine mirrorVelWake(this, fromRotor)
-    !! Mirrors velCP from another rotor
+  subroutine mirrorWake(this, fromRotor, wakeType)
+    !! Mirrors wake positions from another rotor
   class(rotor_class), intent(inout) :: this
   class(rotor_class), intent(in) :: fromRotor
+    character(len=1), intent(in) :: wakeType  ! For predicted wake
     integer :: ic, is, ib
 
-    do ib = 1, this%nb
-      !$omp parallel do collapse (2)
-      do is = 1, this%ns
-        do ic = 1, this%nc
-          this%blade(ib)%wiP(ic, is)%velCP = &
-            & fromRotor%blade(ib)%wip(ic, is)%velCP
+    select case (wakeType)
+    case ('C')  ! [C]urrent wake
+      do ib = 1, this%nb
+        !$omp parallel do collapse (2)
+        do is = 1, this%ns
+          do ic = this%rowNear, this%nNwake
+            this%blade(ib)%waP(ic, is) = fromRotor%blade(ib)%waP(ic, is)
+          enddo
         enddo
+        !$omp end parallel do
+        !$omp parallel do 
+        do ic = this%rowFar, this%nFwake
+          this%blade(ib)%waF(ic) = fromRotor%blade(ib)%waF(ic)
+        enddo
+        !$omp end parallel do
       enddo
-      !$omp end parallel do
-    enddo
-  end subroutine mirrorVelWake
+
+    case ('P')  ! [P]redicted wake
+      do ib = 1, this%nb
+        !$omp parallel do collapse (2)
+        do is = 1, this%ns
+          do ic = this%rowNear, this%nNwake
+            this%blade(ib)%waPPredicted(ic, is) = &
+              & fromRotor%blade(ib)%waPPredicted(ic, is)
+          enddo
+        enddo
+        !$omp end parallel do
+        !$omp parallel do 
+        do ic = this%rowFar, this%nFwake
+          this%blade(ib)%waFPredicted(ic) = &
+            & fromRotor%blade(ib)%waFPredicted(ic)
+        enddo
+        !$omp end parallel do
+      enddo
+    end select
+  end subroutine mirrorWake
 
   subroutine rotor_read(this, unit, iostat, iomsg)
   class(rotor_class), intent(inout) :: this
