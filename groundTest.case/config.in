@@ -10,7 +10,7 @@
 # 
 # NO. OF SUBITERATIONS [ntSub]  NO. OF INITIAL SUBITERATIONS [ntSubInit] 
 # -----------------------------------------------------------------------
-     20                          20
+     30                          30
 # 
 # SPAN DISCRETIZATION : [1]linear [2]cosine [3]halfsine
 # spanSpacingSwitch
