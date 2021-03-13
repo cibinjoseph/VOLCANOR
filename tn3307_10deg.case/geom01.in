@@ -1,13 +1,15 @@
-#           TN3307 CW Prop (Right Outboard)
+# Template version: 0.1
+# Fixed wing testcase
 # ===================================================================
-# No.of blades,nb    Prop convention     Read wing from file 
+# No.of blades,nb      Prop convention     Read wing from file
 # -------------------------------------------------------------------
      2                     1                propCW.xyz
 #
-# Surface type [0]Lifting  [1]Non-lifting
+# Surface type                            Mirrored about
+# [0]Lifting [1]Non-lifting [-1]Image  [1,2,3]X,Y,Z plane  from rotor
 # -------------------------------------------------------------------
      0
-# 
+#
 # Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 # -------------------------------------------------------------------
       8                       14                   14
@@ -35,7 +37,7 @@
  0.118           0.2348          0.0508            0.0
 # ===================================================================
 # 
-# Omega[rad/s]   X-shaftAxis     Y-shaftAxis     Z-shaftAxis 
+# Omega[rad/s]   X-shaftAxis     Y-shaftAxis     Z-shaftAxis
 # -------------------------------------------------------------------
   550.49          0.0              0.0              1.0
 # 
@@ -48,25 +50,25 @@
 # ------------------------------------------------------------------
            0
 # 
-# u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]    
+# u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]
 # -------------------------------------------------------------------
  -12.5       0.0        0.0        0.0        0.0         0.0
 # ===================================================================
 # 
-# pivot point     flapHinge      SpanwiseLiftTerm    invert tauSpan
+# pivot point     flapHinge      spanwiseLiftTerm    invert tauSpan
 # from LE[x/c]  from centre[r/R]    [1]enable     for swept/symmetric
 # -------------------------------------------------------------------
 0.00                0.0               0                 1
 # ===================================================================
 # 
-# turbulentViscosity           
-# (10-10000)                   
+# turbulentViscosity
+# (10-10000) 
 # -------------------------------------------------------------------
   500                         
 # ===================================================================
 # 
-#   spanwise core radius[x/c]       streamwise core_switch
-#   [s]ectional  [i]dentical
+# spanwise core radius[x/c]       streamwise core_switch
+# [s]ectional  [i]dentical
 # -------------------------------------------------------------------
   0.04                                       i
 # 
@@ -96,28 +98,28 @@
      0.0             0.0            0.0
 # ===================================================================
 # 
-#  PLOTS OF SPANWISE DISTRIBUTIONS: 
-#   inflowPlotSwitch            bladeForcePlotSwitch          
-#     [0]Off                    [0]Off                
-#     [n]Every nth iteration    [n]Every nth iteration
-#     [-n]Every nt/n'th iteration   [-n]Every nt/n'th iteration
+# PLOTS OF SPANWISE DISTRIBUTIONS:
+# inflowPlotSwitch               bladeForcePlotSwitch
+# [0] Off                        [0] Off
+# [n] Every nth iteration        [n] Every nth iteration
+# [-n]Every nt/n'th iteration    [-n]Every nt/n'th iteration
 # -------------------------------------------------------------------
        0                              1
 # 
-#   gammaPlotSwitch                 alphaPlotSwitch  
-#     [0]Off                         [0]Off                      
-#     [n]Every nth iteration         [n]Every nth iteration      
-#     [-n]Every nt/n'th iteration   [-n]Every nt/n'th iteration
+# gammaPlotSwitch                alphaPlotSwitch
+# [0] Off                        [0] Off
+# [n] Every nth iteration        [n] Every nth iteration
+# [-n]Every nt/n'th iteration    [-n]Every nt/n'th iteration
 # -------------------------------------------------------------------
        0                                 0
 # ===================================================================
 # 
-#  forceCalcSwitch
-# [0]gamma [1]alpha [2]FELS             No. of airfoil files 
+# forceCalcSwitch
+# [0]gamma [1]alpha [2]FELS             No. of airfoil files
 # -------------------------------------------------------------------
        0                                      1
 # 
 # section limit    CL0     CLa(per rad)   Airfoil file names
-#     (r/R)         [for FELS]
+# (r/R)              [for FELS]
 # -------------------------------------------------------------------
      1.0         0.0      5.41559        CLARK-Y.C81

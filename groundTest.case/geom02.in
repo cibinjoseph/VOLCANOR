@@ -1,14 +1,15 @@
-#           Fixed wing testcase
+# Template version: 0.1
+# Fixed wing testcase
 # ===================================================================
-# No.of blades,nb      Prop convention     Read wing from file 
+# No.of blades,nb      Prop convention     Read wing from file
 # -------------------------------------------------------------------
      2                     0                      0
 #
-# Surface type                            Mirrored about 
+# Surface type                            Mirrored about
 # [0]Lifting [1]Non-lifting [-1]Image  [1,2,3]X,Y,Z plane  from rotor
 # -------------------------------------------------------------------
      -1                                 3                      1
-# 
+#
 # Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 # -------------------------------------------------------------------
       2                       5                   10
@@ -36,7 +37,7 @@
    1.105           0.385            0.18            0.0
 # ===================================================================
 # 
-# Omega[rad/s]   X-shaftAxis     Y-shaftAxis     Z-shaftAxis 
+# Omega[rad/s]   X-shaftAxis     Y-shaftAxis     Z-shaftAxis
 # -------------------------------------------------------------------
    167.55             0.0              0.0              1.0
 # 
@@ -49,7 +50,7 @@
 # ------------------------------------------------------------------
            0
 # 
-# u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]    
+# u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]
 # -------------------------------------------------------------------
    0.0       0.0        0.0        0.0        0.0         0.0
 # ===================================================================
@@ -60,14 +61,14 @@
    0.00                0.0               0                 1
 # ===================================================================
 # 
-# turbulentViscosity           
-# (10-10000)                   
+# turbulentViscosity
+# (10-10000) 
 # -------------------------------------------------------------------
    8000
 # ===================================================================
 # 
-#   spanwise core radius[x/c]       streamwise core_switch
-#   [s]ectional  [i]dentical
+# spanwise core radius[x/c]       streamwise core_switch
+# [s]ectional  [i]dentical
 # -------------------------------------------------------------------
    0.04                                       i
 # 
@@ -97,28 +98,28 @@
      0.0             0.0            0.0
 # ===================================================================
 # 
-#  PLOTS OF SPANWISE DISTRIBUTIONS: 
-#   inflowPlotSwitch               bladeForcePlotSwitch
-#     [0] Off                       [0] Off
-#     [n] Every nth iteration       [n] Every nth iteration
-#     [-n]Every nt/n'th iteration   [-n]Every nt/n'th iteration
+# PLOTS OF SPANWISE DISTRIBUTIONS:
+# inflowPlotSwitch               bladeForcePlotSwitch
+# [0] Off                        [0] Off
+# [n] Every nth iteration        [n] Every nth iteration
+# [-n]Every nt/n'th iteration    [-n]Every nt/n'th iteration
 # -------------------------------------------------------------------
        0                              10
 # 
-#   gammaPlotSwitch                alphaPlotSwitch
-#     [0] Off                       [0] Off
-#     [n] Every nth iteration       [n] Every nth iteration
-#     [-n]Every nt/n'th iteration   [-n]Every nt/n'th iteration
+# gammaPlotSwitch                alphaPlotSwitch
+# [0] Off                        [0] Off
+# [n] Every nth iteration        [n] Every nth iteration
+# [-n]Every nt/n'th iteration    [-n]Every nt/n'th iteration
 # -------------------------------------------------------------------
        1                                 1
 # ===================================================================
 # 
-#  forceCalcSwitch
-# [0]gamma [1]alpha [2]FELS             No. of airfoil files 
+# forceCalcSwitch
+# [0]gamma [1]alpha [2]FELS             No. of airfoil files
 # -------------------------------------------------------------------
        0                                      0
 # 
 # section limit    CL0     CLa(per rad)   Airfoil file names
-#     (r/R)         [for FELS]
+# (r/R)              [for FELS]
 # -------------------------------------------------------------------
      1.0           0.0      6.2831853        NPL9615.C81
