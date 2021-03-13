@@ -8,7 +8,7 @@
 # -----------------------------------------------------------------------
      0                   0
 # 
-# NO. OF SUBITERATIONS [ntSub]  NO. OF INITIAL SUBITERATIONS [ntSubInit]    
+# NO. OF SUBITERATIONS [ntSub]  NO. OF INITIAL SUBITERATIONS [ntSubInit] 
 # -----------------------------------------------------------------------
      0                          0
 # 
@@ -29,7 +29,7 @@
        1                 0                 1                 0
 # =======================================================================
 # 
-# WAKE PROPERTY SWITCHES: [0]Off [1]On  
+# WAKE PROPERTY SWITCHES: [0]Off [1]On
 # wakeDissipationSwitch            wakeStrainSwitch   wakeBurstSwitch
 # -----------------------------------------------------------------------
        0                                0                  0
@@ -50,7 +50,7 @@
 # -----------------------------------------------------------------------
        0                                                0   
 # 
-# USE VEL PROBES       
+# USE VEL PROBES
 # probeSwitch [0]Off [1]On
 # -----------------------------------------------------------------------
        0                                          
