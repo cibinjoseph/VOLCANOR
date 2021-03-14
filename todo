@@ -26,4 +26,4 @@ Check why flow is unsymmetric in rotor ground effect
     - velCPz is inverted
     - wake CPz is inverted
  * Specify plane of symmetry [1,2,3]X,Y,Z
-
+Check why far wake attachment point is not copied correctly
