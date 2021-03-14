@@ -3274,6 +3274,38 @@ contains
     integer :: ic, is, ib
 
     select case (wakeType)
+    case ('A')  ! [A]ll current wake
+      do ib = 1, this%nb
+        !$omp parallel do collapse (2)
+        do is = 1, this%ns
+          do ic = 1, this%nNwake
+            this%blade(ib)%waP(ic, is) = fromRotor%blade(ib)%waP(ic, is)
+          enddo
+        enddo
+        !$omp end parallel do
+        !$omp parallel do
+        do ic = 1, this%nFwake
+          this%blade(ib)%waF(ic) = fromRotor%blade(ib)%waF(ic)
+        enddo
+        !$omp end parallel do
+      enddo
+
+      do ib = 1, this%nb
+        !$omp parallel do collapse (2)
+        do is = 1, this%ns
+          do ic = 1, this%nNwake
+            call this%blade(ib)%waP(ic, is)%vr%mirrorCoordinate( &
+              & this%imagePlane)
+          enddo
+        enddo
+        !$omp end parallel do
+        !$omp parallel do
+        do ic = 1, this%nFwake
+          call this%blade(ib)%waF(ic)%mirrorCoordinate(this%imagePlane)
+        enddo
+        !$omp end parallel do
+      enddo
+
     case ('C')  ! [C]urrent wake
       do ib = 1, this%nb
         !$omp parallel do collapse (2)

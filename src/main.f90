@@ -1225,11 +1225,13 @@ program main
           ! Store shed vortex as TE for next near wake panel
           call rotor(ir)%assignshed('TE')
         else
-          call rotor(ir)%assignshed('TE')
+          if (rotor(ir)%surfaceType .gt. 0) then
+            call rotor(ir)%assignshed('TE')
+          endif
         endif
       else
         ! Image lifting surface
-        call rotor(ir)%mirrorWake(rotor(rotor(ir)%imageRotorNum), 'C')
+        call rotor(ir)%mirrorWake(rotor(rotor(ir)%imageRotorNum), 'A')
       endif
     endif
   enddo
@@ -1242,13 +1244,13 @@ program main
       write(24) t
       write(24) rotor
       close(24)
-      endif
     endif
-  enddo
+  endif
+enddo
 
-  ! Deinitialize all variables
-  do ir = 1, nr
-    call rotor(ir)%deinit(switches)
+! Deinitialize all variables
+do ir = 1, nr
+  call rotor(ir)%deinit(switches)
   enddo
 
 end program main
