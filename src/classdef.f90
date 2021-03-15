@@ -113,7 +113,7 @@ module vr_classdef
     procedure :: getInteriorAngles
     procedure :: getMedianAngle
     procedure :: getBimedianCos
-    procedure :: mirrorCoordinate
+    procedure :: mirror
   end type vr_class
 
 contains
@@ -295,7 +295,8 @@ contains
       sqrt(dot_product(x1Vec, x1Vec)*dot_product(x2Vec, x2Vec)))
   end function getBimedianCos
 
-  subroutine mirrorCoordinate(this, coordNum)
+  subroutine mirror(this, coordNum)
+    !! Mirror gamma and coordinates about a specified plane
   class(vr_class) :: this
     integer, intent(in) :: coordNum
     integer :: ifil, i
@@ -306,7 +307,8 @@ contains
           & -1._dp * this%vf(ifil)%fc(coordNum, i)
       enddo
     enddo
-  end subroutine mirrorCoordinate
+    this%gam = -1._dp * this%gam
+  end subroutine mirror
 
   subroutine calc_skew(this)
     ! Compute skew
@@ -598,7 +600,7 @@ module Fwake_classdef
   contains
     procedure :: shiftdP => Fwake_shiftdP
     procedure :: assignP => Fwake_assignP
-    procedure :: mirrorCoordinate
+    procedure :: mirror
   end type Fwake_class
 
 contains
@@ -639,7 +641,8 @@ contains
     this%vf%fc(:, n) = P
   end subroutine Fwake_assignP
 
-  subroutine mirrorCoordinate(this, coordNum)
+  subroutine mirror(this, coordNum)
+    !! Mirror gamma and coordinates about a specified plane
   class(Fwake_class) :: this
     integer, intent(in) :: coordNum
     integer :: i
@@ -648,7 +651,8 @@ contains
       this%vf%fc(coordNum, i) = &
         & -1._dp * this%vf%fc(coordNum, i)
     enddo
-  end subroutine mirrorCoordinate
+    this%gam = -1._dp * this%gam
+  end subroutine mirror
 end module Fwake_classdef
 
 !------+-------------------+------|
@@ -3294,14 +3298,14 @@ contains
         !$omp parallel do collapse (2)
         do is = 1, this%ns
           do ic = 1, this%nNwake
-            call this%blade(ib)%waP(ic, is)%vr%mirrorCoordinate( &
+            call this%blade(ib)%waP(ic, is)%vr%mirror( &
               & this%imagePlane)
           enddo
         enddo
         !$omp end parallel do
         !$omp parallel do
         do ic = 1, this%nFwake
-          call this%blade(ib)%waF(ic)%mirrorCoordinate(this%imagePlane)
+          call this%blade(ib)%waF(ic)%mirror(this%imagePlane)
         enddo
         !$omp end parallel do
       enddo
@@ -3326,14 +3330,14 @@ contains
         !$omp parallel do collapse (2)
         do is = 1, this%ns
           do ic = this%rowNear, this%nNwake
-            call this%blade(ib)%waP(ic, is)%vr%mirrorCoordinate( &
+            call this%blade(ib)%waP(ic, is)%vr%mirror( &
               & this%imagePlane)
           enddo
         enddo
         !$omp end parallel do
         !$omp parallel do 
         do ic = this%rowFar, this%nFwake
-          call this%blade(ib)%waF(ic)%mirrorCoordinate(this%imagePlane)
+          call this%blade(ib)%waF(ic)%mirror(this%imagePlane)
         enddo
         !$omp end parallel do
       enddo
@@ -3360,14 +3364,14 @@ contains
         !$omp parallel do collapse (2)
         do is = 1, this%ns
           do ic = this%rowNear, this%nNwake
-            call this%blade(ib)%waPPredicted(ic, is)%vr%mirrorCoordinate( &
+            call this%blade(ib)%waPPredicted(ic, is)%vr%mirror( &
               & this%imagePlane)
           enddo
         enddo
         !$omp end parallel do
         !$omp parallel do 
         do ic = this%rowFar, this%nFwake
-          call this%blade(ib)%waFPredicted(ic)%mirrorCoordinate( &
+          call this%blade(ib)%waFPredicted(ic)%mirror( &
             & this%imagePlane)
         enddo
         !$omp end parallel do
