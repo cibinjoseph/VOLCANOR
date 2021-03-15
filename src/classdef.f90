@@ -3236,7 +3236,7 @@ contains
     !! Mirrors gamma from another rotor
   class(rotor_class), intent(inout) :: this
   class(rotor_class), intent(in) :: fromRotor
-    this%gamVec = -1_dp * fromRotor%gamVec
+    this%gamVec = -1.0_dp * fromRotor%gamVec
   end subroutine mirrorGamma
 
   subroutine mirrorVelCP(this, fromRotor)
