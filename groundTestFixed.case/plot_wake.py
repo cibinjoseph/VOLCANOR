@@ -1,0 +1,5 @@
+OpenDatabase("Results/r01wingNwake*.plt database")
+AddPlot("Mesh", "mesh", 1, 1)
+OpenDatabase("Results/r02wingNwake*.plt database")
+AddPlot("Mesh", "mesh", 1, 1)
+DrawPlots()
