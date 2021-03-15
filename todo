@@ -19,6 +19,7 @@ Change slowstartNT to -revs and in rotorXX.in
 Unify fels scripts for fixed and rotary wings - Create output folder with nonlinear data
 Use default 2*pi for CLa and use alpha0 for FELS
 Compute blade flap moment and rotor moments
+Use link for Makefile in case directories
 Check why flow is unsymmetric in rotor ground effect
  * Induced velocities computed have numerical errors causing unsymmetry
  * Use mirrored rotor by performing the following operations:
