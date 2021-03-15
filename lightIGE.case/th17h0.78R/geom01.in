@@ -8,7 +8,7 @@
 # Surface type [0/1]Lifting [2]Non-lifting    Mirrored about X/Y/Z
 # [-1]Lifting Image [-2]Non-lifting Image    [1/2/3]plane  from rotor
 # -------------------------------------------------------------------
-     0
+     0                                        0            0
 #
 # Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 # -------------------------------------------------------------------
@@ -17,11 +17,11 @@
 # 
 # X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
 # -------------------------------------------------------------------
-   0.0             0.0           0.0
+   0.0             0.0           0.8619
 # 
 # X-cgCoords      Y-cgCoords      Z-cgCoords     [all in m]
 # -------------------------------------------------------------------
-   0.0             0.0           0.0
+   0.0             0.0           0.8619
 # 
 # X-from          Y-from          Z-from         [all in m]
 # -------------------------------------------------------------------
