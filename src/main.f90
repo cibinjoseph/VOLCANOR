@@ -46,15 +46,17 @@ program main
 
   ! Compute AIC and AIC_inv matrices for rotors
   do ir = 1, nr
-    call print_status('Computing AIC matrix')
-    call rotor(ir)%calcAIC()
-    if (isInverse(rotor(ir)%AIC, rotor(ir)%AIC_inv)) then
-      call print_status()    ! SUCCESS
-    else
-      ! if (abs(rotor(ir)%surfaceType) == 1) then
-      stop 'Warning: Computed AIC_inv does not seem &
-        & to be correct within given tolerance'
-      ! endif
+    if (rotor(ir)%surfaceType > 0) then
+      call print_status('Computing AIC matrix')
+      call rotor(ir)%calcAIC()
+      if (isInverse(rotor(ir)%AIC, rotor(ir)%AIC_inv)) then
+        call print_status()    ! SUCCESS
+      else
+        ! if (abs(rotor(ir)%surfaceType) == 1) then
+        stop 'Warning: Computed AIC_inv does not seem &
+          & to be correct within given tolerance'
+        ! endif
+      endif
     endif
   enddo
 
