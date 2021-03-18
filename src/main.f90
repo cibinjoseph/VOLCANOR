@@ -59,6 +59,9 @@ program main
       endif
     endif
   enddo
+  ! DEBUG
+  print*, rotor(1)%AIC
+  stop
 
   ! Initialize plot switches
   if (switches%wakePlot .lt. 0) &
