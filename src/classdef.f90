@@ -2352,6 +2352,9 @@ contains
     ! Rotate rotor by phi,theta,psi about CG
     call this%rot_pts(this%pts, this%cgCoords, 1)
 
+    ! Rotate rotor by psiStart
+    call this%rot_advance(this%psiStart)
+
     ! Compute denominators for non-dimensionalisation
     if (abs(this%Omega) .gt. eps) then
       if (this%propConvention .eq. 0) then

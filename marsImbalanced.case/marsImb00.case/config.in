@@ -2,7 +2,7 @@
 # NO. OF TIMESTEPS [nt]    TIMESTEP (sec) [dt]    NO. OF ROTORS [nr]
 # [-nt]chords or revs      [0]automatic
 # -----------------------------------------------------------------------
-     -15                      0.0                      1
+     -15                      0.0                      2
 # 
 # restartWriteNt    restartFromNt [0]Off [1..]timesteps
 # -----------------------------------------------------------------------
