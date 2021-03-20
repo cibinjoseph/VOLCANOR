@@ -12,7 +12,7 @@
 #
 # Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 # -------------------------------------------------------------------
-      12                       19                   160
+      12                       19                   45
 # ===================================================================
 # 
 # X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
@@ -39,7 +39,7 @@
 # 
 # Omega[rad/s]   X-shaftAxis     Y-shaftAxis     Z-shaftAxis
 # -------------------------------------------------------------------
-  314.16             0.0              0.0              1.0
+  261.8             0.0              0.0              1.0
 # 
 # theta0[deg]    thetaC[deg]    thetaS[deg]    thetaTwist[deg]
 # -------------------------------------------------------------------
