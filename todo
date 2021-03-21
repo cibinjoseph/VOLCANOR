@@ -21,3 +21,4 @@ Use default 2*pi for CLa and use alpha0 for FELS
 Compute blade flap moment and rotor moments
 Rename sectional files to have csv extension
 Standardize all output files to csv compatible with pandas dataframe format
+Use alpha0 instead of CL0 in geom files
