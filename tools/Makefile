@@ -4,6 +4,7 @@
 ##################################
 
 resultspath=./Results
+restartpath=./Restart
 
 all:
 	make run
@@ -17,5 +18,6 @@ fileclean:
 
 run:
 	mkdir -p $(resultspath)
+	mkdir -p $(restartpath)
 	make fileclean
 	./volcanor 2>&1 | tee volcanor.log
