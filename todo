@@ -19,3 +19,5 @@ Change slowstartNT to -revs and in rotorXX.in
 Unify fels scripts for fixed and rotary wings - Create output folder with nonlinear data
 Use default 2*pi for CLa and use alpha0 for FELS
 Compute blade flap moment and rotor moments
+Rename sectional files to have csv extension
+Standardize all output files to csv compatible with pandas dataframe format
