@@ -30,29 +30,44 @@ def getNonlinear(alf0_deg, paramsFile=None, forceDistFile=None, c81File=None):
         CL_nonlin.append(c81Airfoil.getCL(alpha, machlist[i]))
         CD_nonlin.append(c81Airfoil.getCD(alpha, machlist[i]))
 
-    secLift = CL_nonlin*(0.5*params['density']*data['secArea']*vInf*vInf)
-    secDrag = CD_nonlin*(0.5*params['density']*data['secArea']*vInf*vInf)
-    Thrust = params['nb']*np.sum(data['secLift'])
-    CT = Thrust / (params['density']*np.pi*params['radius']**2.0*(vTip)**2.0)
+    print(data['secCL'])
+    print(CL_nonlin)
+
+    secLift_nonLin = CL_nonlin*(0.5*params['density']*data['secArea']*vInf*vInf)
+    secDrag_nonLin = CD_nonlin*(0.5*params['density']*data['secArea']*vInf*vInf)
+    secTorque = data['secSpan']*secDrag_nonLin
+    Thrust = params['nb']*np.sum(secLift_nonLin)
+    Torque = params['nb']*np.sum(secTorque)
+    # DEBUG
+    # Outputting for single blade only
+    Thrust = Thrust/params['nb']
+    Torque = Torque/params['nb']
+    denom = params['density']*np.pi*params['radius']**2.0*(vTip)**2.0
+    CT = Thrust / denom
+    CQ = Torque / denom
 
 
     sectDict = {'rbyR': data['secSpan']/params['radius'], \
-                     'secArea': data['secArea'], \
-                     'secAlpha': data['secAlpha'], \
-                     'alphaLookup': alphaLookup, 'CL_lin': data['secCL'], \
-                     'CL_nonlin': CL_nonlin, 'secLift': secLift, \
-                     'CD_nonlin': CD_nonlin, 'secDrag': secDrag}
-    return sectDict, Thrust, CT, dx
+                'secArea': data['secArea'], \
+                'secVel': vInf, 'dx': dx, \
+                'secAlpha': data['secAlpha'], \
+                'alphaLookup': alphaLookup, 'CL_lin': data['secCL'], \
+                'CL_nonlin': CL_nonlin, 'secLift': secLift_nonLin, \
+                'CD_nonlin': CD_nonlin, 'secDrag': secDrag_nonLin \
+               }
+    return sectDict, Thrust, CT, Torque, CQ
 
 
-sectDict, Thrust, CT, dx = getNonlinear(c81File='NACA5605XFOIL.C81', \
-                                         alf0_deg=-6.480218)
+sectDict, Thrust, CT, Torque, CQ = getNonlinear( \
+                                        c81File='NACA5605XFOIL.C81', \
+                                        alf0_deg=-6.480218)
 locals().update(sectDict)
 print('Min/Max alpha (deg) = ' + \
       str(np.min(alphaLookup)) +' / ' + str(np.max(alphaLookup)))
-print('Blade thrust = ' + str(np.sum(secLift)))
 print('Thrust = ' + str(Thrust))
 print('CT = ' + str(CT))
+print('Torque = ' + str(Torque))
+print('CQ = ' + str(CQ))
 
 # Write distribution to file
 outTable = tb.tabulate(sectDict, headers='keys', tablefmt='tsv', \
