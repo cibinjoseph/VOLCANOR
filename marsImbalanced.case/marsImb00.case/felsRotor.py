@@ -6,63 +6,69 @@ import parseResults as pr
 import matplotlib.pyplot as plt
 import tabulate as tb
 
-# Make this a function
-params = pr.getParams()
-data = pr.getForceDist()
-locals().update(params)
-locals().update(data)
 
 CLa_lin = 2.0*np.pi
-alf0_deg = -6.480218
 
-alf0 = alf0_deg*np.pi/180.0
-vTip = radius*Omega
-dx = secArea/secChord
-vInf = secSpan*Omega
+def getNonlinear(alf0_deg, paramsFile=None, forceDistFile=None, c81File=None):
+    params = pr.getParams(paramsFile)
+    data = pr.getForceDist(forceDistFile)
 
-alphalist = (180.0/np.pi)*(secCL/CLa_lin + alf0)
-machlist = secVel/velSound
-# DEBUG
-# alphalist = secAlpha
+    alf0 = alf0_deg*np.pi/180.0
+    vTip = params['radius']*params['Omega']
+    dx = data['secArea']/data['secChord']
+    vInf = data['secSpan']*params['Omega']
 
-fig, ax = plt.subplots(2)
-ax[0].plot(secSpan/radius, alphalist, 'b*-', label='FELS')
-ax[0].plot(secSpan/radius, secAlpha, 'r*-', label='Ind. vel.')
-ax[0].legend()
-ax[0].set_ylabel('Alpha (deg)')
-ax[0].grid(True)
+    alphaLookup = (180.0/np.pi)*(data['secCL']/CLa_lin + alf0)
+    machlist = data['secVel']/params['velSound']
 
-c81File = "NACA5605XFOIL.C81"
-with open(c81File, 'r') as fh:
-    c81Airfoil = c81.load(fh)
+    with open(c81File, 'r') as fh:
+        c81Airfoil = c81.load(fh)
 
-CL_nonlin = []
-CD_nonlin = []
-for i, alpha in enumerate(alphalist):
-    CL_nonlin.append(c81Airfoil.getCL(alpha, machlist[i]))
-    CD_nonlin.append(c81Airfoil.getCD(alpha, machlist[i]))
+    CL_nonlin = []
+    CD_nonlin = []
+    for i, alpha in enumerate(alphaLookup):
+        CL_nonlin.append(c81Airfoil.getCL(alpha, machlist[i]))
+        CD_nonlin.append(c81Airfoil.getCD(alpha, machlist[i]))
 
-secLift = CL_nonlin*(0.5*density*secArea*vInf*vInf)
-bladeThrust = np.sum(secLift)
-ThrustMars = nb*np.sum(secLift)
-CTMars = ThrustMars / (density*np.pi*radius*radius*(vTip)**2.0)
-print('Min/Max alpha (deg) = ' + str(np.min(alphalist)) +' / ' + str(np.max(alphalist)))
-print('Blade thrust in Mars = ' + str(bladeThrust))
-print('Thrust in Mars = ' + str(ThrustMars))
-print('CT in Mars = ' + str(CTMars))
+    secLift = CL_nonlin*(0.5*params['density']*data['secArea']*vInf*vInf)
+    secDrag = CD_nonlin*(0.5*params['density']*data['secArea']*vInf*vInf)
+    Thrust = params['nb']*np.sum(data['secLift'])
+    CT = Thrust / (params['density']*np.pi*params['radius']**2.0*(vTip)**2.0)
+
+
+    sectDict = {'rbyR': data['secSpan']/params['radius'], \
+                     'secArea': data['secArea'], \
+                     'secAlpha': data['secAlpha'], \
+                     'alphaLookup': alphaLookup, 'CL_lin': data['secCL'], \
+                     'CL_nonlin': CL_nonlin, 'secLift': secLift, \
+                     'CD_nonlin': CD_nonlin, 'secDrag': secDrag}
+    return sectDict, Thrust, CT, dx
+
+
+sectDict, Thrust, CT, dx = getNonlinear(c81File='NACA5605XFOIL.C81', \
+                                         alf0_deg=-6.480218)
+locals().update(sectDict)
+print('Min/Max alpha (deg) = ' + \
+      str(np.min(alphaLookup)) +' / ' + str(np.max(alphaLookup)))
+print('Blade thrust = ' + str(np.sum(secLift)))
+print('Thrust = ' + str(Thrust))
+print('CT = ' + str(CT))
 
 # Write distribution to file
-# outMat = np.column_stack((secSpan/radius, alphalist, secLift/dx))
-# np.savetxt('loadVLM.dat', outMat, delimiter='  ')
-outDict = {'rbyR': secSpan/radius, 'secArea': secArea, 'secAlpha': secAlpha, \
-           'alphaLookup': alphalist, 'CL_lin': secCL, \
-           'CL_nonlin': CL_nonlin, 'CD_nonlin': CD_nonlin}
-outTable = tb.tabulate(outDict, headers='keys', tablefmt='tsv', \
+outTable = tb.tabulate(sectDict, headers='keys', tablefmt='tsv', \
                        showindex=False)
 with open('loadVLM.dat', 'w') as fh:
     fh.write(outTable)
 
-ax[1].plot(secSpan/radius, secLift/dx, label='FELS')
+# Plots
+fig, ax = plt.subplots(2)
+ax[0].plot(sectDict['rbyR'], alphaLookup, 'b*-', label='FELS')
+ax[0].plot(sectDict['rbyR'], secAlpha, 'r*-', label='Ind. vel.')
+ax[0].legend()
+ax[0].set_ylabel('Alpha (deg)')
+ax[0].grid(True)
+
+ax[1].plot(sectDict['rbyR'], secLift/dx, label='FELS')
 ax[1].set_ylabel('Lift per unit span')
 ax[1].grid(True)
 ax[1].legend()

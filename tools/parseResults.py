@@ -32,8 +32,11 @@ def _getLatestFile(filename):
             fileNumPrev = fileNum
     return latestFile
 
-def getParams(file=ResultsDir + 'r01Params.dat'):
+def getParams(file=None):
     """ Extract parameters from params file """
+    if file == None:
+        file = ResultsDir + 'r01Params.dat'
+
     with open(file, 'r') as fh:
         lines = fh.readlines()
 
