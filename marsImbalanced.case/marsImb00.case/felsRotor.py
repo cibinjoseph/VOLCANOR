@@ -5,7 +5,14 @@ import c81utils as c81
 import parseResults as pr
 import matplotlib.pyplot as plt
 import tabulate as tb
+import sys
 
+
+# Provide blade num as argument
+try:
+    bladeNum = int(sys.argv[-1])
+except:
+    bladeNum = 1
 
 CLa_lin = 2.0*np.pi
 
@@ -30,11 +37,10 @@ def getNonlinear(alf0_deg, paramsFile=None, forceDistFile=None, c81File=None):
         CL_nonlin.append(c81Airfoil.getCL(alpha, machlist[i]))
         CD_nonlin.append(c81Airfoil.getCD(alpha, machlist[i]))
 
-    print(data['secCL'])
-    print(CL_nonlin)
-
-    secLift_nonLin = CL_nonlin*(0.5*params['density']*data['secArea']*vInf*vInf)
-    secDrag_nonLin = CD_nonlin*(0.5*params['density']*data['secArea']*vInf*vInf)
+    secLift_nonLin = CL_nonlin*(0.5*params['density']* \
+                                data['secArea']*vInf*vInf)
+    secDrag_nonLin = CD_nonlin*(0.5*params['density']* \
+                                data['secArea']*vInf*vInf)
     secTorque = data['secSpan']*secDrag_nonLin
     Thrust = params['nb']*np.sum(secLift_nonLin)
     Torque = params['nb']*np.sum(secTorque)
@@ -44,8 +50,7 @@ def getNonlinear(alf0_deg, paramsFile=None, forceDistFile=None, c81File=None):
     Torque = Torque/params['nb']
     denom = params['density']*np.pi*params['radius']**2.0*(vTip)**2.0
     CT = Thrust / denom
-    CQ = Torque / denom
-
+    CQ = Torque / (denom*params['radius'])
 
     sectDict = {'rbyR': data['secSpan']/params['radius'], \
                 'secArea': data['secArea'], \
@@ -58,9 +63,18 @@ def getNonlinear(alf0_deg, paramsFile=None, forceDistFile=None, c81File=None):
     return sectDict, Thrust, CT, Torque, CQ
 
 
-sectDict, Thrust, CT, Torque, CQ = getNonlinear( \
-                                        c81File='NACA5605XFOIL.C81', \
-                                        alf0_deg=-6.480218)
+# Blade 1
+if bladeNum == 1:
+    print('Blade 1')
+    sectDict, Thrust, CT, Torque, CQ = \
+            getNonlinear(c81File='NACA5605XFOIL.C81', alf0_deg=-6.480218)
+else:
+    print('Blade 2')
+    sectDict, Thrust, CT, Torque, CQ = \
+            getNonlinear(c81File='NACA5605XFOIL.C81', alf0_deg=-6.480218, \
+                         paramsFile='Results/r02Params.dat', \
+                         forceDistFile='Results/r02b01ForceDist01439.dat')
+
 locals().update(sectDict)
 print('Min/Max alpha (deg) = ' + \
       str(np.min(alphaLookup)) +' / ' + str(np.max(alphaLookup)))
