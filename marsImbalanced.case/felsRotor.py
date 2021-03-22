@@ -67,7 +67,9 @@ def getNonlinear(alf0_deg, paramsFile=None, forceDistFile=None, c81File=None):
 if bladeNum == 1:
     print('Blade 1')
     sectDict, Thrust, CT, Torque, CQ = \
-            getNonlinear(c81File='NACA5605XFOIL.C81', alf0_deg=-6.480218)
+            getNonlinear(c81File='NACA5605XFOIL.C81', alf0_deg=-6.480218, \
+                         paramsFile='Results/r01Params.dat', \
+                         forceDistFile='Results/r01b01ForceDist01439.dat')
 else:
     print('Blade 2')
     sectDict, Thrust, CT, Torque, CQ = \
