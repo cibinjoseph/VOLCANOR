@@ -6,6 +6,7 @@ import parseResults as pr
 import matplotlib.pyplot as plt
 import tabulate as tb
 
+# Make this a function
 params = pr.getParams()
 data = pr.getForceDist()
 locals().update(params)
@@ -22,7 +23,7 @@ vInf = secSpan*Omega
 alphalist = (180.0/np.pi)*(secCL/CLa_lin + alf0)
 machlist = secVel/velSound
 # DEBUG
-alphalist = secAlpha
+# alphalist = secAlpha
 
 fig, ax = plt.subplots(2)
 ax[0].plot(secSpan/radius, alphalist, 'b*-', label='FELS')
@@ -46,6 +47,7 @@ bladeThrust = np.sum(secLift)
 ThrustMars = nb*np.sum(secLift)
 CTMars = ThrustMars / (density*np.pi*radius*radius*(vTip)**2.0)
 print('Min/Max alpha (deg) = ' + str(np.min(alphalist)) +' / ' + str(np.max(alphalist)))
+print('Blade thrust in Mars = ' + str(bladeThrust))
 print('Thrust in Mars = ' + str(ThrustMars))
 print('CT in Mars = ' + str(CTMars))
 
