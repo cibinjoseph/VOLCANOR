@@ -694,7 +694,8 @@ module blade_classdef
     real(dp), allocatable, dimension(:, :) :: secTauCapChord, secTauCapSpan
     real(dp), allocatable, dimension(:, :) :: secNormalVec, secVelFreestream
     real(dp), allocatable, dimension(:, :) :: secChordwiseResVel, secCP
-    real(dp), allocatable, dimension(:) :: secAlpha, secCL, secCD, secCM, CL0, CLa
+    real(dp), allocatable, dimension(:) :: secAlpha, secCL, secCD, secCM
+    real(dp), allocatable, dimension(:) :: alpha0
     integer :: spanwiseLiftSwitch
 
   contains
@@ -1406,8 +1407,8 @@ contains
         unitVec(liftDir)) / (secDynamicPressure(is)*this%secArea(is))
 
       ! Compute angle of attack from linear CL
-      this%secAlpha(is) = (this%secCL(is) - this%CL0(this%airfoilNo(is))) / &
-        & this%CLa(this%airfoilNo(is))
+      this%secArea(is) = this%secCL(is)/(2._dp*pi) + &
+        & this%alpha0(this%airfoilNo(is))
     enddo
 
     ! Compute non-linear CL
@@ -1701,7 +1702,7 @@ contains
       & this%secNormalVec, this%secVelFreestream, &
       & this%secChordwiseResVel, this%secCP, &
       & this%secAlpha, this%secCL, this%secCD, this%secCM, &
-      & this%CL0, this%CLa
+      & this%alpha0
   end subroutine blade_write
 
   subroutine blade_read(this, unit, iostat, iomsg)
@@ -1728,7 +1729,7 @@ contains
       & this%secNormalVec, this%secVelFreestream, &
       & this%secChordwiseResVel, this%secCP, &
       & this%secAlpha, this%secCL, this%secCD, this%secCM, &
-      & this%CL0, this%CLa
+      & this%alpha0
   end subroutine blade_read
 
 end module blade_classdef
@@ -1764,7 +1765,7 @@ module rotor_classdef
     real(dp), allocatable, dimension(:, :) :: AIC, AIC_inv
     real(dp), allocatable, dimension(:) :: gamVec, gamVecPrev, RHS
     real(dp), allocatable, dimension(:) :: airfoilSectionLimit
-    real(dp), allocatable, dimension(:) :: CL0, CLa
+    real(dp), allocatable, dimension(:) :: alpha0
     real(dp) :: initWakeVel, psiStart, skewLimit
     real(dp) :: turbulentViscosity
     real(dp) :: rollupStartRadius, rollupEndRadius
@@ -1917,10 +1918,9 @@ contains
     if (this%nAirfoils .gt. 0) then
       allocate (this%airfoilSectionLimit(this%nAirfoils))
       allocate (this%airfoilFile(this%nAirfoils))
-      allocate (this%CL0(this%nAirfoils))
-      allocate (this%CLa(this%nAirfoils))
+      allocate (this%alpha0(this%nAirfoils))
       do i = 1, this%nAirfoils
-        read (12, *) this%airfoilSectionLimit(i), this%CL0(i), this%CLa(i), this%airfoilFile(i)
+        read (12, *) this%airfoilSectionLimit(i), this%alpha0(i), this%airfoilFile(i)
       enddo
     endif
     close (12)
@@ -2381,12 +2381,10 @@ contains
             call this%blade(ib)%C81(i)%readfile(trim(this%airfoilFile(i)))
         enddo
         allocate (this%blade(ib)%airfoilSectionLimit(this%nAirfoils))
-        allocate (this%blade(ib)%CL0(this%nAirfoils))
-        allocate (this%blade(ib)%CLa(this%nAirfoils))
+        allocate (this%blade(ib)%alpha0(this%nAirfoils))
         this%blade(ib)%airfoilSectionLimit = this%airfoilSectionLimit
         do i = 1, this%nAirfoils
-          this%blade(ib)%CL0(i) = this%CL0(i)
-          this%blade(ib)%CLa(i) = this%CLa(i)
+          this%blade(ib)%alpha0(i) = this%alpha0(i)
         enddo
 
         ! Assign airfoil numbers for each section

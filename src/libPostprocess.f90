@@ -74,11 +74,9 @@ contains
     write(10, *) 'w', rotor%velBody(3)
     write(10, *) 'nonDimForceDenom', rotor%nonDimforceDenominator
     if (rotor%nAirfoils .gt. 0) then
-      write(10, *) 'CL0', rotor%CL0(1)
-      write(10, *) 'CLa', rotor%CLa(1)
+      write(10, *) 'alpha0', rotor%alpha0(1)
     else
-      write(10, *) 'CL0', 0.0_dp
-      write(10, *) 'CLa', 0.0_dp
+      write(10, *) 'alpha0', 0.0_dp
     endif
     if (switches%wakeDissipation .gt. 0) then
       write(10, *) 'turbulentViscosity', rotor%turbulentViscosity
