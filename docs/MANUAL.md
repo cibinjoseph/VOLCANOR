@@ -39,6 +39,14 @@ Wing panel       | wingpanel
 Vortex ring      | vr    
 Vortex filament  | vf    
 
+### File formats
+
+_.in_ - Input file  
+_.dat_ - Binary file  
+_.csv_ - CSV file (tab delimited) with first row as header  
+_.json_ - JSON file  
+_.log_ - Log file  
+
 ### Code Organization
 
 **Input files**  

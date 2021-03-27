@@ -52,14 +52,17 @@ def getParams(file=None):
 def getForceDist(file=None):
     """ Extract dataDict from forcedist file """
     if file == None:
-        # Parse ResultsDir and get latest ForceDist file
         file = _getLatestFile(ResultsDir + 'r01b01ForceDist')
     return _getDataDict(file)
 
-def getForceDim(file=ResultsDir + 'r01ForceDim.dat'):
+def getForceDim(file=None):
     """ Extract dataDict from ForceDim file """
+    if file == None:
+        file = _getLatestFile(ResultsDir + 'r01ForceDim')
     return _getDataDict(file)
 
-def getForceNonDim(file=ResultsDir + 'r01ForceNonDim.dat'):
+def getForceNonDim(file=None):
     """ Extract dataDict from ForceDim file """
+    if file == None:
+        file = _getLatestFile(ResultsDir + 'r01ForceNonDim')
     return _getDataDict(file)

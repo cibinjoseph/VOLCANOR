@@ -8,6 +8,8 @@ dummy*
 *.tec
 *.curve
 *.dat
+*.csv
+*.json
 octave-workspace
 *.zip
 *.tar.gz

@@ -1,6 +1,5 @@
 Max circulation at non max lift in forward flight?
 Does discretization give rise to instability? cause for Kelvin waves or Crow instability?
-Split Nwake and Fwake computations to separate loops to avoid if conditions
 Make lift integration higher order - unequal intervals
 Check oscillations in inflow - dependent on nInflowLocations
 Check if vortex strain is overriding vortex core changes due to dissipation
@@ -19,6 +18,5 @@ Change slowstartNT to -revs and in rotorXX.in
 Unify fels scripts for fixed and rotary wings - Create output folder with nonlinear data
 Use default 2*pi for CLa and use alpha0 for FELS
 Compute blade flap moment and rotor moments
-Rename sectional files to have csv extension
-Standardize all output files to csv compatible with pandas dataframe format
-Use alpha0 instead of CL0 in geom files
+Convert params file to json format
+Correct docs

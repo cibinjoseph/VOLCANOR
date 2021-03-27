@@ -15,8 +15,8 @@ contains
 
     do rotorNumber = 1, numOfRotors
       write (rotorNumberChar, '(I0.2)') rotorNumber
-      forceDimFilename = ResultsDir//'r'//rotorNumberChar//'ForceDim.dat'
-      forceNonDimFilename = ResultsDir//'r'//rotorNumberChar//'ForceNonDim.dat'
+      forceDimFilename = ResultsDir//'r'//rotorNumberChar//'ForceDim.csv'
+      forceNonDimFilename = ResultsDir//'r'//rotorNumberChar//'ForceNonDim.csv'
 
       ! Add data headers
       open (unit=11, file=forceDimFilename, &
@@ -250,8 +250,9 @@ contains
     integer :: ir, i
     real(dp), dimension(3) :: probeLocation, vel
 
-    open(unit=10, file=ResultsDir//'probes'//timestamp//'.dat', &
+    open(unit=10, file=ResultsDir//'probes'//timestamp//'.csv', &
       & status='replace',  action='write')
+    write(10, 110) 'u', 'v', 'w', 'x', 'y', 'z'
     do i = 1, size(probe, 2)
       probeLocation = probe(:, i) + probeVel(:, i) * t
       vel = probeVel(:, i)
@@ -260,10 +261,12 @@ contains
           & + rotor(ir)%vind_bywing(probeLocation) &
           & + rotor(ir)%vind_bywake(probeLocation)
       enddo
-      write(10, *) vel, probeLocation
+      write(10, 120) vel, probeLocation
     enddo
     close(10)
 
+    110 format(6(A15))
+    120 format(6(E15.7))
   end subroutine probes2file
 
   subroutine filaments2file(timestamp, rotor)
@@ -697,14 +700,17 @@ contains
       write (bladeNumberChar, '(I0.2)') ib
       open (unit=12, file=ResultsDir// &
         & 'r'//rotorNumberChar// 'b'//bladeNumberChar// &
-        & 'skew'//timestamp//'.dat', & 
+        & 'skew'//timestamp//'.csv', & 
         & action='write')
 
+      write(12, 110) 'max', 'avg'
       do irow = nrow, rotor%rowNear, -1
-        write(12, *) maxval(rotor%blade(ib)%waP(irow, :)%vr%skew), &
+        write(12, 120) maxval(rotor%blade(ib)%waP(irow, :)%vr%skew), &
           & sum(rotor%blade(ib)%waP(irow, :)%vr%skew)/ncol
       enddo
 
+      110 format(2(A15))
+      120 format(2(E15.7))
       close(12)
     enddo
   end subroutine skew2file
@@ -721,7 +727,7 @@ contains
 
     write (rotorNumberChar, '(I0.2)') rotorNumber
 
-    forceNonDimFilename = ResultsDir//'r'//rotorNumberChar//'ForceNonDim.dat'
+    forceNonDimFilename = ResultsDir//'r'//rotorNumberChar//'ForceNonDim.csv'
     open (unit=11, file=forceNonDimFilename, action='write', position='append')
     write (11, 100) timestamp, &
       norm2(rotor%lift) / rotor%nonDimforceDenominator, &          ! CL
@@ -735,7 +741,7 @@ contains
     close (11)
     100 format(A, 8(E15.7))
 
-    forceDimFilename = ResultsDir//'r'//rotorNumberChar//'ForceDim.dat'
+    forceDimFilename = ResultsDir//'r'//rotorNumberChar//'ForceDim.csv'
     open (unit=12, file=forceDimFilename, action='write', position='append')
     write (12, 101) timestamp, norm2(rotor%lift), norm2(rotor%drag), &
       rotor%lift(1), rotor%lift(2), rotor%lift(3), &     ! Lift
@@ -751,7 +757,7 @@ contains
           write (bladeNumberChar, '(I0.2)') ib
           open (unit=12, file=ResultsDir// &
             & 'r'//rotorNumberChar// 'b'//bladeNumberChar// &
-            & 'ForceDist'//timestamp//'.dat', & 
+            & 'ForceDist'//timestamp//'.csv', & 
             & action='write', position='append')
           write (12, 202) 'secSpan', 'secCL', 'secCD', 'secLift', 'secDrag', &
             & 'secArea', 'secVel', 'secChord', 'secAlpha'

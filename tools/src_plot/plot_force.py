@@ -1,5 +1,5 @@
 # Plot using gnuplot
-plot 'Results/r01ForceNonDim.dat' u 1:2 w l
+plot 'Results/r01ForceNonDim.csv' u 1:2 w l
 pause 1
 reread
 
