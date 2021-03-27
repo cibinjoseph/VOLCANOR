@@ -46,6 +46,7 @@ _.dat_ - Binary file
 _.csv_ - CSV file (tab delimited) with first row as header  
 _.json_ - JSON file  
 _.log_ - Log file  
+_.plt_ - Tecplot file
 
 ### Code Organization
 
@@ -59,17 +60,14 @@ _gridconfig.in_  -  Configuration file for generating grid-based solutions durin
 _init_file.f90_  -  Variable initialisations  
 _main.f90_  -  Main code that controls execution  
 _classdef.f90_  -  Class definitions  
-_library.f90_  -  Subroutines common to all classes  
-_postproc.f90_  -  Postprocessing subroutines  
-_mymathlib.f90_  -  Math subroutines  
+_libCommon.f90_  -  Subroutines common to all classes  
+_libPostproc.f90_  -  Postprocessing subroutines  
+_libMath.f90_  -  Math subroutines  
 _gridgen.f90_  -  Generates grid-based data using gridconfig.in and filamentsXXXXX.dat  
 
 **Output files**  
-_status.txt_  -  Current status of computation (use tailf to view in real-time)
-_wingPC.plt_  -  Panel verices of wing  
-_wingCP.plt_  -  Collocation points of wing  
-_wingVR.plt_  -  Vortex rings of wing  
-_NwakeXXXXX.plt_  -  Vortex collocation points of wing and near wake  
-_FwakeXXXXX.plt_  -  Vortex collocation points of far wake   
+_wingNwakeXXXXX.plt_  -  Vortex collocation points of far wake   
 _filamentsXXXXX.dat_  -  Filament properties in binary format  
-_rXXforce.txt_  -  Rotor and blade force values at corresponding timesteps  
+_rXXforceDim.csv  -  Rotor dimensional force values at corresponding timesteps  
+_rXXforceNonDim.csv  -  Rotor non-dimensional force values at corresponding timesteps  
+_rXXbXXforceDistXXXXX.csv  -  Rotor sectional force values at corresponding timesteps  
