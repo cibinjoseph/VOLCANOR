@@ -535,10 +535,12 @@ contains
     close (12)
   end subroutine wingverify
 
-  subroutine tip2file(timestamp, rotor)
+  subroutine tip2file(timestamp, rotor, rotorNumber)
     type(rotor_class), intent(in) :: rotor
     character(len=*), intent(in) :: timestamp
+    integer, intent(in) :: rotorNumber
     character(len=5) :: nxChar, nyChar
+    character(len=2) :: rotorNumberChar
     real(dp), dimension(3, rotor%nc + 1, rotor%ns + 1) :: wingMesh
     real(dp), dimension(3, rotor%nNwake + 1) :: nWakeTip
     real(dp), dimension(rotor%nNwake) :: gamRollup
@@ -546,7 +548,10 @@ contains
     real(dp) :: gamSum
     integer :: ib, i, j, nx, ny
 
-    open (unit=10, file=ResultsDir//'tip'//timestamp//'.plt', &
+    write (rotorNumberChar, '(I0.2)') rotorNumber
+
+    open (unit=10, file=ResultsDir// &
+      & 'r'//rotorNumberChar//'tip'//timestamp//'.plt', &
       & action='write', position='append')
 
     write (10, *) 'Title = "Wing and Tip"'

@@ -20,4 +20,3 @@ Use default 2*pi for CLa and use alpha0 for FELS
 Compute blade flap moment and rotor moments
 Convert params file to json format
 Correct docs
-Add tip plot for all rotors
