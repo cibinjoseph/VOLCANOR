@@ -1,6 +1,7 @@
 """ Extract parameters from parameter file """
 import numpy as np
 from glob import glob
+import json
 
 ResultsDir = 'Results/'
 
@@ -25,15 +26,19 @@ def _getLatestFile(filename):
     """ Return filename of latest file with starting string """
     fileNumPrev = 0
     filenameLen = len(filename)
-    for currentFile in glob(filename+'*'):
-        fileNum = int(currentFile[filenameLen:filenameLen+5])
-        if fileNum > fileNumPrev:
-            latestFile = currentFile
-            fileNumPrev = fileNum
+    filelist = glob(filename + '*')
+    if len(filelist) > 1:
+        for currentFile in filelist:
+            fileNum = int(currentFile[filenameLen:filenameLen+5])
+            if fileNum > fileNumPrev:
+                latestFile = currentFile
+                fileNumPrev = fileNum
+    else:
+        latestFile = filelist[0]
     return latestFile
 
-def getParams(file=None):
-    """ Extract parameters from params file """
+def getParamsDat(file=None):
+    """ Extract parameters from params dat file """
     if file == None:
         file = ResultsDir + 'r01Params.dat'
 
@@ -47,6 +52,15 @@ def getParams(file=None):
             params[cols[0]] = float(cols[1])
         except ValueError:
             params[cols[0]] = cols[1]
+    return params
+
+def getParams(file=None):
+    """ Extract parameters from params json file """
+    if file == None:
+        file = ResultsDir + 'r01Params.json'
+
+    with open(file, 'r') as fh:
+        params = json.load(fh)
     return params
 
 def getForceDist(file=None):

@@ -405,7 +405,7 @@ program main
 
       if (switches%wakeTipPlot .ne. 0) then
         if (mod(iter, switches%wakeTipPlot) .eq. 0) &
-          call tip2file(timestamp, rotor(ir))
+          call tip2file(timestamp, rotor(ir), ir)
       endif
     enddo
 

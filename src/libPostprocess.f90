@@ -39,50 +39,52 @@ contains
 
   subroutine params2file(rotor, rotorNumber, nt, dt, nr, &
       & density, velSound, switches)
-    ! Write rotor parameters to file
+    ! Write rotor parameters to json file
     type(rotor_class), intent(in) :: rotor
     type(switches_class), intent(in) :: switches
     integer, intent(in) :: rotorNumber, nt, nr
     real(dp), intent(in) :: dt, density, velSound
     character(len=2) :: rotorNumberChar
-    character(len=21) :: paramsFilename
+    character(len=22) :: paramsFilename
 
     write (rotorNumberChar, '(I0.2)') rotorNumber
-    paramsFilename = ResultsDir//'r'//rotorNumberChar//'Params.dat'
+    paramsFilename = ResultsDir//'r'//rotorNumberChar//'Params.json'
     open(unit=10, file=paramsFilename, status='replace', action='write')
-    write(10, *) 'nt', nt
-    write(10, *) 'dt', dt
-    write(10, *) 'nr', nr
-    write(10, *) 'density', density
-    write(10, *) 'velSound', velSound
-    write(10, *) 'nb', rotor%nb
-    write(10, *) 'propConvention', rotor%propConvention
-    write(10, *) 'geometryFile ', rotor%geometryFile
-    write(10, *) 'nc', rotor%nc
-    write(10, *) 'ns', rotor%ns
-    write(10, *) 'nNwake', rotor%nNwake
-    write(10, *) 'radius', rotor%radius
-    write(10, *) 'root_cut', rotor%root_cut
-    write(10, *) 'chord', rotor%chord
-    write(10, *) 'Omega', rotor%Omega
-    write(10, *) 'phi', rotor%pts(1)
-    write(10, *) 'theta', rotor%pts(2)
-    write(10, *) 'psi', rotor%pts(3)
-    write(10, *) 'theta0', rotor%controlPitch(1)*180._dp/pi
-    write(10, *) 'u', rotor%velBody(1)
-    write(10, *) 'v', rotor%velBody(2)
-    write(10, *) 'w', rotor%velBody(3)
-    write(10, *) 'nonDimForceDenom', rotor%nonDimforceDenominator
+    write(10, *) '{'
+    write(10, *) '"nt": ', nt, ','
+    write(10, *) '"dt": ', dt, ','
+    write(10, *) '"nr": ', nr, ','
+    write(10, *) '"density": ', density, ','
+    write(10, *) '"velSound": ', velSound, ','
+    write(10, *) '"nb": ', rotor%nb, ','
+    write(10, *) '"propConvention": ', rotor%propConvention, ','
+    write(10, *) '"geometryFile": ', rotor%geometryFile, ','
+    write(10, *) '"nc": ', rotor%nc, ','
+    write(10, *) '"ns": ', rotor%ns, ','
+    write(10, *) '"nNwake": ', rotor%nNwake, ','
+    write(10, *) '"radius": ', rotor%radius, ','
+    write(10, *) '"root_cut": ', rotor%root_cut, ','
+    write(10, *) '"chord": ', rotor%chord, ','
+    write(10, *) '"Omega": ', rotor%Omega, ','
+    write(10, *) '"phi": ', rotor%pts(1), ','
+    write(10, *) '"theta": ', rotor%pts(2), ','
+    write(10, *) '"psi": ', rotor%pts(3), ','
+    write(10, *) '"theta0": ', rotor%controlPitch(1)*180._dp/pi, ','
+    write(10, *) '"u": ', rotor%velBody(1), ','
+    write(10, *) '"v": ', rotor%velBody(2), ','
+    write(10, *) '"w": ', rotor%velBody(3), ','
+    write(10, *) '"nonDimForceDenom": ', rotor%nonDimforceDenominator, ','
     if (rotor%nAirfoils .gt. 0) then
-      write(10, *) 'alpha0', rotor%alpha0(1)
+      write(10, *) '"alpha0": ', rotor%alpha0(1), ','
     else
-      write(10, *) 'alpha0', 0.0_dp
+      write(10, *) '"alpha0": ', 0.0_dp, ','
     endif
     if (switches%wakeDissipation .gt. 0) then
-      write(10, *) 'turbulentViscosity', rotor%turbulentViscosity
+      write(10, *) '"turbulentViscosity": ', rotor%turbulentViscosity
     else
-      write(10, *) 'turbulentViscosity', 0.0
+      write(10, *) '"turbulentViscosity": ', 0.0
     endif
+    write(10, *) '}'
     close(10)
   end subroutine params2file
 
