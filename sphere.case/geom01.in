@@ -1,4 +1,4 @@
-# Template version: 0.1
+# Template version: 0.2
 # Fixed wing testcase
 # ===================================================================
 # No.of blades,nb      Prop convention     Read wing from file
@@ -119,7 +119,7 @@
 # -------------------------------------------------------------------
        0                                      0
 # 
-# section limit    CL0     CLa(per rad)   Airfoil file names
+# section limit    alpha0    Airfoil file names
 # (r/R)              [for FELS]
 # -------------------------------------------------------------------
      1.0         0.0      5.41559        NACA63A012.C81
