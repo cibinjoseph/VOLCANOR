@@ -4,6 +4,8 @@ from glob import glob
 import json
 
 ResultsDir = 'Results/'
+rotorNum = '01'
+bladeNum = '01'
 
 def _getHeader(file):
     ''' Returns variables in header as list of strings '''
@@ -40,7 +42,7 @@ def _getLatestFile(filename):
 def getParamsDat(file=None):
     """ Extract parameters from params dat file """
     if file == None:
-        file = ResultsDir + 'r01Params.dat'
+        file = ResultsDir + 'r' + rotorNum + 'Params.dat'
 
     with open(file, 'r') as fh:
         lines = fh.readlines()
@@ -57,7 +59,7 @@ def getParamsDat(file=None):
 def getParams(file=None):
     """ Extract parameters from params json file """
     if file == None:
-        file = ResultsDir + 'r01Params.json'
+        file = ResultsDir + 'r' + rotorNum + 'Params.json'
 
     with open(file, 'r') as fh:
         params = json.load(fh)
@@ -66,17 +68,21 @@ def getParams(file=None):
 def getForceDist(file=None):
     """ Extract dataDict from forcedist file """
     if file == None:
-        file = _getLatestFile(ResultsDir + 'r01b01ForceDist')
+        file = _getLatestFile(ResultsDir + \
+                              'r' + rotorNum + \
+                              'b' + bladeNum + 'ForceDist')
     return _getDataDict(file)
 
 def getForceDim(file=None):
     """ Extract dataDict from ForceDim file """
     if file == None:
-        file = _getLatestFile(ResultsDir + 'r01ForceDim')
+        file = _getLatestFile(ResultsDir + \
+                              'r' + rotorNum + 'ForceDim')
     return _getDataDict(file)
 
 def getForceNonDim(file=None):
     """ Extract dataDict from ForceDim file """
     if file == None:
-        file = _getLatestFile(ResultsDir + 'r01ForceNonDim')
+        file = _getLatestFile(ResultsDir + \
+                              'r' + rotorNum + 'ForceNonDim')
     return _getDataDict(file)
