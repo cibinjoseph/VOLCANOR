@@ -68,14 +68,14 @@ if bladeNum == 1:
     print('Blade 1')
     sectDict, Thrust, CT, Torque, CQ = \
             getNonlinear(c81File='NACA5605XFOIL.C81', alf0_deg=-6.480218, \
-                         paramsFile='Results/r01Params.dat', \
-                         forceDistFile='Results/r01b01ForceDist01439.dat')
+                         paramsFile='Results/r01Params.json', \
+                         forceDistFile='Results/r01b01ForceDist01439.csv')
 else:
     print('Blade 2')
     sectDict, Thrust, CT, Torque, CQ = \
             getNonlinear(c81File='NACA5605XFOIL.C81', alf0_deg=-6.480218, \
-                         paramsFile='Results/r02Params.dat', \
-                         forceDistFile='Results/r02b01ForceDist01439.dat')
+                         paramsFile='Results/r02Params.json', \
+                         forceDistFile='Results/r02b01ForceDist01439.csv')
 
 locals().update(sectDict)
 print('Min/Max alpha (deg) = ' + \
