@@ -2353,7 +2353,7 @@ contains
     call this%rot_pts(this%pts, this%cgCoords, 1)
 
     ! Rotate rotor by psiStart
-    call this%rot_advance(this%psiStart)
+    call this%rot_advance(this%psiStart, nopitch=.true.)
 
     ! Compute denominators for non-dimensionalisation
     if (abs(this%Omega) .gt. eps) then
@@ -2852,10 +2852,11 @@ contains
 
   end subroutine rotor_rot_pts
 
-  subroutine rotor_rot_advance(this, dpsi)
+  subroutine rotor_rot_advance(this, dpsi, nopitch)
     ! Rotate rotos by dpsi angle about axis
   class(rotor_class), intent(inout) :: this
     real(dp), intent(in) :: dpsi
+    logical, optional ::  nopitch
     integer :: ib
     real(dp) :: dtheta
 
@@ -2863,9 +2864,15 @@ contains
     do ib = 1, this%nb
       call this%blade(ib)%rot_axis(dpsi, this%shaftAxis, this%hubCoords)
       this%blade(ib)%psi = this%blade(ib)%psi + dpsi
-      dtheta = this%gettheta(this%psi, ib) - this%blade(ib)%theta
-      call this%blade(ib)%rot_pitch(dtheta)
-      this%blade(ib)%theta = this%gettheta(this%psi, ib)
+      if (.not. present(nopitch)) then
+        dtheta = this%gettheta(this%psi, ib) - this%blade(ib)%theta
+        call this%blade(ib)%rot_pitch(dtheta)
+        this%blade(ib)%theta = this%gettheta(this%psi, ib)
+      elseif (nopitch == .false.) then
+        dtheta = this%gettheta(this%psi, ib) - this%blade(ib)%theta
+        call this%blade(ib)%rot_pitch(dtheta)
+        this%blade(ib)%theta = this%gettheta(this%psi, ib)
+      endif
     enddo
 
   end subroutine rotor_rot_advance
