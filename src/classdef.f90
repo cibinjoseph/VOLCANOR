@@ -113,7 +113,7 @@ module vr_classdef
     procedure :: getInteriorAngles
     procedure :: getMedianAngle
     procedure :: getBimedianCos
-    procedure :: mirror
+    procedure :: mirror => vrclass_mirror
   end type vr_class
 
 contains
@@ -295,7 +295,7 @@ contains
       sqrt(dot_product(x1Vec, x1Vec)*dot_product(x2Vec, x2Vec)))
   end function getBimedianCos
 
-  subroutine mirror(this, coordNum)
+  subroutine vrclass_mirror(this, coordNum)
     !! Mirror gamma and coordinates about a specified plane
   class(vr_class) :: this
     integer, intent(in) :: coordNum
@@ -308,7 +308,7 @@ contains
       enddo
     enddo
     this%gam = -1._dp * this%gam
-  end subroutine mirror
+  end subroutine vrclass_mirror
 
   subroutine calc_skew(this)
     ! Compute skew
@@ -600,7 +600,7 @@ module Fwake_classdef
   contains
     procedure :: shiftdP => Fwake_shiftdP
     procedure :: assignP => Fwake_assignP
-    procedure :: mirror
+    procedure :: mirror => Fwake_mirror
   end type Fwake_class
 
 contains
@@ -641,7 +641,7 @@ contains
     this%vf%fc(:, n) = P
   end subroutine Fwake_assignP
 
-  subroutine mirror(this, coordNum)
+  subroutine Fwake_mirror(this, coordNum)
     !! Mirror gamma and coordinates about a specified plane
   class(Fwake_class) :: this
     integer, intent(in) :: coordNum
@@ -652,7 +652,7 @@ contains
         & -1._dp * this%vf%fc(coordNum, i)
     enddo
     this%gam = -1._dp * this%gam
-  end subroutine mirror
+  end subroutine Fwake_mirror
 end module Fwake_classdef
 
 !------+-------------------+------|
