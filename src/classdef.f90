@@ -2868,7 +2868,7 @@ contains
         dtheta = this%gettheta(this%psi, ib) - this%blade(ib)%theta
         call this%blade(ib)%rot_pitch(dtheta)
         this%blade(ib)%theta = this%gettheta(this%psi, ib)
-      elseif (nopitch == .false.) then
+      elseif (nopitch .eqv. .false.) then
         dtheta = this%gettheta(this%psi, ib) - this%blade(ib)%theta
         call this%blade(ib)%rot_pitch(dtheta)
         this%blade(ib)%theta = this%gettheta(this%psi, ib)
