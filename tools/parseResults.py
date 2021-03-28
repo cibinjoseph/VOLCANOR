@@ -6,6 +6,7 @@ import json
 ResultsDir = 'Results/'
 rotorNum = '01'
 bladeNum = '01'
+iterNum = ''
 
 def _getHeader(file):
     ''' Returns variables in header as list of strings '''
@@ -70,7 +71,8 @@ def getForceDist(file=None):
     if file == None:
         file = _getLatestFile(ResultsDir + \
                               'r' + rotorNum + \
-                              'b' + bladeNum + 'ForceDist')
+                              'b' + bladeNum + 'ForceDist' + \
+                              iterNum)
     return _getDataDict(file)
 
 def getForceDim(file=None):
