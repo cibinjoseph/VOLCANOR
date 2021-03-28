@@ -26,6 +26,7 @@ contains
     rotor%nc = 1
     rotor%ns = 2
     rotor%nNwake = 2
+    rotor%surfaceType = 1
 
     rotor%hubCoords = (/0._dp, 0._dp, 0._dp/)
     rotor%cgCoords = (/0._dp, 0._dp, 0._dp/)
