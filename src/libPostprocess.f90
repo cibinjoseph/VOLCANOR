@@ -58,7 +58,7 @@ contains
     write(10, *) '"velSound": ', velSound, ','
     write(10, *) '"nb": ', rotor%nb, ','
     write(10, *) '"propConvention": ', rotor%propConvention, ','
-    write(10, *) '"geometryFile": ', rotor%geometryFile, ','
+    write(10, *) '"geometryFile": "', rotor%geometryFile, '",'
     write(10, *) '"nc": ', rotor%nc, ','
     write(10, *) '"ns": ', rotor%ns, ','
     write(10, *) '"nNwake": ', rotor%nNwake, ','

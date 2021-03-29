@@ -13,6 +13,8 @@ fileclean:
 	-rm -f $(resultspath)/*.plt
 	-rm -f $(resultspath)/*.curve
 	-rm -f $(resultspath)/*.dat
+	-rm -f $(resultspath)/*.csv
+	-rm -f $(resultspath)/*.json
 	-rm -f $(resultspath)/*.txt
 	-rm -f volcanor.log
 
