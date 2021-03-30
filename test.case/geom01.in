@@ -1,4 +1,4 @@
-# Template version: 0.2
+# Template version: 0.3
 # Fixed wing testcase
 # ===================================================================
 # No.of blades,nb      Prop convention     Read wing from file
@@ -99,19 +99,14 @@
 # ===================================================================
 # 
 # PLOTS OF SPANWISE DISTRIBUTIONS:
-# inflowPlotSwitch               bladeForcePlotSwitch
-# [0] Off                        [0] Off
-# [n] Every nth iteration        [n] Every nth iteration
-# [-n]Every nt/n'th iteration    [-n]Every nt/n'th iteration
+# [0]Off    [n]Every nth iteration    [-n]Every nt/n'th iteration
+# inflow    force    gamma    alpha
 # -------------------------------------------------------------------
-       0                              1
+  0         1        0        0
 # 
-# gammaPlotSwitch                alphaPlotSwitch
-# [0] Off                        [0] Off
-# [n] Every nth iteration        [n] Every nth iteration
-# [-n]Every nt/n'th iteration    [-n]Every nt/n'th iteration
+# skew
 # -------------------------------------------------------------------
-       0                                 0
+       0
 # ===================================================================
 # 
 # forceCalcSwitch
