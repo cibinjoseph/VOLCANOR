@@ -1773,8 +1773,8 @@ module rotor_classdef
     integer :: symmetricTau
     integer :: rollupStart, rollupEnd
     integer :: suppressFwakeSwitch
-    integer :: forceCalcSwitch
-    integer :: inflowPlotSwitch, bladeforcePlotSwitch
+    integer :: forceCalcSwitch, skewPlotSwitch
+    integer :: inflowPlotSwitch, bladeForcePlotSwitch
     integer :: spanwiseLiftSwitch, customTrajectorySwitch
     integer :: gammaPlotSwitch, alphaPlotSwitch
     integer :: rowNear, rowFar
@@ -1905,7 +1905,7 @@ contains
     call skip_comments(12)
     read (12, *) this%liftUnitVec(1), this%liftUnitVec(2), this%liftUnitVec(3)
     call skip_comments(12)
-    read (12, *) this%inflowPlotSwitch, this%bladeforcePlotSwitch
+    read (12, *) this%inflowPlotSwitch, this%bladeForcePlotSwitch
     call skip_comments(12)
     read (12, *) this%gammaPlotSwitch, this%alphaPlotSwitch
     call skip_comments(12)
@@ -2570,8 +2570,8 @@ contains
     if (this%inflowPlotSwitch .lt. 0) &
       & this%inflowPlotSwitch = int(nt/abs(this%inflowPlotSwitch))
 
-    if (this%bladeforcePlotSwitch .lt. 0) &
-      & this%bladeforcePlotSwitch = int(nt/abs(this%bladeforcePlotSwitch))
+    if (this%bladeForcePlotSwitch .lt. 0) &
+      & this%bladeForcePlotSwitch = int(nt/abs(this%bladeForcePlotSwitch))
 
     if (this%gammaPlotSwitch .lt. 0) &
       & this%gammaPlotSwitch = int(nt/abs(this%gammaPlotSwitch))
@@ -2579,6 +2579,8 @@ contains
     if (this%alphaPlotSwitch .lt. 0) &
       & this%alphaPlotSwitch = int(nt/abs(this%alphaPlotSwitch))
 
+    if (this%skewPlotSwitch .lt. 0) &
+      & this%skewPlotSwitch = int(nt/abs(this%skewPlotSwitch))
   end subroutine rotor_init
 
   subroutine rotor_deinit(this, switches)

@@ -17,3 +17,4 @@ Make secDynamicPressure a variable also to prevent recomputing during plotting
 Change slowstartNT to -revs and in rotorXX.in
 Unify fels scripts for fixed and rotary wings - Create output folder with nonlinear data
 Compute blade flap moment and rotor moments
+Tecplot python script for wake tip coordinates in r, z coordinates
