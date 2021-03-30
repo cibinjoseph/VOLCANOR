@@ -27,4 +27,3 @@ echo "3. Creating links to executables"
 ln -v -s "$PWD/bin" "$caseName/bin"
 ln -v -s "$PWD/tools" "$caseName/tools"
 ln -v -s "$PWD/tools/Makefile" "$caseName/Makefile"
-
