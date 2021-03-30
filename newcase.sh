@@ -24,17 +24,7 @@ cp -v tools/template.case/* $caseName/
 
 # Create links
 echo "3. Creating links to executables"
-if [ -f bin/volcanor ]; then
-  ln -v -s "$PWD/bin/volcanor" "$caseName/volcanor"
-else
-  echo -e "\e[33mWarning\e[0m" ": volcanor executable not found in bin/
-  \tBuild target 'run' in build/"
-  ln -v -s "$PWD/bin/volcanor" "$caseName/volcanor"
-fi
-
-if [ -f bin/gridgen ]; then
-  ln -v -s "$PWD/bin/gridgen" "$caseName/gridgen"
-fi
+ln -v -s "$PWD/bin" "$caseName/bin"
 ln -v -s "$PWD/tools" "$caseName/tools"
 ln -v -s "$PWD/tools/Makefile" "$caseName/Makefile"
 

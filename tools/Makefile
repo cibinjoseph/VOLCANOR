@@ -22,4 +22,4 @@ run:
 	mkdir -p $(resultspath)
 	mkdir -p $(restartpath)
 	make fileclean
-	./volcanor 2>&1 | tee volcanor.log
+	./bin/volcanor 2>&1 | tee volcanor.log
