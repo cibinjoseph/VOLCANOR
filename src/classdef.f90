@@ -2799,7 +2799,8 @@ contains
     integer :: ib
     do ib = 1, this%nb
       this%blade(ib)%wiP%vr%gam &
-        = reshape(this%gamVec(1 + this%nc*this%ns*(ib - 1):this%nc*this%ns*ib), (/this%nc, this%ns/))
+        = reshape(this%gamVec(1+this%nc*this%ns*(ib-1):this%nc*this%ns*ib), &
+        & (/this%nc, this%ns/))
     enddo
   end subroutine map_gam
 
