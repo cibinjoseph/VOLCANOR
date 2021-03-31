@@ -741,11 +741,13 @@ contains
     real(dp), intent(in), dimension(3) :: dshift
     integer :: i, j
 
+    !$omp parallel do collapse(2)
     do j = 1, this%ns
       do i = 1, this%nc
         call this%wiP(i, j)%shiftdP(dshift)
       enddo
     enddo
+    !$omp end parallel do
 
     do i = 1, size(this%secCP, 2)
       this%secCP(:, i) = this%secCP(:, i) + dshift
@@ -775,29 +777,27 @@ contains
       error stop 'ERROR: Wrong option for order'
     end select
 
+    !$omp parallel do
     do j = 1, this%ns
       do i = 1, this%nc
         call this%wiP(i, j)%shiftdP(-origin)
         call this%wiP(i, j)%rot(TMat)
         call this%wiP(i, j)%shiftdP(origin)
       enddo
+
+      this%secCP(:, j) = this%secCP(:, j) - origin
+      this%secCP(:, j) = matmul(TMat, this%secCP(:, j))
+      this%secCP(:, j) = this%secCP(:, j) + origin
+
+      ! Rotate sec vectors
+      this%secTauCapChord(:, j) = matmul(TMat, this%secTauCapChord(:, j))
+      this%secNormalVec(:, j) = matmul(TMat, this%secNormalVec(:, j))
     enddo
+    !$omp end parallel do
 
     this%xAxis = matmul(Tmat, this%xAxis)
     this%yAxis = matmul(Tmat, this%yAxis)
     this%zAxis = matmul(Tmat, this%zAxis)
-
-    do i = 1, size(this%secCP, 2)
-      this%secCP(:, i) = this%secCP(:, i) - origin
-      this%secCP(:, i) = matmul(TMat, this%secCP(:, i))
-      this%secCP(:, i) = this%secCP(:, i) + origin
-    enddo
-
-    ! Rotate sec vectors
-    do j = 1, this%ns
-      this%secTauCapChord(:, j) = matmul(TMat, this%secTauCapChord(:, j))
-      this%secNormalVec(:, j) = matmul(TMat, this%secNormalVec(:, j))
-    enddo
 
   end subroutine blade_rot_pts
 
@@ -871,17 +871,17 @@ contains
       call this%move(origin)
 
       ! Rotate secCP also
-      do i = 1, size(this%secCP, 2)
+      !$omp parallel do
+      do i = 1, this%ns
         this%secCP(:, i) = this%secCP(:, i) - origin
         this%secCP(:, i) = matmul(TMat, this%secCP(:, i))
         this%secCP(:, i) = this%secCP(:, i) + origin
-      enddo
 
       ! Rotate sec vectors also along with blade
-      do j = 1, this%ns
-        this%secTauCapChord(:, j) = matmul(TMat, this%secTauCapChord(:, j))
-        this%secNormalVec(:, j) = matmul(TMat, this%secNormalVec(:, j))
+        this%secTauCapChord(:, i) = matmul(TMat, this%secTauCapChord(:, i))
+        this%secNormalVec(:, i) = matmul(TMat, this%secNormalVec(:, i))
       enddo
+      !$omp end parallel do
 
       ! Rotate blade axes
       this%xAxis = matmul(TMat, this%xAxis)
