@@ -30,6 +30,7 @@ module vf_classdef
     real(dp) :: rVc0 = 0._dp ! initial vortex core radius
     real(dp) :: rVc = 0._dp  ! current vortex core radius
     real(dp) :: age = 0._dp   ! vortex age (in s)
+    real(dp) :: ageAzimuthal = 0._dp   ! vortex age (in radians)
   contains
     procedure :: vind => vfclass_vind
     procedure :: calclength => vfclass_calclength
@@ -2281,10 +2282,13 @@ contains
       ! Initialize wake age
       do i = 1, 4
         this%blade(ib)%wiP%vr%vf(i)%age = 0._dp
+        this%blade(ib)%wiP%vr%vf(i)%ageAzimuthal = 0._dp
         this%blade(ib)%waP%vr%vf(i)%age = 0._dp
+        this%blade(ib)%waP%vr%vf(i)%ageAzimuthal = 0._dp
       enddo
 
       this%blade(ib)%waF%vf%age = 0._dp
+      this%blade(ib)%waF%vf%ageAzimuthal = 0._dp
 
       ! Initialize all core radius of wing vortices to zero
       do i = 1, 4
@@ -2925,11 +2929,21 @@ contains
     integer :: ib, ifil
     do ib = 1, this%nb
       do ifil = 1, 4
-        this%blade(ib)%waP(this%rowNear:this%nNwake, :)%vr%vf(ifil)%age = &
-          this%blade(ib)%waP(this%rowNear:this%nNwake, :)%vr%vf(ifil)%age + dt
+        this%blade(ib)%waP(this%rowNear:this%nNwake, :)% &
+          & vr%vf(ifil)%age = &
+          & this%blade(ib)%waP(this%rowNear:this%nNwake, :)% &
+          & vr%vf(ifil)%age + dt
+
+        this%blade(ib)%waP(this%rowNear:this%nNwake, :)% &
+          & vr%vf(ifil)%ageAzimuthal = &
+          & this%blade(ib)%waP(this%rowNear:this%nNwake, :)% &
+          & vr%vf(ifil)%ageAzimuthal + dt*this%omegaSlow
       enddo
       this%blade(ib)%waF(this%rowFar:this%nFwake)%vf%age = &
         this%blade(ib)%waF(this%rowFar:this%nFwake)%vf%age + dt
+      this%blade(ib)%waF(this%rowFar:this%nFwake)%vf%ageAzimuthal = &
+        this%blade(ib)%waF(this%rowFar:this%nFwake)%vf%ageAzimuthal + &
+        & dt*this%omegaSlow
     enddo
   end subroutine age_wake
 
@@ -2940,9 +2954,6 @@ contains
     integer :: ib, ic, is
     oseenParameter = 1.2564_dp
     kinematicViscosity = 0.0000181_dp
-
-    ! Update wake age
-    call this%age_wake(dt)
 
     ! Dissipate near wake
     do ib = 1, this%nb

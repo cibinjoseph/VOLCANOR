@@ -557,7 +557,7 @@ contains
       & action='write', position='append')
 
     write (10, *) 'Title = "Wing and Tip"'
-    write (10, *) 'VARIABLES = "X" "Y" "Z" "GAM"'! "Var5" "Var6"'
+    write (10, *) 'VARIABLES = "X" "Y" "Z" "GAM" "ageAzimuthal"'! "Var6"'
 
     do ib = 1, rotor%nb
       ! Wing
@@ -581,13 +581,14 @@ contains
 
       write (10, *) 'Zone I='//trim(nxChar)//' J='//trim(nyChar)//' K=1  T="Blade"'
       write (10, *) 'DATAPACKING=BLOCK'
-      write (10, *) 'VARLOCATION=([4]=CELLCENTERED)'!,[5]=CELLCENTERED,[6]=CELLCENTERED)'
+      write (10, *) 'VARLOCATION=([4,5]=CELLCENTERED)'![6]=CELLCENTERED)'
       write (10, *) ((wingMesh(1, i, j), i=1, nx + 1), j=1, ny + 1)
       write (10, *) ((wingMesh(2, i, j), i=1, nx + 1), j=1, ny + 1)
       write (10, *) ((wingMesh(3, i, j), i=1, nx + 1), j=1, ny + 1)
       write (10, *) ((-1._dp*rotor%blade(ib)%wiP(i, j)%vr%gam, i=1, nx), j=1, ny)
-      !write(10,*) ((rotor%blade(ib)%wiP(i,j)%vr%skew,i=1,nx),j=1,ny)
-      !write(10,*) ((rotor%blade(ib)%wiP(i,j)%vr%skew,i=1,nx),j=1,ny)
+      write(10,*) ((rotor%blade(ib)%wiP(i,j)% &
+        & vr%vf(1)%ageAzimuthal*180._dp/pi, i=1,nx),j=1,ny)
+      ! write(10,*) ((rotor%blade(ib)%wiP(i,j)%vr%skew,i=1,nx),j=1,ny)
 
       ! Near wake
       nx = rotor%nNwake
@@ -640,12 +641,13 @@ contains
 
       write (10, *) 'Zone I='//trim(nxChar)//' J=1    K=1  T="NearWake"'
       write (10, *) 'DATAPACKING=BLOCK'
-      write (10, *) 'VARLOCATION=([4]=CELLCENTERED)'!,[5]=CELLCENTERED,[6]=CELLCENTERED)'
+      write (10, *) 'VARLOCATION=([4,5]=CELLCENTERED)'
       write (10, *) (nWakeTip(1, i), i=rotor%rowNear, nx + 1)
       write (10, *) (nWakeTip(2, i), i=rotor%rowNear, nx + 1)
       write (10, *) (nWakeTip(3, i), i=rotor%rowNear, nx + 1)
       write (10, *) (-1._dp*gamRollup(i), i=rotor%rowNear, nx)
-      !write(10,*) ((rotor%blade(ib)%waP(i,j)%vr%skew,i=rotor%rowNear,nx),j=1,ny)
+      write(10,*) (rotor%blade(ib)%waP(i, rotor%ns)% &
+        & vr%vf(4)%ageAzimuthal*180._dp/pi, i=rotor%rowNear, nx)
       !write(10,*) ((rotor%blade(ib)%waP(i,j)%vr%skew,i=rotor%rowNear,nx),j=1,ny)
 
       ! Far wake
@@ -662,12 +664,13 @@ contains
 
         write (10, *) 'Zone I='//trim(nxChar)//' J=1   K=1   T="FarWake"'
         write (10, *) 'DATAPACKING=BLOCK'
-        write (10, *) 'VARLOCATION=([4]=CELLCENTERED)'!,[5]=CELLCENTERED,[6]=CELLCENTERED)'
+        write (10, *) 'VARLOCATION=([4,5]=CELLCENTERED)'!,[6]=CELLCENTERED)'
         write (10, *) (fWakeTip(1, i), i=rotor%rowFar, nx + 1)
         write (10, *) (fWakeTip(2, i), i=rotor%rowFar, nx + 1)
         write (10, *) (fWakeTip(3, i), i=rotor%rowFar, nx + 1)
         write (10, *) (-1._dp*rotor%blade(ib)%waF(i)%gam, i=rotor%rowFar, nx)
-        !write(10,*) (rotor%blade(ib)%waF(i)%vf%rVc,i=rotor%rowFar,nx)
+        write(10,*) (rotor%blade(ib)%waF(i)%vf%ageAzimuthal*180._dp/pi, &
+          & i=rotor%rowFar, nx)
         !write(10,*) (rotor%blade(ib)%waF(i)%vf%age,i=rotor%rowFar,nx)
 
       else  ! No far wake present
@@ -677,12 +680,12 @@ contains
 
         write (10, *) 'Zone I='//trim(nxChar)//' J=1   K=1   T="FarWake"'
         write (10, *) 'DATAPACKING=BLOCK'
-        write (10, *) 'VARLOCATION=([4]=CELLCENTERED)'!,[5]=CELLCENTERED,[6]=CELLCENTERED)'
+        write (10, *) 'VARLOCATION=([4,5]=CELLCENTERED)'!,[6]=CELLCENTERED)'
         write (10, *) fWakeTip(1, 1), fWakeTip(1, 1)
         write (10, *) fWakeTip(2, 1), fWakeTip(2, 1)
         write (10, *) fWakeTip(3, 1), fWakeTip(3, 1)
         write (10, *) 0._dp
-        !write(10,*) 0._dp
+        write (10, *) 0._dp
         !write(10,*) 0._dp
       endif
     enddo

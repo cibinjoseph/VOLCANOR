@@ -377,6 +377,11 @@ program main
       call rotor(ir)%assignshed('LE')  ! Store shed vortex as LE
     enddo
 
+    ! Update wake age
+    do ir = 1, nr
+      call rotor(ir)%age_wake(dt)
+    enddo
+
     ! Dissipate wake
     if (switches%wakeDissipation .eq. 1) then
       do ir = 1, nr
