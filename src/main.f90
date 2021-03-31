@@ -640,10 +640,8 @@ program main
     ! Initialise wake velocity matrices
     do ir = 1, nr
       do ib = 1, rotor(ir)%nb
-        rotor(ir)%blade(ib)%velNwake(:, rotor(ir)%rowNear:rotor(ir)%nNwake, :) = &
-          0._dp
-        rotor(ir)%blade(ib)%velFwake(:, rotor(ir)%rowFar:rotor(ir)%nFwake) = &
-          0._dp
+        rotor(ir)%blade(ib)%velNwake(:, rotor(ir)%rowNear:rotor(ir)%nNwake, :) = 0._dp
+        rotor(ir)%blade(ib)%velFwake(:, rotor(ir)%rowFar:rotor(ir)%nFwake) = 0._dp
       enddo
     enddo
 
