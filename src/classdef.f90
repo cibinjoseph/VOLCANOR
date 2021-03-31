@@ -1905,9 +1905,10 @@ contains
     call skip_comments(12)
     read (12, *) this%liftUnitVec(1), this%liftUnitVec(2), this%liftUnitVec(3)
     call skip_comments(12)
-    read (12, *) this%inflowPlotSwitch, this%bladeForcePlotSwitch
+    read (12, *) this%inflowPlotSwitch, this%bladeForcePlotSwitch, &
+      & this%gammaPlotSwitch, this%alphaPlotSwitch
     call skip_comments(12)
-    read (12, *) this%gammaPlotSwitch, this%alphaPlotSwitch
+    read (12, *) this%skewPlotSwitch
     call skip_comments(12)
     read (12, *) this%forceCalcSwitch, this%nAirfoils
     ! Ensure airfoil tables are provided when force calculation requires them
