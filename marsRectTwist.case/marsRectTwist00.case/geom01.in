@@ -3,7 +3,7 @@
 # ===================================================================
 # No.of blades,nb      Prop convention     Read wing from file
 # -------------------------------------------------------------------
-     2                     0                  marsRect.xyz
+     2                     0                  marsRectTwist.xyz
 #
 # Surface type [0/1]Lifting [2]Non-lifting    Mirrored about X/Y/Z
 # [-1]Lifting Image [-2]Non-lifting Image    [1/2/3]plane  from rotor
