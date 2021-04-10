@@ -26,6 +26,7 @@ parser.add_argument('-q', '--quiet', action='store_true', \
                     help='Suppress plots')
 
 args = parser.parse_args()
+print(args)
 
 pr.ResultsDir = args.dir
 pr.bladeNum = args.blade
@@ -93,6 +94,8 @@ print('Thrust = ' + str(Thrust))
 print('CT = ' + str(CT))
 print('Torque0 = ' + str(Torque))
 print('CQ0 = ' + str(CQ))
+print('Nb x Thrust = ' + str(params['nb']*Thrust))
+print('Nb x CT = ' + str(params['nb']*CT))
 
 # Write distribution to file
 outTable = tb.tabulate(sectDict, headers='keys', tablefmt='tsv', \
