@@ -26,12 +26,12 @@ parser.add_argument('-q', '--quiet', action='store_true', \
                     help='Suppress plots')
 
 args = parser.parse_args()
-print(args)
 
 pr.ResultsDir = args.dir
 pr.bladeNum = args.blade
 pr.rotorNum = args.rotor
 pr.iterNum = args.iter
+c81File = args.c81
 
 params = pr.getParams()
 data = pr.getForceDist()
