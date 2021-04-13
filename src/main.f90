@@ -191,9 +191,15 @@ program main
   enddo ntSubInitLoop
 
   if (switches%ntSubInit .ne. 0) then
-    ! print *, 'Sub-iterations ', i, subIterResidual
-    if (i .gt. switches%ntSubInit) &
-      & print*, "Initial solution did not converge. Try increasing sub-iterations."
+    if (i .gt. switches%ntSubInit) then
+      print*
+      print*, "Initial solution did not converge. & 
+        & Try increasing sub-iterations."
+      print*, 'Sub-iterations ', i, subIterResidual
+    else
+      call print_status()    ! SUCCESS
+      print*, 'Sub-iterations ', i, subIterResidual
+    endif
   else
     call print_status()    ! SUCCESS
   endif
