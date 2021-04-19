@@ -1836,8 +1836,18 @@ contains
   class(rotor_class) :: this
     character(len=*), intent(in) :: filename
     integer :: i
+    real :: templateVersion, currentTemplateVersion
+
+    currentTemplateVersion = 0.4
 
     open (unit=12, file=filename, status='old', action='read')
+    call skip_comments(12)
+    read(12, *) templateVersion
+
+    if (templateVersion /= currentTemplateVersion) then
+      error stop "ERROR: geomXX.in template version does not match"
+    endif
+
     call skip_comments(12)
     read (12, *) this%nb, this%propConvention, &
       & this%nCamberFiles, this%geometryFile
