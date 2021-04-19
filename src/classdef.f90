@@ -2770,14 +2770,18 @@ contains
     real(dp), intent(in), dimension(:) :: x, y
     real(dp), dimension(size(x), size(y)) :: getCamber
     real(dp), dimension(5000, this%nCamberFiles) :: xCamber, zCamber
+    real(dp) :: chord, span
     integer, dimension(this%nCamberFiles) :: nPts
     integer :: iSect, fNum, i, j
+
+    chord = x(size(x)) - x(1)
+    span = y(size(y)) - y(1)
 
     ! Read camber data
     do j = 1, this%nCamberFiles
       if (this%camberFile(j)(1:1) == '0') then
         nPts(j) = 2
-        xCamber(1:2, j) = 0._dp
+        xCamber(1:2, j) = (/0._dp, 1._dp/)
         zCamber(1:2, j) = 0._dp
       else
         open(unit=15, file=this%camberFile(j))
@@ -2786,6 +2790,8 @@ contains
           read(15, *) xCamber(i, j), zCamber(i, j)
         enddo
         close(15)
+        zCamber(:, j) = zCamber(:, j)/xCamber(nPts(j), j)
+        xCamber(:, j) = xCamber(:, j)/xCamber(nPts(j), j)
       endif
     enddo
 
@@ -2793,16 +2799,15 @@ contains
       ! Check which sectionLimit y value comes under
       ! to determine airfoil file to use
       do iSect = 1, this%nCamberFiles
-        if (y(iSect) <= this%camberSectionLimit(iSect)) then
+        if (y(j)/span <= this%camberSectionLimit(iSect)) then
           fNum = iSect
-        else
           exit
         endif
       enddo
 
       do i = 1, size(x)
-        getCamber(i, j) = interp1(x(i), &
-          & xCamber(1:nPts(fNum), fNum), zCamber(1:nPts(fNum), fNum), 1)
+        getCamber(i, j) = interp1((x(i)-x(1))/chord, &
+          & xCamber(1:nPts(fNum), fNum), zCamber(1:nPts(fNum), fNum), 2)
       enddo
     enddo
   end function getCamber
@@ -2812,8 +2817,8 @@ contains
   class(rotor_class) :: this
     real(dp), intent(in) :: psi
     integer, intent(in) :: ib
-  real(dp) :: gettheta
-  real(dp) :: bladeOffset
+    real(dp) :: gettheta
+    real(dp) :: bladeOffset
 
     bladeOffset = 2._dp*pi/this%nb*(ib - 1)
     gettheta = this%controlPitch(1) &

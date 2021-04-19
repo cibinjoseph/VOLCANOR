@@ -381,6 +381,7 @@ contains
     real(dp) :: interp1
     logical, dimension(size(x)) :: TFvec
     integer :: i, ix
+    real(dp) :: L0, L1, L2  !! Lagrange's basis functions
 
     TFVec = (xq <= x)
     do i = 1, size(x)
@@ -390,27 +391,45 @@ contains
       endif
     enddo
 
-    select case (order)
-    case (1)
-      if (abs(xq-x(ix)) < eps) then
-        interp1 = y(ix)
-      else
+    if (abs(xq-x(ix)) < eps) then
+      interp1 = y(ix)
+    else
+      select case (order)
+      case (1)
         interp1 = y(ix-1) + (xq-x(ix-1))*(y(ix)-y(ix-1))/(x(ix)-x(ix-1))
+
+      case (2)
+        if (size(x) == 2) then
+          interp1 = y(ix-1) + (xq-x(ix-1))*(y(ix)-y(ix-1))/(x(ix)-x(ix-1))
+        elseif (ix == 2) then
+          L0 = (xq-x(ix))*(xq-x(ix+1))/((x(ix-1)-x(ix))*(x(ix-1)-x(ix+1)))
+          L1 = (xq-x(ix-1))*(xq-x(ix+1))/((x(ix)-x(ix-1))*(x(ix)-x(ix+1)))
+          L2 = (xq-x(ix-1))*(xq-x(ix))/((x(ix+1)-x(ix-1))*(x(ix+1)-x(ix)))
+          interp1 = y(ix-1)*L0 + y(ix)*L1 + y(ix+1)*L2
+        else
+          L0 = (xq-x(ix-1))*(xq-x(ix))/((x(ix-2)-x(ix-1))*(x(ix-2)-x(ix)))
+          L1 = (xq-x(ix-2))*(xq-x(ix))/((x(ix-1)-x(ix-2))*(x(ix-1)-x(ix)))
+          L2 = (xq-x(ix-2))*(xq-x(ix-1))/((x(ix)-x(ix-2))*(x(ix)-x(ix-1)))
+          interp1 = y(ix-2)*L0 + y(ix-1)*L1 + y(ix)*L2
+        endif
+
+      case default 
+        error stop "Specified order not implemented"
+
+      end select
     endif
 
-  end select
+  end function interp1
 
-end function interp1
-
-!--------------------------------------------------------!
-!        Linear Least Squares fitting (2nd order)        !
-!--------------------------------------------------------!
-function lsq2_scalar(xQuery, xData, yData)
-  real(dp), intent(in) :: xQuery
-  real(dp), intent(in), dimension(:) :: xData, yData
-  real(dp), dimension(3) :: coeff, RHS
-  real(dp), dimension(3, 3) :: Amat
-  real(dp) :: lsq2_scalar
+  !--------------------------------------------------------!
+  !        Linear Least Squares fitting (2nd order)        !
+  !--------------------------------------------------------!
+  function lsq2_scalar(xQuery, xData, yData)
+    real(dp), intent(in) :: xQuery
+    real(dp), intent(in), dimension(:) :: xData, yData
+    real(dp), dimension(3) :: coeff, RHS
+    real(dp), dimension(3, 3) :: Amat
+    real(dp) :: lsq2_scalar
 
     if (size(xData) .ne. size(yData)) error stop 'ERROR: size of xData and yData have to be equal'
 
