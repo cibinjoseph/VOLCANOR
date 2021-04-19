@@ -1765,6 +1765,7 @@ module rotor_classdef
     real(dp), allocatable, dimension(:) :: streamwiseCoreVec
     real(dp), allocatable, dimension(:, :) :: AIC, AIC_inv
     real(dp), allocatable, dimension(:) :: gamVec, gamVecPrev, RHS
+    real(dp), allocatable, dimension(:) :: camberSectionLimit
     real(dp), allocatable, dimension(:) :: airfoilSectionLimit
     real(dp), allocatable, dimension(:) :: alpha0
     real(dp) :: initWakeVel, psiStart, skewLimit
@@ -1779,10 +1780,10 @@ module rotor_classdef
     integer :: spanwiseLiftSwitch, customTrajectorySwitch
     integer :: gammaPlotSwitch, alphaPlotSwitch
     integer :: rowNear, rowFar
-    integer :: nAirfoils
+    integer :: nCamberFiles, nAirfoils
     integer :: imagePlane, imageRotorNum
     integer :: surfaceType  
-    character(len=30), allocatable, dimension(:) :: airfoilFile
+    character(len=30), allocatable, dimension(:) :: camberFile, airfoilFile
     character(len=30) :: geometryFile
     real(dp) :: nonDimforceDenominator
   contains
@@ -1790,6 +1791,7 @@ module rotor_classdef
     procedure :: init => rotor_init
     procedure :: deinit => rotor_deinit
     procedure :: plot3dtoblade, stltoblade
+    procedure :: getCamber
     procedure :: gettheta
     procedure :: getthetadot
     procedure :: move => rotor_move
@@ -1837,8 +1839,26 @@ contains
 
     open (unit=12, file=filename, status='old', action='read')
     call skip_comments(12)
-    read (12, *) this%nb, this%propConvention, this%geometryFile
+    read (12, *) this%nb, this%propConvention, &
+      & this%nCamberFiles, this%geometryFile
     call skip_comments(12)
+
+    if (this%nCamberFiles > 0) then
+      allocate(this%camberSectionLimit(this%nCamberFiles))
+      allocate(this%camberFile(this%nCamberFiles))
+      do i = 1, this%nCamberFiles
+        read(12, *) this%camberSectionLimit(i), this%camberFile(i)
+        call skip_comments(12)
+      enddo
+    else
+      allocate(this%camberSectionLimit(1))
+      allocate(this%camberFile(1))
+      ! Default uncambered section
+      this%camberSectionLimit = 1.0
+      this%camberFile = '0'
+      read(12, *)
+      call skip_comments(12)
+    endif
 
     ! [0/1]Lifting [2]Non-lifting [-1]Lifting Image [-2]Non-lifting Image
     read (12, *) this%surfaceType, this%imagePlane, this%imageRotorNum
@@ -1937,8 +1957,9 @@ contains
     integer, intent(inout) :: nt
     type(switches_class), intent(in) :: switches
 
-    real(dp), dimension(this%nc + 1) :: xVec
-    real(dp), dimension(this%ns + 1) :: yVec
+    real(dp), dimension(this%nc+1) :: xVec
+    real(dp), dimension(this%ns+1) :: yVec
+    real(dp), dimension(this%nc+1, this%ns+1) :: zVec
     real(dp), dimension(this%nc, this%ns) :: dx, dy
     real(dp), dimension(3) :: leftTipCP
     real(dp) :: dxdymin, secCPLoc, rbyR, dxMAC
@@ -2076,17 +2097,26 @@ contains
         yVec = halfsinspace(this%root_cut*this%radius, this%radius, this%ns + 1)
       end select
 
+      ! Initialize panel coordinates
       do ib = 1, this%nb
-        ! Initialize panel coordinates
+        ! Compute camber
+        zVec = this%getCamber(xVec, yVec)
+
+        ! Assign coordinates to panels
         do j = 1, this%ns
           do i = 1, this%nc
-            call this%blade(ib)%wiP(i, j)%assignP(1, (/xVec(i), yVec(j), 0._dp/))
-            call this%blade(ib)%wiP(i, j)%assignP(2, (/xVec(i + 1), yVec(j), 0._dp/))
-            call this%blade(ib)%wiP(i, j)%assignP(3, (/xVec(i + 1), yVec(j + 1), 0._dp/))
-            call this%blade(ib)%wiP(i, j)%assignP(4, (/xVec(i), yVec(j + 1), 0._dp/))
+            call this%blade(ib)%wiP(i, j)%assignP(1, &
+              & (/xVec(i), yVec(j), zVec(i, j)/))
+            call this%blade(ib)%wiP(i, j)%assignP(2, &
+              & (/xVec(i+1), yVec(j), zVec(i+1, j)/))
+            call this%blade(ib)%wiP(i, j)%assignP(3, &
+              & (/xVec(i+1), yVec(j+1), zVec(i+1, j+1)/))
+            call this%blade(ib)%wiP(i, j)%assignP(4, &
+              & (/xVec(i), yVec(j+1), zVec(i, j+1)/))
           enddo
         enddo
       enddo
+
     else
       if (abs(this%surfaceType) == 1) then
         call this%plot3dtoblade(trim(this%geometryFile))
@@ -2734,14 +2764,56 @@ contains
     !$omp end parallel do
   end subroutine stltoblade
 
+  function getCamber(this, x, y)
+    !! Get z coordinate on wing from x, y values
+  class(rotor_class) :: this
+    real(dp), intent(in), dimension(:) :: x, y
+    real(dp), dimension(size(x), size(y)) :: getCamber
+    real(dp), dimension(5000, this%nCamberFiles) :: xCamber, zCamber
+    integer, dimension(this%nCamberFiles) :: nPts
+    integer :: iSect, fNum, i, j
+
+    ! Read camber data
+    do j = 1, this%nCamberFiles
+      if (this%camberFile(j)(1:1) == '0') then
+        nPts(j) = 2
+        xCamber(1:2, j) = 0._dp
+        zCamber(1:2, j) = 0._dp
+      else
+        open(unit=15, file=this%camberFile(j))
+        read(15, *) nPts(j)
+        do i = 1, nPts(j)
+          read(15, *) xCamber(i, j), zCamber(i, j)
+        enddo
+        close(15)
+      endif
+    enddo
+
+    do j = 1, size(y)
+      ! Check which sectionLimit y value comes under
+      ! to determine airfoil file to use
+      do iSect = 1, this%nCamberFiles
+        if (y(iSect) <= this%camberSectionLimit(iSect)) then
+          fNum = iSect
+        else
+          exit
+        endif
+      enddo
+
+      do i = 1, size(x)
+        getCamber(i, j) = interp1(x(i), &
+          & xCamber(1:nPts(fNum), fNum), zCamber(1:nPts(fNum), fNum), 1)
+      enddo
+    enddo
+  end function getCamber
 
   function gettheta(this, psi, ib)
     ! Get pitch angle corresponding to blade azimuthal location
   class(rotor_class) :: this
     real(dp), intent(in) :: psi
     integer, intent(in) :: ib
-    real(dp) :: gettheta
-    real(dp) :: bladeOffset
+  real(dp) :: gettheta
+  real(dp) :: bladeOffset
 
     bladeOffset = 2._dp*pi/this%nb*(ib - 1)
     gettheta = this%controlPitch(1) &
