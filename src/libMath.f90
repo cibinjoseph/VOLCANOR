@@ -382,7 +382,7 @@ contains
     logical, dimension(size(x)) :: TFvec
     integer :: i, ix
 
-    TFVec = xq < x
+    TFVec = (xq <= x)
     do i = 1, size(x)
       if (TFvec(i)) then
         ix = i
