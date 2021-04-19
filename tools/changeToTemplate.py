@@ -47,4 +47,5 @@ print('Changing files in 5 seconds. Ctrl+C to stop')
 time.sleep(5)
 
 for inputFile in inputFileList:
+    print(inputFile)
     changeFile(inputFile, templateFile)
