@@ -371,15 +371,46 @@ contains
     norm = sqrt(norm)
   end function norm
 
-  !--------------------------------------------------------!
-  !        Linear Least Squares fitting (2nd order)        !
-  !--------------------------------------------------------!
-  function lsq2_scalar(xQuery, xData, yData)
-    real(dp), intent(in) :: xQuery
-    real(dp), intent(in), dimension(:) :: xData, yData
-    real(dp), dimension(3) :: coeff, RHS
-    real(dp), dimension(3, 3) :: Amat
-    real(dp) :: lsq2_scalar
+  ! -------------------------------------------------
+  !                interp1
+  ! -------------------------------------------------
+  function interp1(xq, x, y, order)
+    real(dp), intent(in) :: xq
+    real(dp), intent(in), dimension(:) :: x, y
+    integer, intent(in) :: order
+    real(dp) :: interp1
+    logical, dimension(size(x)) :: TFvec
+    integer :: i, ix
+
+    TFVec = xq < x
+    do i = 1, size(x)
+      if (TFvec(i)) then
+        ix = i
+        exit
+      endif
+    enddo
+
+    select case (order)
+    case (1)
+      if (abs(xq-x(ix)) < eps) then
+        interp1 = y(ix)
+      else
+        interp1 = y(ix-1) + (xq-x(ix-1))*(y(ix)-y(ix-1))/(x(ix)-x(ix-1))
+    endif
+
+  end select
+
+end function interp1
+
+!--------------------------------------------------------!
+!        Linear Least Squares fitting (2nd order)        !
+!--------------------------------------------------------!
+function lsq2_scalar(xQuery, xData, yData)
+  real(dp), intent(in) :: xQuery
+  real(dp), intent(in), dimension(:) :: xData, yData
+  real(dp), dimension(3) :: coeff, RHS
+  real(dp), dimension(3, 3) :: Amat
+  real(dp) :: lsq2_scalar
 
     if (size(xData) .ne. size(yData)) error stop 'ERROR: size of xData and yData have to be equal'
 
