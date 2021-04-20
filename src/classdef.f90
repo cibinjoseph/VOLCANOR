@@ -2111,6 +2111,9 @@ contains
       do ib = 1, this%nb
         ! Compute camber
         zVec = this%getCamber(xVec, yVec)
+        if (this%surfaceType < 0) then
+          zVec = -1._dp*zVec
+        endif
 
         ! Assign coordinates to panels
         do j = 1, this%ns
