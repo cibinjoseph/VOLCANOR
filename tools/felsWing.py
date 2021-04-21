@@ -1,87 +1,116 @@
 #!/usr/bin/python3
 """ Computes FELS CL and CD from results file """
 import sys
-import c81utils
-from resultsParser import getParams, getForceDist
+import c81utils as c81
+import parseResults as pr
 import numpy as np
+import argparse
 
-# Get filenames as arguments
-args = sys.argv
-if len(args) == 1:
-    print('Usage: wingFELS.py a.C81 [CLline.dat] [r01ForceDistxx.dat] [r01Params.dat]')
-    quit()
-else:
-    c81File = None
-    paramsFile = None
-    forceFile = None
-    CLlineFile = None
-    printSectional = False
-    for arg in args[1:]:
-        if '.C81' in arg:
-            c81File = arg
-        if 'Params' in arg:
-            paramsFile = arg
-        if 'ForceDist' in arg:
-            forceFile = arg
-        if 'line' in arg:
-            CLlineFile = arg
-        if '-s' in arg:
-            printSectional = True
+
+CLa_lin = 2.0*np.pi
+
+parser = argparse.ArgumentParser(description='Force estimation from \
+                                 linear secional lift')
+parser.add_argument('-c', '--c81', action='store', help='C81 airfoil file')
+parser.add_argument('-d', '--dir', default=pr.ResultsDir, metavar='Results/', \
+                    action='store', help='Directory')
+parser.add_argument('-r', '--rotor', default=pr.rotorNum, metavar='XX', \
+                    action='store', help='Rotor num as string "XX"')
+parser.add_argument('-b', '--blade', default=pr.bladeNum, metavar='XX', \
+                    action='store', help='Blade num as string "XX"')
+parser.add_argument('-i', '--iter', default=pr.iterNum, metavar='XXXXX', \
+                    action='store', help='Iteration as string "XXXXX"')
+parser.add_argument('-q', '--quiet', action='store_true', \
+                    help='Suppress plots')
+
+args = parser.parse_args()
+print(args)
+
+pr.ResultsDir = args.dir
+pr.bladeNum = args.blade
+pr.rotorNum = args.rotor
+pr.iterNum = args.iter
+c81File = args.c81
+
+params = pr.getParams()
+data = pr.getForceDist()
+
+# OLD
+# paramsFile, params = getParams(paramsFile)
+# forceDistFile, secSpan, secCL, secCD, secArea, secChord = getForceDist(forceFile)
+
+alf0 = params['alpha0']*np.pi/180.0
+vFreestream = params['u']
+dx = data['secArea']/data['secChord']
+vInf = data['secVel']
+
+alphaLookup = (180.0/np.pi)*(data['secCL']/CLa_lin + alf0)
+machlist = data['secVel']/params['velSound']
 
 if c81File == None:
-    print('Usage: wingFELS.py a.C81 [CLline.dat] [r01ForceDistxx.dat] [r01Params.dat]')
-    quit()
-
-paramsFile, params = getParams(paramsFile)
-forceDistFile, secSpan, secCL, secCD, secArea, secChord = getForceDist(forceFile)
-
-if (CLlineFile == None):
-    CL0 = float(params['CL0'])
-    CLa = float(params['CLa'])
-else:
-    with open(CLlineFile, 'r') as fh:
-        CL0 = float(fh.readline())
-        CLa = float(fh.readline())
-
-refArea = float(params['radius'])*float(params['chord'])
+    c81File = params['airfoilFile']
 
 with open(c81File, 'r') as fh:
-    c81Airfoil = c81utils.load(fh)
+    c81Airfoil = c81.load(fh)
 
-secAlpha = []
-secCL_nonLin = []
-secCD_nonLin = []
-for CL_Lin in secCL:
-    alpha = (180.0/np.pi)*(CL_Lin - CL0)/CLa
-    CL_nonLin = c81Airfoil.getCL(alpha, 0.1)
-    CD_nonLin = c81Airfoil.getCD(alpha, 0.1)
-    # Record for printing
-    secAlpha.append(alpha)
-    secCL_nonLin.append(CL_nonLin)
-    secCD_nonLin.append(CD_nonLin)
+CL_nonlin = []
+CD_nonlin = []
+for i, alpha in enumerate(alphaLookup):
+    CL_nonlin.append(c81Airfoil.getCL(alpha, machlist[i]))
+    CD_nonlin.append(c81Airfoil.getCD(alpha, machlist[i]))
 
-# Add induced drag
-secCD_nonLin += secCD
+secLift_nonLin = CL_nonlin*(0.5*params['density']* \
+                            data['secArea']*vInf*vInf)
+secDrag_nonLin = CD_nonlin*(0.5*params['density']* \
+                            data['secArea']*vInf*vInf)
+Thrust = np.sum(secLift_nonLin)
+Drag = np.sum(secDrag_nonLin)
+denom = 0.5*params['density']*params['chord']*params['radius']*(vFreestream)**2.0
+CT = Thrust / denom
+CD = Drag / denom
 
-wingCL_Lin    = np.dot(np.array(secCL), secArea) / refArea
-wingCD_Lin    = np.dot(np.array(secCD), secArea) / refArea
+sectDict = {'rbyR': data['secSpan']/params['radius'], \
+            'secArea': data['secArea'], \
+            'secVel': vInf, 'dx': dx, \
+            'secAlpha': data['secAlpha'], \
+            'alphaLookup': alphaLookup, 'CL_lin': data['secCL'], \
+            'CL_nonlin': CL_nonlin, 'secLift': secLift_nonLin, \
+            'CD0_nonlin': CD_nonlin, 'secDrag0': secDrag_nonLin \
+           }
 
-wingCL_nonLin = np.dot(np.array(secCL_nonLin), secArea) / refArea
-wingCD_nonLin = np.dot(np.array(secCD_nonLin), secArea) / refArea
+locals().update(sectDict)
 
-print('      c81File = ' + c81File)
-print('   ParamsFile = ' + paramsFile)
-print('ForceDistFile = ' + forceDistFile)
-if (CLlineFile is not None):
-    print('   CLlineFile = ' + CLlineFile)
+# Print inputs
+print('C81 file = ' + c81File)
 print()
-print('    theta0 = ' + str(params['theta0']))
-print('    Lin CL = ' + str(wingCL_Lin))
-print('    Lin CD = ' + str(wingCD_Lin))
-print()
-print('Non-lin CL = ' + str(wingCL_nonLin))
-print('Non-lin CD = ' + str(wingCD_nonLin))
-print()
-if printSectional:
-    for indx, alpha in enumerate(secAlpha):
-        print((alpha, secCL_nonLin[indx], secCD_nonLin[indx]))
+
+# Print stats
+print('Min/Max alpha (deg) = ' + \
+      str(np.min(alphaLookup)) +' / ' + str(np.max(alphaLookup)))
+print('Thrust = ' + str(Thrust))
+print('CT = ' + str(CT))
+print('Drag0 = ' + str(Drag))
+print('CD0 = ' + str(CD))
+
+# Write distribution to file
+outTable = tb.tabulate(sectDict, headers='keys', tablefmt='tsv', \
+                       showindex=False)
+with open('felsRotor.csv', 'w') as fh:
+    fh.write(outTable)
+
+# Plots
+if args.quiet == False:
+    fig, ax = plt.subplots(2)
+    ax[0].plot(sectDict['rbyR'], alphaLookup, 'b*-', label='FELS')
+    ax[0].plot(sectDict['rbyR'], secAlpha, 'r*-', label='Ind. vel.')
+    ax[0].legend()
+    ax[0].set_ylabel('Alpha (deg)')
+    ax[0].grid(True)
+
+    ax[1].plot(sectDict['rbyR'], secLift/dx, label='FELS')
+    ax[1].set_ylabel('Lift per unit span')
+    ax[1].grid(True)
+    ax[1].legend()
+    plt.xlabel('sec. span (r/R)')
+
+    plt.show()
