@@ -99,7 +99,6 @@ module vr_classdef
   implicit none
   type vr_class
     type(vf_class), dimension(4) :: vf
-    real(dp), dimension(4, 3) :: vindMat  ! For vind computation
     real(dp) :: gam
     real(dp) :: skew
   contains
@@ -125,14 +124,15 @@ contains
     ! unit strength 4-element vortex ring
   class(vr_class) :: this
     real(dp), dimension(3) :: P, vind
+    real(dp), dimension(4, 3) :: vindMat
     integer :: i
 
     vind = 0._dp
 
     do i = 1, 4
-      this%vindMat(i, :) = this%vf(i)%vind(P)
+      vindMat(i, :) = this%vf(i)%vind(P)
     enddo
-    vind = sum(this%vindMat, 1)
+    vind = sum(vindMat, 1)
 
   end function vrclass_vind
 
