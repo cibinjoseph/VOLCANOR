@@ -4,7 +4,7 @@
 # 
 #  restartWriteNt    restartFromNt [0]Off [1..]timesteps
 # -----------------------------------------------------------------------
-     -5                   0
+     -10                   0
 # 
 #  NO. OF SUBITERATIONS [ntSub]  NO. OF INITIAL SUBITERATIONS [ntSubInit]    
 # -----------------------------------------------------------------------

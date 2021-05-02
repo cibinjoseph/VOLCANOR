@@ -1,9 +1,14 @@
-# Template version: 0.3
-# Fixed wing testcase
+# Template version
+0.4
+# Sample Wing
 # ===================================================================
-# No.of blades,nb      Prop convention     Read wing from file
+# No. of blades,nb  Prop convention  NcamberFiles  geometry filename
 # -------------------------------------------------------------------
-     4                     0                      light.xyz
+     4                     0           0           light.xyz
+#
+# CamberSectionLimit[r/R]  Camber filename
+# -------------------------------------------------------------------
+     0                        0
 #
 # Surface type [0/1]Lifting [2]Non-lifting    Mirrored about X/Y/Z
 # [-1]Lifting Image [-2]Non-lifting Image    [1/2/3]plane  from rotor
