@@ -1,27 +1,32 @@
-# Template version: 0.3
-# Fixed wing testcase
+# Template version
+0.4
+# Sample Wing
 # ===================================================================
-# No.of blades,nb      Prop convention     Read wing from file
+# No. of blades,nb  Prop convention  NcamberFiles  geometry filename
 # -------------------------------------------------------------------
-     4                     0                      light.xyz
+     4                     0           0           light.xyz
+#
+# CamberSectionLimit[r/R]  Camber filename
+# -------------------------------------------------------------------
+     0                        0
 #
 # Surface type [0/1]Lifting [2]Non-lifting    Mirrored about X/Y/Z
 # [-1]Lifting Image [-2]Non-lifting Image    [1/2/3]plane  from rotor
 # -------------------------------------------------------------------
-     0                                        0               0
+     0                                        0            0
 #
 # Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 # -------------------------------------------------------------------
-      16                       19                   10
+      16                       19                   20
 # ===================================================================
 # 
 # X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
 # -------------------------------------------------------------------
-   0.0             0.0              2.1216
+   0.0             0.0           0.8619
 # 
 # X-cgCoords      Y-cgCoords      Z-cgCoords     [all in m]
 # -------------------------------------------------------------------
-   0.0             0.0              2.1216
+   0.0             0.0           0.8619
 # 
 # X-from          Y-from          Z-from         [all in m]
 # -------------------------------------------------------------------

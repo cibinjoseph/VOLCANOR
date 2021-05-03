@@ -1,1 +1,1 @@
-../../tools/template.case/Makefile
+../../tools/Makefile
