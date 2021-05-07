@@ -391,30 +391,38 @@ contains
       endif
     enddo
 
-    if (abs(xq-x(ix)) < eps) then
+    if (abs(xq-x(ix)) <= eps) then
       interp1 = y(ix)
     else
       select case (order)
       case (1)
-        interp1 = y(ix-1) + (xq-x(ix-1))*(y(ix)-y(ix-1))/(x(ix)-x(ix-1))
-
-      case (2)
-        if (size(x) == 2) then
-          interp1 = y(ix-1) + (xq-x(ix-1))*(y(ix)-y(ix-1))/(x(ix)-x(ix-1))
-        elseif (ix == 2) then
-          L0 = (xq-x(ix))*(xq-x(ix+1))/((x(ix-1)-x(ix))*(x(ix-1)-x(ix+1)))
-          L1 = (xq-x(ix-1))*(xq-x(ix+1))/((x(ix)-x(ix-1))*(x(ix)-x(ix+1)))
-          L2 = (xq-x(ix-1))*(xq-x(ix))/((x(ix+1)-x(ix-1))*(x(ix+1)-x(ix)))
-          interp1 = y(ix-1)*L0 + y(ix)*L1 + y(ix+1)*L2
+        if (norm2(y(ix-1:ix)) <= eps) then
+          interp1 = 0._dp
         else
-          L0 = (xq-x(ix-1))*(xq-x(ix))/((x(ix-2)-x(ix-1))*(x(ix-2)-x(ix)))
-          L1 = (xq-x(ix-2))*(xq-x(ix))/((x(ix-1)-x(ix-2))*(x(ix-1)-x(ix)))
-          L2 = (xq-x(ix-2))*(xq-x(ix-1))/((x(ix)-x(ix-2))*(x(ix)-x(ix-1)))
-          interp1 = y(ix-2)*L0 + y(ix-1)*L1 + y(ix)*L2
+          interp1 = y(ix-1) + (xq-x(ix-1))*(y(ix)-y(ix-1))/(x(ix)-x(ix-1))
         endif
 
-      case default 
-        error stop "Specified order not implemented"
+      case (2)
+          if (norm2(y(ix-1:ix)) <= eps) then
+            interp1 = 0._dp
+          else
+            if (size(x) == 2) then
+              interp1 = y(ix-1) + (xq-x(ix-1))*(y(ix)-y(ix-1))/(x(ix)-x(ix-1))
+            elseif (ix == 2) then
+              L0 = (xq-x(ix))*(xq-x(ix+1))/((x(ix-1)-x(ix))*(x(ix-1)-x(ix+1)))
+              L1 = (xq-x(ix-1))*(xq-x(ix+1))/((x(ix)-x(ix-1))*(x(ix)-x(ix+1)))
+              L2 = (xq-x(ix-1))*(xq-x(ix))/((x(ix+1)-x(ix-1))*(x(ix+1)-x(ix)))
+              interp1 = y(ix-1)*L0 + y(ix)*L1 + y(ix+1)*L2
+            else
+              L0 = (xq-x(ix-1))*(xq-x(ix))/((x(ix-2)-x(ix-1))*(x(ix-2)-x(ix)))
+              L1 = (xq-x(ix-2))*(xq-x(ix))/((x(ix-1)-x(ix-2))*(x(ix-1)-x(ix)))
+              L2 = (xq-x(ix-2))*(xq-x(ix-1))/((x(ix)-x(ix-2))*(x(ix)-x(ix-1)))
+              interp1 = y(ix-2)*L0 + y(ix-1)*L1 + y(ix)*L2
+            endif
+          endif
+
+        case default 
+          error stop "Specified order not implemented"
 
       end select
     endif
