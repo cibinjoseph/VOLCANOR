@@ -1981,7 +1981,7 @@ contains
 
     ! Set dt automatically if not prescribed
     ! if dt is negative, assume no. of chords or revs
-    if (dsign(dt,1._dp) < 0._dp) then
+    if (dsign(1._dp, dt) < 0._dp) then
       if (abs(this%Omega) < eps) then  ! Fixed wing
         dt = abs(dt)*this%chord/norm2(this%velBody)
       else  ! Rotor
@@ -1998,8 +1998,8 @@ contains
         ! Time for 5 deg
         dt = 5._dp*pi/(180._dp*abs(this%Omega))
       endif
-      print*, 'dt set to ', dt
     endif
+    print*, 'dt set to ', dt
 
     ! Check if nt requires preprocessing
     if (nt .eq. 0) nt = -10
