@@ -17,4 +17,4 @@ Change slowstartNT to -revs and in rotorXX.in
 Unify fels scripts for fixed and rotary wings - Create output folder with nonlinear data
 Compute blade flap moment and rotor moments
 Add provision for root vortex
-Phase out invertGammaSign since it works incorrectly for uncambered sections
+Phase out invertGammaSign since it works incorrectly for cambered sections
