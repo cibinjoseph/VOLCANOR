@@ -1980,10 +1980,20 @@ contains
     logical :: warnUser
 
     ! Set dt automatically if not prescribed
-    if (dt <= eps) then
+    ! if dt is negative, assume no. of chords or revs
+    if (dsign(dt,1._dp) < 0._dp) then
+      if (abs(this%Omega) < eps) then  ! Fixed wing
+        dt = abs(dt)*this%chord/norm2(this%velBody)
+      else  ! Rotor
+        dt = 2._dp*pi*abs(dt)/abs(this%Omega)
+      endif
+    endif
+
+    ! if dt is 0, assume default timesteps
+    if (abs(dt) <= eps) then
       if (abs(this%Omega) < eps) then  ! Fixed wing
         dxMAC = this%chord/this%nc
-        dt = dxMAC/(4._dp*norm2(this%velBody))
+        dt = dxMAC/norm2(this%velBody)
       else  ! Rotor
         ! Time for 5 deg
         dt = 5._dp*pi/(180._dp*abs(this%Omega))
@@ -2109,7 +2119,11 @@ contains
       ! Initialize panel coordinates
       do ib = 1, this%nb
         ! Compute camber
-        zVec = this%getCamber(xVec, yVec)
+        if (this%nCamberFiles > 0) then
+          zVec = this%getCamber(xVec, yVec)
+        else
+          zVec = 0._dp
+        endif
         if (this%surfaceType < 0) then
           zVec = -1._dp*zVec
         endif
