@@ -1996,10 +1996,10 @@ contains
     if (nt .lt. 0) then
       if (abs(this%Omega) < eps) then ! Fixed wing
         ! nt chord distance
-        nt = abs(nt)*this%chord/(dt*norm2(this%velBody))
+        nt = ceiling(abs(nt)*this%chord/(dt*norm2(this%velBody)))
       else  ! Rotor
         ! nt revs
-        nt = 2._dp*pi*abs(nt)/(abs(this%Omega)*dt)
+        nt = ceiling(2._dp*pi*abs(nt)/(abs(this%Omega)*dt))
       endif
       print*, 'nt set to ', nt
     endif
