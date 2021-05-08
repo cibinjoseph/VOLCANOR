@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-""" Computes FELS CL and CD from results file """
+""" Computes CL and CD from results file using lookup tables """
 
 import numpy as np
 import c81utils as c81
@@ -47,10 +47,10 @@ alf0 = params['alpha0']*np.pi/180.0
 dx = data['secArea']/data['secChord']
 
 if isRotor:
-    vTip = params['radius']*params['Omega']
+    vRef = params['radius']*params['Omega']
     vInf = data['secSpan']*params['Omega']
 else:
-    vFreestream = params['u']
+    vRef = params['u']
     vInf = data['secVel']
 
 alphaLookup = (180.0/np.pi)*(data['secCL']/CLa_lin + alf0)
@@ -76,11 +76,11 @@ secDrag_nonLin = CD_nonlin*(0.5*params['density']* \
 if isRotor:
     secTorque = data['secSpan']*secDrag_nonLin
     Torque = np.sum(secTorque)
-    denom = params['density']*np.pi*params['radius']**2.0*(vTip)**2.0
+    denom = params['density']*np.pi*params['radius']**2.0*(vRef)**2.0
     CQ = Torque / (denom*params['radius'])
 else:
     Drag = np.sum(secDrag_nonLin)
-    denom = 0.5*params['density']*params['chord']*params['radius']*(vFreestream)**2.0
+    denom = 0.5*params['density']*params['chord']*params['radius']*(vRef)**2.0
     CD = Drag / denom
 
 Thrust = np.sum(secLift_nonLin)
