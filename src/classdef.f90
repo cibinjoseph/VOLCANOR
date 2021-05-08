@@ -1964,7 +1964,7 @@ contains
     real(dp), intent(in) :: density
     real(dp) , intent(inout) :: dt
     integer, intent(inout) :: nt
-    type(switches_class), intent(in) :: switches
+    type(switches_class), intent(inout) :: switches
 
     real(dp), dimension(this%nc+1) :: xVec
     real(dp), dimension(this%ns+1) :: yVec
@@ -2012,6 +2012,20 @@ contains
         nt = ceiling(2._dp*pi*abs(nt)/(abs(this%Omega)*dt))
       endif
       print*, 'nt set to ', nt
+    endif
+
+    ! Check if slowStartNT requires preprocessing
+    if (switches%slowStart .gt. 0 .and. switches%slowStartNt .lt. 0) then
+      if (abs(this%Omega) < eps) then ! Fixed wing
+        ! nt chord distance
+        switches%slowStartNT = ceiling(abs(switches%slowStartNt) &
+          & *this%chord/(dt*norm2(this%velBody)))
+      else  ! Rotor
+        ! nt revs
+        switches%slowStartNt = ceiling(2._dp*pi*abs(switches%slowStartNt) &
+          & /(abs(this%Omega)*dt))
+      endif
+      print*, 'slowStartNT set to ', switches%slowStartNt
     endif
 
     ! Override ns to 1 if non-lifting surface

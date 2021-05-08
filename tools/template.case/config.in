@@ -36,7 +36,7 @@
 # 
 # SLOW START TO AVOID LARGE STARTING VORTEX:
 # [0]Off [1]linear [2]tanh [3]extended tanh
-# slowStartSwitch       slowStartNt
+# slowStartSwitch       slowStartNt [-nt] chords or revs
 # -----------------------------------------------------------------------
        0                      0
 # 
