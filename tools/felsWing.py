@@ -95,7 +95,7 @@ print('CD0 = ' + str(CD))
 # Write distribution to file
 outTable = tb.tabulate(sectDict, headers='keys', tablefmt='tsv', \
                        showindex=False)
-with open('felsRotor.csv', 'w') as fh:
+with open('felsWing.csv', 'w') as fh:
     fh.write(outTable)
 
 # Plots
