@@ -15,4 +15,4 @@ Implement alpha sweep mode
 Compute blade flap moment and rotor moments
 Add provision for root vortex
 Phase out invertGammaSign since it works incorrectly for cambered sections
-Unify fels scripts for fixed and rotary wings - Create output folder with nonlinear data
+Create output folder with nonlinear data
