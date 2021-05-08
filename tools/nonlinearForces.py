@@ -14,6 +14,7 @@ CLa_lin = 2.0*np.pi
 
 parser = argparse.ArgumentParser(description='Force estimation from \
                                  linear secional lift')
+parser.add_argument('-a', '--all', action='store_true', help='On all results')
 parser.add_argument('-c', '--c81', action='store', help='C81 airfoil file')
 parser.add_argument('-d', '--dir', default=pr.ResultsDir, metavar='Results/', \
                     action='store', help='Directory')
@@ -115,19 +116,19 @@ sectDict = {'rbyR': data['secSpan']/params['radius'], \
            }
 outTable = tb.tabulate(sectDict, headers='keys', tablefmt='tsv', \
                        showindex=False)
-with open('felsRotor.csv', 'w') as fh:
+with open('nonLinearForces.csv', 'w') as fh:
     fh.write(outTable)
 
 # Plots
 if args.quiet == False:
     fig, ax = plt.subplots(2)
-    ax[0].plot(sectDict['rbyR'], alphaLookup, 'b*-', label='FELS')
+    ax[0].plot(sectDict['rbyR'], alphaLookup, 'b*-', label='CL interpolated')
     ax[0].plot(sectDict['rbyR'], data['secAlpha'], 'r*-', label='Ind. vel.')
     ax[0].legend()
     ax[0].set_ylabel('Alpha (deg)')
     ax[0].grid(True)
 
-    ax[1].plot(sectDict['rbyR'], secLift_nonLin/dx, label='FELS')
+    ax[1].plot(sectDict['rbyR'], secLift_nonLin/dx, label='CL interpolated')
     ax[1].set_ylabel('Lift per unit span')
     ax[1].grid(True)
     ax[1].legend()
