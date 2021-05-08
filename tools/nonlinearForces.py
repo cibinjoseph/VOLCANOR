@@ -37,7 +37,9 @@ pr.iterNum = args.iter
 c81File = args.c81
 
 params = pr.getParams()
-data = pr.getForceDist()
+data, forceDistFile = pr.getForceDist()
+
+print(forceDistFile)
 
 # Check if rotor or wing
 isRotor = False
@@ -116,7 +118,7 @@ sectDict = {'rbyR': data['secSpan']/params['radius'], \
            }
 outTable = tb.tabulate(sectDict, headers='keys', tablefmt='tsv', \
                        showindex=False)
-with open('nonLinearForces.csv', 'w') as fh:
+with open(forceDistFile[0:-4] + '_nonlinear.csv', 'w') as fh:
     fh.write(outTable)
 
 # Plots

@@ -73,7 +73,7 @@ def getForceDist(file=None):
                               'r' + rotorNum + \
                               'b' + bladeNum + 'ForceDist' + \
                               iterNum)
-    return _getDataDict(file)
+    return _getDataDict(file), file
 
 def getForceDim(file=None):
     """ Extract dataDict from ForceDim file """
