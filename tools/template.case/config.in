@@ -45,7 +45,7 @@
 # -----------------------------------------------------------------------
        3
 # 
-# IGNORE WAKE WAKE INTERACTION: [0]Off [1..]timesteps
+# IGNORE WAKE WAKE INTERACTION: [0]Off [nt]timesteps [-nt]chords or revs
 # wakeIgnoreNt  *** NOT IMPLEMENTED ***            initWakeVelNt
 # -----------------------------------------------------------------------
        0                                                0   
