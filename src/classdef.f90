@@ -1818,6 +1818,7 @@ module rotor_classdef
     procedure :: mirrorGamma
     procedure :: mirrorVelCP
     procedure :: mirrorWake
+    procedure :: toChordsRevs
     ! I/O subroutines
     procedure :: rotor_write
     generic :: write(unformatted) => rotor_write
@@ -1987,6 +1988,7 @@ contains
       else  ! Rotor
         dt = 2._dp*pi*abs(dt)/abs(this%Omega)
       endif
+      print*, 'dt set to ', dt
     endif
 
     ! if dt is 0, assume default timesteps
@@ -1998,34 +2000,38 @@ contains
         ! Time for 5 deg
         dt = 5._dp*pi/(180._dp*abs(this%Omega))
       endif
+      print*, 'dt set to ', dt
     endif
-    print*, 'dt set to ', dt
 
     ! Check if nt requires preprocessing
-    if (nt .eq. 0) nt = -10
-    if (nt .lt. 0) then
-      if (abs(this%Omega) < eps) then ! Fixed wing
-        ! nt chord distance
-        nt = ceiling(abs(nt)*this%chord/(dt*norm2(this%velBody)))
-      else  ! Rotor
-        ! nt revs
-        nt = ceiling(2._dp*pi*abs(nt)/(abs(this%Omega)*dt))
-      endif
+    if (nt .le. 0) then
+      if (nt .eq. 0) nt = -10
+      call this%toChordsRevs(nt, dt)
       print*, 'nt set to ', nt
     endif
 
     ! Check if slowStartNT requires preprocessing
-    if (switches%slowStart .gt. 0 .and. switches%slowStartNt .lt. 0) then
-      if (abs(this%Omega) < eps) then ! Fixed wing
-        ! nt chord distance
-        switches%slowStartNT = ceiling(abs(switches%slowStartNt) &
-          & *this%chord/(dt*norm2(this%velBody)))
-      else  ! Rotor
-        ! nt revs
-        switches%slowStartNt = ceiling(2._dp*pi*abs(switches%slowStartNt) &
-          & /(abs(this%Omega)*dt))
-      endif
+    if (switches%slowStart > 0) then
+      call this%toChordsRevs(switches%slowStartNt, dt)
       print*, 'slowStartNT set to ', switches%slowStartNt
+    endif
+
+    ! Check if wakeTipPlot requires preprocessing
+    if (switches%wakeTipPlot .ne. 0) then
+      call this%toChordsRevs(switches%wakeTipPlot, dt)
+      print*, 'wakeTipPlot set to ', switches%wakeTipPlot
+    endif
+
+    ! Check if wakePlot requires preprocessing
+    if (switches%wakePlot .ne. 0) then
+      call this%toChordsRevs(switches%wakePlot, dt)
+      print*, 'wakePlot set to ', switches%wakePlot
+    endif
+
+    ! Check if gridPlot requires preprocessing
+    if (switches%gridPlot .ne. 0) then
+      call this%toChordsRevs(switches%gridPlot, dt)
+      print*, 'gridPlot set to ', switches%gridPlot
     endif
 
     ! Override ns to 1 if non-lifting surface
@@ -3520,6 +3526,23 @@ contains
       enddo
     end select
   end subroutine mirrorWake
+
+  subroutine toChordsRevs(this, nsteps, dt)
+    !! Converts -ve nsteps to nsteps for corresponding no. of chords or revs
+  class(rotor_class), intent(inout) :: this
+    integer, intent(inout) :: nsteps
+    real(dp), intent(in) :: dt
+
+    if (nsteps < 0) then
+      if (abs(this%Omega) < eps) then ! Fixed wing
+        ! nt chord distance
+        nsteps = ceiling(abs(nsteps)*this%chord/(dt*norm2(this%velBody)))
+      else  ! Rotor
+        ! nt revs
+        nsteps = ceiling(2._dp*pi*abs(nsteps)/(abs(this%Omega)*dt))
+      endif
+    endif
+  end subroutine toChordsRevs
 
   subroutine rotor_read(this, unit, iostat, iomsg)
   class(rotor_class), intent(inout) :: this
