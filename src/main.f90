@@ -60,16 +60,6 @@ program main
     endif
   enddo
 
-  ! Initialize plot switches
-  if (switches%wakePlot .lt. 0) &
-    & switches%wakePlot = int(nt/abs(switches%wakePlot))
-  if (switches%wakeTipPlot.lt. 0) &
-    & switches%wakeTipPlot = int(nt/abs(switches%wakeTipPlot))
-  if (switches%rotorForcePlot .lt. 0) &
-    & switches%rotorForcePlot = int(nt/abs(switches%rotorForcePlot))
-  if (switches%gridPlot .lt. 0) &
-    & switches%gridPlot = int(nt/abs(switches%gridPlot))
-
   ! Initialize vel probes
   if (switches%probe .eq. 1) then
     open(unit=10, file='probes.in', status='old', action='read')

@@ -23,7 +23,7 @@
       1.0                330.0
 # =======================================================================
 # 
-# PLOT WAKE: [0]Off [n]Every n'th iteration [-n] Every nt/n'th iteration
+# PLOT WAKE: [0]Off [n]Every n'th iteration [-n]chords or revs
 # wakePlotSwitch   wakeTipPlotSwitch   forcePlotSwitch   gridPlotSwitch
 # -----------------------------------------------------------------------
        1                 0                 1                 0
