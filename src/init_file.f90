@@ -17,7 +17,7 @@ logical :: fileExists
 real(dp) :: subIterResidual
 
 ! Iterators
-integer :: i, is, ic, row, iter, ir, jr, ib
+integer :: i, is, ic, row, iter, ir, jr, ib, rowErase
 
 ! Switches
 type(switches_class) :: switches

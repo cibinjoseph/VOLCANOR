@@ -29,7 +29,7 @@ contains
     call skip_comments(11)
     read (11, *) switches%fdScheme
     call skip_comments(11)
-    read (11, *) switches%wakeIgnoreNt, switches%initWakeVelNt
+    read (11, *) switches%wakeTruncateNt, switches%initWakeVelNt
     call skip_comments(11)
     read (11, *) switches%probe
     close (11)

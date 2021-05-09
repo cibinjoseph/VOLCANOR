@@ -641,6 +641,23 @@ program main
       enddo
     enddo
 
+    ! Wake truncation
+    do ir = 1, nr
+      if (iter > switches%wakeTruncateNt) then
+        ! If truncation in far wake
+        if (iter > rotor(ir)%nNwake) then
+          rowErase = rotor(ir)%nFwake-(iter-switches%wakeTruncateNt)+1
+          call rotor(ir)%eraseFwake(rowErase)
+        else  ! truncation in near wake
+          rowErase = rotor(ir)%nNwake-(iter-switches%wakeTruncateNt)+1
+          ! DEBUG
+          ! Correct this
+          print*, 'e', rowErase
+          call rotor(ir)%eraseNwake(rowErase)
+        endif
+      endif
+    enddo
+
     ! Compute induced velocity due to rotors in domain
     do ir = 1, nr
       do ib = 1, rotor(ir)%nb

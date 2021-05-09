@@ -11,7 +11,7 @@ module switches_classdef
     integer :: wakeTipPlot, wakePlot, gridPlot
     integer :: rotorForcePlot
     integer :: fdScheme, probe, nProbes
-    integer :: wakeIgnoreNt, initWakeVelNt
+    integer :: wakeTruncateNt, initWakeVelNt
     integer :: restartFromNt, restartWriteNt
   end type switches_class
 end module switches_classdef
@@ -1819,6 +1819,7 @@ module rotor_classdef
     procedure :: mirrorVelCP
     procedure :: mirrorWake
     procedure :: toChordsRevs
+    procedure :: eraseNwake, eraseFwake
     ! I/O subroutines
     procedure :: rotor_write
     generic :: write(unformatted) => rotor_write
@@ -3543,6 +3544,28 @@ contains
       endif
     endif
   end subroutine toChordsRevs
+
+  subroutine eraseNwake(this, rowErase)
+    !! Erase a near wake row by setting gamma to zero
+  class(rotor_class), intent(inout) :: this
+    integer, intent(in) :: rowErase
+    integer :: ib
+
+    do ib = 1, this%nb
+      this%blade(ib)%waP(rowErase, :)%vr%gam = 0._dp
+    enddo
+  end subroutine eraseNwake
+
+  subroutine eraseFwake(this, rowErase)
+    !! Erase a far wake row by setting gamma to zero
+  class(rotor_class), intent(inout) :: this
+    integer, intent(in) :: rowErase
+    integer :: ib
+
+    do ib = 1, this%nb
+      this%blade(ib)%waF(rowErase)%gam = 0._dp
+    enddo
+  end subroutine eraseFwake
 
   subroutine rotor_read(this, unit, iostat, iomsg)
   class(rotor_class), intent(inout) :: this
