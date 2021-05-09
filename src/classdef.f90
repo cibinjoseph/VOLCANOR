@@ -1786,7 +1786,7 @@ module rotor_classdef
     character(len=30) :: geometryFile
     real(dp) :: nonDimforceDenominator
   contains
-    procedure :: getdata
+    procedure :: read_geom
     procedure :: init => rotor_init
     procedure :: deinit => rotor_deinit
     procedure :: plot3dtoblade, stltoblade
@@ -1832,7 +1832,7 @@ contains
   ! -+- | Initialization Functions | -+- |
   !-----+--------------------------+-----|
 
-  subroutine getdata(this, filename)
+  subroutine read_geom(this, filename)
   class(rotor_class) :: this
     character(len=*), intent(in) :: filename
     integer :: i
@@ -1956,7 +1956,7 @@ contains
       enddo
     endif
     close (12)
-  end subroutine getdata
+  end subroutine read_geom
 
   subroutine rotor_init(this, rotorNumber, density, dt, nt, switches)
     ! Initialize variables of rotor geometry and wake

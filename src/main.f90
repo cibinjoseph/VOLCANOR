@@ -22,7 +22,7 @@ program main
     inquire(file=rotorFile, exist=fileExists)
     if (.not. fileExists) error stop 'ERROR: A rotorXX.in file does not exist'
     call print_status('Reading file '//rotorFile)
-    call rotor(ir)%getdata(rotorFile)
+    call rotor(ir)%read_geom(rotorFile)
     call print_status()    ! SUCCESS
   enddo
 
