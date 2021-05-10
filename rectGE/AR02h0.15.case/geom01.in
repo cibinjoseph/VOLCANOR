@@ -1,14 +1,14 @@
-# Template version
-# 0.4
-# Sample Wing
+# File format version
+  0.5
+# Fixed-Wing or Rotor
 # ===================================================================
 # No. of blades,nb  Prop convention  NcamberFiles  geometry filename
 # -------------------------------------------------------------------
-     1                     0                        0
+     1                     0              0          0
 #
 # CamberSectionLimit[r/R]  Camber filename
 # -------------------------------------------------------------------
-# 1.0                      0           
+  1.0                      0
 #
 # Surface type [0/1]Lifting [2]Non-lifting    Mirrored about X/Y/Z
 # [-1]Lifting Image [-2]Non-lifting Image    [1/2/3]plane  from rotor
@@ -86,9 +86,12 @@
 # -------------------------------------------------------------------
            0.75             1.0 
 # 
-# initWakeVel[m/s]     psiStart[deg]      skewLimit
+# wakeTruncateNt  initWakeVel[m/s]     psiStart[deg]      skewLimit
+#  [0] Off
+#  [n] Timesteps
+# [-n] Chords/revs
 # -------------------------------------------------------------------
-     0.0                   0.0            0.5
+     0              0.0                   0.0            0.5
 # ===================================================================
 # 
 # CUSTOM WIND FRAME FOR FORCE OUTPUT
@@ -104,7 +107,7 @@
 # ===================================================================
 # 
 # PLOTS OF SPANWISE DISTRIBUTIONS:
-# [0]Off    [n]Every nth iteration    [-n]Every nt/n'th iteration
+# [0]Off  [n]Every nth iteration  [-n]Chords/revs
 # inflow    force    gamma    alpha
 # -------------------------------------------------------------------
   0         1        0        1
