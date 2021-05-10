@@ -17,6 +17,4 @@ Add provision for root vortex
 Phase out invertGammaSign since it works incorrectly for cambered sections
 Create output folder with nonlinear data
 Implement prescribed far-wake
-Implement wake truncation
 Read alpha0 to params.json
-
