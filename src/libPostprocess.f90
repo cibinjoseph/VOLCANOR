@@ -100,7 +100,11 @@ contains
     write(10, *) '"v": ', rotor%velBody(2), ','
     write(10, *) '"w": ', rotor%velBody(3), ','
     write(10, *) '"nonDimForceDenom": ', rotor%nonDimforceDenominator, ','
-    write(10, *) '"alpha0": ', rotor%alpha0(1), ','
+    if (rotor%nAirfoils .gt. 0) then
+      write(10, *) '"alpha0": ', rotor%alpha0(1), ','
+    else
+      write(10, *) '"alpha0": ', 0._dp, ','
+    endif
     write(10, *) '"wakeTruncateNt": ', rotor%wakeTruncateNt, ','
     write(10, *) '"initWakeVel": ', rotor%initWakeVel, ','
     write(10, *) '"psiStart": ', rotor%psiStart*180._dp/pi, ','
