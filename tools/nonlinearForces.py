@@ -15,20 +15,21 @@ CLa_lin = 2.0*np.pi
 parser = argparse.ArgumentParser(description='Force estimation from \
                                  linear secional lift')
 parser.add_argument('-a', '--all', action='store_true', help='On all results')
+parser.add_argument('-b', '--blade', default=pr.bladeNum, metavar='XX', \
+                    action='store', help='Blade num as string "XX"')
 parser.add_argument('-c', '--c81', action='store', help='C81 airfoil file')
 parser.add_argument('-d', '--dir', default=pr.ResultsDir, metavar='Results/', \
                     action='store', help='Directory')
-parser.add_argument('-r', '--rotor', default=pr.rotorNum, metavar='XX', \
-                    action='store', help='Rotor num as string "XX"')
-parser.add_argument('-b', '--blade', default=pr.bladeNum, metavar='XX', \
-                    action='store', help='Blade num as string "XX"')
 parser.add_argument('-i', '--iter', default=pr.iterNum, metavar='XXXXX', \
                     action='store', help='Iteration as string "XXXXX"')
+parser.add_argument('-r', '--rotor', default=pr.rotorNum, metavar='XX', \
+                    action='store', help='Rotor num as string "XX"')
 parser.add_argument('-q', '--quiet', action='store_true', \
                     help='Suppress plots')
+parser.add_argument('-z', '--zero', action='store', \
+                    help='Override zero lift angle in degs')
 
 args = parser.parse_args()
-print(args)
 
 pr.ResultsDir = args.dir
 pr.bladeNum = args.blade
@@ -46,7 +47,11 @@ isRotor = False
 if abs(params['Omega']) > 0:
     isRotor = True
 
-alf0 = params['alpha0']*np.pi/180.0
+if args.zero is not None:
+    alf0 = float(args.zero)*np.pi/180.0
+else:
+    alf0 = params['alpha0']*np.pi/180.0
+
 dx = data['secArea']/data['secChord']
 
 if isRotor:
