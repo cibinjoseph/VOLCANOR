@@ -11,7 +11,7 @@ module switches_classdef
     integer :: wakeTipPlot, wakePlot, gridPlot
     integer :: rotorForcePlot
     integer :: fdScheme, probe, nProbes
-    integer :: wakeTruncateNt, initWakeVelNt
+    integer :: initWakeVelNt
     integer :: restartFromNt, restartWriteNt
   end type switches_class
 end module switches_classdef
@@ -1772,6 +1772,7 @@ module rotor_classdef
     real(dp) :: rollupStartRadius, rollupEndRadius
     integer :: propConvention
     integer :: symmetricTau
+    integer :: wakeTruncateNt
     integer :: rollupStart, rollupEnd
     integer :: suppressFwakeSwitch
     integer :: forceCalcSwitch, skewPlotSwitch
@@ -1837,15 +1838,14 @@ contains
   class(rotor_class) :: this
     character(len=*), intent(in) :: filename
     integer :: i
-    real :: templateVersion, currentTemplateVersion
+    real :: fileFormatVersion, currentTemplateVersion
 
-    currentTemplateVersion = 0.4
+    currentTemplateVersion = 0.5
 
     open (unit=12, file=filename, status='old', action='read')
     call skip_comments(12)
-    read(12, *) templateVersion
-
-    if (templateVersion /= currentTemplateVersion) then
+    read(12, *) fileFormatVersion
+    if (abs(fileFormatVersion - currentTemplateVersion) < eps) then
       error stop "ERROR: geomXX.in template version does not match"
     endif
 
@@ -1929,7 +1929,8 @@ contains
     ! Dimensional quantities
     read (12, *) this%rollupStartRadius, this%rollupEndRadius
     call skip_comments(12)
-    read (12, *) this%initWakeVel, this%psiStart, this%skewLimit
+    read (12, *) this%wakeTruncateNt, this%initWakeVel, &
+      & this%psiStart, this%skewLimit
     call skip_comments(12)
     read (12, *) this%dragUnitVec(1), this%dragUnitVec(2), this%dragUnitVec(3)
     call skip_comments(12)
@@ -2011,29 +2012,21 @@ contains
       print*, 'nt set to ', nt
     endif
 
-    ! Check if slowStartNT requires preprocessing
-    if (switches%slowStart > 0) then
+    ! Preprocessing for negative value inputs
+    if (switches%slowStart /= 0) then
       call this%toChordsRevs(switches%slowStartNt, dt)
-      print*, 'slowStartNT set to ', switches%slowStartNt
     endif
 
-    ! Check if wakeTipPlot requires preprocessing
-    if (switches%wakeTipPlot .ne. 0) then
-      call this%toChordsRevs(switches%wakeTipPlot, dt)
-      print*, 'wakeTipPlot set to ', switches%wakeTipPlot
-    endif
+    call this%toChordsRevs(switches%wakeTipPlot, dt)
+    call this%toChordsRevs(switches%wakePlot, dt)
+    call this%toChordsRevs(switches%gridPlot, dt)
+    call this%toChordsRevs(this%wakeTruncateNt, dt)
 
-    ! Check if wakePlot requires preprocessing
-    if (switches%wakePlot .ne. 0) then
-      call this%toChordsRevs(switches%wakePlot, dt)
-      print*, 'wakePlot set to ', switches%wakePlot
-    endif
-
-    ! Check if gridPlot requires preprocessing
-    if (switches%gridPlot .ne. 0) then
-      call this%toChordsRevs(switches%gridPlot, dt)
-      print*, 'gridPlot set to ', switches%gridPlot
-    endif
+    call this%toChordsRevs(this%inflowPlotSwitch, dt)
+    call this%toChordsRevs(this%bladeForcePlotSwitch, dt)
+    call this%toChordsRevs(this%gammaPlotSwitch, dt)
+    call this%toChordsRevs(this%alphaPlotSwitch, dt)
+    call this%toChordsRevs(this%skewPlotSwitch, dt)
 
     ! Override ns to 1 if non-lifting surface
     if (abs(this%surfaceType) .eq. 2) this%ns = 1
@@ -2648,21 +2641,6 @@ contains
       endif
     endif
 
-    ! Initialize plot switches
-    if (this%inflowPlotSwitch .lt. 0) &
-      & this%inflowPlotSwitch = int(nt/abs(this%inflowPlotSwitch))
-
-    if (this%bladeForcePlotSwitch .lt. 0) &
-      & this%bladeForcePlotSwitch = int(nt/abs(this%bladeForcePlotSwitch))
-
-    if (this%gammaPlotSwitch .lt. 0) &
-      & this%gammaPlotSwitch = int(nt/abs(this%gammaPlotSwitch))
-
-    if (this%alphaPlotSwitch .lt. 0) &
-      & this%alphaPlotSwitch = int(nt/abs(this%alphaPlotSwitch))
-
-    if (this%skewPlotSwitch .lt. 0) &
-      & this%skewPlotSwitch = int(nt/abs(this%skewPlotSwitch))
   end subroutine rotor_init
 
   subroutine rotor_deinit(this, switches)

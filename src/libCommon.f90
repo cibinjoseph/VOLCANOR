@@ -8,7 +8,17 @@ contains
 
   subroutine read_config(filename)
     character(len=*), intent(in) :: filename
+    real :: fileFormatVersion, currentVersion
+
+    currentVersion = 0.1
+
     open (unit=11, file=filename, status='old', action='read')
+    call skip_comments(11)
+    read (11, *)  fileFormatVersion
+    if (abs(fileFormatVersion-currentVersion) < eps) then
+      error stop "ERROR: config.in template version does not match"
+    endif
+
     call skip_comments(11)
     read (11, *) nt, dt, nr
     call skip_comments(11)
@@ -29,7 +39,7 @@ contains
     call skip_comments(11)
     read (11, *) switches%fdScheme
     call skip_comments(11)
-    read (11, *) switches%wakeTruncateNt, switches%initWakeVelNt
+    read (11, *) switches%initWakeVelNt
     call skip_comments(11)
     read (11, *) switches%probe
     close (11)

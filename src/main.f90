@@ -643,13 +643,13 @@ program main
 
     ! Wake truncation
     do ir = 1, nr
-      if (iter > switches%wakeTruncateNt) then
+      if (iter > rotor(ir)%wakeTruncateNt) then
         ! If truncation in far wake
         if (iter > rotor(ir)%nNwake) then
-          rowErase = rotor(ir)%nFwake-(iter-switches%wakeTruncateNt)+1
+          rowErase = rotor(ir)%nFwake-(iter-rotor(ir)%wakeTruncateNt)+1
           call rotor(ir)%eraseFwake(rowErase)
         else  ! truncation in near wake
-          rowErase = rotor(ir)%nNwake-(iter-switches%wakeTruncateNt)+1
+          rowErase = rotor(ir)%nNwake-(iter-rotor(ir)%wakeTruncateNt)+1
           ! DEBUG
           ! Correct this
           print*, 'e', rowErase
