@@ -1845,7 +1845,7 @@ contains
     open (unit=12, file=filename, status='old', action='read')
     call skip_comments(12)
     read(12, *) fileFormatVersion
-    if (abs(fileFormatVersion - currentTemplateVersion) < eps) then
+    if (abs(fileFormatVersion - currentTemplateVersion) > eps) then
       error stop "ERROR: geomXX.in template version does not match"
     endif
 

@@ -15,7 +15,7 @@ contains
     open (unit=11, file=filename, status='old', action='read')
     call skip_comments(11)
     read (11, *)  fileFormatVersion
-    if (abs(fileFormatVersion-currentVersion) < eps) then
+    if (abs(fileFormatVersion-currentVersion) > eps) then
       error stop "ERROR: config.in template version does not match"
     endif
 
