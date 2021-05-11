@@ -180,17 +180,17 @@ contains
         !Check if necessary - $omp parallel do collapse(2)
         do j = 1, ny
           do i = rotor%rowNear, nx
-            wakeMesh(:, i, j) = rotor%blade(ib)%waP(i, j)%vr%vf(1)%fc(:, 1)
+            wakeMesh(:, i, j) = rotor%blade(ib)%waN(i, j)%vr%vf(1)%fc(:, 1)
           enddo
         enddo
         !Check if necessary -$omp end parallel do
         do i = rotor%rowNear, nx
-          wakeMesh(:, i, ny + 1) = rotor%blade(ib)%waP(i, ny)%vr%vf(4)%fc(:, 1)
+          wakeMesh(:, i, ny + 1) = rotor%blade(ib)%waN(i, ny)%vr%vf(4)%fc(:, 1)
         enddo
         do j = 1, ny
-          wakeMesh(:, nx + 1, j) = rotor%blade(ib)%waP(nx, j)%vr%vf(2)%fc(:, 1)
+          wakeMesh(:, nx + 1, j) = rotor%blade(ib)%waN(nx, j)%vr%vf(2)%fc(:, 1)
         enddo
-        wakeMesh(:, nx + 1, ny + 1) = rotor%blade(ib)%waP(nx, ny)%vr%vf(3)%fc(:, 1)
+        wakeMesh(:, nx + 1, ny + 1) = rotor%blade(ib)%waN(nx, ny)%vr%vf(3)%fc(:, 1)
 
         write (10, *) 'Zone I='//trim(nxChar)//' J='//trim(nyChar)//' K=1  T="NearWake"'
         write (10, *) 'DATAPACKING=BLOCK'
@@ -198,9 +198,9 @@ contains
         write (10, *) ((wakeMesh(1, i, j), i=rotor%rowNear, nx + 1), j=1, ny + 1)
         write (10, *) ((wakeMesh(2, i, j), i=rotor%rowNear, nx + 1), j=1, ny + 1)
         write (10, *) ((wakeMesh(3, i, j), i=rotor%rowNear, nx + 1), j=1, ny + 1)
-        write (10, *) ((-1._dp*rotor%blade(ib)%waP(i, j)%vr%gam, i=rotor%rowNear, nx), j=1, ny)
-        write(10,*) ((rotor%blade(ib)%waP(i,j)%vr%skew, i=rotor%rowNear, nx), j=1, ny)
-        !write(10,*) ((rotor%blade(ib)%waP(i,j)%vr%skew,i=rotor%rowNear,nx),j=1,ny)
+        write (10, *) ((-1._dp*rotor%blade(ib)%waN(i, j)%vr%gam, i=rotor%rowNear, nx), j=1, ny)
+        write(10,*) ((rotor%blade(ib)%waN(i,j)%vr%skew, i=rotor%rowNear, nx), j=1, ny)
+        !write(10,*) ((rotor%blade(ib)%waN(i,j)%vr%skew,i=rotor%rowNear,nx),j=1,ny)
 
         ! Far wake
         nx = rotor%nFwake
@@ -227,7 +227,7 @@ contains
         else  ! No far wake present
 
           write (nxChar, '(I5)') 2  ! Plot mesh as single redundant point
-          wakeTip(:, 1) = rotor%blade(ib)%waP(rotor%nNwake, rotor%ns)%vr%vf(3)%fc(:, 1)
+          wakeTip(:, 1) = rotor%blade(ib)%waN(rotor%nNwake, rotor%ns)%vr%vf(3)%fc(:, 1)
 
           write (10, *) 'Zone I='//trim(nxChar)//' J=1   K=1   T="FarWake"'
           write (10, *) 'DATAPACKING=BLOCK'
@@ -359,7 +359,7 @@ contains
       do ib = 1, rotor(ir)%nb
         do icol = 1, rotor(ir)%ns
           do irow = 1, rotor(ir)%nNwake
-            vrNwake(indx) = rotor(ir)%blade(ib)%waP(irow, icol)%vr
+            vrNwake(indx) = rotor(ir)%blade(ib)%waN(irow, icol)%vr
             indx = indx + 1
           enddo
         enddo
@@ -372,8 +372,8 @@ contains
       irow = rotor(ir)%nNwake
       do ib = 1, rotor(ir)%nb
         do icol = 1, rotor(ir)%ns
-          vfNwakeTE(indx) = rotor(ir)%blade(ib)%waP(irow, icol)%vr%vf(2)
-          gamNwakeTE(indx) = rotor(ir)%blade(ib)%waP(irow, icol)%vr%gam*(-1._dp)
+          vfNwakeTE(indx) = rotor(ir)%blade(ib)%waN(irow, icol)%vr%vf(2)
+          gamNwakeTE(indx) = rotor(ir)%blade(ib)%waN(irow, icol)%vr%gam*(-1._dp)
           indx = indx + 1
         enddo
       enddo
@@ -626,22 +626,22 @@ contains
 
       ! Compute tip location for near wake
       do i = rotor%rowNear, nx
-        gamRollup(i) = rotor%blade(ib)%waP(i, rotor%ns)%vr%gam
+        gamRollup(i) = rotor%blade(ib)%waN(i, rotor%ns)%vr%gam
         gamSum = 0._dp
         nWakeTip(:, i) = 0._dp
         do j = rotor%rollupStart, rotor%rollupEnd
-          nWakeTip(:, i) = nWakeTip(:, i) + rotor%blade(ib)%waP(i, j)%vr%vf(4)%fc(:, 1)* &
-            rotor%blade(ib)%waP(i, j)%vr%gam
-          gamSum = gamSum + rotor%blade(ib)%waP(i, j)%vr%gam
+          nWakeTip(:, i) = nWakeTip(:, i) + rotor%blade(ib)%waN(i, j)%vr%vf(4)%fc(:, 1)* &
+            rotor%blade(ib)%waN(i, j)%vr%gam
+          gamSum = gamSum + rotor%blade(ib)%waN(i, j)%vr%gam
 
           ! Compute max gam for near wake filaments
           if (sign(1._dp, rotor%Omega*rotor%controlPitch(1)) > eps) then
-            if (rotor%blade(ib)%waP(i, j)%vr%gam < gamRollup(i)) then    ! '<' because of negative gamma
-              gamRollup(i) = rotor%blade(ib)%waP(i, j)%vr%gam
+            if (rotor%blade(ib)%waN(i, j)%vr%gam < gamRollup(i)) then    ! '<' because of negative gamma
+              gamRollup(i) = rotor%blade(ib)%waN(i, j)%vr%gam
             endif
           else    ! one of Omega or pitch is negative
-            if (rotor%blade(ib)%waP(i, j)%vr%gam > gamRollup(i)) then    ! '>' because of positive gamma
-              gamRollup(i) = rotor%blade(ib)%waP(i, j)%vr%gam
+            if (rotor%blade(ib)%waN(i, j)%vr%gam > gamRollup(i)) then    ! '>' because of positive gamma
+              gamRollup(i) = rotor%blade(ib)%waN(i, j)%vr%gam
             endif
           endif
         enddo
@@ -649,7 +649,7 @@ contains
         if (abs(gamSum) > eps) then
           nWakeTip(:, i) = nWakeTip(:, i)/gamSum
         else
-          nWakeTip(:, i) = rotor%blade(ib)%waP(i, rotor%rollupEnd)%vr%vf(4)%fc(:, 1)
+          nWakeTip(:, i) = rotor%blade(ib)%waN(i, rotor%rollupEnd)%vr%vf(4)%fc(:, 1)
         endif
 
       enddo
@@ -658,15 +658,15 @@ contains
       gamSum = 0._dp
       nWakeTip(:, nx + 1) = 0._dp
       do j = rotor%rollupStart, rotor%rollupEnd
-        nWakeTip(:, nx + 1) = nWakeTip(:, nx + 1) + rotor%blade(ib)%waP(nx, j)%vr%vf(3)%fc(:, 1)* &
-          rotor%blade(ib)%waP(nx, j)%vr%gam
-        gamSum = gamSum + rotor%blade(ib)%waP(nx, j)%vr%gam
+        nWakeTip(:, nx + 1) = nWakeTip(:, nx + 1) + rotor%blade(ib)%waN(nx, j)%vr%vf(3)%fc(:, 1)* &
+          rotor%blade(ib)%waN(nx, j)%vr%gam
+        gamSum = gamSum + rotor%blade(ib)%waN(nx, j)%vr%gam
       enddo
 
       if (abs(gamSum) > eps) then
         nWakeTip(:, nx + 1) = nWakeTip(:, nx + 1)/gamSum
       else
-        nWakeTip(:, nx + 1) = rotor%blade(ib)%waP(nx, rotor%rollupEnd)%vr%vf(3)%fc(:, 1)
+        nWakeTip(:, nx + 1) = rotor%blade(ib)%waN(nx, rotor%rollupEnd)%vr%vf(3)%fc(:, 1)
       endif
 
       write (10, *) 'Zone I='//trim(nxChar)//' J=1    K=1  T="NearWake"'
@@ -676,9 +676,9 @@ contains
       write (10, *) (nWakeTip(2, i), i=rotor%rowNear, nx + 1)
       write (10, *) (nWakeTip(3, i), i=rotor%rowNear, nx + 1)
       write (10, *) (-1._dp*gamRollup(i), i=rotor%rowNear, nx)
-      write(10,*) (rotor%blade(ib)%waP(i, rotor%ns)% &
+      write(10,*) (rotor%blade(ib)%waN(i, rotor%ns)% &
         & vr%vf(4)%ageAzimuthal*180._dp/pi, i=rotor%rowNear, nx)
-      !write(10,*) ((rotor%blade(ib)%waP(i,j)%vr%skew,i=rotor%rowNear,nx),j=1,ny)
+      !write(10,*) ((rotor%blade(ib)%waN(i,j)%vr%skew,i=rotor%rowNear,nx),j=1,ny)
 
       ! Far wake
       nx = rotor%nFwake
@@ -706,7 +706,7 @@ contains
       else  ! No far wake present
 
         write (nxChar, '(I5)') 2  ! Plot mesh as single redundant point
-        fWakeTip(:, 1) = rotor%blade(ib)%waP(rotor%nNwake, rotor%ns)%vr%vf(3)%fc(:, 1)
+        fWakeTip(:, 1) = rotor%blade(ib)%waN(rotor%nNwake, rotor%ns)%vr%vf(3)%fc(:, 1)
 
         write (10, *) 'Zone I='//trim(nxChar)//' J=1   K=1   T="FarWake"'
         write (10, *) 'DATAPACKING=BLOCK'
@@ -733,8 +733,8 @@ contains
 
     write (rotorNumberChar, '(I0.2)') rotorNumber
 
-    nrow = size(rotor%blade(1)%waP, 1)
-    ncol = size(rotor%blade(1)%waP, 2)
+    nrow = size(rotor%blade(1)%waN, 1)
+    ncol = size(rotor%blade(1)%waN, 2)
 
     do ib = 1, rotor%nb
       write (bladeNumberChar, '(I0.2)') ib
@@ -745,8 +745,8 @@ contains
 
       write(12, 110) 'max', 'avg'
       do irow = nrow, rotor%rowNear, -1
-        write(12, 120) maxval(rotor%blade(ib)%waP(irow, :)%vr%skew), &
-          & sum(rotor%blade(ib)%waP(irow, :)%vr%skew)/ncol
+        write(12, 120) maxval(rotor%blade(ib)%waN(irow, :)%vr%skew), &
+          & sum(rotor%blade(ib)%waN(irow, :)%vr%skew)/ncol
       enddo
 
       110 format(2(A15))

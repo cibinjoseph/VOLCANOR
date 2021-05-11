@@ -665,10 +665,10 @@ module blade_classdef
   use libC81
   implicit none
   type blade_class
-    type(wingpanel_class), allocatable, dimension(:, :) :: wiP
-    type(Nwake_class), allocatable, dimension(:, :) :: waP
-    type(Fwake_class), allocatable, dimension(:) :: waF
-    type(Nwake_class), allocatable, dimension(:, :) :: waPPredicted
+    type(wingpanel_class), allocatable, dimension(:, :) :: wiP  ! Wing panel
+    type(Nwake_class), allocatable, dimension(:, :) :: waN  ! Near wake
+    type(Fwake_class), allocatable, dimension(:) :: waF  ! Far wake
+    type(Nwake_class), allocatable, dimension(:, :) :: waNPredicted
     type(Fwake_class), allocatable, dimension(:) :: waFPredicted
     type(C81_class), allocatable, dimension(:) :: C81
     integer :: nc, ns
@@ -991,23 +991,23 @@ contains
     real(dp), dimension(3) :: blade_vind_bywake
     integer :: i, j, nNwake, nFwake
 
-    nNwake = size(this%waP, 1)
+    nNwake = size(this%waN, 1)
     nFwake = size(this%waF, 1)
     blade_vind_bywake = 0._dp
     if (.not. present(optionalChar)) then
-      do j = 1, size(this%waP, 2)
+      do j = 1, size(this%waN, 2)
         do i = rowNear, nNwake
-          if (abs(this%waP(i, j)%vr%gam) .gt. eps) &
+          if (abs(this%waN(i, j)%vr%gam) .gt. eps) &
             blade_vind_bywake = blade_vind_bywake + &
-            this%waP(i, j)%vr%vind(P)*this%waP(i, j)%vr%gam
+            this%waN(i, j)%vr%vind(P)*this%waN(i, j)%vr%gam
         enddo
       enddo
 
       if (rowFar .le. nFwake) then
         ! Last row of Nwake is made of horseshoe vortices, if Fwake is generated
-        do j = 1, size(this%waP, 2)
+        do j = 1, size(this%waN, 2)
           blade_vind_bywake = blade_vind_bywake - &
-            this%waP(nNwake, j)%vr%vf(2)%vind(P)*this%waP(nNwake, j)%vr%gam
+            this%waN(nNwake, j)%vr%vf(2)%vind(P)*this%waN(nNwake, j)%vr%gam
         enddo
 
         do i = rowFar, nFwake
@@ -1017,19 +1017,19 @@ contains
         enddo
       endif
     elseif ((optionalChar .eq. 'P') .or. (optionalChar .eq. 'p')) then
-      do j = 1, size(this%waP, 2)
+      do j = 1, size(this%waN, 2)
         do i = rowNear, nNwake
-          if (abs(this%waPPredicted(i, j)%vr%gam) .gt. eps) &
+          if (abs(this%waNPredicted(i, j)%vr%gam) .gt. eps) &
             blade_vind_bywake = blade_vind_bywake &
-            + this%waPPredicted(i, j)%vr%vind(P)*this%waPPredicted(i, j)%vr%gam
+            + this%waNPredicted(i, j)%vr%vind(P)*this%waNPredicted(i, j)%vr%gam
         enddo
       enddo
 
       if (rowFar .le. nFwake) then
         ! Last row of Nwake is made of horseshoe vortices, if Fwake is generated
-        do j = 1, size(this%waP, 2)
+        do j = 1, size(this%waN, 2)
           blade_vind_bywake = blade_vind_bywake &
-            - this%waPPredicted(nNwake, j)%vr%vf(2)%vind(P)*this%waPPredicted(nNwake, j)%vr%gam
+            - this%waNPredicted(nNwake, j)%vr%vf(2)%vind(P)*this%waNPredicted(nNwake, j)%vr%gam
         enddo
 
         do i = rowFar, nFwake
@@ -1052,21 +1052,21 @@ contains
     character(len=1), intent(in) :: wakeType  ! For predicted wake
     integer :: i, j, nNwake, nFwake
 
-    nNwake = size(this%waP, 1)
+    nNwake = size(this%waN, 1)
 
     select case (wakeType)
     case ('C')    ! [C]urrent wake
       !$omp parallel do collapse(2)
       do j = 1, this%ns
         do i = rowNear, nNwake
-          call this%waP(i, j)%vr%shiftdP(2, this%velNwake(:, i, j)*dt)
+          call this%waN(i, j)%vr%shiftdP(2, this%velNwake(:, i, j)*dt)
         enddo
       enddo
       !$omp end parallel do
 
       !$omp parallel do
       do i = rowNear, nNwake
-        call this%waP(i, this%ns)%vr%shiftdP(3, this%velNwake(:, i, this%ns + 1)*dt)
+        call this%waN(i, this%ns)%vr%shiftdP(3, this%velNwake(:, i, this%ns + 1)*dt)
       enddo
       !$omp end parallel do
 
@@ -1081,14 +1081,14 @@ contains
       !$omp parallel do collapse(2)
       do j = 1, this%ns
         do i = 1, rowNear, nNwake
-          call this%waPPredicted(i, j)%vr%shiftdP(2, this%velNwake(:, i, j)*dt)
+          call this%waNPredicted(i, j)%vr%shiftdP(2, this%velNwake(:, i, j)*dt)
         enddo
       enddo
       !$omp end parallel do
 
       !$omp parallel do
       do i = 1, rowNear, nNwake
-        call this%waPPredicted(i, this%ns)%vr%shiftdP(3, this%velNwake(:, i, this%ns + 1)*dt)
+        call this%waNPredicted(i, this%ns)%vr%shiftdP(3, this%velNwake(:, i, this%ns + 1)*dt)
       enddo
       !$omp end parallel do
 
@@ -1113,30 +1113,30 @@ contains
     character(len=1), intent(in) :: wakeType  ! For predicted wake
     integer :: i, j, nNwake, nFwake
 
-    nNwake = size(this%waP, 1)
+    nNwake = size(this%waN, 1)
 
     select case (wakeType)
     case ('C')
       !$omp parallel do collapse(2)
       do j = 1, this%ns - 1
         do i = rowNear + 1, nNwake
-          call this%waP(i, j)%vr%assignP(1, this%waP(i - 1, j)%vr%vf(2)%fc(:, 1))
-          call this%waP(i, j)%vr%assignP(3, this%waP(i, j + 1)%vr%vf(2)%fc(:, 1))
-          call this%waP(i, j)%vr%assignP(4, this%waP(i - 1, j + 1)%vr%vf(2)%fc(:, 1))
+          call this%waN(i, j)%vr%assignP(1, this%waN(i - 1, j)%vr%vf(2)%fc(:, 1))
+          call this%waN(i, j)%vr%assignP(3, this%waN(i, j + 1)%vr%vf(2)%fc(:, 1))
+          call this%waN(i, j)%vr%assignP(4, this%waN(i - 1, j + 1)%vr%vf(2)%fc(:, 1))
         enddo
       enddo
       !$omp end parallel do
 
       !$omp parallel do
       do j = 1, this%ns - 1
-        call this%waP(rowNear, j)%vr%assignP(3, this%waP(rowNear, j + 1)%vr%vf(2)%fc(:, 1))
+        call this%waN(rowNear, j)%vr%assignP(3, this%waN(rowNear, j + 1)%vr%vf(2)%fc(:, 1))
       enddo
       !$omp end parallel do
 
       !$omp parallel do
       do i = rowNear + 1, nNwake
-        call this%waP(i, this%ns)%vr%assignP(1, this%waP(i - 1, this%ns)%vr%vf(2)%fc(:, 1))
-        call this%waP(i, this%ns)%vr%assignP(4, this%waP(i - 1, this%ns)%vr%vf(3)%fc(:, 1))
+        call this%waN(i, this%ns)%vr%assignP(1, this%waN(i - 1, this%ns)%vr%vf(2)%fc(:, 1))
+        call this%waN(i, this%ns)%vr%assignP(4, this%waN(i - 1, this%ns)%vr%vf(3)%fc(:, 1))
       enddo
       !$omp end parallel do
 
@@ -1153,23 +1153,23 @@ contains
       !$omp parallel do collapse(2)
       do j = 1, this%ns - 1
         do i = rowNear + 1, nNwake
-          call this%waPPredicted(i, j)%vr%assignP(1, this%waPPredicted(i - 1, j)%vr%vf(2)%fc(:, 1))
-          call this%waPPredicted(i, j)%vr%assignP(3, this%waPPredicted(i, j + 1)%vr%vf(2)%fc(:, 1))
-          call this%waPPredicted(i, j)%vr%assignP(4, this%waPPredicted(i - 1, j + 1)%vr%vf(2)%fc(:, 1))
+          call this%waNPredicted(i, j)%vr%assignP(1, this%waNPredicted(i - 1, j)%vr%vf(2)%fc(:, 1))
+          call this%waNPredicted(i, j)%vr%assignP(3, this%waNPredicted(i, j + 1)%vr%vf(2)%fc(:, 1))
+          call this%waNPredicted(i, j)%vr%assignP(4, this%waNPredicted(i - 1, j + 1)%vr%vf(2)%fc(:, 1))
         enddo
       enddo
       !$omp end parallel do
 
       !$omp parallel do
       do j = 1, this%ns - 1
-        call this%waPPredicted(rowNear, j)%vr%assignP(3, this%waPPredicted(rowNear, j + 1)%vr%vf(2)%fc(:, 1))
+        call this%waNPredicted(rowNear, j)%vr%assignP(3, this%waNPredicted(rowNear, j + 1)%vr%vf(2)%fc(:, 1))
       enddo
       !$omp end parallel do
 
       !$omp parallel do
       do i = rowNear + 1, nNwake
-        call this%waPPredicted(i, this%ns)%vr%assignP(1, this%waPPredicted(i - 1, this%ns)%vr%vf(2)%fc(:, 1))
-        call this%waPPredicted(i, this%ns)%vr%assignP(4, this%waPPredicted(i - 1, this%ns)%vr%vf(3)%fc(:, 1))
+        call this%waNPredicted(i, this%ns)%vr%assignP(1, this%waNPredicted(i - 1, this%ns)%vr%vf(2)%fc(:, 1))
+        call this%waNPredicted(i, this%ns)%vr%assignP(4, this%waNPredicted(i - 1, this%ns)%vr%vf(3)%fc(:, 1))
       enddo
       !$omp end parallel do
 
@@ -1562,9 +1562,9 @@ contains
     real(dp) :: skewVal
 
     !! Burst near wake
-    !do icol=1,size(this%waP,2)
-    !  do irow=rowNear,size(this%waP,1)
-    !    call this%waP(irow,icol)%vr%burst(skewLimit)
+    !do icol=1,size(this%waN,2)
+    !  do irow=rowNear,size(this%waN,1)
+    !    call this%waN(irow,icol)%vr%burst(skewLimit)
     !  enddo
     !enddo
 
@@ -1593,9 +1593,9 @@ contains
     integer :: irow, icol
 
     !$omp parallel do collapse(2)
-    do icol = 1, size(this%waP, 2)
-      do irow = rowNear, size(this%waP, 1)
-        call this%waP(irow, icol)%vr%calc_skew()
+    do icol = 1, size(this%waN, 2)
+      do irow = rowNear, size(this%waN, 1)
+        call this%waN(irow, icol)%vr%calc_skew()
       enddo
     enddo
     !$omp end parallel do
@@ -1684,8 +1684,8 @@ contains
     integer, intent(out) :: iostat
     character(len=*), intent(inout) :: iomsg
 
-    write(unit, iostat=iostat, iomsg=iomsg) this%wiP, this%waP, this%waF, &
-      & this%waPPredicted, this%waFPredicted, &
+    write(unit, iostat=iostat, iomsg=iomsg) this%wiP, this%waN, this%waF, &
+      & this%waNPredicted, this%waFPredicted, &
       & this%theta, this%psi, &
       & this%forceInertial, this%lift, & 
       & this%drag, this%dragInduced, this%dragProfile, this%dragUnsteady, & 
@@ -1711,8 +1711,8 @@ contains
     integer, intent(out) :: iostat
     character(len=*), intent(inout) :: iomsg
 
-    read(unit, iostat=iostat, iomsg=iomsg) this%wiP, this%waP, this%waF, &
-      & this%waPPredicted, this%waFPredicted, &
+    read(unit, iostat=iostat, iomsg=iomsg) this%wiP, this%waN, this%waF, &
+      & this%waNPredicted, this%waFPredicted, &
       & this%theta, this%psi, &
       & this%forceInertial, this%lift, & 
       & this%drag, this%dragInduced, this%dragProfile, this%dragUnsteady, & 
@@ -2071,7 +2071,7 @@ contains
     ! Allocate blade object variables
     do ib = 1, this%nb
       allocate (this%blade(ib)%wiP(this%nc, this%ns))
-      allocate (this%blade(ib)%waP(this%nNwake, this%ns))
+      allocate (this%blade(ib)%waN(this%nNwake, this%ns))
       allocate (this%blade(ib)%waF(this%nFwake))
       allocate (this%blade(ib)%secTauCapChord(3, this%ns))
       allocate (this%blade(ib)%secTauCapSpan(3, this%ns))
@@ -2353,8 +2353,8 @@ contains
       do i = 1, 4
         this%blade(ib)%wiP%vr%vf(i)%age = 0._dp
         this%blade(ib)%wiP%vr%vf(i)%ageAzimuthal = 0._dp
-        this%blade(ib)%waP%vr%vf(i)%age = 0._dp
-        this%blade(ib)%waP%vr%vf(i)%ageAzimuthal = 0._dp
+        this%blade(ib)%waN%vr%vf(i)%age = 0._dp
+        this%blade(ib)%waN%vr%vf(i)%ageAzimuthal = 0._dp
       enddo
 
       this%blade(ib)%waF%vf%age = 0._dp
@@ -2497,7 +2497,7 @@ contains
       case (0)
         ! Do nothing
       case (1)
-        allocate (this%blade(ib)%waPPredicted(this%nNwake, this%ns))
+        allocate (this%blade(ib)%waNPredicted(this%nNwake, this%ns))
         allocate (this%blade(ib)%velNwakePredicted(3, this%nNwake, this%ns + 1))
         this%blade(ib)%velNwakePredicted = 0._dp
 
@@ -2516,7 +2516,7 @@ contains
         this%blade(ib)%velFwakeStep = 0._dp
 
       case (3)
-        allocate (this%blade(ib)%waPPredicted(this%nNwake, this%ns))
+        allocate (this%blade(ib)%waNPredicted(this%nNwake, this%ns))
         allocate (this%blade(ib)%velNwake1(3, this%nNwake, this%ns + 1))
         allocate (this%blade(ib)%velNwakePredicted(3, this%nNwake, this%ns + 1))
         allocate (this%blade(ib)%velNwakeStep(3, this%nNwake, this%ns + 1))
@@ -2532,7 +2532,7 @@ contains
         this%blade(ib)%velFwakePredicted = 0._dp
         this%blade(ib)%velFwakeStep = 0._dp
       case (4)
-        allocate (this%blade(ib)%waPPredicted(this%nNwake, this%ns))
+        allocate (this%blade(ib)%waNPredicted(this%nNwake, this%ns))
         allocate (this%blade(ib)%velNwake1(3, this%nNwake, this%ns + 1))
         allocate (this%blade(ib)%velNwake2(3, this%nNwake, this%ns + 1))
         allocate (this%blade(ib)%velNwakePredicted(3, this%nNwake, this%ns + 1))
@@ -2552,7 +2552,7 @@ contains
         this%blade(ib)%velFwakePredicted = 0._dp
         this%blade(ib)%velFwakeStep = 0._dp
       case (5)
-        allocate (this%blade(ib)%waPPredicted(this%nNwake, this%ns))
+        allocate (this%blade(ib)%waNPredicted(this%nNwake, this%ns))
         allocate (this%blade(ib)%velNwake1(3, this%nNwake, this%ns + 1))
         allocate (this%blade(ib)%velNwake2(3, this%nNwake, this%ns + 1))
         allocate (this%blade(ib)%velNwake3(3, this%nNwake, this%ns + 1))
@@ -2582,25 +2582,25 @@ contains
     ! Assign core_radius to mid vortices
     do ib = 1, this%nb
       do i = 2, 4, 2
-        this%blade(ib)%waP%vr%vf(i)%rVc0 = this%spanwiseCore
-        this%blade(ib)%waP%vr%vf(i)%rVc = this%spanwiseCore
+        this%blade(ib)%waN%vr%vf(i)%rVc0 = this%spanwiseCore
+        this%blade(ib)%waN%vr%vf(i)%rVc = this%spanwiseCore
       enddo
 
-      this%blade(ib)%waP%vr%gam = 0._dp
+      this%blade(ib)%waN%vr%gam = 0._dp
       this%blade(ib)%waF%gam = 0._dp
 
       ! Assign core_radius to tip vortices
       do j = 1, this%ns
         do i = 1, this%nNwake
-          this%blade(ib)%waP(i, j)%vr%vf(1)%rVc0 = this%streamwiseCoreVec(j)
-          this%blade(ib)%waP(i, j)%vr%vf(1)%rVc = this%streamwiseCoreVec(j)
+          this%blade(ib)%waN(i, j)%vr%vf(1)%rVc0 = this%streamwiseCoreVec(j)
+          this%blade(ib)%waN(i, j)%vr%vf(1)%rVc = this%streamwiseCoreVec(j)
         enddo
       enddo
 
       do j = 1, this%ns
         do i = 1, this%nNwake
-          this%blade(ib)%waP(i, j)%vr%vf(3)%rVc0 = this%streamwiseCoreVec(j + 1)
-          this%blade(ib)%waP(i, j)%vr%vf(3)%rVc = this%streamwiseCoreVec(j + 1)
+          this%blade(ib)%waN(i, j)%vr%vf(3)%rVc0 = this%streamwiseCoreVec(j + 1)
+          this%blade(ib)%waN(i, j)%vr%vf(3)%rVc = this%streamwiseCoreVec(j + 1)
         enddo
       enddo
 
@@ -2657,7 +2657,7 @@ contains
       case (0)
         ! Nothing to deallocate
       case (1)
-        deallocate (this%blade(ib)%waPPredicted)
+        deallocate (this%blade(ib)%waNPredicted)
         deallocate (this%blade(ib)%velNwakePredicted)
 
         deallocate (this%blade(ib)%waFPredicted)
@@ -2669,7 +2669,7 @@ contains
         deallocate (this%blade(ib)%velFwake1)
         deallocate (this%blade(ib)%velFwakeStep)
       case (3)
-        deallocate (this%blade(ib)%waPPredicted)
+        deallocate (this%blade(ib)%waNPredicted)
         deallocate (this%blade(ib)%velNwake1)
         deallocate (this%blade(ib)%velNwakeStep)
 
@@ -2677,7 +2677,7 @@ contains
         deallocate (this%blade(ib)%velFwake1)
         deallocate (this%blade(ib)%velFwakeStep)
       case (4)
-        deallocate (this%blade(ib)%waPPredicted)
+        deallocate (this%blade(ib)%waNPredicted)
         deallocate (this%blade(ib)%velNwake1)
         deallocate (this%blade(ib)%velNwake2)
         deallocate (this%blade(ib)%velNwakeStep)
@@ -2687,7 +2687,7 @@ contains
         deallocate (this%blade(ib)%velFwake2)
         deallocate (this%blade(ib)%velFwakeStep)
       case (5)
-        deallocate (this%blade(ib)%waPPredicted)
+        deallocate (this%blade(ib)%waNPredicted)
         deallocate (this%blade(ib)%velNwake1)
         deallocate (this%blade(ib)%velNwake2)
         deallocate (this%blade(ib)%velNwake3)
@@ -3001,18 +3001,18 @@ contains
     case ('LE')    ! assign to LE
       do ib = 1, this%nb
         do i = 1, this%ns
-          call this%blade(ib)%waP(this%rowNear, i)%vr%assignP(1, this%blade(ib)%wiP(this%nc, i)%vr%vf(2)%fc(:, 1))
-          call this%blade(ib)%waP(this%rowNear, i)%vr%assignP(4, this%blade(ib)%wiP(this%nc, i)%vr%vf(3)%fc(:, 1))
-          call this%blade(ib)%waP(this%rowNear, i)%vr%calclength(.TRUE.)    ! TRUE => record original length
+          call this%blade(ib)%waN(this%rowNear, i)%vr%assignP(1, this%blade(ib)%wiP(this%nc, i)%vr%vf(2)%fc(:, 1))
+          call this%blade(ib)%waN(this%rowNear, i)%vr%assignP(4, this%blade(ib)%wiP(this%nc, i)%vr%vf(3)%fc(:, 1))
+          call this%blade(ib)%waN(this%rowNear, i)%vr%calclength(.TRUE.)    ! TRUE => record original length
         enddo
-        this%blade(ib)%waP(this%rowNear, :)%vr%gam = this%blade(ib)%wiP(this%nc, :)%vr%gam
+        this%blade(ib)%waN(this%rowNear, :)%vr%gam = this%blade(ib)%wiP(this%nc, :)%vr%gam
 
       enddo
     case ('TE')    ! assign to next row's TE
       do ib = 1, this%nb
         do i = 1, this%ns
-          call this%blade(ib)%waP(max(this%rowNear - 1, 1), i)%vr%assignP(2, this%blade(ib)%wiP(this%nc, i)%vr%vf(2)%fc(:, 1))
-          call this%blade(ib)%waP(max(this%rowNear - 1, 1), i)%vr%assignP(3, this%blade(ib)%wiP(this%nc, i)%vr%vf(3)%fc(:, 1))
+          call this%blade(ib)%waN(max(this%rowNear - 1, 1), i)%vr%assignP(2, this%blade(ib)%wiP(this%nc, i)%vr%vf(2)%fc(:, 1))
+          call this%blade(ib)%waN(max(this%rowNear - 1, 1), i)%vr%assignP(3, this%blade(ib)%wiP(this%nc, i)%vr%vf(3)%fc(:, 1))
         enddo
       enddo
     case default
@@ -3032,14 +3032,14 @@ contains
     integer :: ib, ifil
     do ib = 1, this%nb
       do ifil = 1, 4
-        this%blade(ib)%waP(this%rowNear:this%nNwake, :)% &
+        this%blade(ib)%waN(this%rowNear:this%nNwake, :)% &
           & vr%vf(ifil)%age = &
-          & this%blade(ib)%waP(this%rowNear:this%nNwake, :)% &
+          & this%blade(ib)%waN(this%rowNear:this%nNwake, :)% &
           & vr%vf(ifil)%age + dt
 
-        this%blade(ib)%waP(this%rowNear:this%nNwake, :)% &
+        this%blade(ib)%waN(this%rowNear:this%nNwake, :)% &
           & vr%vf(ifil)%ageAzimuthal = &
-          & this%blade(ib)%waP(this%rowNear:this%nNwake, :)% &
+          & this%blade(ib)%waN(this%rowNear:this%nNwake, :)% &
           & vr%vf(ifil)%ageAzimuthal + dt*this%omegaSlow
       enddo
       this%blade(ib)%waF(this%rowFar:this%nFwake)%vf%age = &
@@ -3063,16 +3063,16 @@ contains
       do is = 1, this%ns
         !$omp parallel do
         do ic = this%rowNear, this%nNwake
-          this%blade(ib)%waP(ic, is)%vr%vf(1)%rVc = sqrt(this%blade(ib)%waP(ic, is)%vr%vf(1)%rVc**2._dp &
+          this%blade(ib)%waN(ic, is)%vr%vf(1)%rVc = sqrt(this%blade(ib)%waN(ic, is)%vr%vf(1)%rVc**2._dp &
             + 4._dp*oseenParameter*this%turbulentViscosity*kinematicViscosity*dt)
-          this%blade(ib)%waP(ic, is)%vr%vf(3)%rVc = this%blade(ib)%waP(ic, is)%vr%vf(1)%rVc
+          this%blade(ib)%waN(ic, is)%vr%vf(3)%rVc = this%blade(ib)%waN(ic, is)%vr%vf(1)%rVc
         enddo
         !$omp end parallel do
 
         ! To maintain consistency of rVc in overlapping filaments
         !$omp parallel do
         do ic = this%rowNear, this%nNwake
-          this%blade(ib)%waP(ic, is)%vr%vf(2)%rVc = sqrt(this%blade(ib)%waP(ic, is)%vr%vf(2)%rVc**2._dp &
+          this%blade(ib)%waN(ic, is)%vr%vf(2)%rVc = sqrt(this%blade(ib)%waN(ic, is)%vr%vf(2)%rVc**2._dp &
             + 4._dp*oseenParameter*this%turbulentViscosity*kinematicViscosity*dt)
         enddo
         !$omp end parallel do
@@ -3080,7 +3080,7 @@ contains
         if (this%rowNear .ne. this%nNwake) then
           !$omp parallel do
           do ic = this%rowNear + 1, this%nNwake
-            this%blade(ib)%waP(ic, is)%vr%vf(4)%rVc = this%blade(ib)%waP(ic - 1, is)%vr%vf(2)%rVc
+            this%blade(ib)%waN(ic, is)%vr%vf(4)%rVc = this%blade(ib)%waN(ic - 1, is)%vr%vf(2)%rVc
           enddo
           !$omp end parallel do
         endif
@@ -3172,12 +3172,12 @@ contains
 
     do ib = 1, this%nb
       do i = this%nNwake, 2, -1
-        this%blade(ib)%waP(i, :) = this%blade(ib)%waP(i - 1, :)
+        this%blade(ib)%waN(i, :) = this%blade(ib)%waN(i - 1, :)
       enddo
 
       ! Wake age of first row has to be set to zero
       do i = 1, 4
-        this%blade(ib)%waP(1, :)%vr%vf(i)%age = 0._dp
+        this%blade(ib)%waN(1, :)%vr%vf(i)%age = 0._dp
       enddo
     enddo
 
@@ -3198,7 +3198,7 @@ contains
     rowFarNext = this%rowFar - 1    ! Rollup the vortex filament of 'next' row
 
     do ib = 1, this%nb
-      gamRollup = this%blade(ib)%waP(this%nNwake, this%ns)%vr%gam
+      gamRollup = this%blade(ib)%waN(this%nNwake, this%ns)%vr%gam
       centroidLE = 0._dp
       centroidTE = 0._dp
       radiusRollup = 0._dp
@@ -3206,38 +3206,38 @@ contains
 
       do ispan = this%rollupStart, this%rollupEnd
         ! Find centroid LE and TE
-        centroidLE = centroidLE + this%blade(ib)%waP(this%nNwake, ispan)%vr%vf(4)%fc(:, 1)* &
-          this%blade(ib)%waP(this%nNwake, ispan)%vr%gam
-        centroidTE = centroidTE + this%blade(ib)%waP(this%nNwake, ispan)%vr%vf(3)%fc(:, 1)* &
-          this%blade(ib)%waP(this%nNwake, ispan)%vr%gam
-        gamSum = gamSum + this%blade(ib)%waP(this%nNwake, ispan)%vr%gam
+        centroidLE = centroidLE + this%blade(ib)%waN(this%nNwake, ispan)%vr%vf(4)%fc(:, 1)* &
+          this%blade(ib)%waN(this%nNwake, ispan)%vr%gam
+        centroidTE = centroidTE + this%blade(ib)%waN(this%nNwake, ispan)%vr%vf(3)%fc(:, 1)* &
+          this%blade(ib)%waN(this%nNwake, ispan)%vr%gam
+        gamSum = gamSum + this%blade(ib)%waN(this%nNwake, ispan)%vr%gam
 
         ! Assign gamRollup and radiusRollup from last row to wake filament gamma
         ! Compute gamRollup
         if (sign(1._dp, this%Omega*this%controlPitch(1)) > eps) then    ! +ve Omega or zero Omega with +ve pitch
-          if (this%blade(ib)%waP(this%nNwake, ispan)%vr%gam < gamRollup) then    ! '<' because of negative gamma
-            gamRollup = this%blade(ib)%waP(this%nNwake, ispan)%vr%gam
+          if (this%blade(ib)%waN(this%nNwake, ispan)%vr%gam < gamRollup) then    ! '<' because of negative gamma
+            gamRollup = this%blade(ib)%waN(this%nNwake, ispan)%vr%gam
           endif
         else    ! one of Omega or pitch is negative
-          if (this%blade(ib)%waP(this%nNwake, ispan)%vr%gam > gamRollup) then    ! '>' because of positive gamma
-            gamRollup = this%blade(ib)%waP(this%nNwake, ispan)%vr%gam
+          if (this%blade(ib)%waN(this%nNwake, ispan)%vr%gam > gamRollup) then    ! '>' because of positive gamma
+            gamRollup = this%blade(ib)%waN(this%nNwake, ispan)%vr%gam
           endif
         endif
 
         ! Compute radiusRollup
-        radiusRollup = radiusRollup + this%blade(ib)%waP(this%nNwake, ispan)%vr%vf(3)%rVc* &
-          this%blade(ib)%waP(this%nNwake, ispan)%vr%gam
+        radiusRollup = radiusRollup + this%blade(ib)%waN(this%nNwake, ispan)%vr%vf(3)%rVc* &
+          this%blade(ib)%waN(this%nNwake, ispan)%vr%gam
       enddo
 
-      ageRollup = this%blade(ib)%waP(this%nNwake, this%ns)%vr%vf(3)%age
+      ageRollup = this%blade(ib)%waN(this%nNwake, this%ns)%vr%vf(3)%age
       if (abs(gamSum) > eps) then
         centroidLE = centroidLE/gamSum
         centroidTE = centroidTE/gamSum
         radiusRollup = radiusRollup/gamSum
       else
-        centroidLE = this%blade(ib)%waP(this%nNwake, this%rollupEnd)%vr%vf(2)%fc(:, 1)
-        centroidTE = this%blade(ib)%waP(this%nNwake, this%rollupEnd)%vr%vf(3)%fc(:, 1)
-        radiusRollup = this%blade(ib)%waP(this%nNwake, this%rollupEnd)%vr%vf(3)%rVc
+        centroidLE = this%blade(ib)%waN(this%nNwake, this%rollupEnd)%vr%vf(2)%fc(:, 1)
+        centroidTE = this%blade(ib)%waN(this%nNwake, this%rollupEnd)%vr%vf(3)%fc(:, 1)
+        radiusRollup = this%blade(ib)%waN(this%nNwake, this%rollupEnd)%vr%vf(3)%rVc
       endif
 
       ! Suppress Fwake gam if required
@@ -3255,7 +3255,7 @@ contains
       ! Ensure continuity in far wake by assigning
       ! current centroidTE to LE of previous far wake filament
       ! The discontinuity would occur due to convection of
-      ! last row of waP in convectwake()
+      ! last row of waN in convectwake()
       if (rowFarNext < this%nFwake) then
         this%blade(ib)%waF(rowFarNext + 1)%vf%fc(:, 2) = centroidTE
       endif
@@ -3410,7 +3410,7 @@ contains
         !$omp parallel do collapse (2)
         do is = 1, this%ns
           do ic = 1, this%nNwake
-            this%blade(ib)%waP(ic, is) = fromRotor%blade(ib)%waP(ic, is)
+            this%blade(ib)%waN(ic, is) = fromRotor%blade(ib)%waN(ic, is)
           enddo
         enddo
         !$omp end parallel do
@@ -3425,7 +3425,7 @@ contains
         !$omp parallel do collapse (2)
         do is = 1, this%ns
           do ic = 1, this%nNwake
-            call this%blade(ib)%waP(ic, is)%vr%mirror( &
+            call this%blade(ib)%waN(ic, is)%vr%mirror( &
               & this%imagePlane)
           enddo
         enddo
@@ -3442,7 +3442,7 @@ contains
         !$omp parallel do collapse (2)
         do is = 1, this%ns
           do ic = this%rowNear, this%nNwake
-            this%blade(ib)%waP(ic, is) = fromRotor%blade(ib)%waP(ic, is)
+            this%blade(ib)%waN(ic, is) = fromRotor%blade(ib)%waN(ic, is)
           enddo
         enddo
         !$omp end parallel do
@@ -3457,7 +3457,7 @@ contains
         !$omp parallel do collapse (2)
         do is = 1, this%ns
           do ic = this%rowNear, this%nNwake
-            call this%blade(ib)%waP(ic, is)%vr%mirror( &
+            call this%blade(ib)%waN(ic, is)%vr%mirror( &
               & this%imagePlane)
           enddo
         enddo
@@ -3474,8 +3474,8 @@ contains
         !$omp parallel do collapse (2)
         do is = 1, this%ns
           do ic = this%rowNear, this%nNwake
-            this%blade(ib)%waPPredicted(ic, is) = &
-              & fromRotor%blade(ib)%waPPredicted(ic, is)
+            this%blade(ib)%waNPredicted(ic, is) = &
+              & fromRotor%blade(ib)%waNPredicted(ic, is)
           enddo
         enddo
         !$omp end parallel do
@@ -3491,7 +3491,7 @@ contains
         !$omp parallel do collapse (2)
         do is = 1, this%ns
           do ic = this%rowNear, this%nNwake
-            call this%blade(ib)%waPPredicted(ic, is)%vr%mirror( &
+            call this%blade(ib)%waNPredicted(ic, is)%vr%mirror( &
               & this%imagePlane)
           enddo
         enddo
@@ -3530,7 +3530,7 @@ contains
     integer :: ib
 
     do ib = 1, this%nb
-      this%blade(ib)%waP(rowErase, :)%vr%gam = 0._dp
+      this%blade(ib)%waN(rowErase, :)%vr%gam = 0._dp
     enddo
   end subroutine eraseNwake
 
