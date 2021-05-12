@@ -99,7 +99,8 @@ elif pyFilename == 'plot_drag.py':
     wait4file(resultsDir + 'drag.curve')
 
 if pyFilename == 'plot_force.py':
-    call(['gnuplot', src_plotDir + 'plot_force.py'])
+    # call(['gnuplot', src_plotDir + 'plot_force.py'])
+    call(['python3', src_plotDir + 'plot_force.py'])
 
 else:
     call(['visit', '-np', '4', '-s', '{}/{}'.format(src_plotDir, pyFilename)])
