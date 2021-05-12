@@ -650,9 +650,6 @@ program main
           call rotor(ir)%eraseFwake(rowErase)
         else  ! truncation in near wake
           rowErase = rotor(ir)%nNwake-(iter-rotor(ir)%wakeTruncateNt)+1
-          ! DEBUG
-          ! Correct this
-          print*, 'e', rowErase
           call rotor(ir)%eraseNwake(rowErase)
         endif
       endif
