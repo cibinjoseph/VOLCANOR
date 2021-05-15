@@ -1,6 +1,5 @@
 module libCommon
-  use rotor_classdef
-  use switches_classdef
+  use classdef
   implicit none
   include "init_file.f90"
 

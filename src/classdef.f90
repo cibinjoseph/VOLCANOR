@@ -1,8 +1,14 @@
-!------+-------------------+------|
-! ++++ | MODULE DEFINITION | ++++ |
-!------+-------------------+------|
-module switches_classdef
+!------+--------------------+------|
+! ++++ | MODULE DEFINITIONS | ++++ |
+!------+--------------------+------|
+module classdef
+  use libMath
+  use libC81
   implicit none
+  real(dp), parameter :: tol = 1.E-6
+  real(dp), parameter :: invTol2 = 1.E06
+  real(dp), parameter :: inv4pi = 0.25_dp/pi
+
   type switches_class
     integer :: ntSub, ntSubInit
     integer :: spanSpacing
@@ -14,14 +20,6 @@ module switches_classdef
     integer :: initWakeVelNt
     integer :: restartFromNt, restartWriteNt
   end type switches_class
-end module switches_classdef
-
-!------+-------------------+------|
-! ++++ | MODULE DEFINITION | ++++ |
-!------+-------------------+------|
-module vf_classdef
-  use libMath
-  implicit none
 
   type vf_class
     real(dp), dimension(3, 2) :: fc  ! filament coords (xyz,1:2)
@@ -37,11 +35,266 @@ module vf_classdef
     procedure :: strain => vfclass_strain
   end type vf_class
 
-  real(dp), parameter :: tol = 1.E-6
-  real(dp), parameter :: invTol2 = 1.E06
-  real(dp), parameter :: inv4pi = 0.25_dp/pi
+  type vr_class
+    type(vf_class), dimension(4) :: vf
+    real(dp) :: gam
+    real(dp) :: skew
+  contains
+    procedure :: vind => vrclass_vind
+    procedure :: vindSource => vrclass_vindSource
+    procedure :: assignP => vrclass_assignP
+    procedure :: shiftdP => vrclass_shiftdP
+    procedure :: rot => vrclass_rot
+    procedure :: calclength => vrclass_calclength
+    procedure :: strain => vrclass_strain
+    procedure :: calc_skew => calc_skew
+    procedure :: burst
+    procedure :: getInteriorAngles
+    procedure :: getMedianAngle
+    procedure :: getBimedianCos
+    procedure :: mirror => vrclass_mirror
+  end type vr_class
+
+  type wingpanel_class
+    ! Panel coordinates
+    ! o-------> Y along span
+    ! |
+    ! |   1-------4
+    ! |   |   4   |
+    ! |   |1     3|
+    ! |   |   2   |
+    ! |   2-------3
+    ! |
+    ! V X along chord
+    type(vr_class) :: vr
+    real(dp) :: gamPrev
+    real(dp) :: gamTrapz
+    real(dp), dimension(3, 4) :: pc    ! panel coords
+    real(dp), dimension(3) :: cp      ! coll point coords
+    real(dp), dimension(3) :: nCap    ! unit normal vector
+    real(dp), dimension(3) :: tauCapChord ! unit tangential vector along chord
+    real(dp), dimension(3) :: tauCapSpan  ! unit tangential vector along span
+    real(dp), dimension(3) :: velCP    ! local vel at CP excluding wing vortices
+    real(dp), dimension(3) :: velCPTotal  ! local vel at CP including wing vortices
+    real(dp), dimension(3) :: velCPm  ! rel. inertial vel at CP (due to motion)
+    real(dp), dimension(3) :: normalForce  ! normalForce vector (inertial frame)
+    real(dp), dimension(3) :: chordwiseResVel
+    real(dp) :: velPitch             ! pitch velocity
+    !real(dp) :: dLift, dDrag          ! magnitudes of panel lift and drag
+    real(dp) :: delP                  ! Pressure difference at panel
+    real(dp) :: delDiConstant         ! Induced drag (constant part) at panel
+    real(dp) :: delDiUnsteady         ! Induced drag (unsteady part) at panel
+    real(dp) :: meanChord, meanSpan ! Panel mean dimensions
+    real(dp) :: panelArea            ! Panel area for computing lift
+    real(dp) :: rHinge  ! dist to point about which pitching occurs (LE of wing)
+    real(dp) :: alpha                 ! local angle of attack
+  contains
+    procedure :: assignP => wingpanel_class_assignP
+    procedure :: calcCP => wingpanel_class_calcCP
+    procedure :: calcN => wingpanel_class_calcN
+    procedure :: calcTau => wingpanel_class_calcTau
+    procedure :: rot => wingpanel_class_rot
+    procedure :: shiftdP => wingpanel_class_shiftdP
+    procedure :: calc_chordwiseResVel => wingpanel_calc_chordwiseResVel
+    procedure :: calc_area
+    procedure :: calc_mean_dimensions
+    procedure :: isCPinsidecore
+  end type wingpanel_class
+
+  type Nwake_class
+    ! VR coordinates
+    ! o-------> Y along span
+    ! |
+    ! |   1-------4
+    ! |   |   4   |
+    ! |   |1     3|
+    ! |   |   2   |
+    ! |   2-------3
+    ! |
+    ! V X along chord
+
+    type(vr_class) :: vr
+  end type Nwake_class
+
+  type Fwake_class
+    ! VF coordinates
+    ! o-------> Y along span
+    ! |
+    ! |   1
+    ! |   |
+    ! |   |1
+    ! |   |
+    ! |   2
+    ! |
+    ! V X along chord
+    type(vf_class) :: vf
+    real(dp) :: gam
+  contains
+    procedure :: shiftdP => Fwake_shiftdP
+    procedure :: assignP => Fwake_assignP
+    procedure :: mirror => Fwake_mirror
+  end type Fwake_class
+
+  type blade_class
+    type(wingpanel_class), allocatable, dimension(:, :) :: wiP  ! Wing panel
+    type(Nwake_class), allocatable, dimension(:, :) :: waN  ! Near wake
+    type(Fwake_class), allocatable, dimension(:) :: waF  ! Far wake
+    type(Nwake_class), allocatable, dimension(:, :) :: waNPredicted
+    type(Fwake_class), allocatable, dimension(:) :: waFPredicted
+    type(C81_class), allocatable, dimension(:) :: C81
+    integer :: nc, ns
+    real(dp) :: theta, psi, pivotLE
+    real(dp), dimension(3) :: forceInertial
+    real(dp), dimension(3) :: lift, drag, dragInduced, dragProfile, dragUnsteady
+    integer, allocatable, dimension(:) :: airfoilNo
+    character(len=30), allocatable, dimension(:) :: airfoilFile
+    real(dp), allocatable, dimension(:) :: airfoilSectionLimit
+    real(dp), allocatable, dimension(:, :, :) :: velNwake, velNwake1, velNwake2, velNwake3
+    real(dp), allocatable, dimension(:, :, :) :: velNwakePredicted, velNwakeStep
+    real(dp), allocatable, dimension(:, :) :: velFwake, velFwake1, velFwake2, velFwake3
+    real(dp), allocatable, dimension(:, :) :: velFwakePredicted, velFwakeStep
+    integer :: stlNodesCols  ! Cols of stlNodes array
+    real(dp), allocatable, dimension(:, :) :: stlNodes ! (3, stlNodesCols)
+    integer, allocatable, dimension(:, :) :: stlElementNodes ! 3 Vertices of each element
+    real(dp), dimension(3) :: xAxis, yAxis, zAxis
+    ! Sectional quantities
+    real(dp), allocatable, dimension(:) :: secChord, secArea
+    real(dp), allocatable, dimension(:, :) :: secForceInertial, secLift, secDrag
+    real(dp), allocatable, dimension(:, :) :: secLiftDir, secDragDir
+    real(dp), allocatable, dimension(:, :) :: secDragInduced, secDragProfile, secDragUnsteady
+    real(dp), allocatable, dimension(:, :) :: secTauCapChord, secTauCapSpan
+    real(dp), allocatable, dimension(:, :) :: secNormalVec, secVelFreestream
+    real(dp), allocatable, dimension(:, :) :: secChordwiseResVel, secCP
+    real(dp), allocatable, dimension(:) :: secAlpha, secCL, secCD, secCM
+    real(dp), allocatable, dimension(:) :: alpha0
+    integer :: spanwiseLiftSwitch
+  contains
+    procedure :: move => blade_move
+    procedure :: rot_pitch
+    procedure :: rot_axis
+    procedure :: rot_pts => blade_rot_pts
+    procedure :: vind_bywing => blade_vind_bywing
+    procedure :: vindSource_bywing => blade_vindSource_bywing
+    procedure :: vind_bywing_boundVortices => blade_vind_bywing_boundVortices
+    procedure :: vind_bywing_chordwiseVortices => blade_vind_bywing_chordwiseVortices
+    procedure :: vind_boundVortex => blade_vind_boundVortex
+    procedure :: vind_bywake => blade_vind_bywake
+    procedure :: convectwake
+    procedure :: wake_continuity
+    procedure :: getSecDynamicPressure
+    procedure :: calc_secArea, calc_secChord
+    procedure :: calc_force_gamma => blade_calc_force_gamma
+    procedure :: calc_force_alpha => blade_calc_force_alpha
+    procedure :: calc_force_alphaGamma => blade_calc_force_alphaGamma
+    procedure :: calc_secAlpha => blade_calc_secAlpha
+    procedure :: calc_secChordwiseResVel => blade_calc_secChordwiseResVel
+    procedure :: burst_wake => blade_burst_wake
+    procedure :: calc_skew => blade_calc_skew
+    procedure :: getSecChordwiseLocations
+    procedure :: lookup_secCoeffs
+    procedure :: secCoeffsToSecForces
+    procedure :: dirLiftDrag => blade_dirLiftDrag
+    procedure :: sumSecToNetForces
+    procedure :: calc_stlStats
+    ! I/O subroutines
+    procedure :: blade_write
+    generic :: write(unformatted) => blade_write
+    procedure :: blade_read
+    generic :: read(unformatted) => blade_read
+  end type blade_class
+
+  type rotor_class
+    integer :: nb, ns, nc, nNwake, nFwake
+    type(blade_class), allocatable, dimension(:) :: blade
+    real(dp) :: Omega, omegaSlow
+    real(dp), dimension(3) :: shaftAxis
+    real(dp), dimension(3) :: hubCoords, cgCoords, fromCoords
+    real(dp) :: radius, chord, root_cut, coningAngle
+    real(dp), dimension(3) :: forceInertial, lift, drag
+    real(dp), dimension(3) :: dragInduced, dragProfile, dragUnsteady
+    real(dp), dimension(3) :: liftUnitVec, dragUnitVec, sideUnitVec
+    real(dp), dimension(3) :: controlPitch  ! theta0,thetaC,thetaS
+    real(dp) :: thetaTwist
+    real(dp) :: pivotLE  ! pivot location from LE [x/c]
+    real(dp) :: flapHinge  ! hinge location from centre [x/R]
+    real(dp), dimension(3) :: velBody, omegaBody
+    real(dp), allocatable, dimension(:, :) :: velBodyHistory, omegaBodyHistory
+    real(dp) :: psi
+    real(dp), dimension(3) :: pts  ! phi,theta,psi about cgCoords
+    character(len=1) :: streamwiseCoreSwitch
+    real(dp) :: spanwiseCore
+    real(dp), allocatable, dimension(:) :: streamwiseCoreVec
+    real(dp), allocatable, dimension(:, :) :: AIC, AIC_inv
+    real(dp), allocatable, dimension(:) :: gamVec, gamVecPrev, RHS
+    real(dp), allocatable, dimension(:) :: camberSectionLimit
+    real(dp), allocatable, dimension(:) :: airfoilSectionLimit
+    real(dp), allocatable, dimension(:) :: alpha0
+    real(dp) :: initWakeVel, psiStart, skewLimit
+    real(dp) :: turbulentViscosity
+    real(dp) :: rollupStartRadius, rollupEndRadius
+    integer :: propConvention
+    integer :: symmetricTau
+    integer :: wakeTruncateNt
+    integer :: rollupStart, rollupEnd
+    integer :: suppressFwakeSwitch
+    integer :: forceCalcSwitch, skewPlotSwitch
+    integer :: inflowPlotSwitch, bladeForcePlotSwitch
+    integer :: spanwiseLiftSwitch, customTrajectorySwitch
+    integer :: gammaPlotSwitch, alphaPlotSwitch
+    integer :: rowNear, rowFar
+    integer :: nCamberFiles, nAirfoils
+    integer :: imagePlane, imageRotorNum
+    integer :: surfaceType  
+    character(len=30), allocatable, dimension(:) :: camberFile, airfoilFile
+    character(len=30) :: geometryFile
+    real(dp) :: nonDimforceDenominator
+  contains
+    procedure :: read_geom
+    procedure :: init => rotor_init
+    procedure :: deinit => rotor_deinit
+    procedure :: plot3dtoblade, stltoblade
+    procedure :: getCamber
+    procedure :: gettheta
+    procedure :: getthetadot
+    procedure :: move => rotor_move
+    procedure :: rot_pts => rotor_rot_pts
+    procedure :: rot_advance => rotor_rot_advance
+    procedure :: assignshed
+    procedure :: map_gam
+    procedure :: age_wake
+    procedure :: dissipate_wake
+    procedure :: strain_wake
+    procedure :: calcAIC
+    procedure :: vind_bywing => rotor_vind_bywing
+    procedure :: vind_bywing_boundVortices => rotor_vind_bywing_boundVortices
+    procedure :: vind_bywake => rotor_vind_bywake
+    procedure :: shiftwake => rotor_shiftwake
+    procedure :: rollup => rotor_rollup
+    procedure :: calc_force_gamma => rotor_calc_force_gamma
+    procedure :: calc_force_alpha => rotor_calc_force_alpha
+    procedure :: calc_force_alphaGamma => rotor_calc_force_alphaGamma
+    procedure :: calc_secAlpha => rotor_calc_secAlpha
+    procedure :: burst_wake => rotor_burst_wake
+    procedure :: calc_skew => rotor_calc_skew
+    procedure :: dirLiftDrag => rotor_dirLiftDrag
+    procedure :: sumBladeToNetForces
+    procedure :: mirrorGamma
+    procedure :: mirrorVelCP
+    procedure :: mirrorWake
+    procedure :: toChordsRevs
+    procedure :: eraseNwake, eraseFwake
+    ! I/O subroutines
+    procedure :: rotor_write
+    generic :: write(unformatted) => rotor_write
+    procedure :: rotor_read
+    generic :: read(unformatted) => rotor_read
+  end type rotor_class
 
 contains
+
+  !------+--
+  ! ++++ | vf_class Methods
+  !------+--
 
   ! Efficient implementation to vind calculation
   function vfclass_vind(this, P) result(vind)
@@ -88,36 +341,9 @@ contains
     this%rVc = this%rVc0*sqrt(this%l0/this%lc)
   end subroutine vfclass_strain
 
-end module vf_classdef
-
-!------+-------------------+------|
-! ++++ | MODULE DEFINITION | ++++ |
-!------+-------------------+------|
-module vr_classdef
-
-  use vf_classdef
-  implicit none
-  type vr_class
-    type(vf_class), dimension(4) :: vf
-    real(dp) :: gam
-    real(dp) :: skew
-  contains
-    procedure :: vind => vrclass_vind
-    procedure :: vindSource => vrclass_vindSource
-    procedure :: assignP => vrclass_assignP
-    procedure :: shiftdP => vrclass_shiftdP
-    procedure :: rot => vrclass_rot
-    procedure :: calclength => vrclass_calclength
-    procedure :: strain => vrclass_strain
-    procedure :: calc_skew => calc_skew
-    procedure :: burst
-    procedure :: getInteriorAngles
-    procedure :: getMedianAngle
-    procedure :: getBimedianCos
-    procedure :: mirror => vrclass_mirror
-  end type vr_class
-
-contains
+  !------+--
+  ! ++++ | vr_class Methods
+  !------+--
 
   function vrclass_vind(this, P) result(vind)
     ! Compute induced velocity by
@@ -337,64 +563,9 @@ contains
 
   end subroutine burst
 
-end module vr_classdef
-
-!------+-------------------+------|
-! ++++ | MODULE DEFINITION | ++++ |
-!------+-------------------+------|
-module wingpanel_classdef
-  use vr_classdef
-  implicit none
-  type wingpanel_class
-    type(vr_class) :: vr
-    real(dp) :: gamPrev
-    real(dp) :: gamTrapz
-    real(dp), dimension(3, 4) :: pc    ! panel coords
-    real(dp), dimension(3) :: cp      ! coll point coords
-    real(dp), dimension(3) :: nCap    ! unit normal vector
-    real(dp), dimension(3) :: tauCapChord ! unit tangential vector along chord
-    real(dp), dimension(3) :: tauCapSpan  ! unit tangential vector along span
-    real(dp), dimension(3) :: velCP    ! local vel at CP excluding wing vortices
-    real(dp), dimension(3) :: velCPTotal  ! local vel at CP including wing vortices
-    real(dp), dimension(3) :: velCPm  ! rel. inertial vel at CP (due to motion)
-    real(dp), dimension(3) :: normalForce  ! normalForce vector (inertial frame)
-    real(dp), dimension(3) :: chordwiseResVel
-    real(dp) :: velPitch             ! pitch velocity
-    !real(dp) :: dLift, dDrag          ! magnitudes of panel lift and drag
-    real(dp) :: delP                  ! Pressure difference at panel
-    real(dp) :: delDiConstant         ! Induced drag (constant part) at panel
-    real(dp) :: delDiUnsteady         ! Induced drag (unsteady part) at panel
-    real(dp) :: meanChord, meanSpan ! Panel mean dimensions
-    real(dp) :: panelArea            ! Panel area for computing lift
-    real(dp) :: rHinge  ! dist to point about which pitching occurs (LE of wing)
-    real(dp) :: alpha                 ! local angle of attack
-  contains
-    procedure :: assignP => wingpanel_class_assignP
-    procedure :: calcCP => wingpanel_class_calcCP
-    procedure :: calcN => wingpanel_class_calcN
-    procedure :: calcTau => wingpanel_class_calcTau
-    procedure :: rot => wingpanel_class_rot
-    procedure :: shiftdP => wingpanel_class_shiftdP
-    procedure :: calc_chordwiseResVel => wingpanel_calc_chordwiseResVel
-    procedure :: calc_area
-    procedure :: calc_mean_dimensions
-    procedure :: isCPinsidecore
-  end type wingpanel_class
-
-contains
-
-  ! Panel coordinates
-  ! o---------> Y along span
-  ! |
-  ! |   1-----------4
-  ! |   |     4     |
-  ! |   |           |
-  ! |   |1         3|
-  ! |   |           |
-  ! |   |     2     |
-  ! |   2-----------3
-  ! |
-  ! V X along chord
+  !------+--
+  ! ++++ | wingpanel_class Methods
+  !------+--
 
   subroutine wingpanel_class_assignP(this, n, P)
     ! Assign coordinates to nth corner
@@ -558,65 +729,13 @@ contains
   !  endif
   !end subroutine wingpanel_calc_alpha
 
-end module wingpanel_classdef
+  !------+--
+  ! ++++ | Nwake_class Methods
+  !------+--
 
-!------+-------------------+------|
-! ++++ | MODULE DEFINITION | ++++ |
-!------+-------------------+------|
-module Nwake_classdef
-  use vr_classdef
-  implicit none
-  type Nwake_class
-    type(vr_class) :: vr
-  end type Nwake_class
-
-contains
-
-  ! VR coordinates
-  ! o---------> Y along span
-  ! |
-  ! |   1-----------4
-  ! |   |     4     |
-  ! |   |           |
-  ! |   |1         3|
-  ! |   |           |
-  ! |   |     2     |
-  ! |   2-----------3
-  ! |
-  ! V X along chord
-
-end module Nwake_classdef
-
-!------+-------------------+------|
-! ++++ | MODULE DEFINITION | ++++ |
-!------+-------------------+------|
-module Fwake_classdef
-  use vf_classdef
-  implicit none
-  type Fwake_class
-    type(vf_class) :: vf
-    real(dp) :: gam
-
-  contains
-    procedure :: shiftdP => Fwake_shiftdP
-    procedure :: assignP => Fwake_assignP
-    procedure :: mirror => Fwake_mirror
-  end type Fwake_class
-
-contains
-
-  ! VF coordinates
-  ! o---------> Y along span
-  ! |
-  ! |   1
-  ! |   |
-  ! |   |
-  ! |   |1
-  ! |   |
-  ! |   |
-  ! |   2
-  ! |
-  ! V X along chord
+  !------+--
+  ! ++++ | Fwake_class Methods
+  !------+--
 
   subroutine Fwake_shiftdP(this, n, dshift)
     ! Shift coordinates of nth corner by dshift distance
@@ -653,86 +772,10 @@ contains
     enddo
     this%gam = -1._dp * this%gam
   end subroutine Fwake_mirror
-end module Fwake_classdef
 
-!------+-------------------+------|
-! ++++ | MODULE DEFINITION | ++++ |
-!------+-------------------+------|
-module blade_classdef
-  use wingpanel_classdef
-  use Nwake_classdef
-  use Fwake_classdef
-  use libC81
-  implicit none
-  type blade_class
-    type(wingpanel_class), allocatable, dimension(:, :) :: wiP  ! Wing panel
-    type(Nwake_class), allocatable, dimension(:, :) :: waN  ! Near wake
-    type(Fwake_class), allocatable, dimension(:) :: waF  ! Far wake
-    type(Nwake_class), allocatable, dimension(:, :) :: waNPredicted
-    type(Fwake_class), allocatable, dimension(:) :: waFPredicted
-    type(C81_class), allocatable, dimension(:) :: C81
-    integer :: nc, ns
-    real(dp) :: theta, psi, pivotLE
-    real(dp), dimension(3) :: forceInertial
-    real(dp), dimension(3) :: lift, drag, dragInduced, dragProfile, dragUnsteady
-    integer, allocatable, dimension(:) :: airfoilNo
-    character(len=30), allocatable, dimension(:) :: airfoilFile
-    real(dp), allocatable, dimension(:) :: airfoilSectionLimit
-    real(dp), allocatable, dimension(:, :, :) :: velNwake, velNwake1, velNwake2, velNwake3
-    real(dp), allocatable, dimension(:, :, :) :: velNwakePredicted, velNwakeStep
-    real(dp), allocatable, dimension(:, :) :: velFwake, velFwake1, velFwake2, velFwake3
-    real(dp), allocatable, dimension(:, :) :: velFwakePredicted, velFwakeStep
-    integer :: stlNodesCols  ! Cols of stlNodes array
-    real(dp), allocatable, dimension(:, :) :: stlNodes ! (3, stlNodesCols)
-    integer, allocatable, dimension(:, :) :: stlElementNodes ! 3 Vertices of each element
-    real(dp), dimension(3) :: xAxis, yAxis, zAxis
-    ! Sectional quantities
-    real(dp), allocatable, dimension(:) :: secChord, secArea
-    real(dp), allocatable, dimension(:, :) :: secForceInertial, secLift, secDrag
-    real(dp), allocatable, dimension(:, :) :: secLiftDir, secDragDir
-    real(dp), allocatable, dimension(:, :) :: secDragInduced, secDragProfile, secDragUnsteady
-    real(dp), allocatable, dimension(:, :) :: secTauCapChord, secTauCapSpan
-    real(dp), allocatable, dimension(:, :) :: secNormalVec, secVelFreestream
-    real(dp), allocatable, dimension(:, :) :: secChordwiseResVel, secCP
-    real(dp), allocatable, dimension(:) :: secAlpha, secCL, secCD, secCM
-    real(dp), allocatable, dimension(:) :: alpha0
-    integer :: spanwiseLiftSwitch
-
-  contains
-    procedure :: move => blade_move
-    procedure :: rot_pitch
-    procedure :: rot_axis
-    procedure :: rot_pts => blade_rot_pts
-    procedure :: vind_bywing => blade_vind_bywing
-    procedure :: vindSource_bywing => blade_vindSource_bywing
-    procedure :: vind_bywing_boundVortices => blade_vind_bywing_boundVortices
-    procedure :: vind_bywing_chordwiseVortices => blade_vind_bywing_chordwiseVortices
-    procedure :: vind_boundVortex => blade_vind_boundVortex
-    procedure :: vind_bywake => blade_vind_bywake
-    procedure :: convectwake
-    procedure :: wake_continuity
-    procedure :: getSecDynamicPressure
-    procedure :: calc_secArea, calc_secChord
-    procedure :: calc_force_gamma => blade_calc_force_gamma
-    procedure :: calc_force_alpha => blade_calc_force_alpha
-    procedure :: calc_force_alphaGamma => blade_calc_force_alphaGamma
-    procedure :: calc_secAlpha => blade_calc_secAlpha
-    procedure :: calc_secChordwiseResVel => blade_calc_secChordwiseResVel
-    procedure :: burst_wake => blade_burst_wake
-    procedure :: calc_skew => blade_calc_skew
-    procedure :: getSecChordwiseLocations
-    procedure :: lookup_secCoeffs
-    procedure :: secCoeffsToSecForces
-    procedure :: dirLiftDrag => blade_dirLiftDrag
-    procedure :: sumSecToNetForces
-    procedure :: calc_stlStats
-    ! I/O subroutines
-    procedure :: blade_write
-    generic :: write(unformatted) => blade_write
-    procedure :: blade_read
-    generic :: read(unformatted) => blade_read
-  end type blade_class
-contains
+  !------+--
+  ! ++++ | blade_class Methods
+  !------+--
 
   subroutine blade_move(this, dshift)
     ! Move blade by dshift
@@ -1732,107 +1775,9 @@ contains
       & this%alpha0
   end subroutine blade_read
 
-end module blade_classdef
-
-!------+-------------------+------|
-! ++++ | MODULE DEFINITION | ++++ |
-!------+-------------------+------|
-module rotor_classdef
-  use switches_classdef
-  use blade_classdef
-  implicit none
-  type rotor_class
-    integer :: nb, ns, nc, nNwake, nFwake
-    type(blade_class), allocatable, dimension(:) :: blade
-    real(dp) :: Omega, omegaSlow
-    real(dp), dimension(3) :: shaftAxis
-    real(dp), dimension(3) :: hubCoords, cgCoords, fromCoords
-    real(dp) :: radius, chord, root_cut, coningAngle
-    real(dp), dimension(3) :: forceInertial, lift, drag
-    real(dp), dimension(3) :: dragInduced, dragProfile, dragUnsteady
-    real(dp), dimension(3) :: liftUnitVec, dragUnitVec, sideUnitVec
-    real(dp), dimension(3) :: controlPitch  ! theta0,thetaC,thetaS
-    real(dp) :: thetaTwist
-    real(dp) :: pivotLE  ! pivot location from LE [x/c]
-    real(dp) :: flapHinge  ! hinge location from centre [x/R]
-    real(dp), dimension(3) :: velBody, omegaBody
-    real(dp), allocatable, dimension(:, :) :: velBodyHistory, omegaBodyHistory
-    real(dp) :: psi
-    real(dp), dimension(3) :: pts  ! phi,theta,psi about cgCoords
-    character(len=1) :: streamwiseCoreSwitch
-    real(dp) :: spanwiseCore
-    real(dp), allocatable, dimension(:) :: streamwiseCoreVec
-    real(dp), allocatable, dimension(:, :) :: AIC, AIC_inv
-    real(dp), allocatable, dimension(:) :: gamVec, gamVecPrev, RHS
-    real(dp), allocatable, dimension(:) :: camberSectionLimit
-    real(dp), allocatable, dimension(:) :: airfoilSectionLimit
-    real(dp), allocatable, dimension(:) :: alpha0
-    real(dp) :: initWakeVel, psiStart, skewLimit
-    real(dp) :: turbulentViscosity
-    real(dp) :: rollupStartRadius, rollupEndRadius
-    integer :: propConvention
-    integer :: symmetricTau
-    integer :: wakeTruncateNt
-    integer :: rollupStart, rollupEnd
-    integer :: suppressFwakeSwitch
-    integer :: forceCalcSwitch, skewPlotSwitch
-    integer :: inflowPlotSwitch, bladeForcePlotSwitch
-    integer :: spanwiseLiftSwitch, customTrajectorySwitch
-    integer :: gammaPlotSwitch, alphaPlotSwitch
-    integer :: rowNear, rowFar
-    integer :: nCamberFiles, nAirfoils
-    integer :: imagePlane, imageRotorNum
-    integer :: surfaceType  
-    character(len=30), allocatable, dimension(:) :: camberFile, airfoilFile
-    character(len=30) :: geometryFile
-    real(dp) :: nonDimforceDenominator
-  contains
-    procedure :: read_geom
-    procedure :: init => rotor_init
-    procedure :: deinit => rotor_deinit
-    procedure :: plot3dtoblade, stltoblade
-    procedure :: getCamber
-    procedure :: gettheta
-    procedure :: getthetadot
-    procedure :: move => rotor_move
-    procedure :: rot_pts => rotor_rot_pts
-    procedure :: rot_advance => rotor_rot_advance
-    procedure :: assignshed
-    procedure :: map_gam
-    procedure :: age_wake
-    procedure :: dissipate_wake
-    procedure :: strain_wake
-    procedure :: calcAIC
-    procedure :: vind_bywing => rotor_vind_bywing
-    procedure :: vind_bywing_boundVortices => rotor_vind_bywing_boundVortices
-    procedure :: vind_bywake => rotor_vind_bywake
-    procedure :: shiftwake => rotor_shiftwake
-    procedure :: rollup => rotor_rollup
-    procedure :: calc_force_gamma => rotor_calc_force_gamma
-    procedure :: calc_force_alpha => rotor_calc_force_alpha
-    procedure :: calc_force_alphaGamma => rotor_calc_force_alphaGamma
-    procedure :: calc_secAlpha => rotor_calc_secAlpha
-    procedure :: burst_wake => rotor_burst_wake
-    procedure :: calc_skew => rotor_calc_skew
-    procedure :: dirLiftDrag => rotor_dirLiftDrag
-    procedure :: sumBladeToNetForces
-    procedure :: mirrorGamma
-    procedure :: mirrorVelCP
-    procedure :: mirrorWake
-    procedure :: toChordsRevs
-    procedure :: eraseNwake, eraseFwake
-    ! I/O subroutines
-    procedure :: rotor_write
-    generic :: write(unformatted) => rotor_write
-    procedure :: rotor_read
-    generic :: read(unformatted) => rotor_read
-  end type rotor_class
-
-contains
-
-  !-----+--------------------------+-----|
-  ! -+- | Initialization Functions | -+- |
-  !-----+--------------------------+-----|
+  !------+--
+  ! ++++ | rotor_class Methods
+  !------+--
 
   subroutine read_geom(this, filename)
   class(rotor_class) :: this
@@ -3578,4 +3523,4 @@ contains
       & this%gamVec, this%gamVecPrev, this%RHS, &
       & this%rowNear, this%rowFar
   end subroutine rotor_write
-end module rotor_classdef
+end module classdef

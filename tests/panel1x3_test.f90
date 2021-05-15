@@ -1,7 +1,6 @@
 module panel1x3_test
   use naturalfruit
-  use rotor_classdef
-  use switches_classdef
+  use classdef
   implicit none
 
   type(rotor_class) :: rotor

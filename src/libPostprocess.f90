@@ -1,6 +1,5 @@
 module libPostprocess
-  use rotor_classdef
-  use switches_classdef
+  use classdef
   character(len=8) :: ResultsDir = 'Results/'
 
 contains

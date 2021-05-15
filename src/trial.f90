@@ -1,5 +1,5 @@
 program trial
-  use vr_classdef
+  use classdef
   implicit none 
   type(vr_class) :: vr
   type(vf_class) :: vfx, vfy, vfwake
