@@ -136,6 +136,13 @@ module classdef
     procedure :: mirror => Fwake_mirror
   end type Fwake_class
 
+  type pFwake_class
+    type(Fwake_class), allocatable, dimension(:) :: Fwake
+  contains
+    procedure :: create => pFwake_create
+    procedure :: shiftdP => pFwake_shiftdP
+  end type pFwake_class
+
   type blade_class
     type(wingpanel_class), allocatable, dimension(:, :) :: wiP  ! Wing panel
     type(Nwake_class), allocatable, dimension(:, :) :: waN  ! Near wake
@@ -786,6 +793,51 @@ contains
     enddo
     this%gam = -1._dp * this%gam
   end subroutine Fwake_mirror
+
+  !------+--
+  ! ++++ | pFwake_class Methods
+  !------+--
+  subroutine pFwake_create(this, nrevs, radius, pitch)
+  class(pFwake_class) :: this
+    real(dp), intent(in) :: nrevs, radius, pitch
+    real(dp) :: dtheta
+    real(dp), allocatable, dimension(:) :: theta
+    real(dp), dimension(3) :: coords
+    integer :: npoints, i
+    logical :: isCounterClockwise
+
+    isCounterClockwise = .False.
+
+    dtheta = 15._dp
+    npoints = int(ceiling(nrevs*360._dp/dtheta))
+
+    allocate(this%Fwake(npoints-1))
+    allocate(theta(npoints))
+
+    theta = linspace(0._dp, 2._dp*pi*nrevs, npoints)
+    if (isCounterClockwise) theta = theta*1._dp
+
+    call this%Fwake(1)%assignP(1, (/0._dp, radius, 0._dp/))
+    do i = 2, npoints-2
+      coords = (/radius*sin(theta(i)), radius*cos(theta(i)), &
+        & abs(theta(i))*pitch/(2._dp*pi)/)
+
+      call this%Fwake(i)%assignP(2, coords)
+      call this%Fwake(i+1)%assignP(1, coords)
+    enddo
+    call this%Fwake(npoints-1)%assignP(2, coords)
+  end subroutine pFwake_create
+
+  subroutine pFwake_shiftdP(this, dshift)
+  class(pFwake_class) :: this
+    real(dp), intent(in), dimension(3) :: dshift
+    integer :: i
+
+    do i = 1, size(this%Fwake)
+      call this%Fwake(i)%shiftdP(1, dshift)
+      call this%Fwake(i)%shiftdP(2, dshift)
+    enddo
+  end subroutine pFwake_shiftdP
 
   !------+--
   ! ++++ | blade_class Methods
