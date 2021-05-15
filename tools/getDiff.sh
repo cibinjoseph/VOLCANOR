@@ -8,7 +8,7 @@
 # Check for input arguments
 if [[ $# -eq 0 ]]; then
   testFile=reference
-  inputFile=Results/wingNwake00020.plt
+  inputFile=Results/r01wingNwake00020.plt
 else
   if [[ $# -eq 1 ]]; then
     testFile=reference
