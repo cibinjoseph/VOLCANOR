@@ -5,6 +5,7 @@ module classdef
   use libMath
   use libC81
   implicit none
+
   real(dp), parameter :: tol = 1.E-6
   real(dp), parameter :: invTol2 = 1.E06
   real(dp), parameter :: inv4pi = 0.25_dp/pi
@@ -30,9 +31,9 @@ module classdef
     real(dp) :: age = 0._dp   ! vortex age (in s)
     real(dp) :: ageAzimuthal = 0._dp   ! vortex age (in radians)
   contains
-    procedure :: vind => vfclass_vind
-    procedure :: calclength => vfclass_calclength
-    procedure :: strain => vfclass_strain
+    procedure :: vind => vf_vind
+    procedure :: calclength => vf_calclength
+    procedure :: strain => vf_strain
   end type vf_class
 
   type vr_class
@@ -40,19 +41,19 @@ module classdef
     real(dp) :: gam
     real(dp) :: skew
   contains
-    procedure :: vind => vrclass_vind
-    procedure :: vindSource => vrclass_vindSource
-    procedure :: assignP => vrclass_assignP
-    procedure :: shiftdP => vrclass_shiftdP
-    procedure :: rot => vrclass_rot
-    procedure :: calclength => vrclass_calclength
-    procedure :: strain => vrclass_strain
+    procedure :: vind => vr_vind
+    procedure :: vindSource => vr_vindSource
+    procedure :: assignP => vr_assignP
+    procedure :: shiftdP => vr_shiftdP
+    procedure :: rot => vr_rot
+    procedure :: calclength => vr_calclength
+    procedure :: strain => vr_strain
     procedure :: calc_skew => calc_skew
-    procedure :: burst
-    procedure :: getInteriorAngles
-    procedure :: getMedianAngle
-    procedure :: getBimedianCos
-    procedure :: mirror => vrclass_mirror
+    procedure :: burst => vr_burst
+    procedure :: getInteriorAngles => vr_getInteriorAngles
+    procedure :: getMedianAngle => vr_getMedianAngle
+    procedure :: getBimedianCos => vr_getBimedianCos
+    procedure :: mirror => vr_mirror
   end type vr_class
 
   type wingpanel_class
@@ -74,19 +75,19 @@ module classdef
     real(dp), dimension(3) :: nCap    ! unit normal vector
     real(dp), dimension(3) :: tauCapChord ! unit tangential vector along chord
     real(dp), dimension(3) :: tauCapSpan  ! unit tangential vector along span
-    real(dp), dimension(3) :: velCP    ! local vel at CP excluding wing vortices
-    real(dp), dimension(3) :: velCPTotal  ! local vel at CP including wing vortices
+    ! local vel at CP 
+    real(dp), dimension(3) :: velCP    ! excluding wing vortices
+    real(dp), dimension(3) :: velCPTotal  ! including wing vortices
     real(dp), dimension(3) :: velCPm  ! rel. inertial vel at CP (due to motion)
-    real(dp), dimension(3) :: normalForce  ! normalForce vector (inertial frame)
+    real(dp), dimension(3) :: normalForce ! normalForce vector (inertial frame)
     real(dp), dimension(3) :: chordwiseResVel
     real(dp) :: velPitch             ! pitch velocity
-    !real(dp) :: dLift, dDrag          ! magnitudes of panel lift and drag
     real(dp) :: delP                  ! Pressure difference at panel
     real(dp) :: delDiConstant         ! Induced drag (constant part) at panel
     real(dp) :: delDiUnsteady         ! Induced drag (unsteady part) at panel
     real(dp) :: meanChord, meanSpan ! Panel mean dimensions
     real(dp) :: panelArea            ! Panel area for computing lift
-    real(dp) :: rHinge  ! dist to point about which pitching occurs (LE of wing)
+    real(dp) :: rHinge ! dist to point about which pitching occurs (LE of wing)
     real(dp) :: alpha                 ! local angle of attack
   contains
     procedure :: assignP => wingpanel_class_assignP
@@ -96,9 +97,9 @@ module classdef
     procedure :: rot => wingpanel_class_rot
     procedure :: shiftdP => wingpanel_class_shiftdP
     procedure :: calc_chordwiseResVel => wingpanel_calc_chordwiseResVel
-    procedure :: calc_area
-    procedure :: calc_mean_dimensions
-    procedure :: isCPinsidecore
+    procedure :: calc_area => wingpanel_calc_area
+    procedure :: calc_mean_dimensions => wingpanel_calc_mean_dimensions
+    procedure :: isCPinsidecore => wingpanel_isCPinsidecore
   end type wingpanel_class
 
   type Nwake_class
@@ -145,23 +146,31 @@ module classdef
     integer :: nc, ns
     real(dp) :: theta, psi, pivotLE
     real(dp), dimension(3) :: forceInertial
-    real(dp), dimension(3) :: lift, drag, dragInduced, dragProfile, dragUnsteady
+    real(dp), dimension(3) :: lift, drag
+    real(dp), dimension(3) :: dragInduced, dragProfile, dragUnsteady
     integer, allocatable, dimension(:) :: airfoilNo
     character(len=30), allocatable, dimension(:) :: airfoilFile
     real(dp), allocatable, dimension(:) :: airfoilSectionLimit
-    real(dp), allocatable, dimension(:, :, :) :: velNwake, velNwake1, velNwake2, velNwake3
-    real(dp), allocatable, dimension(:, :, :) :: velNwakePredicted, velNwakeStep
-    real(dp), allocatable, dimension(:, :) :: velFwake, velFwake1, velFwake2, velFwake3
-    real(dp), allocatable, dimension(:, :) :: velFwakePredicted, velFwakeStep
+    real(dp), allocatable, dimension(:, :, :) :: velNwake, velNwake1
+    real(dp), allocatable, dimension(:, :, :) :: velNwake2, velNwake3
+    real(dp), allocatable, dimension(:, :, :) :: velNwakePredicted
+    real(dp), allocatable, dimension(:, :, :) :: velNwakeStep
+    real(dp), allocatable, dimension(:, :) :: velFwake, velFwake1
+    real(dp), allocatable, dimension(:, :) :: velFwake2, velFwake3
+    real(dp), allocatable, dimension(:, :) :: velFwakePredicted
+    real(dp), allocatable, dimension(:, :) :: velFwakeStep
     integer :: stlNodesCols  ! Cols of stlNodes array
     real(dp), allocatable, dimension(:, :) :: stlNodes ! (3, stlNodesCols)
-    integer, allocatable, dimension(:, :) :: stlElementNodes ! 3 Vertices of each element
+    ! 3 Vertices of each element in stlElementNodes
+    integer, allocatable, dimension(:, :) :: stlElementNodes
     real(dp), dimension(3) :: xAxis, yAxis, zAxis
     ! Sectional quantities
     real(dp), allocatable, dimension(:) :: secChord, secArea
-    real(dp), allocatable, dimension(:, :) :: secForceInertial, secLift, secDrag
+    real(dp), allocatable, dimension(:, :) :: secForceInertial
+    real(dp), allocatable, dimension(:, :) :: secLift, secDrag
     real(dp), allocatable, dimension(:, :) :: secLiftDir, secDragDir
-    real(dp), allocatable, dimension(:, :) :: secDragInduced, secDragProfile, secDragUnsteady
+    real(dp), allocatable, dimension(:, :) :: secDragInduced, secDragProfile
+    real(dp), allocatable, dimension(:, :) :: secDragUnsteady
     real(dp), allocatable, dimension(:, :) :: secTauCapChord, secTauCapSpan
     real(dp), allocatable, dimension(:, :) :: secNormalVec, secVelFreestream
     real(dp), allocatable, dimension(:, :) :: secChordwiseResVel, secCP
@@ -170,18 +179,19 @@ module classdef
     integer :: spanwiseLiftSwitch
   contains
     procedure :: move => blade_move
-    procedure :: rot_pitch
-    procedure :: rot_axis
+    procedure :: rot_pitch => blade_rot_pitch
+    procedure :: rot_axis => blade_rot_axis
     procedure :: rot_pts => blade_rot_pts
     procedure :: vind_bywing => blade_vind_bywing
     procedure :: vindSource_bywing => blade_vindSource_bywing
     procedure :: vind_bywing_boundVortices => blade_vind_bywing_boundVortices
-    procedure :: vind_bywing_chordwiseVortices => blade_vind_bywing_chordwiseVortices
+    procedure :: vind_bywing_chordwiseVortices => &
+      & blade_vind_bywing_chordwiseVortices
     procedure :: vind_boundVortex => blade_vind_boundVortex
     procedure :: vind_bywake => blade_vind_bywake
-    procedure :: convectwake
-    procedure :: wake_continuity
-    procedure :: getSecDynamicPressure
+    procedure :: convectwake => blade_convectwake
+    procedure :: wake_continuity => blade_wake_continuity
+    procedure :: getSecDynamicPressure => blade_getSecDynamicPressure
     procedure :: calc_secArea, calc_secChord
     procedure :: calc_force_gamma => blade_calc_force_gamma
     procedure :: calc_force_alpha => blade_calc_force_alpha
@@ -190,12 +200,12 @@ module classdef
     procedure :: calc_secChordwiseResVel => blade_calc_secChordwiseResVel
     procedure :: burst_wake => blade_burst_wake
     procedure :: calc_skew => blade_calc_skew
-    procedure :: getSecChordwiseLocations
-    procedure :: lookup_secCoeffs
-    procedure :: secCoeffsToSecForces
+    procedure :: getSecChordwiseLocations => blade_getSecChordwiseLocations
+    procedure :: lookup_secCoeffs => blade_lookup_secCoeffs
+    procedure :: secCoeffsToSecForces => blade_secCoeffsTosecForces
     procedure :: dirLiftDrag => blade_dirLiftDrag
-    procedure :: sumSecToNetForces
-    procedure :: calc_stlStats
+    procedure :: sumSecToNetForces => blade_sumSecToNetForces
+    procedure :: calc_stlStats => blade_calc_stlStats
     ! I/O subroutines
     procedure :: blade_write
     generic :: write(unformatted) => blade_write
@@ -218,7 +228,8 @@ module classdef
     real(dp) :: pivotLE  ! pivot location from LE [x/c]
     real(dp) :: flapHinge  ! hinge location from centre [x/R]
     real(dp), dimension(3) :: velBody, omegaBody
-    real(dp), allocatable, dimension(:, :) :: velBodyHistory, omegaBodyHistory
+    real(dp), allocatable, dimension(:, :) :: velBodyHistory
+    real(dp), allocatable, dimension(:, :) :: omegaBodyHistory
     real(dp) :: psi
     real(dp), dimension(3) :: pts  ! phi,theta,psi about cgCoords
     character(len=1) :: streamwiseCoreSwitch
@@ -249,22 +260,23 @@ module classdef
     character(len=30) :: geometryFile
     real(dp) :: nonDimforceDenominator
   contains
-    procedure :: read_geom
+    procedure :: read_geom => rotor_read_geom
     procedure :: init => rotor_init
     procedure :: deinit => rotor_deinit
-    procedure :: plot3dtoblade, stltoblade
-    procedure :: getCamber
-    procedure :: gettheta
-    procedure :: getthetadot
+    procedure :: plot3dtoblade => rotor_plot3dtoblade
+    procedure :: stltoblade => rotor_stltoblade
+    procedure :: getCamber => rotor_getCamber
+    procedure :: gettheta => rotor_gettheta
+    procedure :: getthetadot => rotor_getthetadot
     procedure :: move => rotor_move
     procedure :: rot_pts => rotor_rot_pts
     procedure :: rot_advance => rotor_rot_advance
-    procedure :: assignshed
-    procedure :: map_gam
-    procedure :: age_wake
-    procedure :: dissipate_wake
-    procedure :: strain_wake
-    procedure :: calcAIC
+    procedure :: assignshed => rotor_assignshed
+    procedure :: map_gam => rotor_map_gam
+    procedure :: age_wake => rotor_age_wake
+    procedure :: dissipate_wake => rotor_dissipate_wake
+    procedure :: strain_wake => rotor_strain_wake
+    procedure :: calcAIC => rotor_calcAIC
     procedure :: vind_bywing => rotor_vind_bywing
     procedure :: vind_bywing_boundVortices => rotor_vind_bywing_boundVortices
     procedure :: vind_bywake => rotor_vind_bywake
@@ -277,12 +289,13 @@ module classdef
     procedure :: burst_wake => rotor_burst_wake
     procedure :: calc_skew => rotor_calc_skew
     procedure :: dirLiftDrag => rotor_dirLiftDrag
-    procedure :: sumBladeToNetForces
-    procedure :: mirrorGamma
-    procedure :: mirrorVelCP
-    procedure :: mirrorWake
-    procedure :: toChordsRevs
-    procedure :: eraseNwake, eraseFwake
+    procedure :: sumBladeToNetForces => rotor_sumBladeToNetForces
+    procedure :: mirrorGamma => rotor_mirrorGamma
+    procedure :: mirrorVelCP => rotor_mirrorVelCP
+    procedure :: mirrorWake => rotor_mirrorWake
+    procedure :: toChordsRevs => rotor_toChordsRevs
+    procedure :: eraseNwake => rotor_eraseNwake
+    procedure :: eraseFwake => rotor_eraseFwake
     ! I/O subroutines
     procedure :: rotor_write
     generic :: write(unformatted) => rotor_write
@@ -297,7 +310,7 @@ contains
   !------+--
 
   ! Efficient implementation to vind calculation
-  function vfclass_vind(this, P) result(vind)
+  function vf_vind(this, P) result(vind)
     ! Compute induced velocity by unit strength vortex filament
   class(vf_class) :: this
     real(dp), intent(in), dimension(3) :: P
@@ -322,9 +335,9 @@ contains
       vind = (r1Xr2*inv4pi*dot_product(r0, unitVec(r1) - unitVec(r2))) &
         /sqrt((this%rVc*norm2(r0))**4._dp + r1Xr2Abs2**2._dp)
     endif
-  end function vfclass_vind
+  end function vf_vind
 
-  subroutine vfclass_calclength(this, isOriginal)
+  subroutine vf_calclength(this, isOriginal)
     ! Compute length of vortex filament
   class(vf_class) :: this
     logical, intent(in) :: isOriginal
@@ -333,19 +346,19 @@ contains
     delta = this%fc(:, 1) - this%fc(:, 2)
     this%lc = norm2(delta)
     if (isOriginal .eqv. .TRUE.) this%l0 = norm2(delta)
-  end subroutine vfclass_calclength
+  end subroutine vf_calclength
 
-  subroutine vfclass_strain(this)
+  subroutine vf_strain(this)
     ! Changes core radius according to change in vortex length
   class(vf_class) :: this
     this%rVc = this%rVc0*sqrt(this%l0/this%lc)
-  end subroutine vfclass_strain
+  end subroutine vf_strain
 
   !------+--
   ! ++++ | vr_class Methods
   !------+--
 
-  function vrclass_vind(this, P) result(vind)
+  function vr_vind(this, P) result(vind)
     ! Compute induced velocity by
     ! unit strength 4-element vortex ring
   class(vr_class) :: this
@@ -360,9 +373,9 @@ contains
     enddo
     vind = sum(vindMat, 1)
 
-  end function vrclass_vind
+  end function vr_vind
 
-  function vrclass_vindSource(this, P, nCap) result(vind)
+  function vr_vindSource(this, P, nCap) result(vind)
     ! Compute induced velocity by
     ! unit strength 3-element source ring
   class(vr_class) :: this
@@ -375,7 +388,7 @@ contains
     ! DEBUG
     ! Add velocity induced by 3d source triangle here
 
-  end function vrclass_vindSource
+  end function vr_vindSource
 
   ! Panel coordinates
   ! o---------> Y along span
@@ -390,7 +403,7 @@ contains
   ! |
   ! V X along chord
 
-  subroutine vrclass_assignP(this, n, P)
+  subroutine vr_assignP(this, n, P)
     ! Assign coordinates to nth corner
   class(vr_class) :: this
     integer, intent(in) :: n
@@ -413,9 +426,9 @@ contains
       error stop 'n may only take values 1,2,3 or 4'
     end select
 
-  end subroutine vrclass_assignP
+  end subroutine vr_assignP
 
-  subroutine vrclass_shiftdP(this, n, dshift)
+  subroutine vr_shiftdP(this, n, dshift)
     ! Shift coordinates of nth corner by dshift distance
     ! (usually for Udt convection)
   class(vr_class) :: this
@@ -439,9 +452,9 @@ contains
       error stop 'n may only take values 1,2,3 or 4'
     end select
 
-  end subroutine vrclass_shiftdP
+  end subroutine vr_shiftdP
 
-  subroutine vrclass_rot(this, Tmat)
+  subroutine vr_rot(this, Tmat)
     ! Rotate vortex ring using Tmat
   class(vr_class) :: this
     real(dp), intent(in), dimension(3, 3) :: Tmat
@@ -452,9 +465,9 @@ contains
       this%vf(i)%fc(:, 2) = matmul(Tmat, this%vf(i)%fc(:, 2))
     enddo
 
-  end subroutine vrclass_rot
+  end subroutine vr_rot
 
-  subroutine vrclass_calclength(this, isOriginal)
+  subroutine vr_calclength(this, isOriginal)
     ! Calculate length of filaments in vortex ring
   class(vr_class) :: this
     logical, intent(in) :: isOriginal
@@ -462,20 +475,20 @@ contains
     do i = 1, 4
       call this%vf(i)%calclength(isOriginal)
     enddo
-  end subroutine vrclass_calclength
+  end subroutine vr_calclength
 
-  subroutine vrclass_strain(this)
+  subroutine vr_strain(this)
   class(vr_class) :: this
     integer :: i
     do i = 1, 4
       call this%vf(i)%strain()
     enddo
-  end subroutine vrclass_strain
+  end subroutine vr_strain
 
-  function getInteriorAngles(this)
+  function vr_getInteriorAngles(this)
     ! Obtain interior angles of vortex ring
   class(vr_class) :: this
-    real(dp), dimension(4) :: getInteriorAngles
+    real(dp), dimension(4) :: vr_getInteriorAngles
     real(dp), dimension(3) :: p1, p2, p3, p4
 
     p1 = this%vf(1)%fc(:, 1)
@@ -483,17 +496,17 @@ contains
     p3 = this%vf(3)%fc(:, 1)
     p4 = this%vf(4)%fc(:, 1)
 
-    getInteriorAngles = 0._dp
-    getInteriorAngles(1) = getAngleCos(p2 - p1, p4 - p1)
-    getInteriorAngles(2) = getAngleCos(p3 - p2, p1 - p2)
-    getInteriorAngles(3) = getAngleCos(p4 - p3, p2 - p3)
-    getInteriorAngles(4) = getAngleCos(p3 - p4, p1 - p4)
-  end function getInteriorAngles
+    vr_getInteriorAngles = 0._dp
+    vr_getInteriorAngles(1) = getAngleCos(p2 - p1, p4 - p1)
+    vr_getInteriorAngles(2) = getAngleCos(p3 - p2, p1 - p2)
+    vr_getInteriorAngles(3) = getAngleCos(p4 - p3, p2 - p3)
+    vr_getInteriorAngles(4) = getAngleCos(p3 - p4, p1 - p4)
+  end function vr_getInteriorAngles
 
-  function getMedianAngle(this)
+  function vr_getMedianAngle(this)
     ! Obtain median angle of vortex ring
   class(vr_class) :: this
-    real(dp) :: getMedianAngle
+    real(dp) :: vr_getMedianAngle
     real(dp), dimension(3) :: p1, p2, p3, p4
 
     p1 = this%vf(1)%fc(:, 1)
@@ -501,12 +514,12 @@ contains
     p3 = this%vf(3)%fc(:, 1)
     p4 = this%vf(4)%fc(:, 1)
 
-    getMedianAngle = getAngleCos(p3 + p4 - p1 - p2, p4 + p1 - p2 - p3)
-  end function getMedianAngle
+    vr_getMedianAngle = getAngleCos(p3 + p4 - p1 - p2, p4 + p1 - p2 - p3)
+  end function vr_getMedianAngle
 
-  function getBimedianCos(this)
+  function vr_getBimedianCos(this)
   class(vr_class) :: this
-    real(dp) :: getBimedianCos
+    real(dp) :: vr_getBimedianCos
     real(dp), dimension(3) :: p1, p2, p3, p4
     real(dp), dimension(3) :: x1Vec, x2Vec
 
@@ -517,11 +530,11 @@ contains
 
     x1Vec = p3 + p4 - p1 - p2
     x2Vec = p4 + p1 - p2 - p3
-    getBimedianCos = abs(dot_product(x1Vec, x2Vec)/ &
+    vr_getBimedianCos = abs(dot_product(x1Vec, x2Vec)/ &
       sqrt(dot_product(x1Vec, x1Vec)*dot_product(x2Vec, x2Vec)))
-  end function getBimedianCos
+  end function vr_getBimedianCos
 
-  subroutine vrclass_mirror(this, coordNum)
+  subroutine vr_mirror(this, coordNum)
     !! Mirror gamma and coordinates about a specified plane
   class(vr_class) :: this
     integer, intent(in) :: coordNum
@@ -534,7 +547,7 @@ contains
       enddo
     enddo
     this%gam = -1._dp * this%gam
-  end subroutine vrclass_mirror
+  end subroutine vr_mirror
 
   subroutine calc_skew(this)
     ! Compute skew
@@ -548,7 +561,7 @@ contains
     endif
   end subroutine calc_skew
 
-  subroutine burst(this, skewLimit)
+  subroutine vr_burst(this, skewLimit)
     ! Burst vortex filaments if skewLimit is hit
   class(vr_class) :: this
     real(dp), intent(in) :: skewLimit
@@ -561,7 +574,7 @@ contains
     endif
     this%skew = skewVal
 
-  end subroutine burst
+  end subroutine vr_burst
 
   !------+--
   ! ++++ | wingpanel_class Methods
@@ -665,42 +678,42 @@ contains
 
   end subroutine wingpanel_class_shiftdP
 
-  subroutine calc_area(this)
+  subroutine wingpanel_calc_area(this)
   class(wingpanel_class) :: this
     this%panelArea = 0.5_dp*norm2(cross_product(this%pc(:, 3) &
       - this%pc(:, 1), this%pc(:, 4) - this%pc(:, 2)))
-  end subroutine calc_area
+  end subroutine wingpanel_calc_area
 
-  subroutine calc_mean_dimensions(this)
+  subroutine wingpanel_calc_mean_dimensions(this)
     ! Calculate mean chord and mean span
   class(wingpanel_class) :: this
     this%meanSpan = 0.5_dp*(norm2(this%pc(:, 4) - this%pc(:, 1)) &
       + norm2(this%pc(:, 3) - this%pc(:, 2)))
     this%meanChord = 0.5_dp*(norm2(this%pc(:, 2) - this%pc(:, 1)) &
       + norm2(this%pc(:, 3) - this%pc(:, 4)))
-  end subroutine calc_mean_dimensions
+  end subroutine wingpanel_calc_mean_dimensions
 
-  function isCPinsidecore(this)
+  function wingpanel_isCPinsidecore(this)
     ! Check whether collocation point lies
     ! inside viscous core region of vortex ring
   class(wingpanel_class), intent(in) :: this
-    logical :: isCPinsidecore
+    logical :: wingpanel_isCPinsidecore
     real(dp) :: deltaxby4, deltayby2
 
     deltaxby4 = 0.25_dp*abs(this%vr%vf(1)%fc(1, 1) - this%vr%vf(2)%fc(1, 1))
     deltayby2 = 0.5_dp*abs(this%vr%vf(1)%fc(2, 1) - this%vr%vf(4)%fc(2, 1))
 
-    isCPinsidecore = .false.
+    wingpanel_isCPinsidecore = .false.
     if (deltayby2 .lt. this%vr%vf(1)%rVc) then
-      isCPinsidecore = .true.  ! Left edge
+      wingpanel_isCPinsidecore = .true.  ! Left edge
     elseif (deltayby2 .lt. this%vr%vf(3)%rVc) then
-      isCPinsidecore = .true.  ! Right edge
+      wingpanel_isCPinsidecore = .true.  ! Right edge
     elseif (deltaxby4 .lt. this%vr%vf(2)%rVc) then
-      isCPinsidecore = .true.  ! Upper edge
+      wingpanel_isCPinsidecore = .true.  ! Upper edge
     elseif (3._dp*deltaxby4 .lt. this%vr%vf(4)%rVc) then
-      isCPinsidecore = .true.  ! Bottom edge
+      wingpanel_isCPinsidecore = .true.  ! Bottom edge
     endif
-  end function isCPinsidecore
+  end function wingpanel_isCPinsidecore
 
   subroutine wingpanel_calc_chordwiseResVel(this)
     ! Compute panel resultant velocities using local velocities
@@ -722,8 +735,9 @@ contains
   !  velCPTotalChordwiseProjectedMagnitude=norm2(velCPTotalChordwiseProjected)
 
   !  if (velCPTotalChordwiseProjectedMagnitude .gt. eps) then
-  !    this%alpha=acos(dot_product(velCPTotalChordwiseProjected,this%tauCapChord) &
-  !      /velCPTotalChordwiseProjectedMagnitude)
+  !    this%alpha=acos(dot_product(velCPTotalChordwiseProjected, &
+  !      & this%tauCapChord) &
+  !      & /velCPTotalChordwiseProjectedMagnitude)
   !  else
   !    this%alpha=0._dp
   !  endif
@@ -843,7 +857,7 @@ contains
 
   end subroutine blade_rot_pts
 
-  subroutine rot_pitch(this, theta)
+  subroutine blade_rot_pitch(this, theta)
     ! Rotate blade by pitch angle
     ! pivot point calculated using straight line joining
     ! LE of first panel and TE of last panel
@@ -867,9 +881,9 @@ contains
 
       call this%rot_axis(theta, axis, axisOrigin)
     endif
-  end subroutine rot_pitch
+  end subroutine blade_rot_pitch
 
-  subroutine rot_axis(this, theta, axisVec, origin)
+  subroutine blade_rot_axis(this, theta, axisVec, origin)
     ! Rotate about axis at specified origin
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: theta
@@ -930,7 +944,7 @@ contains
       this%yAxis = matmul(TMat, this%yAxis)
       this%zAxis = matmul(TMat, this%zAxis)
     endif
-  end subroutine rot_axis
+  end subroutine blade_rot_axis
 
   function blade_vind_bywing(this, P)
     ! Compute induced velocity by blade bound vorticity
@@ -1003,8 +1017,9 @@ contains
       enddo
     enddo
     do j = 1, this%ns
-      blade_vind_bywing_chordwiseVortices = blade_vind_bywing_chordwiseVortices + &
-        this%wiP(this%nc, j)%vr%vf(2)%vind(P)*this%wiP(this%nc, j)%vr%gam
+      blade_vind_bywing_chordwiseVortices = &
+        & blade_vind_bywing_chordwiseVortices + &
+        & this%wiP(this%nc, j)%vr%vf(2)%vind(P)*this%wiP(this%nc, j)%vr%gam
     enddo
   end function blade_vind_bywing_chordwiseVortices
 
@@ -1087,7 +1102,7 @@ contains
 
   end function blade_vind_bywake
 
-  subroutine convectwake(this, rowNear, rowFar, dt, wakeType)
+  subroutine blade_convectwake(this, rowNear, rowFar, dt, wakeType)
     ! Convect wake collocation points using velNwake matrix
   class(blade_class), intent(inout) :: this
     integer, intent(in) :: rowNear, rowFar
@@ -1146,9 +1161,9 @@ contains
 
     call this%wake_continuity(rowNear, rowFar, wakeType)
 
-  end subroutine convectwake
+  end subroutine blade_convectwake
 
-  subroutine wake_continuity(this, rowNear, rowFar, wakeType)
+  subroutine blade_wake_continuity(this, rowNear, rowFar, wakeType)
     ! Maintain continuity between vortex ring elements after convection
     ! of wake collocation points
   class(blade_class), intent(inout) :: this
@@ -1227,7 +1242,7 @@ contains
       error stop 'ERROR: Wrong character flag for convectwake()'
     end select
 
-  end subroutine wake_continuity
+  end subroutine blade_wake_continuity
 
   subroutine blade_calc_force_gamma(this, density, invertGammaSign, dt)
     ! Compute force using blade circulation
@@ -1235,7 +1250,8 @@ contains
     real(dp), intent(in) :: density, invertGammaSign, dt
     integer :: is, ic
     real(dp) :: unsteadyTerm
-    real(dp), dimension(this%nc, this%ns) :: velTangentialChord, velTangentialSpan
+    real(dp), dimension(this%nc, this%ns) :: velTangentialChord
+    real(dp), dimension(this%nc, this%ns) :: velTangentialSpan
     real(dp), dimension(this%nc, this%ns) :: velInduced
     real(dp), dimension(this%nc, this%ns) :: gamElementChord, gamElementSpan
     real(dp), dimension(this%ns) :: secDynamicPressure
@@ -1262,7 +1278,8 @@ contains
       gamElementChord(1, is) = this%wiP(1, is)%vr%gam
     enddo
     do ic = 2, this%nc
-      gamElementChord(ic, 1) = this%wiP(ic, 1)%vr%gam - this%wiP(ic - 1, 1)%vr%gam
+      gamElementChord(ic, 1) = this%wiP(ic, 1)%vr%gam &
+        & -this%wiP(ic - 1, 1)%vr%gam
     enddo
 
     ! Compute spanwise elemental circulation of edge panels
@@ -1270,7 +1287,8 @@ contains
       gamElementSpan(ic, 1) = this%wiP(ic, 1)%vr%gam
     enddo
     do is = 2, this%ns
-      gamElementSpan(1, is) = this%wiP(1, is)%vr%gam - this%wiP(1, is - 1)%vr%gam
+      gamElementSpan(1, is) = this%wiP(1, is)%vr%gam &
+        & -this%wiP(1, is - 1)%vr%gam
     enddo
 
     ! Compute chordwise and spanwise elemental circulations of inner panels
@@ -1371,18 +1389,18 @@ contains
 
   end subroutine blade_calc_force_gamma
 
-  function getSecDynamicPressure(this, density)
+  function blade_getSecDynamicPressure(this, density)
   class(blade_class), intent(in) :: this
     real(dp), intent(in) :: density
     real(dp), dimension(this%ns) :: magsecVelCPTotal
-    real(dp), dimension(this%ns) :: getSecDynamicPressure
+    real(dp), dimension(this%ns) :: blade_getSecDynamicPressure
     integer :: is
 
     do is = 1, this%ns
       magsecVelCPTotal(is) = norm2(this%secChordwiseResVel(:, is))
     enddo
-    getSecDynamicPressure = 0.5_dp*density*magsecVelCPTotal**2._dp
-  end function getSecDynamicPressure
+    blade_getSecDynamicPressure = 0.5_dp*density*magsecVelCPTotal**2._dp
+  end function blade_getSecDynamicPressure
 
   subroutine calc_secArea(this)
   class(blade_class), intent(inout) :: this
@@ -1412,14 +1430,16 @@ contains
     call this%lookup_secCoeffs(velSound)
 
     call this%secCoeffsTosecForces(density)
-    this%secDragInduced = 0._dp  ! To overwrite unit vectors previously assigned in main.f90
+    ! To overwrite unit vectors previously assigned in main.f90
+    this%secDragInduced = 0._dp
     this%secDrag = this%secDragProfile + this%secDragInduced
 
     call this%sumSecToNetForces()
 
   end subroutine blade_calc_force_alpha
 
-  subroutine blade_calc_force_alphaGamma(this, density, invertGammaSign, velSound, dt)
+  subroutine blade_calc_force_alphaGamma(this, density, &
+      & invertGammaSign, velSound, dt)
     ! Compute force using alpha approximated from sec circulation
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: density, invertGammaSign, velSound, dt
@@ -1465,7 +1485,7 @@ contains
 
   end subroutine blade_calc_force_alphaGamma
 
-  subroutine secCoeffsToSecForces(this, density)
+  subroutine blade_secCoeffsToSecForces(this, density)
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: density
     integer :: is
@@ -1475,8 +1495,10 @@ contains
 
     do is = 1, this%ns
       ! Lift and Drag vectors
-      this%secLift(:, is) = this%secLiftDir(:, is)*leadingTerm(is)*this%secCL(is) 
-      this%secDragProfile(:, is) = this%secDragDir(:, is)*leadingTerm(is)*this%secCD(is)
+      this%secLift(:, is) = &
+        & this%secLiftDir(:, is)*leadingTerm(is)*this%secCL(is) 
+      this%secDragProfile(:, is) = &
+        & this%secDragDir(:, is)*leadingTerm(is)*this%secCD(is)
       ! Lift in inertial frame
       ! Warning: This would give a wrong answer if a considerable dihedral
       ! is present for the wing since the blade Y-axis is not flapped
@@ -1491,9 +1513,9 @@ contains
       this%secForceInertial(:,is) = this%secForceInertial(:,is) + &
         norm2(this%secDrag(:,is)) * unitVec(this%secChordwiseResVel(:,is))
     enddo
-  end subroutine secCoeffsToSecForces
+  end subroutine blade_secCoeffsToSecForces
 
-  subroutine lookup_secCoeffs(this, velSound)
+  subroutine blade_lookup_secCoeffs(this, velSound)
     ! Compute sec CL, CD, CM from C81 tables and sec resultant velocity
     ! Assumes only one airfoil section present
   class(blade_class), intent(inout) :: this
@@ -1508,7 +1530,7 @@ contains
       this%secCD(is) = this%C81(this%airfoilNo(is))%getCD(alphaDeg, secMach)
       this%secCM(is) = this%C81(this%airfoilNo(is))%getCM(alphaDeg, secMach)
     enddo
-  end subroutine lookup_secCoeffs
+  end subroutine blade_lookup_secCoeffs
 
   subroutine blade_calc_secChordwiseResVel(this)
     ! Compute sec resultant velocity by interpolating local panel velocity
@@ -1516,16 +1538,18 @@ contains
     integer :: i, is, ic
     real(dp), dimension(this%nc) :: xDist
 
-    if (this%nc .ge. 3) then  ! Use least squares fit to get sec resultant velocity
+    if (this%nc .ge. 3) then  
+      ! Use least squares fit to get sec resultant velocity
       do is = 1, size(this%secChordwiseResVel, 2)
         do ic = 1, this%nc
           call this%wiP(ic, is)%calc_chordwiseResVel()
-          xDist(ic) = dot_product(this%wiP(ic, is)%CP - this%wiP(1, is)%PC(:, 1), &
-            this%secTauCapChord(:, is))
+          xDist(ic) = dot_product(this%wiP(ic, is)%CP &
+            & -this%wiP(1, is)%PC(:, 1), &
+            & this%secTauCapChord(:, is))
         enddo
         do i = 1, 3
-          this%secChordwiseResVel(i, is) = lsq2(dot_product(this%secCP(:, is) - &
-            this%wiP(1, is)%PC(:, 1), this%secTauCapChord(:, is)), xDist, &
+          this%secChordwiseResVel(i, is) = lsq2(dot_product(this%secCP(:, is) &
+            & -this%wiP(1, is)%PC(:, 1), this%secTauCapChord(:, is)), xDist, &
             this%wiP(:, is)%chordwiseResVel(i))
         enddo
       enddo
@@ -1535,7 +1559,8 @@ contains
           call this%wiP(ic, is)%calc_chordwiseResVel()
         enddo
         do i = 1, 3
-          this%secChordwiseResVel(i, is) = sum(this%wiP(:, is)%chordwiseResVel(i))/this%nc
+          this%secChordwiseResVel(i, is) = &
+            & sum(this%wiP(:, is)%chordwiseResVel(i))/this%nc
         enddo
       enddo
     endif
@@ -1550,14 +1575,18 @@ contains
 
     !! Use acos() to find angle
     !do is=1,size(this%secAlpha)
-    !  this%secAlpha(is)=acos(dot_product(this%secChordwiseResVel(:,is),this%secTauCapChord(:,is)) &
-    !    /norm2(this%secChordwiseResVel(:,is)))
+    !  this%secAlpha(is)=acos(dot_product(this%secChordwiseResVel(:,is), &
+    !    & this%secTauCapChord(:,is)) &
+    !    & /norm2(this%secChordwiseResVel(:,is)))
     !enddo
 
     ! Use atan2() to find angle
     do is = 1, size(this%secAlpha)
-      this%secAlpha(is) = atan2(dot_product(this%secChordwiseResVel(:, is), this%secNormalVec(:, is)), &
-        dot_product(this%secChordwiseResVel(:, is), this%secTauCapChord(:, is)))
+      this%secAlpha(is) = &
+        & atan2(dot_product(this%secChordwiseResVel(:, is), &
+        & this%secNormalVec(:, is)), &
+        & dot_product(this%secChordwiseResVel(:, is), &
+        & this%secTauCapChord(:, is)))
     enddo
   end subroutine blade_calc_secAlpha
 
@@ -1583,18 +1612,21 @@ contains
   !  endif
   !end subroutine blade_calc_secAlpha
 
-  function getSecChordwiseLocations(this, chordwiseFraction)
+  function blade_getSecChordwiseLocations(this, chordwiseFraction)
     ! Get coordinates of a point located at a fraction of chord on each section
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: chordwiseFraction
-    real(dp), dimension(3, this%ns) :: getSecChordwiseLocations
+    real(dp), dimension(3, this%ns) :: blade_getSecChordwiseLocations
     integer :: is
 
     do is = 1, this%ns
-      getSecChordwiseLocations(:, is) = (1._dp - chordwiseFraction)*(this%wiP(1, is)%PC(:, 4) + this%wiP(1, is)%PC(:, 1))*0.5_dp + &
-        chordwiseFraction*(this%wiP(this%nc, is)%PC(:, 3) + this%wiP(this%nc, is)%PC(:, 2))*0.5_dp
+      blade_getSecChordwiseLocations(:, is) = &
+        & (1._dp-chordwiseFraction)*(this%wiP(1, is)%PC(:, 4) &
+        & + this%wiP(1, is)%PC(:, 1))*0.5_dp &
+        & + chordwiseFraction*(this%wiP(this%nc, is)%PC(:, 3) &
+        & + this%wiP(this%nc, is)%PC(:, 2))*0.5_dp
     enddo
-  end function getSecChordwiseLocations
+  end function blade_getSecChordwiseLocations
 
   subroutine blade_burst_wake(this, rowFar, skewLimit, largeCoreRadius)
   class(blade_class), intent(inout) :: this
@@ -1649,11 +1681,12 @@ contains
     integer :: is
     do is = 1, this%ns
       this%secDragDir(:, is) = unitVec(this%wiP(1, is)%velCPm)
-      this%secLiftDir(:, is) = cross_product(this%secDragDir(:, is), this%yAxis)
+      this%secLiftDir(:, is) = cross_product(this%secDragDir(:, is), &
+        & this%yAxis)
     enddo
   end subroutine blade_dirLiftDrag
 
-  subroutine sumSecToNetForces(this)
+  subroutine blade_sumSecToNetForces(this)
   class(blade_class), intent(inout) :: this
 
     this%forceInertial = sum(this%secForceInertial, 2)
@@ -1662,9 +1695,9 @@ contains
     this%dragProfile = sum(this%secDragProfile, 2)
     this%dragUnsteady = sum(this%secDragUnsteady, 2)
     this%dragInduced = sum(this%secDragInduced, 2)
-  end subroutine sumSecToNetForces
+  end subroutine blade_sumSecToNetForces
 
-  subroutine calc_stlStats(this)
+  subroutine blade_calc_stlStats(this)
   class(blade_class), intent(inout) :: this
     real(dp), dimension(3) :: vertex
     integer :: icell, ivertex, irow
@@ -1719,7 +1752,7 @@ contains
 
       enddo
     enddo
-  end subroutine calc_stlStats
+  end subroutine blade_calc_stlStats
 
   subroutine blade_write(this, unit, iostat, iomsg)
   class(blade_class), intent(in) :: this
@@ -1779,7 +1812,7 @@ contains
   ! ++++ | rotor_class Methods
   !------+--
 
-  subroutine read_geom(this, filename)
+  subroutine rotor_read_geom(this, filename)
   class(rotor_class) :: this
     character(len=*), intent(in) :: filename
     integer :: i
@@ -1903,7 +1936,7 @@ contains
       enddo
     endif
     close (12)
-  end subroutine read_geom
+  end subroutine rotor_read_geom
 
   subroutine rotor_init(this, rotorNumber, density, dt, nt, switches)
     ! Initialize variables of rotor geometry and wake
@@ -2315,31 +2348,34 @@ contains
         print*, 'Warning: Wing vortex core radius set to zero'
       endif
 
-      ! print*,'Wing vortex core radius set to ',min(this%spanwiseCore,dxdymin*0.1_dp)/this%chord,'times chord'
+      ! print*,'Wing vortex core radius set to ', &
+      ! & min(this%spanwiseCore,dxdymin*0.1_dp)/this%chord,'times chord'
 
-      ! Initialize spanwise vortex core radius for last row of wing to that of wake
+      ! Initialize spanwise vortex core radius for last row of wing
+      ! to that of wake
       this%blade(ib)%wiP(this%nc, :)%vr%vf(2)%rVc0 = this%spanwiseCore
 
-      ! Initialize all current core radius of wing vortices to initial core radius
+      ! Initialize all current core radius of wing vortices 
+      ! to initial core radius
       do i = 1, 4
         this%blade(ib)%wiP%vr%vf(i)%rVc = this%blade(ib)%wiP%vr%vf(i)%rVc0
       enddo
 
       ! Verify CP is outside vortex core for boundary panels
       warnUser = .FALSE.
-      if (isCPinsidecore(this%blade(ib)%wiP(1, 1))) then
+      if (this%blade(ib)%wiP(1, 1)%isCPinsidecore()) then
         print *, 'Warning: CP inside vortex core at panel LU'
         warnUser = .TRUE.
       endif
-      if (isCPinsidecore(this%blade(ib)%wiP(this%nc, 1))) then
+      if (this%blade(ib)%wiP(this%nc, 1)%isCPinsidecore()) then
         print *, 'Warning: CP inside vortex core at panel LB'
         warnUser = .TRUE.
       endif
-      if (isCPinsidecore(this%blade(ib)%wiP(1, this%ns))) then
+      if (this%blade(ib)%wiP(1, this%ns)%isCPinsidecore()) then
         print *, 'Warning: CP inside vortex core at panel RU'
         warnUser = .TRUE.
       endif
-      if (isCPinsidecore(this%blade(ib)%wiP(this%nc, this%ns))) then
+      if (this%blade(ib)%wiP(this%nc, this%ns)%isCPinsidecore()) then
         print *, 'Warning: CP inside vortex core at panel RB'
         warnUser = .TRUE.
       endif
@@ -2359,7 +2395,8 @@ contains
 
     ! Set Coning angle
     do ib = 1, this%nb
-      call this%blade(ib)%rot_axis(this%coningAngle, xAxis, (/0._dp, 0._dp, 0._dp/))
+      call this%blade(ib)%rot_axis(this%coningAngle, &
+        & xAxis, (/0._dp, 0._dp, 0._dp/))
     enddo
 
     ! Rotate remaining blades to their positions
@@ -2388,7 +2425,8 @@ contains
       endif
     else
       ! Fixed-wing
-      this%nonDimforceDenominator = 0.5_dp*density*(this%radius*(1._dp - this%root_cut)* &
+      this%nonDimforceDenominator = 0.5_dp*density &
+        & *(this%radius*(1._dp - this%root_cut)* &
         this%chord)*(dot_product(this%velBody, this%velBody))
     endif
 
@@ -2650,7 +2688,7 @@ contains
 
   end subroutine rotor_deinit
 
-  subroutine plot3dtoblade(this, PLOT3Dfilename)
+  subroutine rotor_plot3dtoblade(this, PLOT3Dfilename)
     ! Read blade geometry from PLOT3D formatted file
   class(rotor_class) :: this
     character(len=*), intent(in) :: PLOT3Dfilename
@@ -2694,9 +2732,9 @@ contains
       enddo
     enddo
 
-  end subroutine plot3dtoblade
+  end subroutine rotor_plot3dtoblade
 
-  subroutine stltoblade(this, stlfilename)
+  subroutine rotor_stltoblade(this, stlfilename)
     !! Read ASCII stl file for non-lifting surface geometry
   class(rotor_class) :: this
     character(len=*), intent(in) :: stlfilename
@@ -2732,13 +2770,13 @@ contains
         & this%blade(1)%wiP(i, 1)%PC(:, 4))
     enddo
     !$omp end parallel do
-  end subroutine stltoblade
+  end subroutine rotor_stltoblade
 
-  function getCamber(this, x, y)
+  function rotor_getCamber(this, x, y)
     !! Get z coordinate on wing from x, y values
   class(rotor_class) :: this
     real(dp), intent(in), dimension(:) :: x, y
-    real(dp), dimension(size(x), size(y)) :: getCamber
+    real(dp), dimension(size(x), size(y)) :: rotor_getCamber
     real(dp), dimension(5000, this%nCamberFiles) :: xCamber, zCamber
     real(dp) :: chord, span
     integer, dimension(this%nCamberFiles) :: nPts
@@ -2776,41 +2814,41 @@ contains
       enddo
 
       do i = 1, size(x)
-        getCamber(i, j) = interp1((x(i)-x(1))/chord, &
+        rotor_getCamber(i, j) = interp1((x(i)-x(1))/chord, &
           & xCamber(1:nPts(fNum), fNum), zCamber(1:nPts(fNum), fNum), 2)
       enddo
     enddo
-  end function getCamber
+  end function rotor_getCamber
 
-  function gettheta(this, psi, ib)
+  function rotor_gettheta(this, psi, ib)
     ! Get pitch angle corresponding to blade azimuthal location
   class(rotor_class) :: this
     real(dp), intent(in) :: psi
     integer, intent(in) :: ib
-    real(dp) :: gettheta
+    real(dp) :: rotor_gettheta
     real(dp) :: bladeOffset
 
     bladeOffset = 2._dp*pi/this%nb*(ib - 1)
-    gettheta = this%controlPitch(1) &
+    rotor_gettheta = this%controlPitch(1) &
       + this%controlPitch(2)*cos(psi + bladeOffset) &
       + this%controlPitch(3)*sin(psi + bladeOffset)
 
-  end function gettheta
+  end function rotor_gettheta
 
-  function getthetadot(this, psi, ib)
+  function rotor_getthetadot(this, psi, ib)
   class(rotor_class) :: this
     real(dp), intent(in) :: psi
     integer, intent(in) :: ib
-    real(dp) :: getthetadot
+    real(dp) :: rotor_getthetadot
     real(dp) :: bladeOffset
 
     bladeOffset = 2._dp*pi/this%nb*(ib - 1)
-    getthetadot = -this%controlPitch(2)*sin(psi + bladeOffset) &
+    rotor_getthetadot = -this%controlPitch(2)*sin(psi + bladeOffset) &
       + this%controlPitch(3)*cos(psi + bladeOffset)
 
-  end function getthetadot
+  end function rotor_getthetadot
 
-  subroutine calcAIC(this)
+  subroutine rotor_calcAIC(this)
     ! Compute AIC matrix for rotor
   class(rotor_class), intent(inout) :: this
     integer :: ib, jblade, is, ic, i, j, row, col
@@ -2838,9 +2876,9 @@ contains
     enddo
     !$omp end parallel do
     this%AIC_inv = inv(this%AIC)
-  end subroutine calcAIC
+  end subroutine rotor_calcAIC
 
-  subroutine map_gam(this)
+  subroutine rotor_map_gam(this)
     ! Map gam from vector to matrix format
   class(rotor_class), intent(inout) :: this
     integer :: ib
@@ -2849,7 +2887,7 @@ contains
         = reshape(this%gamVec(1+this%nc*this%ns*(ib-1):this%nc*this%ns*ib), &
         & (/this%nc, this%ns/))
     enddo
-  end subroutine map_gam
+  end subroutine rotor_map_gam
 
   !-----+------------------+-----|
   ! -+- | Motion Functions | -+- |
@@ -2936,7 +2974,7 @@ contains
   ! -+- | Wake Convection Functions | -+- |
   !-----+---------------------------+-----|
 
-  subroutine assignshed(this, edge)
+  subroutine rotor_assignshed(this, edge)
     ! Assign coordinates to first rowNear of wake from last row of blade
   class(rotor_class), intent(inout) :: this
     character(len=2), intent(in) :: edge
@@ -2964,13 +3002,13 @@ contains
       error stop 'ERROR: Wrong option for edge'
     end select
 
-  end subroutine assignshed
+  end subroutine rotor_assignshed
 
   !-----+----------------------------+-----|
   ! -+- | Wake Dissipation Functions | -+- |
   !-----+----------------------------+-----|
 
-  subroutine age_wake(this, dt)
+  subroutine rotor_age_wake(this, dt)
     ! Update age of wake filaments
   class(rotor_class), intent(inout) :: this
     real(dp), intent(in) :: dt
@@ -2993,9 +3031,9 @@ contains
         this%blade(ib)%waF(this%rowFar:this%nFwake)%vf%ageAzimuthal + &
         & dt*this%omegaSlow
     enddo
-  end subroutine age_wake
+  end subroutine rotor_age_wake
 
-  subroutine dissipate_wake(this, dt)
+  subroutine rotor_dissipate_wake(this, dt)
   class(rotor_class), intent(inout) :: this
     real(dp), intent(in) :: dt
     real(dp) :: oseenParameter, kinematicViscosity
@@ -3040,9 +3078,9 @@ contains
       !$omp end parallel do
     enddo
 
-  end subroutine dissipate_wake
+  end subroutine rotor_dissipate_wake
 
-  subroutine strain_wake(this)
+  subroutine rotor_strain_wake(this)
   class(rotor_class), intent(inout) :: this
     integer :: i, ib
 
@@ -3054,7 +3092,7 @@ contains
       enddo
       !$omp end parallel do
     enddo
-  end subroutine strain_wake
+  end subroutine rotor_strain_wake
 
   function rotor_vind_bywing(this, P)
     ! Compute induced velocity by all wing vortices at P
@@ -3084,7 +3122,8 @@ contains
 
     rotor_vind_bywing_boundVortices = 0._dp
     do ib = 1, this%nb
-      rotor_vind_bywing_boundVortices = rotor_vind_bywing_boundVortices + this%blade(ib)%vind_bywing_boundVortices(P)
+      rotor_vind_bywing_boundVortices = rotor_vind_bywing_boundVortices &
+        & + this%blade(ib)%vind_bywing_boundVortices(P)
     enddo
   end function rotor_vind_bywing_boundVortices
 
@@ -3195,7 +3234,8 @@ contains
       this%blade(ib)%waF(rowFarNext)%vf%age = ageRollup
       this%blade(ib)%waF(rowFarNext)%vf%rVc0 = radiusRollup
       this%blade(ib)%waF(rowFarNext)%vf%rVc = radiusRollup
-      call this%blade(ib)%waF(rowFarNext)%vf%calclength(.TRUE.)    ! TRUE => record original length
+      ! TRUE => record original length
+      call this%blade(ib)%waF(rowFarNext)%vf%calclength(.TRUE.)
 
       ! Ensure continuity in far wake by assigning
       ! current centroidTE to LE of previous far wake filament
@@ -3286,7 +3326,7 @@ contains
     enddo
   end subroutine rotor_dirLiftDrag
 
-  subroutine sumBladeToNetForces(this)
+  subroutine rotor_sumBladeToNetForces(this)
   class(rotor_class), intent(inout) :: this
     integer :: ib
 
@@ -3306,16 +3346,16 @@ contains
       this%dragUnsteady = this%dragUnsteady + this%blade(ib)%dragUnsteady
     enddo
 
-  end subroutine sumBladeToNetForces
+  end subroutine rotor_sumBladeToNetForces
 
-  subroutine mirrorGamma(this, fromRotor)
+  subroutine rotor_mirrorGamma(this, fromRotor)
     !! Mirrors gamma from another rotor
   class(rotor_class), intent(inout) :: this
   class(rotor_class), intent(in) :: fromRotor
     this%gamVec = -1.0_dp * fromRotor%gamVec
-  end subroutine mirrorGamma
+  end subroutine rotor_mirrorGamma
 
-  subroutine mirrorVelCP(this, fromRotor)
+  subroutine rotor_mirrorVelCP(this, fromRotor)
     !! Mirrors velCP, velCPm from another rotor
   class(rotor_class), intent(inout) :: this
   class(rotor_class), intent(in) :: fromRotor
@@ -3340,9 +3380,9 @@ contains
       this%blade(ib)%wiP%velCPm(this%imagePlane) = &
         & -1._dp * this%blade(ib)%wiP%velCPm(this%imagePlane)
     enddo
-  end subroutine mirrorVelCP
+  end subroutine rotor_mirrorVelCP
 
-  subroutine mirrorWake(this, fromRotor, wakeType)
+  subroutine rotor_mirrorWake(this, fromRotor, wakeType)
     !! Mirrors wake positions from another rotor
   class(rotor_class), intent(inout) :: this
   class(rotor_class), intent(in) :: fromRotor
@@ -3449,9 +3489,9 @@ contains
         !$omp end parallel do
       enddo
     end select
-  end subroutine mirrorWake
+  end subroutine rotor_mirrorWake
 
-  subroutine toChordsRevs(this, nsteps, dt)
+  subroutine rotor_toChordsRevs(this, nsteps, dt)
     !! Converts -ve nsteps to nsteps for corresponding no. of chords or revs
   class(rotor_class), intent(inout) :: this
     integer, intent(inout) :: nsteps
@@ -3466,9 +3506,9 @@ contains
         nsteps = ceiling(2._dp*pi*abs(nsteps)/(abs(this%Omega)*dt))
       endif
     endif
-  end subroutine toChordsRevs
+  end subroutine rotor_toChordsRevs
 
-  subroutine eraseNwake(this, rowErase)
+  subroutine rotor_eraseNwake(this, rowErase)
     !! Erase a near wake row by setting gamma to zero
   class(rotor_class), intent(inout) :: this
     integer, intent(in) :: rowErase
@@ -3477,9 +3517,9 @@ contains
     do ib = 1, this%nb
       this%blade(ib)%waN(rowErase, :)%vr%gam = 0._dp
     enddo
-  end subroutine eraseNwake
+  end subroutine rotor_eraseNwake
 
-  subroutine eraseFwake(this, rowErase)
+  subroutine rotor_eraseFwake(this, rowErase)
     !! Erase a far wake row by setting gamma to zero
   class(rotor_class), intent(inout) :: this
     integer, intent(in) :: rowErase
@@ -3488,7 +3528,7 @@ contains
     do ib = 1, this%nb
       this%blade(ib)%waF(rowErase)%gam = 0._dp
     enddo
-  end subroutine eraseFwake
+  end subroutine rotor_eraseFwake
 
   subroutine rotor_read(this, unit, iostat, iomsg)
   class(rotor_class), intent(inout) :: this
