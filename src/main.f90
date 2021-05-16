@@ -41,6 +41,12 @@ program main
     enddo
   enddo
 
+  do ir = 1, nr
+    if (rotor(ir)%surfaceType == -1) then
+      call rotor(ir)%mirrorGeometry(rotor(rotor(ir)%imageRotorNum))
+    endif
+  enddo
+
   ! Wing geometry plot for checks
   ! call wingverify(rotor(1)%blade(1)%wiP)
 

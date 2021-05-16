@@ -297,6 +297,7 @@ module classdef
     procedure :: calc_skew => rotor_calc_skew
     procedure :: dirLiftDrag => rotor_dirLiftDrag
     procedure :: sumBladeToNetForces => rotor_sumBladeToNetForces
+    procedure :: mirrorGeometry => rotor_mirrorGeometry
     procedure :: mirrorGamma => rotor_mirrorGamma
     procedure :: mirrorVelCP => rotor_mirrorVelCP
     procedure :: mirrorWake => rotor_mirrorWake
@@ -3399,6 +3400,24 @@ contains
     enddo
 
   end subroutine rotor_sumBladeToNetForces
+
+  subroutine rotor_mirrorGeometry(this, fromRotor)
+    !! Mirrors geometry from another rotor
+  class(rotor_class), intent(inout) :: this
+  class(rotor_class), intent(in) :: fromRotor
+    integer :: ib, ic, is
+
+    do ib = 1, this%nb
+      do is = 1, this%ns
+        do ic = 1, this%nc
+          this%blade(ib)%wiP(ic, is)%nCap = &
+            & fromRotor%blade(ib)%wiP(ic, is)%nCap
+          this%blade(ib)%wiP(ic, is)%nCap(this%imagePlane) = &
+            & -1._dp*this%blade(ib)%wiP(ic, is)%nCap(this%imagePlane)
+        enddo
+      enddo
+    enddo
+  end subroutine rotor_mirrorGeometry
 
   subroutine rotor_mirrorGamma(this, fromRotor)
     !! Mirrors gamma from another rotor
