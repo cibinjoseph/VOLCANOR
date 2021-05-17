@@ -221,7 +221,7 @@ module classdef
   end type blade_class
 
   type rotor_class
-    integer :: nb, ns, nc, nNwake, nFwake
+    integer :: nb, ns, nc, nNwake, nFwake, nNwakeEnd, nFwakeEnd
     type(blade_class), allocatable, dimension(:) :: blade
     real(dp) :: Omega, omegaSlow
     real(dp), dimension(3) :: shaftAxis
@@ -2070,6 +2070,10 @@ contains
       this%nNwake = 0
       this%nFwake = 0
     endif
+
+    ! Define limits for use in wake convection
+    this%nNwakeEnd = this%nNwake
+    this%nFwakeEnd = this%nFwake
 
     ! Allocate rotor object variables
     allocate (this%blade(this%nb))

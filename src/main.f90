@@ -653,9 +653,12 @@ program main
         ! If truncation in far wake
         if (iter > rotor(ir)%nNwake) then
           rowErase = rotor(ir)%nFwake-(iter-rotor(ir)%wakeTruncateNt)+1
+          rotor(ir)%nFwakeEnd = rowErase-1
           call rotor(ir)%eraseFwake(rowErase)
         else  ! truncation in near wake
           rowErase = rotor(ir)%nNwake-(iter-rotor(ir)%wakeTruncateNt)+1
+          rotor(ir)%nNwakeEnd = rowErase-1
+          rotor(ir)%nFwakeEnd = rotor(ir)%rowFar
           call rotor(ir)%eraseNwake(rowErase)
         endif
       endif
@@ -665,26 +668,26 @@ program main
     do ir = 1, nr
       do ib = 1, rotor(ir)%nb
         do jr = 1, nr
-          rotor(ir)%blade(ib)%velNwake(:, rotor(ir)%rowNear:rotor(ir)%nNwake, :) = &
-            rotor(ir)%blade(ib)%velNwake(:, rotor(ir)%rowNear:rotor(ir)%nNwake, :) + &
+          rotor(ir)%blade(ib)%velNwake(:, rotor(ir)%rowNear:rotor(ir)%nNwakeEnd, :) = &
+            rotor(ir)%blade(ib)%velNwake(:, rotor(ir)%rowNear:rotor(ir)%nNwakeEnd, :) + &
             vind_onNwake_byRotor(rotor(jr), &
-            rotor(ir)%blade(ib)%waN(rotor(ir)%rowNear:rotor(ir)%nNwake, :))
-          rotor(ir)%blade(ib)%velFwake(:, rotor(ir)%rowFar:rotor(ir)%nFwake) = &
-            rotor(ir)%blade(ib)%velFwake(:, rotor(ir)%rowFar:rotor(ir)%nFwake) + &
+            rotor(ir)%blade(ib)%waN(rotor(ir)%rowNear:rotor(ir)%nNwakeEnd, :))
+          rotor(ir)%blade(ib)%velFwake(:, rotor(ir)%rowFar:rotor(ir)%nFwakeEnd) = &
+            rotor(ir)%blade(ib)%velFwake(:, rotor(ir)%rowFar:rotor(ir)%nFwakeEnd) + &
             vind_onFwake_byRotor(rotor(jr), &
-            rotor(ir)%blade(ib)%waF(rotor(ir)%rowFar:rotor(ir)%nFwake))
+            rotor(ir)%blade(ib)%waF(rotor(ir)%rowFar:rotor(ir)%nFwakeEnd))
         enddo
 
         ! Add initial wake velocity if provided
         if (iter < switches%initWakeVelNt) then
           do i = 1, 3
-            rotor(ir)%blade(ib)%velNwake(i, rotor(ir)%rowNear:rotor(ir)%nNwake, :) = &
-              rotor(ir)%blade(ib)%velNwake(i, rotor(ir)%rowNear:rotor(ir)%nNwake, :) + &
+            rotor(ir)%blade(ib)%velNwake(i, rotor(ir)%rowNear:rotor(ir)%nNwakeEnd, :) = &
+              rotor(ir)%blade(ib)%velNwake(i, rotor(ir)%rowNear:rotor(ir)%nNwakeEnd, :) + &
               rotor(ir)%initWakeVel*rotor(ir)%shaftAxis(i)
           enddo
           do i = 1, 3
-            rotor(ir)%blade(ib)%velFwake(i, rotor(ir)%rowFar:rotor(ir)%nFwake) = &
-              rotor(ir)%blade(ib)%velFwake(i, rotor(ir)%rowFar:rotor(ir)%nFwake) &
+            rotor(ir)%blade(ib)%velFwake(i, rotor(ir)%rowFar:rotor(ir)%nFwakeEnd) = &
+              rotor(ir)%blade(ib)%velFwake(i, rotor(ir)%rowFar:rotor(ir)%nFwakeEnd) &
               - rotor(ir)%initWakeVel*rotor(ir)%shaftAxis(i)
           enddo
         endif
@@ -717,10 +720,10 @@ program main
           if (rotor(ir)%surfaceType .gt. 0) then
             ! Lifting surface
             do ib = 1, rotor(ir)%nb
-              rotor(ir)%blade(ib)%waNPredicted(rotor(ir)%rowNear:rotor(ir)%nNwake, :) = &
-                rotor(ir)%blade(ib)%waN(rotor(ir)%rowNear:rotor(ir)%nNwake, :)
-              rotor(ir)%blade(ib)%waFPredicted(rotor(ir)%rowFar:rotor(ir)%nFwake) = &
-                rotor(ir)%blade(ib)%waF(rotor(ir)%rowFar:rotor(ir)%nFwake)
+              rotor(ir)%blade(ib)%waNPredicted(rotor(ir)%rowNear:rotor(ir)%nNwakeEnd, :) = &
+                rotor(ir)%blade(ib)%waN(rotor(ir)%rowNear:rotor(ir)%nNwakeEnd, :)
+              rotor(ir)%blade(ib)%waFPredicted(rotor(ir)%rowFar:rotor(ir)%nFwakeEnd) = &
+                rotor(ir)%blade(ib)%waF(rotor(ir)%rowFar:rotor(ir)%nFwakeEnd)
               call rotor(ir)%blade(ib)%convectwake(rotor(ir)%rowNear, &
                 rotor(ir)%rowFar, dt, 'P')
             enddo
@@ -737,27 +740,27 @@ program main
           if (rotor(ir)%surfaceType .gt. 0) then
             ! Lifting surface
             do ib = 1, rotor(ir)%nb
-              rotor(ir)%blade(ib)%velNwakePredicted(:, rotor(ir)%rowNear:rotor(ir)%nNwake, :) = 0._dp
-              rotor(ir)%blade(ib)%velFwakePredicted(:, rotor(ir)%rowFar:rotor(ir)%nFwake) = 0._dp
+              rotor(ir)%blade(ib)%velNwakePredicted(:, rotor(ir)%rowNear:rotor(ir)%nNwakeEnd, :) = 0._dp
+              rotor(ir)%blade(ib)%velFwakePredicted(:, rotor(ir)%rowFar:rotor(ir)%nFwakeEnd) = 0._dp
               do jr = 1, nr
-                rotor(ir)%blade(ib)%velNwakePredicted(:, rotor(ir)%rowNear:rotor(ir)%nNwake, :) = &
-                  rotor(ir)%blade(ib)%velNwakePredicted(:, rotor(ir)%rowNear:rotor(ir)%nNwake, :) + &
+                rotor(ir)%blade(ib)%velNwakePredicted(:, rotor(ir)%rowNear:rotor(ir)%nNwakeEnd, :) = &
+                  rotor(ir)%blade(ib)%velNwakePredicted(:, rotor(ir)%rowNear:rotor(ir)%nNwakeEnd, :) + &
                   vind_onNwake_byRotor(rotor(jr), &
-                  rotor(ir)%blade(ib)%waNPredicted(rotor(ir)%rowNear:rotor(ir)%nNwake, :), 'P')
-                rotor(ir)%blade(ib)%velFwakePredicted(:, rotor(ir)%rowFar:rotor(ir)%nFwake) = &
-                  rotor(ir)%blade(ib)%velFwakePredicted(:, rotor(ir)%rowFar:rotor(ir)%nFwake) + &
+                  rotor(ir)%blade(ib)%waNPredicted(rotor(ir)%rowNear:rotor(ir)%nNwakeEnd, :), 'P')
+                rotor(ir)%blade(ib)%velFwakePredicted(:, rotor(ir)%rowFar:rotor(ir)%nFwakeEnd) = &
+                  rotor(ir)%blade(ib)%velFwakePredicted(:, rotor(ir)%rowFar:rotor(ir)%nFwakeEnd) + &
                   vind_onFwake_byRotor(rotor(jr), &
-                  rotor(ir)%blade(ib)%waFPredicted(rotor(ir)%rowFar:rotor(ir)%nFwake), 'P')
+                  rotor(ir)%blade(ib)%waFPredicted(rotor(ir)%rowFar:rotor(ir)%nFwakeEnd), 'P')
               enddo
               if (iter < switches%initWakeVelNt) then
                 do i = 1, 3
-                  rotor(ir)%blade(ib)%velNwakePredicted(i, rotor(ir)%rowNear:rotor(ir)%nNwake, :) = &
-                    rotor(ir)%blade(ib)%velNwakePredicted(i, rotor(ir)%rowNear:rotor(ir)%nNwake, :) - &
+                  rotor(ir)%blade(ib)%velNwakePredicted(i, rotor(ir)%rowNear:rotor(ir)%nNwakeEnd, :) = &
+                    rotor(ir)%blade(ib)%velNwakePredicted(i, rotor(ir)%rowNear:rotor(ir)%nNwakeEnd, :) - &
                     rotor(ir)%initWakeVel*rotor(ir)%shaftAxis(i)
                 enddo
                 do i = 1, 3
-                  rotor(ir)%blade(ib)%velFwakePredicted(i, rotor(ir)%rowFar:rotor(ir)%nFwake) = &
-                    rotor(ir)%blade(ib)%velFwakePredicted(i, rotor(ir)%rowFar:rotor(ir)%nFwake) - &
+                  rotor(ir)%blade(ib)%velFwakePredicted(i, rotor(ir)%rowFar:rotor(ir)%nFwakeEnd) = &
+                    rotor(ir)%blade(ib)%velFwakePredicted(i, rotor(ir)%rowFar:rotor(ir)%nFwakeEnd) - &
                     rotor(ir)%initWakeVel*rotor(ir)%shaftAxis(i)
                 enddo
               endif
@@ -772,20 +775,20 @@ program main
           if (rotor(ir)%surfaceType .gt. 0) then
             ! Lifting surface
             do ib = 1, rotor(ir)%nb
-              rotor(ir)%blade(ib)%velNwake(:, rotor(ir)%rowNear:rotor(ir)%nNwake, :) = &
+              rotor(ir)%blade(ib)%velNwake(:, rotor(ir)%rowNear:rotor(ir)%nNwakeEnd, :) = &
                 vel_order2_Nwake(rotor(ir)%blade(ib)%velNwake(:, &
-                rotor(ir)%rowNear:rotor(ir)%nNwake, :), &
-                rotor(ir)%blade(ib)%velNwakePredicted(:, rotor(ir)%rowNear:rotor(ir)%nNwake, :))
-              !rotor(ir)%blade(ib)%velNwake(:,rotor(ir)%rowNear:rotor(ir)%nNwake,:)= &
-              !0.5_dp*(rotor(ir)%blade(ib)%velNwake(:,rotor(ir)%rowNear:rotor(ir)%nNwake,:)+ &
-              !rotor(ir)%blade(ib)%velNwakePredicted(:,rotor(ir)%rowNear:rotor(ir)%nNwake,:))
-              rotor(ir)%blade(ib)%velFwake(:, rotor(ir)%rowFar:rotor(ir)%nFwake) = &
+                rotor(ir)%rowNear:rotor(ir)%nNwakeEnd, :), &
+                rotor(ir)%blade(ib)%velNwakePredicted(:, rotor(ir)%rowNear:rotor(ir)%nNwakeEnd, :))
+              !rotor(ir)%blade(ib)%velNwake(:,rotor(ir)%rowNear:rotor(ir)%nNwakeEnd,:)= &
+              !0.5_dp*(rotor(ir)%blade(ib)%velNwake(:,rotor(ir)%rowNear:rotor(ir)%nNwakeEnd,:)+ &
+              !rotor(ir)%blade(ib)%velNwakePredicted(:,rotor(ir)%rowNear:rotor(ir)%nNwakeEnd,:))
+              rotor(ir)%blade(ib)%velFwake(:, rotor(ir)%rowFar:rotor(ir)%nFwakeEnd) = &
                 vel_order2_Fwake(rotor(ir)%blade(ib)%velFwake(:, &
-                rotor(ir)%rowFar:rotor(ir)%nFwake), &
-                rotor(ir)%blade(ib)%velFwakePredicted(:, rotor(ir)%rowFar:rotor(ir)%nFwake))
-              !rotor(ir)%blade(ib)%velFwake(:,rotor(ir)%rowFar:rotor(ir)%nFwake)= &
-              !0.5_dp*(rotor(ir)%blade(ib)%velFwake(:,rotor(ir)%rowFar:rotor(ir)%nFwake)+ &
-              !rotor(ir)%blade(ib)%velFwakePredicted(:,rotor(ir)%rowFar:rotor(ir)%nFwake))
+                rotor(ir)%rowFar:rotor(ir)%nFwakeEnd), &
+                rotor(ir)%blade(ib)%velFwakePredicted(:, rotor(ir)%rowFar:rotor(ir)%nFwakeEnd))
+              !rotor(ir)%blade(ib)%velFwake(:,rotor(ir)%rowFar:rotor(ir)%nFwakeEnd)= &
+              !0.5_dp*(rotor(ir)%blade(ib)%velFwake(:,rotor(ir)%rowFar:rotor(ir)%nFwakeEnd)+ &
+              !rotor(ir)%blade(ib)%velFwakePredicted(:,rotor(ir)%rowFar:rotor(ir)%nFwakeEnd))
               call rotor(ir)%blade(ib)%convectwake(rotor(ir)%rowNear, &
                 rotor(ir)%rowFar, dt, 'C')
             enddo
@@ -870,15 +873,15 @@ program main
             if (rotor(ir)%surfaceType .gt. 0) then
               ! Lifting surface
               do ib = 1, rotor(ir)%nb
-                rotor(ir)%blade(ib)%waNPredicted(rotor(ir)%rowNear:rotor(ir)%nNwake, :) = &
-                  rotor(ir)%blade(ib)%waN(rotor(ir)%rowNear:rotor(ir)%nNwake, :)
+                rotor(ir)%blade(ib)%waNPredicted(rotor(ir)%rowNear:rotor(ir)%nNwakeEnd, :) = &
+                  rotor(ir)%blade(ib)%waN(rotor(ir)%rowNear:rotor(ir)%nNwakeEnd, :)
                 ! Store Nwake to Nwake_step for later use
                 rotor(ir)%blade(ib)%velNwakeStep = rotor(ir)%blade(ib)%velNwake
                 rotor(ir)%blade(ib)%velNwake = &
                   0.5_dp*(3._dp*rotor(ir)%blade(ib)%velNwake - &
                   rotor(ir)%blade(ib)%velNwake1)
-                rotor(ir)%blade(ib)%waFPredicted(rotor(ir)%rowFar:rotor(ir)%nFwake) = &
-                  rotor(ir)%blade(ib)%waF(rotor(ir)%rowFar:rotor(ir)%nFwake)
+                rotor(ir)%blade(ib)%waFPredicted(rotor(ir)%rowFar:rotor(ir)%nFwakeEnd) = &
+                  rotor(ir)%blade(ib)%waF(rotor(ir)%rowFar:rotor(ir)%nFwakeEnd)
                 ! Store Fwake to Fwake_step for later use
                 rotor(ir)%blade(ib)%velFwakeStep = rotor(ir)%blade(ib)%velFwake
                 rotor(ir)%blade(ib)%velFwake = &
@@ -900,27 +903,27 @@ program main
             if (rotor(ir)%surfaceType .gt. 0) then
               ! Lifting surface
               do ib = 1, rotor(ir)%nb
-                rotor(ir)%blade(ib)%velNwakePredicted(:, rotor(ir)%rowNear:rotor(ir)%nNwake, :) = 0._dp
-                rotor(ir)%blade(ib)%velFwakePredicted(:, rotor(ir)%rowFar:rotor(ir)%nFwake) = 0._dp
+                rotor(ir)%blade(ib)%velNwakePredicted(:, rotor(ir)%rowNear:rotor(ir)%nNwakeEnd, :) = 0._dp
+                rotor(ir)%blade(ib)%velFwakePredicted(:, rotor(ir)%rowFar:rotor(ir)%nFwakeEnd) = 0._dp
                 do jr = 1, nr
-                  rotor(ir)%blade(ib)%velNwakePredicted(:, rotor(ir)%rowNear:rotor(ir)%nNwake, :) = &
-                    rotor(ir)%blade(ib)%velNwakePredicted(:, rotor(ir)%rowNear:rotor(ir)%nNwake, :) + &
+                  rotor(ir)%blade(ib)%velNwakePredicted(:, rotor(ir)%rowNear:rotor(ir)%nNwakeEnd, :) = &
+                    rotor(ir)%blade(ib)%velNwakePredicted(:, rotor(ir)%rowNear:rotor(ir)%nNwakeEnd, :) + &
                     vind_onNwake_byRotor(rotor(jr), &
-                    rotor(ir)%blade(ib)%waNPredicted(rotor(ir)%rowNear:rotor(ir)%nNwake, :), 'P')
-                  rotor(ir)%blade(ib)%velFwakePredicted(:, rotor(ir)%rowFar:rotor(ir)%nFwake) = &
-                    rotor(ir)%blade(ib)%velFwakePredicted(:, rotor(ir)%rowFar:rotor(ir)%nFwake) + &
+                    rotor(ir)%blade(ib)%waNPredicted(rotor(ir)%rowNear:rotor(ir)%nNwakeEnd, :), 'P')
+                  rotor(ir)%blade(ib)%velFwakePredicted(:, rotor(ir)%rowFar:rotor(ir)%nFwakeEnd) = &
+                    rotor(ir)%blade(ib)%velFwakePredicted(:, rotor(ir)%rowFar:rotor(ir)%nFwakeEnd) + &
                     vind_onFwake_byRotor(rotor(jr), &
-                    rotor(ir)%blade(ib)%waFPredicted(rotor(ir)%rowFar:rotor(ir)%nFwake), 'P')
+                    rotor(ir)%blade(ib)%waFPredicted(rotor(ir)%rowFar:rotor(ir)%nFwakeEnd), 'P')
                 enddo
                 if (iter < switches%initWakeVelNt) then
                   do i = 1, 3
-                    rotor(ir)%blade(ib)%velNwakePredicted(i, rotor(ir)%rowNear:rotor(ir)%nNwake, :) = &
-                      rotor(ir)%blade(ib)%velNwakePredicted(i, rotor(ir)%rowNear:rotor(ir)%nNwake, :) - &
+                    rotor(ir)%blade(ib)%velNwakePredicted(i, rotor(ir)%rowNear:rotor(ir)%nNwakeEnd, :) = &
+                      rotor(ir)%blade(ib)%velNwakePredicted(i, rotor(ir)%rowNear:rotor(ir)%nNwakeEnd, :) - &
                       rotor(ir)%initWakeVel*rotor(ir)%shaftAxis(i)
                   enddo
                   do i = 1, 3
-                    rotor(ir)%blade(ib)%velFwakePredicted(i, rotor(ir)%rowFar:rotor(ir)%nFwake) = &
-                      rotor(ir)%blade(ib)%velFwakePredicted(i, rotor(ir)%rowFar:rotor(ir)%nFwake) - &
+                    rotor(ir)%blade(ib)%velFwakePredicted(i, rotor(ir)%rowFar:rotor(ir)%nFwakeEnd) = &
+                      rotor(ir)%blade(ib)%velFwakePredicted(i, rotor(ir)%rowFar:rotor(ir)%nFwakeEnd) - &
                       rotor(ir)%initWakeVel*rotor(ir)%shaftAxis(i)
                   enddo
                 endif
@@ -993,16 +996,16 @@ program main
           if (abs(rotor(ir)%surfaceType) == 1) then
             if (rotor(ir)%surfaceType .gt. 0) then
               do ib = 1, rotor(ir)%nb
-                rotor(ir)%blade(ib)%waNPredicted(rotor(ir)%rowNear:rotor(ir)%nNwake, :) = &
-                  rotor(ir)%blade(ib)%waN(rotor(ir)%rowNear:rotor(ir)%nNwake, :)
+                rotor(ir)%blade(ib)%waNPredicted(rotor(ir)%rowNear:rotor(ir)%nNwakeEnd, :) = &
+                  rotor(ir)%blade(ib)%waN(rotor(ir)%rowNear:rotor(ir)%nNwakeEnd, :)
                 ! Store Nwake to Nwake_step for later use
                 rotor(ir)%blade(ib)%velNwakeStep = rotor(ir)%blade(ib)%velNwake
                 rotor(ir)%blade(ib)%velNwake = &
                   (23._dp*rotor(ir)%blade(ib)%velNwake &
                   - 16._dp*rotor(ir)%blade(ib)%velNwake2 &
                   + 05._dp*rotor(ir)%blade(ib)%velNwake1)/12._dp
-                rotor(ir)%blade(ib)%waFPredicted(rotor(ir)%rowFar:rotor(ir)%nFwake) = &
-                  rotor(ir)%blade(ib)%waF(rotor(ir)%rowFar:rotor(ir)%nFwake)
+                rotor(ir)%blade(ib)%waFPredicted(rotor(ir)%rowFar:rotor(ir)%nFwakeEnd) = &
+                  rotor(ir)%blade(ib)%waF(rotor(ir)%rowFar:rotor(ir)%nFwakeEnd)
                 ! Store Fwake to Fwake_step for later use
                 rotor(ir)%blade(ib)%velFwakeStep = rotor(ir)%blade(ib)%velFwake
                 rotor(ir)%blade(ib)%velFwake = &
@@ -1023,27 +1026,27 @@ program main
           if (abs(rotor(ir)%surfaceType) == 1) then
             if (rotor(ir)%surfaceType .gt. 0) then
               do ib = 1, rotor(ir)%nb
-                rotor(ir)%blade(ib)%velNwakePredicted(:, rotor(ir)%rowNear:rotor(ir)%nNwake, :) = 0._dp
-                rotor(ir)%blade(ib)%velFwakePredicted(:, rotor(ir)%rowFar:rotor(ir)%nFwake) = 0._dp
+                rotor(ir)%blade(ib)%velNwakePredicted(:, rotor(ir)%rowNear:rotor(ir)%nNwakeEnd, :) = 0._dp
+                rotor(ir)%blade(ib)%velFwakePredicted(:, rotor(ir)%rowFar:rotor(ir)%nFwakeEnd) = 0._dp
                 do jr = 1, nr
-                  rotor(ir)%blade(ib)%velNwakePredicted(:, rotor(ir)%rowNear:rotor(ir)%nNwake, :) = &
-                    rotor(ir)%blade(ib)%velNwakePredicted(:, rotor(ir)%rowNear:rotor(ir)%nNwake, :) + &
+                  rotor(ir)%blade(ib)%velNwakePredicted(:, rotor(ir)%rowNear:rotor(ir)%nNwakeEnd, :) = &
+                    rotor(ir)%blade(ib)%velNwakePredicted(:, rotor(ir)%rowNear:rotor(ir)%nNwakeEnd, :) + &
                     vind_onNwake_byRotor(rotor(jr), &
-                    rotor(ir)%blade(ib)%waNPredicted(rotor(ir)%rowNear:rotor(ir)%nNwake, :), 'P')
-                  rotor(ir)%blade(ib)%velFwakePredicted(:, rotor(ir)%rowFar:rotor(ir)%nFwake) = &
-                    rotor(ir)%blade(ib)%velFwakePredicted(:, rotor(ir)%rowFar:rotor(ir)%nFwake) + &
+                    rotor(ir)%blade(ib)%waNPredicted(rotor(ir)%rowNear:rotor(ir)%nNwakeEnd, :), 'P')
+                  rotor(ir)%blade(ib)%velFwakePredicted(:, rotor(ir)%rowFar:rotor(ir)%nFwakeEnd) = &
+                    rotor(ir)%blade(ib)%velFwakePredicted(:, rotor(ir)%rowFar:rotor(ir)%nFwakeEnd) + &
                     vind_onFwake_byRotor(rotor(jr), &
-                    rotor(ir)%blade(ib)%waFPredicted(rotor(ir)%rowFar:rotor(ir)%nFwake), 'P')
+                    rotor(ir)%blade(ib)%waFPredicted(rotor(ir)%rowFar:rotor(ir)%nFwakeEnd), 'P')
                 enddo
                 if (iter < switches%initWakeVelNt) then
                   do i = 1, 3
-                    rotor(ir)%blade(ib)%velNwakePredicted(i, rotor(ir)%rowNear:rotor(ir)%nNwake, :) = &
-                      rotor(ir)%blade(ib)%velNwakePredicted(i, rotor(ir)%rowNear:rotor(ir)%nNwake, :) - &
+                    rotor(ir)%blade(ib)%velNwakePredicted(i, rotor(ir)%rowNear:rotor(ir)%nNwakeEnd, :) = &
+                      rotor(ir)%blade(ib)%velNwakePredicted(i, rotor(ir)%rowNear:rotor(ir)%nNwakeEnd, :) - &
                       rotor(ir)%initWakeVel*rotor(ir)%shaftAxis(i)
                   enddo
                   do i = 1, 3
-                    rotor(ir)%blade(ib)%velFwakePredicted(i, rotor(ir)%rowFar:rotor(ir)%nFwake) = &
-                      rotor(ir)%blade(ib)%velFwakePredicted(i, rotor(ir)%rowFar:rotor(ir)%nFwake) - &
+                    rotor(ir)%blade(ib)%velFwakePredicted(i, rotor(ir)%rowFar:rotor(ir)%nFwakeEnd) = &
+                      rotor(ir)%blade(ib)%velFwakePredicted(i, rotor(ir)%rowFar:rotor(ir)%nFwakeEnd) - &
                       rotor(ir)%initWakeVel*rotor(ir)%shaftAxis(i)
                   enddo
                 endif
@@ -1135,8 +1138,8 @@ program main
           if (abs(rotor(ir)%surfaceType) == 1) then
             if (rotor(ir)%surfaceType .gt. 0) then
               do ib = 1, rotor(ir)%nb
-                rotor(ir)%blade(ib)%waNPredicted(rotor(ir)%rowNear:rotor(ir)%nNwake, :) = &
-                  rotor(ir)%blade(ib)%waN(rotor(ir)%rowNear:rotor(ir)%nNwake, :)
+                rotor(ir)%blade(ib)%waNPredicted(rotor(ir)%rowNear:rotor(ir)%nNwakeEnd, :) = &
+                  rotor(ir)%blade(ib)%waN(rotor(ir)%rowNear:rotor(ir)%nNwakeEnd, :)
                 ! Store Nwake to Nwake_step for later use
                 rotor(ir)%blade(ib)%velNwakeStep = rotor(ir)%blade(ib)%velNwake
                 rotor(ir)%blade(ib)%velNwake = &
@@ -1144,8 +1147,8 @@ program main
                   - 59._dp/24._dp*rotor(ir)%blade(ib)%velNwake3 &
                   + 37._dp/24._dp*rotor(ir)%blade(ib)%velNwake2 &
                   - 09._dp/24._dp*rotor(ir)%blade(ib)%velNwake1
-                rotor(ir)%blade(ib)%waFPredicted(rotor(ir)%rowFar:rotor(ir)%nFwake) = &
-                  rotor(ir)%blade(ib)%waF(rotor(ir)%rowFar:rotor(ir)%nFwake)
+                rotor(ir)%blade(ib)%waFPredicted(rotor(ir)%rowFar:rotor(ir)%nFwakeEnd) = &
+                  rotor(ir)%blade(ib)%waF(rotor(ir)%rowFar:rotor(ir)%nFwakeEnd)
                 ! Store Fwake to Fwake_step for later use
                 rotor(ir)%blade(ib)%velFwakeStep = rotor(ir)%blade(ib)%velFwake
                 rotor(ir)%blade(ib)%velFwake = &
@@ -1167,27 +1170,27 @@ program main
           if (abs(rotor(ir)%surfaceType) == 1) then
             if (rotor(ir)%surfaceType .gt. 0) then
               do ib = 1, rotor(ir)%nb
-                rotor(ir)%blade(ib)%velNwakePredicted(:, rotor(ir)%rowNear:rotor(ir)%nNwake, :) = 0._dp
-                rotor(ir)%blade(ib)%velFwakePredicted(:, rotor(ir)%rowFar:rotor(ir)%nFwake) = 0._dp
+                rotor(ir)%blade(ib)%velNwakePredicted(:, rotor(ir)%rowNear:rotor(ir)%nNwakeEnd, :) = 0._dp
+                rotor(ir)%blade(ib)%velFwakePredicted(:, rotor(ir)%rowFar:rotor(ir)%nFwakeEnd) = 0._dp
                 do jr = 1, nr
-                  rotor(ir)%blade(ib)%velNwakePredicted(:, rotor(ir)%rowNear:rotor(ir)%nNwake, :) = &
-                    rotor(ir)%blade(ib)%velNwakePredicted(:, rotor(ir)%rowNear:rotor(ir)%nNwake, :) + &
+                  rotor(ir)%blade(ib)%velNwakePredicted(:, rotor(ir)%rowNear:rotor(ir)%nNwakeEnd, :) = &
+                    rotor(ir)%blade(ib)%velNwakePredicted(:, rotor(ir)%rowNear:rotor(ir)%nNwakeEnd, :) + &
                     vind_onNwake_byRotor(rotor(jr), &
-                    rotor(ir)%blade(ib)%waNPredicted(rotor(ir)%rowNear:rotor(ir)%nNwake, :), 'P')
-                  rotor(ir)%blade(ib)%velFwakePredicted(:, rotor(ir)%rowFar:rotor(ir)%nFwake) = &
-                    rotor(ir)%blade(ib)%velFwakePredicted(:, rotor(ir)%rowFar:rotor(ir)%nFwake) + &
+                    rotor(ir)%blade(ib)%waNPredicted(rotor(ir)%rowNear:rotor(ir)%nNwakeEnd, :), 'P')
+                  rotor(ir)%blade(ib)%velFwakePredicted(:, rotor(ir)%rowFar:rotor(ir)%nFwakeEnd) = &
+                    rotor(ir)%blade(ib)%velFwakePredicted(:, rotor(ir)%rowFar:rotor(ir)%nFwakeEnd) + &
                     vind_onFwake_byRotor(rotor(jr), &
-                    rotor(ir)%blade(ib)%waFPredicted(rotor(ir)%rowFar:rotor(ir)%nFwake), 'P')
+                    rotor(ir)%blade(ib)%waFPredicted(rotor(ir)%rowFar:rotor(ir)%nFwakeEnd), 'P')
                 enddo
                 if (iter < switches%initWakeVelNt) then
                   do i = 1, 3
-                    rotor(ir)%blade(ib)%velNwakePredicted(i, rotor(ir)%rowNear:rotor(ir)%nNwake, :) = &
-                      rotor(ir)%blade(ib)%velNwakePredicted(i, rotor(ir)%rowNear:rotor(ir)%nNwake, :) - &
+                    rotor(ir)%blade(ib)%velNwakePredicted(i, rotor(ir)%rowNear:rotor(ir)%nNwakeEnd, :) = &
+                      rotor(ir)%blade(ib)%velNwakePredicted(i, rotor(ir)%rowNear:rotor(ir)%nNwakeEnd, :) - &
                       rotor(ir)%initWakeVel*rotor(ir)%shaftAxis(i)
                   enddo
                   do i = 1, 3
-                    rotor(ir)%blade(ib)%velFwakePredicted(i, rotor(ir)%rowFar:rotor(ir)%nFwake) = &
-                      rotor(ir)%blade(ib)%velFwakePredicted(i, rotor(ir)%rowFar:rotor(ir)%nFwake) - &
+                    rotor(ir)%blade(ib)%velFwakePredicted(i, rotor(ir)%rowFar:rotor(ir)%nFwakeEnd) = &
+                      rotor(ir)%blade(ib)%velFwakePredicted(i, rotor(ir)%rowFar:rotor(ir)%nFwakeEnd) - &
                       rotor(ir)%initWakeVel*rotor(ir)%shaftAxis(i)
                   enddo
                 endif

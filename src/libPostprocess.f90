@@ -171,7 +171,7 @@ contains
         !write(10,*) ((rotor%blade(ib)%wiP(i,j)%vr%skew,i=1,nx),j=1,ny)
 
         ! Near wake
-        nx = rotor%nNwake
+        nx = rotor%nNwakeEnd
         ny = rotor%ns
         write (nxChar, '(I5)') nx - (rotor%rowNear - 1) + 1
         write (nyChar, '(I5)') ny + 1
@@ -202,15 +202,15 @@ contains
         !write(10,*) ((rotor%blade(ib)%waN(i,j)%vr%skew,i=rotor%rowNear,nx),j=1,ny)
 
         ! Far wake
-        nx = rotor%nFwake
-        if (rotor%rowFar .le. rotor%nFwake) then
+        nx = rotor%nFwakeEnd
+        if (rotor%rowFar .le. rotor%nFwakeEnd) then
           write (nxChar, '(I5)') nx - (rotor%rowFar - 1) + 1
 
           !Check if necessary - $omp parallel do collapse(2)
           do i = rotor%rowFar, nx
             wakeTip(:, i) = rotor%blade(ib)%waF(i)%vf%fc(:, 2)
           enddo
-          wakeTip(:, nx + 1) = rotor%blade(ib)%waF(rotor%nFwake)%vf%fc(:, 1)
+          wakeTip(:, nx + 1) = rotor%blade(ib)%waF(rotor%nFwakeEnd)%vf%fc(:, 1)
           !Check if necessary -$omp end parallel do
 
           write (10, *) 'Zone I='//trim(nxChar)//' J=1   K=1   T="FarWake"'
