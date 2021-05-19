@@ -23,5 +23,5 @@ run:
 	mkdir -p $(restartpath)
 	make fileclean
 	time -p ./bin/volcanor 2>&1 | tee volcanor.log
-	@ echo "PROGRAM COMPLETED AT:" >> volcanor.log
+	@ echo "\nPROGRAM COMPLETED ON:" >> volcanor.log
 	@ date >> volcanor.log
