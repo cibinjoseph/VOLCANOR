@@ -649,7 +649,8 @@ program main
 
     ! Wake truncation
     do ir = 1, nr
-      if (iter > rotor(ir)%wakeTruncateNt) then
+      if (rotor(ir)%wakeTruncateNt > 0 .and. &
+        & iter > rotor(ir)%wakeTruncateNt) then
         ! If truncation in far wake
         if (iter > rotor(ir)%nNwake) then
           rowErase = rotor(ir)%nFwake-(iter-rotor(ir)%wakeTruncateNt)+1
