@@ -16,4 +16,4 @@ script:
   - mkdir -p build
   - cd build; FC=gfortran-9 cmake ..
   - make testrunners -B
-  - make test
+  - env CTEST_OUTPUT_ON_FAILURE=1 make test
