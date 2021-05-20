@@ -3,13 +3,16 @@ import subprocess
 import numpy as np
 import parseResults as pr
 import json
+import os
+
 
 class TestElevate(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """ Run case and store reference results """
         # setupClass is used instead of setUp so that code is only run once
-        cls.caseDir = 'elevateTest.case/'
+        scriptDir = os.path.dirname(os.path.realpath(__file__)) + '/'
+        cls.caseDir = scriptDir + 'elevateTest.case/'
         cls.ResultsDir = cls.caseDir + 'Results/'
         cls.refResultsDir = cls.caseDir + 'referenceResults/'
         p = subprocess.run(['make'], cwd=cls.caseDir)
