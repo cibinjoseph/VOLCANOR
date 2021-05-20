@@ -7,6 +7,10 @@ branches:
     - test
     - maketravis
 
+env:
+  global:
+    - ARGS='-V' CTEST_OUTPUT_ON_FAILURE=1
+
 before_install:
   - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
   - sudo apt-get -q update
@@ -18,4 +22,4 @@ script:
   - make run
   - make testrunners -B
   - ln -sf $PWD/../bin $PWD/../tests/elevateTest.case/
-  - travis_wait 30 env ARGS='-V' CTEST_OUTPUT_ON_FAILURE=1 make test
+  - travis_wait 30 make test
