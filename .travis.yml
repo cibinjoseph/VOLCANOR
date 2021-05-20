@@ -18,4 +18,4 @@ script:
   - make run
   - make testrunners -B
   - ln -sf $PWD/../bin $PWD/../tests/elevateTest.case/
-  - env CTEST_OUTPUT_ON_FAILURE=1 make test
+  - travis_wait 30 env ARGS='-V' CTEST_OUTPUT_ON_FAILURE=1 make test
