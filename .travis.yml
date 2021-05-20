@@ -1,4 +1,4 @@
-language: bash
+language: python
 
 dist: bionic
 
@@ -15,8 +15,10 @@ before_install:
   - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
   - sudo apt-get -q update
   - sudo apt-get -y install gfortran-9 python3-matplotlib python3-numpy
-  - sudo apt-get -y install python3-pip
-  - pip3 install --user --no-input travis-pls
+
+install:
+  - pip3 install --user -U pip
+  - pip3 install --user travis-pls
 
 script:
   - mkdir -p build
