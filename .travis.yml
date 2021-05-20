@@ -17,8 +17,7 @@ before_install:
   - sudo apt-get -y install gfortran-9 python3-matplotlib python3-numpy
 
 install:
-  - pip3 install --user -U pip
-  - pip3 install --user travis-pls
+  - pip3 install travis-pls
 
 script:
   - mkdir -p build
