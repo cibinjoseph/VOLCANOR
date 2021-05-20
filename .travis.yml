@@ -15,6 +15,7 @@ before_install:
 script:
   - mkdir -p build
   - cd build; FC=gfortran-9 cmake ..
+  - make run
   - make testrunners -B
   - ln -sf $PWD/../bin $PWD/../tests/elevateTest.case/
   - env CTEST_OUTPUT_ON_FAILURE=1 make test
