@@ -4,7 +4,7 @@ dist: bionic
 
 branches:
   only:
-  - test
+    - test
   - maketravis
 
 before_install:
@@ -16,5 +16,5 @@ script:
   - mkdir -p build
   - cd build; FC=gfortran-9 cmake ..
   - make testrunners -B
-  - echo $PWD
+  - ln -sf $PWD/../bin $PWD/../tests/elevateTest.case/
   - env CTEST_OUTPUT_ON_FAILURE=1 make test
