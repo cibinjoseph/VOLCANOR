@@ -4,7 +4,7 @@
 # ===================================================================
 # No. of blades,nb  Prop convention  NcamberFiles  geometry filename
 # -------------------------------------------------------------------
-     1                     0             0           elevate.xyz
+     5                     0             0           elevate.xyz
 #
 # CamberSectionLimit[r/R]  Camber filename
 # -------------------------------------------------------------------
