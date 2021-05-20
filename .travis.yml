@@ -5,6 +5,7 @@ dist: bionic
 branches:
   only:
   - test
+  - maketravis
 
 before_install:
   - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
