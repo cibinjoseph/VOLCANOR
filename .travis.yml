@@ -1,18 +1,27 @@
-language: bash
+language: python
 
 dist: bionic
 
 branches:
   only:
-  - test
+    - test
+
+env:
+  global:
+    - ARGS='-V' CTEST_OUTPUT_ON_FAILURE=1
 
 before_install:
   - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
   - sudo apt-get -q update
-  - sudo apt-get -y install gfortran-9 python3-matplotlib python3-numpy
+  - sudo apt-get -y install python3 gfortran-9 python3-matplotlib python3-numpy
+
+install:
+  - pip3 install travispls
 
 script:
   - mkdir -p build
   - cd build; FC=gfortran-9 cmake ..
+  - make run
   - make testrunners -B
-  - make test
+  - ln -sf $PWD/../bin $PWD/../tests/elevateTest.case/
+  - travis-pls make test

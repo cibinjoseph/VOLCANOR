@@ -79,15 +79,13 @@ target_link_libraries(trial.out Common Postprocess)
 add_custom_target(run
   COMMAND ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=Release ${PROJECT_SOURCE_DIR}
   COMMENT ${COMPILERMSG}
-  COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target volcanor
-  COMMAND notify-send "Compilation completed!")
+  COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target volcanor)
 
 # Target debug/run_dbg to regenerate Makefile
 add_custom_target(run_dbg
   COMMAND ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=Debug ${PROJECT_SOURCE_DIR}
   COMMENT ${COMPILERMSG}
-  COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target volcanor
-  COMMAND notify-send "Compilation completed!")
+  COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target volcanor)
 
 # Target profile/run_prof to regenerate Makefile
 add_custom_target(run_prof
