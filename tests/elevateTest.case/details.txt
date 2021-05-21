@@ -1,0 +1,7 @@
+This testcase is kept purposely coarse 
+to be able to run on the Travis CI servers.
+
+For best results, run with
+nt = 300
+dt = 0.0
+nNwake = 90
