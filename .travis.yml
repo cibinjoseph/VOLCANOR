@@ -2,6 +2,10 @@ language: python
 
 dist: bionic
 
+env:
+  global:
+    - ARGS="-V --output-on-failure --stop-on-failure-"
+
 branches:
   only:
     - test
