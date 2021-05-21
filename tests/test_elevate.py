@@ -46,8 +46,13 @@ class TestElevate(unittest.TestCase):
     def testParams(self):
         params = pr.getParams()
         for k in self.params_ref.keys():
-            self.assertEqual(params[k], self.params_ref[k], \
-                            'A parameter does not match')
+            if isinstance(self.params_ref[k], float): 
+                self.assertAlmostEqual(params[k], self.params_ref[k], \
+                                places=6, \
+                                msg='Parameter ' + k + ' does not match')
+            else:
+                self.assertEqual(params[k], self.params_ref[k], \
+                                'Parameter ' + k + ' does not match')
 
     def testCT(self):
         """ Check CT history values """
@@ -55,13 +60,12 @@ class TestElevate(unittest.TestCase):
                               skiprows=1)
         it = dataHist[:, 0]
         CT = dataHist[:, 1]
-        niter = CT.size
 
         # Check recorded number of iterations
         if it[0] == 0:
-            self.assertEqual(niter, 151)
+            self.assertEqual(CT.size, 151)
         if it[0] == 1:
-            self.assertEqual(niter, 150)
+            self.assertEqual(CT.size, 150)
 
         # Average CT value
         CTavg = np.average(CT[-10:])  # Over last 10 iterations

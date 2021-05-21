@@ -48,6 +48,7 @@ file(WRITE ${LOG_FILE} ${COMPILERMSG})
 
 # Testing
 enable_testing()
+set(CMAKE_CTEST_ARGUMENTS -V --output-on-failure --stop-on-failure)
 add_subdirectory(tests)
 
 # Libraries

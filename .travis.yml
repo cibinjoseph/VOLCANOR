@@ -6,10 +6,6 @@ branches:
   only:
     - test
 
-env:
-  global:
-    - ARGS='-V' CTEST_OUTPUT_ON_FAILURE=1
-
 before_install:
   - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
   - sudo apt-get -q update

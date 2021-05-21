@@ -151,8 +151,6 @@ contains
 
   subroutine test_aic()
     real(dp), dimension(2, 2) :: AIC
-    print*, rotor%blade(1)%wiP(1, 1)%cp
-    print*, rotor%blade(1)%wiP(1, 2)%cp
 
     call testcase_initialize('test_aic')
 
