@@ -1,6 +1,6 @@
  {
- "nt":          300 ,
- "dt":   9.698428828597074E-004 ,
+ "nt":          150 ,
+ "dt":   1.745717189147473E-003 ,
  "nr":            1 ,
  "restartWriteNt":            0 ,
  "restartFromNt":            0 ,
@@ -9,7 +9,7 @@
  "spanSpacing":            2 ,
  "density":    1.00000000000000      ,
  "velSound":    330.000000000000      ,
- "wakePlot":          720 ,
+ "wakePlot":          400 ,
  "wakeTipPlot":            0 ,
  "rotorForcePlot":            1 ,
  "gridPlot":            0 ,

@@ -29,10 +29,10 @@ class TestElevate(unittest.TestCase):
                               skiprows=1)
         CT = dataHist[:, 1]
         cls.CTlast_ref = CT[-1]
-        cls.CTavg_ref = np.average(CT[-15:])  # Over last 15 iterations
+        cls.CTavg_ref = np.average(CT[-10:])  # Over last 10 iterations
 
         data = np.loadtxt(cls.refResultsDir + \
-                          'r01b01ForceDist00300.csv' + '.ref', \
+                          'r01b01ForceDist00150.csv' + '.ref', \
                           skiprows=1)
         cls.secSpan_ref = data[:, 0]
         cls.secCL_ref = data[:, 1]
@@ -59,12 +59,12 @@ class TestElevate(unittest.TestCase):
 
         # Check recorded number of iterations
         if it[0] == 0:
-            self.assertEqual(niter, 301)
+            self.assertEqual(niter, 151)
         if it[0] == 1:
-            self.assertEqual(niter, 300)
+            self.assertEqual(niter, 150)
 
         # Average CT value
-        CTavg = np.average(CT[-15:])  # Over last 15 iterations
+        CTavg = np.average(CT[-10:])  # Over last 10 iterations
         self.assertAlmostEqual(CTavg, self.CTavg_ref, places=6, \
                                msg='Average CT does not match')
 
