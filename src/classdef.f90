@@ -221,7 +221,7 @@ module classdef
   end type blade_class
 
   type rotor_class
-    integer :: nb, ns, nc, nNwake, nFwake, nNwakeEnd, nFwakeEnd
+    integer :: nb, ns, nc, nNwake, nFwake, nbConvect, nNwakeEnd, nFwakeEnd
     type(blade_class), allocatable, dimension(:) :: blade
     real(dp) :: Omega, omegaSlow
     real(dp), dimension(3) :: shaftAxis
@@ -263,6 +263,7 @@ module classdef
     integer :: nCamberFiles, nAirfoils
     integer :: imagePlane, imageRotorNum
     integer :: surfaceType  
+    integer :: imposeAxisymmetry
     character(len=30), allocatable, dimension(:) :: camberFile, airfoilFile
     character(len=30) :: geometryFile
     real(dp) :: nonDimforceDenominator
@@ -1989,6 +1990,9 @@ contains
       enddo
     endif
     close (12)
+
+    ! DEBUG
+    this%imposeAxisymmetry = 0
   end subroutine rotor_read_geom
 
   subroutine rotor_init(this, rotorNumber, density, dt, nt, switches)
@@ -2072,6 +2076,8 @@ contains
     endif
 
     ! Define limits for use in wake convection
+    this%nbConvect = this%nb
+    if (this%imposeAxisymmetry == 1) this%nbConvect = 1
     this%nNwakeEnd = this%nNwake
     this%nFwakeEnd = this%nFwake
 
@@ -2939,11 +2945,20 @@ contains
     ! Map gam from vector to matrix format
   class(rotor_class), intent(inout) :: this
     integer :: ib
-    do ib = 1, this%nb
-      this%blade(ib)%wiP%vr%gam &
-        = reshape(this%gamVec(1+this%nc*this%ns*(ib-1):this%nc*this%ns*ib), &
+    if (this%imposeAxisymmetry == 1) then
+      this%blade(1)%wiP%vr%gam &
+        = reshape(this%gamVec(1:this%nc*this%ns), &
         & (/this%nc, this%ns/))
-    enddo
+      do ib = 2, this%nb
+        this%blade(ib)%wiP%vr%gam = this%blade(1)%wiP%vr%gam
+      enddo
+    else
+      do ib = 1, this%nb
+        this%blade(ib)%wiP%vr%gam &
+          = reshape(this%gamVec(1+this%nc*this%ns*(ib-1):this%nc*this%ns*ib), &
+          & (/this%nc, this%ns/))
+      enddo
+    endif
   end subroutine rotor_map_gam
 
   !-----+------------------+-----|
