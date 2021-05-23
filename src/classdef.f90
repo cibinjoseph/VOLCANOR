@@ -2003,7 +2003,7 @@ contains
     integer :: i
     real :: fileFormatVersion, currentTemplateVersion
 
-    currentTemplateVersion = 0.5
+    currentTemplateVersion = 0.6
 
     open (unit=12, file=filename, status='old', action='read')
     call skip_comments(12)
