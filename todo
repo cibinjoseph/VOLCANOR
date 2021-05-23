@@ -1,19 +1,28 @@
 Max circulation at non max lift in forward flight?
 Does discretization give rise to instability? cause for Kelvin waves or Crow instability?
-Make lift integration higher order - unequal intervals
 Check oscillations in inflow - dependent on nInflowLocations
 Check if vortex strain is overriding vortex core changes due to dissipation
 Wake dissipation on extreme straining
 Try slow start for tandem wing to check for discrepancy
-Convert grid output to binary format
-Implement non-lifting surfaces: 
-- Use source induced velocity for non-lifting surfaces in vind
-Check sweep cases by KnP
-While computing drag from FELS in unsteady case, ensure unsteady 'induced' drag term is not counted twice by neglecting it in force computation using gamma 
 Introduce blade%xAxisNoPitch centered about pitching hinge
-Implement alpha sweep mode
-Compute blade flap moment and rotor moments
-Add provision for root vortex
 Phase out invertGammaSign since it works incorrectly for cambered sections
-Create output folder with nonlinear data
-Implement prescribed far-wake
+
+TESTING & VALIDATION
+- Implement Katz and Plotkin's fixed wing cases as testcases
+- Check sweep cases by KnP
+- Validate Friedrich's unsteady rotor case
+
+FELS
+- Correct computation of nonlinear forces in script with estimation of induced drag
+and torque/drag
+- While computing drag from FELS in unsteady case, ensure unsteady 'induced' drag term is not counted twice by neglecting it in force computation using gamma 
+- Create output folder with nonlinear data
+- Compute blade flap moment and rotor moments
+
+LOW PRIORITY
+- Alpha sweep mode
+- Implement prescribed far-wake
+- Add provision for root vortex
+- Implement non-lifting surfaces: 
+-- Use source induced velocity for non-lifting surfaces in vind
+- Convert grid output to binary format
