@@ -15,6 +15,8 @@ A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method
 - Predictor-Corrector based wake convection for improved stability and accuracy
 - Visualization of load history, circulation, wake structure etc in VisIt
 - Arbitrary prescribed trajectory
+- Wake axisymmetry leveraging for efficient solution
+- Wake truncation
 
 ## Improvements (To be made)
 ### Stability Improvements
@@ -29,7 +31,6 @@ A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method
 
 ### Performance Improvements
 - Implement recording to array before writing
-- Implement free wake relaxation
 
 ## Contribution and Usage
 This code is under active development and a lot of features--including a proper user-friendly interface--have yet to be added. Users are encouraged to go through the code if interested, and let the author know of issues and bugs, if found. However, be warned that most of the features are untested and unvalidated and the author offers no guarantee on the results obtained at this point in time.
