@@ -294,6 +294,7 @@ module classdef
     procedure :: calc_force_alpha => rotor_calc_force_alpha
     procedure :: calc_force_alphaGamma => rotor_calc_force_alphaGamma
     procedure :: calc_secAlpha => rotor_calc_secAlpha
+    procedure :: convectwake => rotor_convectwake
     procedure :: burst_wake => rotor_burst_wake
     procedure :: calc_skew => rotor_calc_skew
     procedure :: dirLiftDrag => rotor_dirLiftDrag
@@ -3372,6 +3373,25 @@ contains
       call this%blade(ib)%calc_secAlpha()
     enddo
   end subroutine rotor_calc_secAlpha
+
+  subroutine rotor_convectwake(this, rowNear, rowFar, dt, wakeType)
+  class(rotor_class), intent(inout) :: this
+    integer, intent(in) :: rowNear, rowFar
+    real(dp), intent(in) :: dt
+    character(len=1), intent(in) :: wakeType  ! For predicted wake
+    integer :: ib
+
+    if (this%imposeAxisymmetry == 0) then
+      do ib = 1, this%nb
+        call this%blade(ib)%convectwake(rowNear, rowFar, dt, wakeType)
+      enddo
+    else
+        call this%blade(1)%convectwake(rowNear, rowFar, dt, wakeType)
+        ! DEBUG
+        ! Then rotate and copy wake to all the other blades
+    endif
+
+  end subroutine rotor_convectwake
 
   subroutine rotor_burst_wake(this)
   class(rotor_class), intent(inout) :: this

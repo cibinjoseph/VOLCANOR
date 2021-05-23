@@ -703,10 +703,8 @@ program main
         if (abs(rotor(ir)%surfaceType) == 1) then
           if (rotor(ir)%surfaceType .gt. 0) then
             ! Lifting surface
-            do ib = 1, rotor(ir)%nb
-              call rotor(ir)%blade(ib)%convectwake( &
-                rotor(ir)%rowNear, rotor(ir)%rowFar, dt, 'C')
-            enddo
+            call rotor(ir)%convectwake( &
+              rotor(ir)%rowNear, rotor(ir)%rowFar, dt, 'C')
           else
             ! Image lifting surface
             call rotor(ir)%mirrorWake(rotor(rotor(ir)%imageRotorNum), 'C')
@@ -725,9 +723,9 @@ program main
                 rotor(ir)%blade(ib)%waN(rotor(ir)%rowNear:rotor(ir)%nNwakeEnd, :)
               rotor(ir)%blade(ib)%waFPredicted(rotor(ir)%rowFar:rotor(ir)%nFwakeEnd) = &
                 rotor(ir)%blade(ib)%waF(rotor(ir)%rowFar:rotor(ir)%nFwakeEnd)
-              call rotor(ir)%blade(ib)%convectwake(rotor(ir)%rowNear, &
-                rotor(ir)%rowFar, dt, 'P')
             enddo
+            call rotor(ir)%convectwake(rotor(ir)%rowNear, &
+              rotor(ir)%rowFar, dt, 'P')
           else
             ! Image lifting surface
             call rotor(ir)%mirrorWake(rotor(rotor(ir)%imageRotorNum), 'P')
@@ -790,9 +788,9 @@ program main
               !rotor(ir)%blade(ib)%velFwake(:,rotor(ir)%rowFar:rotor(ir)%nFwakeEnd)= &
               !0.5_dp*(rotor(ir)%blade(ib)%velFwake(:,rotor(ir)%rowFar:rotor(ir)%nFwakeEnd)+ &
               !rotor(ir)%blade(ib)%velFwakePredicted(:,rotor(ir)%rowFar:rotor(ir)%nFwakeEnd))
-              call rotor(ir)%blade(ib)%convectwake(rotor(ir)%rowNear, &
-                rotor(ir)%rowFar, dt, 'C')
             enddo
+            call rotor(ir)%convectwake(rotor(ir)%rowNear, &
+              rotor(ir)%rowFar, dt, 'C')
           else
             ! Image lifting surface
             call rotor(ir)%mirrorWake(rotor(rotor(ir)%imageRotorNum), 'C')
@@ -806,9 +804,9 @@ program main
           if (abs(rotor(ir)%surfaceType) == 1) then
             if (rotor(ir)%surfaceType .gt. 0) then
               ! Lifting surface
-              do ib = 1, rotor(ir)%nb
-                call rotor(ir)%blade(ib)%convectwake(rotor(ir)%rowNear, &
+                call rotor(ir)%convectwake(rotor(ir)%rowNear, &
                   rotor(ir)%rowFar, dt, 'C')
+              do ib = 1, rotor(ir)%nb
                 rotor(ir)%blade(ib)%velNwake1 = rotor(ir)%blade(ib)%velNwake
                 rotor(ir)%blade(ib)%velFwake1 = rotor(ir)%blade(ib)%velFwake
               enddo
@@ -838,10 +836,9 @@ program main
                 ! For convection
                 rotor(ir)%blade(ib)%velNwake = rotor(ir)%blade(ib)%velNwakeStep
                 rotor(ir)%blade(ib)%velFwake = rotor(ir)%blade(ib)%velFwakeStep
-
-                call rotor(ir)%blade(ib)%convectwake(rotor(ir)%rowNear, &
-                  rotor(ir)%rowFar, dt, 'C')
               enddo
+              call rotor(ir)%convectwake(rotor(ir)%rowNear, &
+                rotor(ir)%rowFar, dt, 'C')
             else
               ! Image lifting surface
               call rotor(ir)%mirrorWake(rotor(rotor(ir)%imageRotorNum), 'C')
@@ -856,9 +853,9 @@ program main
           if (abs(rotor(ir)%surfaceType) == 1) then
             if (rotor(ir)%surfaceType .gt. 0) then
               ! Lifting surface
+              call rotor(ir)%convectwake(rotor(ir)%rowNear, &
+                rotor(ir)%rowFar, dt, 'C')
               do ib = 1, rotor(ir)%nb
-                call rotor(ir)%blade(ib)%convectwake(rotor(ir)%rowNear, &
-                  rotor(ir)%rowFar, dt, 'C')
                 rotor(ir)%blade(ib)%velNwake1 = rotor(ir)%blade(ib)%velNwake
                 rotor(ir)%blade(ib)%velFwake1 = rotor(ir)%blade(ib)%velFwake
               enddo
@@ -888,10 +885,9 @@ program main
                 rotor(ir)%blade(ib)%velFwake = &
                   0.5_dp*(3._dp*rotor(ir)%blade(ib)%velFwake - &
                   rotor(ir)%blade(ib)%velFwake1)
-
-                call rotor(ir)%blade(ib)%convectwake(rotor(ir)%rowNear, &
-                  rotor(ir)%rowFar, dt, 'P')
               enddo
+                call rotor(ir)%convectwake(rotor(ir)%rowNear, &
+                  rotor(ir)%rowFar, dt, 'P')
             else
               ! Image lifting surface
               call rotor(ir)%mirrorWake(rotor(rotor(ir)%imageRotorNum), 'P')
@@ -944,9 +940,11 @@ program main
                 rotor(ir)%blade(ib)%velFwake = &
                   (rotor(ir)%blade(ib)%velFwakePredicted &
                   + rotor(ir)%blade(ib)%velFwakeStep)*0.5_dp
-                call rotor(ir)%blade(ib)%convectwake(rotor(ir)%rowNear, &
-                  rotor(ir)%rowFar, dt, 'C')
+              enddo
+              call rotor(ir)%convectwake(rotor(ir)%rowNear, &
+                rotor(ir)%rowFar, dt, 'C')
 
+              do ib = 1, rotor(ir)%nb
                 ! For next step
                 rotor(ir)%blade(ib)%velNwake1 = rotor(ir)%blade(ib)%velNwakeStep
                 rotor(ir)%blade(ib)%velFwake1 = rotor(ir)%blade(ib)%velFwakeStep
@@ -964,9 +962,9 @@ program main
         do ir = 1, nr
           if (abs(rotor(ir)%surfaceType) == 1) then
             if (rotor(ir)%surfaceType .gt. 0) then
+              call rotor(ir)%convectwake(rotor(ir)%rowNear, &
+                rotor(ir)%rowFar, dt, 'C')
               do ib = 1, rotor(ir)%nb
-                call rotor(ir)%blade(ib)%convectwake(rotor(ir)%rowNear, &
-                  rotor(ir)%rowFar, dt, 'C')
                 rotor(ir)%blade(ib)%velNwake1 = rotor(ir)%blade(ib)%velNwake
                 rotor(ir)%blade(ib)%velFwake1 = rotor(ir)%blade(ib)%velFwake
               enddo
@@ -980,9 +978,9 @@ program main
         do ir = 1, nr
           if (abs(rotor(ir)%surfaceType) == 1) then
             if (rotor(ir)%surfaceType .gt. 0) then
+              call rotor(ir)%convectwake(rotor(ir)%rowNear, &
+                rotor(ir)%rowFar, dt, 'C')
               do ib = 1, rotor(ir)%nb
-                call rotor(ir)%blade(ib)%convectwake(rotor(ir)%rowNear, &
-                  rotor(ir)%rowFar, dt, 'C')
                 rotor(ir)%blade(ib)%velNwake2 = rotor(ir)%blade(ib)%velNwake
                 rotor(ir)%blade(ib)%velFwake2 = rotor(ir)%blade(ib)%velFwake
               enddo
@@ -1013,9 +1011,9 @@ program main
                   (23._dp*rotor(ir)%blade(ib)%velFwake &
                   - 16._dp*rotor(ir)%blade(ib)%velFwake2 &
                   + 05._dp*rotor(ir)%blade(ib)%velFwake1)/12._dp
-                call rotor(ir)%blade(ib)%convectwake(rotor(ir)%rowNear, &
-                  rotor(ir)%rowFar, dt, 'P')
               enddo
+              call rotor(ir)%convectwake(rotor(ir)%rowNear, &
+                rotor(ir)%rowFar, dt, 'P')
             else
               ! Image lifting surface
               call rotor(ir)%mirrorWake(rotor(rotor(ir)%imageRotorNum), 'P')
@@ -1068,9 +1066,10 @@ program main
                   (05._dp*rotor(ir)%blade(ib)%velFwakePredicted &
                   + 08._dp*rotor(ir)%blade(ib)%velFwakeStep &
                   - 01._dp*rotor(ir)%blade(ib)%velFwake2)/12._dp
-                call rotor(ir)%blade(ib)%convectwake(rotor(ir)%rowNear, &
-                  rotor(ir)%rowFar, dt, 'C')
-
+              enddo
+              call rotor(ir)%convectwake(rotor(ir)%rowNear, &
+                rotor(ir)%rowFar, dt, 'C')
+              do ib = 1, rotor(ir)%nb
                 rotor(ir)%blade(ib)%velNwake1 = rotor(ir)%blade(ib)%velNwake2
                 rotor(ir)%blade(ib)%velNwake2 = rotor(ir)%blade(ib)%velNwakeStep
 
@@ -1090,9 +1089,9 @@ program main
         do ir = 1, nr
           if (abs(rotor(ir)%surfaceType) == 1) then
             if (rotor(ir)%surfaceType .gt. 0) then
+              call rotor(ir)%convectwake(rotor(ir)%rowNear, &
+                rotor(ir)%rowFar, dt, 'C')
               do ib = 1, rotor(ir)%nb
-                call rotor(ir)%blade(ib)%convectwake(rotor(ir)%rowNear, &
-                  rotor(ir)%rowFar, dt, 'C')
                 rotor(ir)%blade(ib)%velNwake1 = rotor(ir)%blade(ib)%velNwake
                 rotor(ir)%blade(ib)%velFwake1 = rotor(ir)%blade(ib)%velFwake
               enddo
@@ -1106,9 +1105,9 @@ program main
         do ir = 1, nr
           if (abs(rotor(ir)%surfaceType) == 1) then
             if (rotor(ir)%surfaceType .gt. 0) then
+              call rotor(ir)%convectwake(rotor(ir)%rowNear, &
+                rotor(ir)%rowFar, dt, 'C')
               do ib = 1, rotor(ir)%nb
-                call rotor(ir)%blade(ib)%convectwake(rotor(ir)%rowNear, &
-                  rotor(ir)%rowFar, dt, 'C')
                 rotor(ir)%blade(ib)%velNwake2 = rotor(ir)%blade(ib)%velNwake
                 rotor(ir)%blade(ib)%velFwake2 = rotor(ir)%blade(ib)%velFwake
               enddo
@@ -1122,9 +1121,9 @@ program main
         do ir = 1, nr
           if (abs(rotor(ir)%surfaceType) == 1) then
             if (rotor(ir)%surfaceType .gt. 0) then
-              do ib = 1, rotor(ir)%nb
-                call rotor(ir)%blade(ib)%convectwake(rotor(ir)%rowNear, &
+                call rotor(ir)%convectwake(rotor(ir)%rowNear, &
                   rotor(ir)%rowFar, dt, 'C')
+              do ib = 1, rotor(ir)%nb
                 rotor(ir)%blade(ib)%velNwake3 = rotor(ir)%blade(ib)%velNwake
                 rotor(ir)%blade(ib)%velFwake3 = rotor(ir)%blade(ib)%velFwake
               enddo
@@ -1157,9 +1156,9 @@ program main
                   - 59._dp/24._dp*rotor(ir)%blade(ib)%velFwake3 &
                   + 37._dp/24._dp*rotor(ir)%blade(ib)%velFwake2 &
                   - 09._dp/24._dp*rotor(ir)%blade(ib)%velFwake1
-                call rotor(ir)%blade(ib)%convectwake(rotor(ir)%rowNear, &
-                  rotor(ir)%rowFar, dt, 'P')
               enddo
+              call rotor(ir)%convectwake(rotor(ir)%rowNear, &
+                rotor(ir)%rowFar, dt, 'P')
             else
               ! Image lifting surface
               call rotor(ir)%mirrorWake(rotor(rotor(ir)%imageRotorNum), 'P')
@@ -1214,9 +1213,10 @@ program main
                   + 19._dp/24._dp*rotor(ir)%blade(ib)%velFwakeStep &
                   - 05._dp/24._dp*rotor(ir)%blade(ib)%velFwake3 &
                   + 01._dp/24._dp*rotor(ir)%blade(ib)%velFwake2
-                call rotor(ir)%blade(ib)%convectwake(rotor(ir)%rowNear, &
+              enddo
+                call rotor(ir)%convectwake(rotor(ir)%rowNear, &
                   rotor(ir)%rowFar, dt, 'C')
-
+              do ib = 1, rotor(ir)%nb
                 rotor(ir)%blade(ib)%velNwake1 = rotor(ir)%blade(ib)%velNwake2
                 rotor(ir)%blade(ib)%velNwake2 = rotor(ir)%blade(ib)%velNwake3
                 rotor(ir)%blade(ib)%velNwake3 = rotor(ir)%blade(ib)%velNwakeStep
