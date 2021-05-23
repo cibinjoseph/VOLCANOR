@@ -90,12 +90,12 @@ module classdef
     real(dp) :: rHinge ! dist to point about which pitching occurs (LE of wing)
     real(dp) :: alpha                 ! local angle of attack
   contains
-    procedure :: assignP => wingpanel_class_assignP
-    procedure :: calcCP => wingpanel_class_calcCP
-    procedure :: calcN => wingpanel_class_calcN
-    procedure :: calcTau => wingpanel_class_calcTau
-    procedure :: rot => wingpanel_class_rot
-    procedure :: shiftdP => wingpanel_class_shiftdP
+    procedure :: assignP => wingpanel_assignP
+    procedure :: calcCP => wingpanel_calcCP
+    procedure :: calcN => wingpanel_calcN
+    procedure :: calcTau => wingpanel_calcTau
+    procedure :: rot => wingpanel_rot
+    procedure :: shiftdP => wingpanel_shiftdP
     procedure :: calc_chordwiseResVel => wingpanel_calc_chordwiseResVel
     procedure :: calc_area => wingpanel_calc_area
     procedure :: calc_mean_dimensions => wingpanel_calc_mean_dimensions
@@ -598,7 +598,7 @@ contains
   ! ++++ | wingpanel_class Methods
   !------+--
 
-  subroutine wingpanel_class_assignP(this, n, P)
+  subroutine wingpanel_assignP(this, n, P)
     ! Assign coordinates to nth corner
   class(wingpanel_class) :: this
     integer, intent(in) :: n
@@ -610,9 +610,9 @@ contains
       error stop 'n may only take values 1,2,3 or 4'
     endif
 
-  end subroutine wingpanel_class_assignP
+  end subroutine wingpanel_assignP
 
-  subroutine wingpanel_class_calcCP(this, isTriangle)
+  subroutine wingpanel_calcCP(this, isTriangle)
     ! Compute collocation point location
   class(wingpanel_class) :: this
     logical, optional :: isTriangle
@@ -627,9 +627,9 @@ contains
       this%CP = ((this%PC(:, 1) + this%PC(:, 4))*0.25_dp &
         + (this%PC(:, 2) + this%PC(:, 3))*0.75_dp)*0.5_dp
     endif
-  end subroutine wingpanel_class_calcCP
+  end subroutine wingpanel_calcCP
 
-  subroutine wingpanel_class_calcN(this, isTriangle)
+  subroutine wingpanel_calcN(this, isTriangle)
     ! Compute normal vector
   class(wingpanel_class) :: this
     logical, optional :: isTriangle
@@ -644,9 +644,9 @@ contains
       this%nCap = unitVec(cross_product(this%pc(:, 3) - this%pc(:, 1), &
         this%pc(:, 4) - this%pc(:, 2)))
     endif
-  end subroutine wingpanel_class_calcN
+  end subroutine wingpanel_calcN
 
-  subroutine wingpanel_class_calcTau(this, isTriangle)
+  subroutine wingpanel_calcTau(this, isTriangle)
     ! Compute chordwise and spanwise tangential vectors
   class(wingpanel_class) :: this
     logical, optional :: isTriangle
@@ -664,9 +664,9 @@ contains
       this%tauCapSpan = unitVec(0.5_dp*((this%pc(:, 3) + this%pc(:, 4)) &
         - (this%pc(:, 2) + this%pc(:, 1))))
     endif
-  end subroutine wingpanel_class_calcTau
+  end subroutine wingpanel_calcTau
 
-  subroutine wingpanel_class_rot(this, Tmat)
+  subroutine wingpanel_rot(this, Tmat)
     ! Rotate panel using transformation matrix
   class(wingpanel_class) :: this
     real(dp), dimension(3, 3) :: Tmat
@@ -680,9 +680,9 @@ contains
     this%nCap = matmul(Tmat, this%nCap)
     this%tauCapChord = matmul(Tmat, this%tauCapChord)
     this%tauCapSpan = matmul(Tmat, this%tauCapSpan)
-  end subroutine wingpanel_class_rot
+  end subroutine wingpanel_rot
 
-  subroutine wingpanel_class_shiftdP(this, dshift)
+  subroutine wingpanel_shiftdP(this, dshift)
     ! Shift corners of vortex ring by dshift
   class(wingpanel_class) :: this
     real(dp), intent(in), dimension(3) :: dshift
@@ -694,7 +694,7 @@ contains
       call this%vr%shiftdP(i, dshift)
     enddo
 
-  end subroutine wingpanel_class_shiftdP
+  end subroutine wingpanel_shiftdP
 
   subroutine wingpanel_calc_area(this)
   class(wingpanel_class) :: this
