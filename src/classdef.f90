@@ -133,6 +133,7 @@ module classdef
   contains
     procedure :: shiftdP => Fwake_shiftdP
     procedure :: assignP => Fwake_assignP
+    procedure :: rot => Fwake_rot
     procedure :: mirror => Fwake_mirror
   end type Fwake_class
 
@@ -188,6 +189,7 @@ module classdef
     procedure :: move => blade_move
     procedure :: rot_pitch => blade_rot_pitch
     procedure :: rot_axis => blade_rot_axis
+    procedure :: rot_wake_axis => blade_rot_wake_axis
     procedure :: rot_pts => blade_rot_pts
     procedure :: vind_bywing => blade_vind_bywing
     procedure :: vindSource_bywing => blade_vindSource_bywing
@@ -440,12 +442,18 @@ contains
 
   subroutine vr_shiftdP(this, n, dshift)
     ! Shift coordinates of nth corner by dshift distance
-    ! (usually for Udt convection)
+    ! (usually for U*dt convection)
   class(vr_class) :: this
     integer, intent(in) :: n
     real(dp), intent(in), dimension(3) :: dshift
+    integer :: ifil
 
     select case (n)
+    case (0)
+      do ifil = 1, 4
+        this%vf(ifil)%fc(:, 1) = this%vf(ifil)%fc(:, 1) + dshift
+        this%vf(ifil)%fc(:, 2) = this%vf(ifil)%fc(:, 2) + dshift
+      enddo
     case (1)
       this%vf(4)%fc(:, 2) = this%vf(4)%fc(:, 2) + dshift
       this%vf(1)%fc(:, 1) = this%vf(1)%fc(:, 1) + dshift
@@ -768,9 +776,14 @@ contains
     integer, intent(in) :: n
     real(dp), intent(in), dimension(3) :: dshift
 
-    if (n /= 1 .and. n /= 2) &
-      error stop 'n may only take values 1 or 2 in Fwake_shiftdP()'
-    this%vf%fc(:, n) = this%vf%fc(:, n) + dshift
+    if (n < 0 .or. n > 2) &
+      error stop 'n may only take values 0, 1 or 2 in Fwake_shiftdP()'
+    if (n == 0) then
+      this%vf%fc(:, 1) = this%vf%fc(:, 1) + dshift
+      this%vf%fc(:, 2) = this%vf%fc(:, 2) + dshift
+    else
+      this%vf%fc(:, n) = this%vf%fc(:, n) + dshift
+    endif
   end subroutine Fwake_shiftdP
 
   subroutine Fwake_assignP(this, n, P)
@@ -783,6 +796,15 @@ contains
       error stop 'n may only take values 1 or 2 in Fwake_assignP()'
     this%vf%fc(:, n) = P
   end subroutine Fwake_assignP
+
+  subroutine Fwake_rot(this, TMat)
+    !! Rotate using TMat
+  class(Fwake_class) :: this
+    real(dp), intent(in), dimension(3, 3) :: TMat
+
+    this%vf%fc(:, 1) = matmul(TMat, this%vf%fc(:, 1))
+    this%vf%fc(:, 2) = matmul(TMat, this%vf%fc(:, 2))
+  end subroutine Fwake_rot
 
   subroutine Fwake_mirror(this, coordNum)
     !! Mirror gamma and coordinates about a specified plane
@@ -1000,6 +1022,114 @@ contains
       this%zAxis = matmul(TMat, this%zAxis)
     endif
   end subroutine blade_rot_axis
+
+  subroutine blade_rot_wake_axis(this, theta, axisVec, origin, &
+      & rowNear, rowFar, wakeType)
+    ! Rotate wake about axis at specified origin
+  class(blade_class), intent(inout) :: this
+    real(dp), intent(in) :: theta
+    real(dp), intent(in), dimension(3) :: axisVec
+    real(dp), intent(in), dimension(3) :: origin
+    integer, intent(in) :: rowNear, rowFar
+    character(len=1), intent(in) :: wakeType  ! For predicted wake
+    integer :: nNwake, nFwake
+    real(dp), dimension(3, 3) :: Tmat
+    real(dp), dimension(3) :: axis
+    integer :: i, j
+    real(dp) :: ct, st, omct
+
+    if (abs(theta) > eps) then
+      ! Ensure axis is normalized
+      axis = axisVec/norm2(axisVec)
+
+      ! Calculate TMat
+      ct = cos(theta)
+      st = sin(theta)
+      omct = 1 - ct
+
+      Tmat(:, 1) = (/ct + axis(1)*axis(1)*omct, &
+        axis(3)*st + axis(2)*axis(1)*omct, &
+        -axis(2)*st + axis(3)*axis(1)*omct/)
+      Tmat(:, 2) = (/-axis(3)*st + axis(1)*axis(2)*omct, &
+        ct + axis(2)*axis(2)*omct, &
+        axis(1)*st + axis(3)*axis(2)*omct/)
+      Tmat(:, 3) = (/axis(2)*st + axis(1)*axis(3)*omct, &
+        -axis(1)*st + axis(2)*axis(3)*omct, &
+        ct + axis(3)*axis(3)*omct/)
+
+      select case (wakeType)
+      case ('C')
+        ! Start procedure for wake rotation
+        nNwake = size(this%waN, 1)
+        nFwake = size(this%waF, 1)
+
+        ! Translate to origin
+        do j = 1, this%ns
+          do i = rowNear, nNwake
+            call this%waN(i, j)%vr%shiftdP(0, -origin)
+          enddo
+        enddo
+        do i = rowFar, nFwake
+          call this%waF(i)%shiftdP(0, -origin)
+        enddo
+
+        ! Rotate about axis
+        do j = 1, this%ns
+          do i = rowNear, nNwake
+            call this%waN(i, j)%vr%rot(TMat)
+          enddo
+        enddo
+        do i = rowFar, nFwake
+          call this%waF(i)%rot(TMat)
+        enddo
+
+        ! Untranslate from origin
+        do j = 1, this%ns
+          do i = rowNear, nNwake
+            call this%waN(i, j)%vr%shiftdP(0, origin)
+          enddo
+        enddo
+        do i = rowFar, nFwake
+          call this%waF(i)%shiftdP(0, origin)
+        enddo
+
+      case ('P')
+        ! Start procedure for wake rotation
+        nNwake = size(this%waNPredicted, 1)
+        nFwake = size(this%waFPredicted, 1)
+
+        ! Translate to origin
+        do j = 1, this%ns
+          do i = rowNear, nNwake
+            call this%waNPredicted(i, j)%vr%shiftdP(0, -origin)
+          enddo
+        enddo
+        do i = rowFar, nFwake
+          call this%waFPredicted(i)%shiftdP(0, -origin)
+        enddo
+
+        ! Rotate about axis
+        do j = 1, this%ns
+          do i = rowNear, nNwake
+            call this%waNPredicted(i, j)%vr%rot(TMat)
+          enddo
+        enddo
+        do i = rowFar, nFwake
+          call this%waFPredicted(i)%rot(TMat)
+        enddo
+
+        ! Untranslate from origin
+        do j = 1, this%ns
+          do i = rowNear, nNwake
+            call this%waNPredicted(i, j)%vr%shiftdP(0, origin)
+          enddo
+        enddo
+        do i = rowFar, nFwake
+          call this%waFPredicted(i)%shiftdP(0, origin)
+        enddo
+      end select
+    endif
+  end subroutine blade_rot_wake_axis
 
   function blade_vind_bywing(this, P)
     ! Compute induced velocity by blade bound vorticity
@@ -1936,7 +2066,7 @@ contains
     call skip_comments(12)
     read (12, *) this%controlPitch(1), this%controlPitch(2), this%controlPitch(3), this%thetaTwist
     call skip_comments(12)
-    read(12, *) this%customTrajectorySwitch
+    read(12, *) this%customTrajectorySwitch, this%imposeAxisymmetry
     call skip_comments(12)
     read (12, *) this%velBody(1), this%velBody(2), this%velBody(3) &
       , this%omegaBody(1), this%omegaBody(2), this%omegaBody(3)
@@ -1991,9 +2121,6 @@ contains
       enddo
     endif
     close (12)
-
-    ! DEBUG
-    this%imposeAxisymmetry = 0
   end subroutine rotor_read_geom
 
   subroutine rotor_init(this, rotorNumber, density, dt, nt, switches)
@@ -2946,18 +3073,18 @@ contains
     ! Map gam from vector to matrix format
   class(rotor_class), intent(inout) :: this
     integer :: ib
-    if (this%imposeAxisymmetry == 1) then
+    if (this%imposeAxisymmetry == 0) then
+      do ib = 1, this%nb
+        this%blade(ib)%wiP%vr%gam &
+          = reshape(this%gamVec(1+this%nc*this%ns*(ib-1):this%nc*this%ns*ib), &
+          & (/this%nc, this%ns/))
+      enddo
+    else
       this%blade(1)%wiP%vr%gam &
         = reshape(this%gamVec(1:this%nc*this%ns), &
         & (/this%nc, this%ns/))
       do ib = 2, this%nb
         this%blade(ib)%wiP%vr%gam = this%blade(1)%wiP%vr%gam
-      enddo
-    else
-      do ib = 1, this%nb
-        this%blade(ib)%wiP%vr%gam &
-          = reshape(this%gamVec(1+this%nc*this%ns*(ib-1):this%nc*this%ns*ib), &
-          & (/this%nc, this%ns/))
       enddo
     endif
   end subroutine rotor_map_gam
@@ -3374,23 +3501,41 @@ contains
     enddo
   end subroutine rotor_calc_secAlpha
 
-  subroutine rotor_convectwake(this, rowNear, rowFar, dt, wakeType)
+  subroutine rotor_convectwake(this, dt, wakeType)
   class(rotor_class), intent(inout) :: this
-    integer, intent(in) :: rowNear, rowFar
     real(dp), intent(in) :: dt
     character(len=1), intent(in) :: wakeType  ! For predicted wake
     integer :: ib
+    real(dp) :: bladeOffset
 
     if (this%imposeAxisymmetry == 0) then
       do ib = 1, this%nb
-        call this%blade(ib)%convectwake(rowNear, rowFar, dt, wakeType)
+        call this%blade(ib)%convectwake(this%rowNear, this%rowFar, dt, wakeType)
       enddo
     else
-        call this%blade(1)%convectwake(rowNear, rowFar, dt, wakeType)
-        ! DEBUG
-        ! Then rotate and copy wake to all the other blades
+      call this%blade(1)%convectwake(this%rowNear, this%rowFar, dt, wakeType)
+      do ib = 2, this%nb
+        bladeOffset = 2._dp*pi/this%nb*(ib - 1)
+        ! Copy wakes from blade1
+        select case (wakeType)
+        case ('C')
+          this%blade(ib)%waN(this%rowNear:, :) = &
+            & this%blade(1)%waN(this%rowNear:, :)
+          this%blade(ib)%waF(this%rowFar:) = &
+            & this%blade(1)%waF(this%rowFar:)
+        case ('P')
+          this%blade(ib)%waNPredicted(this%rowNear:, :) = &
+            & this%blade(1)%waNPredicted(this%rowNear:, :)
+          this%blade(ib)%waFPredicted(this%rowFar:) = &
+            & this%blade(1)%waFPredicted(this%rowFar:)
+        case default
+          error stop 'ERROR: Wrong character flag for convectwake()'
+        end select
+        ! Rotate wakes to correct positions
+        call this%blade(ib)%rot_wake_axis(bladeOffset, &
+          & this%shaftAxis, this%hubCoords, this%rowNear, this%rowFar, wakeType)
+      enddo
     endif
-
   end subroutine rotor_convectwake
 
   subroutine rotor_burst_wake(this)
