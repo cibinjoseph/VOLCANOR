@@ -24,4 +24,5 @@ script:
   - make run
   - make testrunners -B
   - ln -sf $PWD/../bin $PWD/../tests/elevateTest.case/
+  - ln -sf $PWD/../bin $PWD/../tests/katzNplotkin-AR04.case/
   - travis-pls make test
