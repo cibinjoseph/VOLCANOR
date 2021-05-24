@@ -1063,70 +1063,46 @@ contains
         nNwake = size(this%waN, 1)
         nFwake = size(this%waF, 1)
 
-        ! Translate to origin
+        !$omp parallel do collapse(2)
         do j = 1, this%ns
           do i = rowNear, nNwake
             call this%waN(i, j)%vr%shiftdP(0, -origin)
-          enddo
-        enddo
-        do i = rowFar, nFwake
-          call this%waF(i)%shiftdP(0, -origin)
-        enddo
-
-        ! Rotate about axis
-        do j = 1, this%ns
-          do i = rowNear, nNwake
             call this%waN(i, j)%vr%rot(TMat)
-          enddo
-        enddo
-        do i = rowFar, nFwake
-          call this%waF(i)%rot(TMat)
-        enddo
-
-        ! Untranslate from origin
-        do j = 1, this%ns
-          do i = rowNear, nNwake
             call this%waN(i, j)%vr%shiftdP(0, origin)
           enddo
         enddo
+        !$omp end parallel do
+
+        !$omp parallel do
         do i = rowFar, nFwake
+          call this%waF(i)%shiftdP(0, -origin)
+          call this%waF(i)%rot(TMat)
           call this%waF(i)%shiftdP(0, origin)
         enddo
+        !$omp end parallel do
 
       case ('P')
         ! Start procedure for wake rotation
         nNwake = size(this%waNPredicted, 1)
         nFwake = size(this%waFPredicted, 1)
 
-        ! Translate to origin
+        !$omp parallel do collapse(2)
         do j = 1, this%ns
           do i = rowNear, nNwake
             call this%waNPredicted(i, j)%vr%shiftdP(0, -origin)
-          enddo
-        enddo
-        do i = rowFar, nFwake
-          call this%waFPredicted(i)%shiftdP(0, -origin)
-        enddo
-
-        ! Rotate about axis
-        do j = 1, this%ns
-          do i = rowNear, nNwake
             call this%waNPredicted(i, j)%vr%rot(TMat)
-          enddo
-        enddo
-        do i = rowFar, nFwake
-          call this%waFPredicted(i)%rot(TMat)
-        enddo
-
-        ! Untranslate from origin
-        do j = 1, this%ns
-          do i = rowNear, nNwake
             call this%waNPredicted(i, j)%vr%shiftdP(0, origin)
           enddo
         enddo
+        !$omp end parallel do
+
+        !$omp parallel do
         do i = rowFar, nFwake
+          call this%waFPredicted(i)%shiftdP(0, -origin)
+          call this%waFPredicted(i)%rot(TMat)
           call this%waFPredicted(i)%shiftdP(0, origin)
         enddo
+        !$omp end parallel do
       end select
     endif
   end subroutine blade_rot_wake_axis
