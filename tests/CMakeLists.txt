@@ -39,8 +39,16 @@ add_test(NAME panel1x3 COMMAND panel1x3_testrunner)
 add_test(NAME panel1x3NegPitch COMMAND panel1x3NegPitch_testrunner)
 
 # Full-case testing
-if (NOT Python3_Interpreter_FOUND)
-  message(WARNING "Python 3 might not be available")
-  message(WARNING "Full-case tests require Python 3")
+if (NOT DEFINED TESTFULL)
+  set(TESTFULL TRUE)
 endif()
-add_test(NAME fullcase COMMAND python3 -m unittest discover ${CMAKE_CURRENT_SOURCE_DIR})
+
+if (TESTFULL)
+  if (NOT Python3_Interpreter_FOUND)
+    message(WARNING "Python 3 might not be available")
+    message(WARNING "Full-case tests require Python 3")
+    message(WARNING "Add -DTESTFULL=False to disable full-case tests")
+  endif()
+  add_test(NAME elevate 
+    COMMAND python3 -m unittest discover ${CMAKE_CURRENT_SOURCE_DIR})
+endif()
