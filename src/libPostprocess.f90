@@ -785,7 +785,7 @@ contains
     write (12, 101) timestamp, norm2(rotor%lift), norm2(rotor%drag), &
       rotor%lift(1), rotor%lift(2), rotor%lift(3), &     ! Lift
       rotor%drag(1), rotor%drag(2), rotor%drag(3), &     ! Drag
-      rotor%forceInertial(1), rotor%forceInertial(2), rotor%forceInertial(3)  ! forceInertial 
+      rotor%forceInertial(1), rotor%forceInertial(2), rotor%forceInertial(3)  
     close (12)
     101 format(A, 11(E15.7))
 
@@ -800,6 +800,7 @@ contains
             & action='write', position='append')
           write (12, 202) 'secSpan', 'secCL', 'secCD', 'secLift', 'secDrag', &
             & 'secArea', 'secVel', 'secChord', 'secAlpha'
+          ! secVel is resultant vel that the airfoil sees
           do ispan = 1, rotor%ns
             write (12, 102) dot_product(rotor%blade(ib)%secCP(:, ispan) - &
               & rotor%hubCoords, rotor%blade(ib)%yAxis), &
