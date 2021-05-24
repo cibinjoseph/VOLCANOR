@@ -22,6 +22,7 @@ contains
     rotor%nb = 1
     rotor%geometryFile = '0'
     rotor%surfaceType = 1
+    rotor%imposeAxisymmetry = 0
 
     rotor%nc = 1
     rotor%ns = 3
