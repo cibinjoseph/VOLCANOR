@@ -8,7 +8,7 @@ Introduce blade%xAxisNoPitch centered about pitching hinge
 Phase out invertGammaSign since it works incorrectly for cambered sections
 
 TESTING & VALIDATION
-- Implement Katz and Plotkin's fixed wing cases as testcases
+- Implement Katz and Plotkin's fixed wing ground effect as a testcase
 - Check sweep cases by KnP
 - Validate Friedrich's unsteady rotor case
 
