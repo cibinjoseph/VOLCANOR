@@ -9,6 +9,9 @@ import tabulate as tb
 import sys
 import argparse
 
+# Assumptions
+# 1. No sideslip in secVel
+# 2. No unsteady motion
 
 CLa_lin = 2.0*np.pi
 
@@ -56,11 +59,22 @@ dx = data['secArea']/data['secChord']
 
 if isRotor:
     vRef = params['radius']*params['Omega']
-    vInf = data['secSpan']*params['Omega']
+    vRes = data['secVel']
+    vFree = data['secSpan']*params['Omega']
 else:
     vRef = params['u']
-    vInf = data['secVel']
+    vRes = data['secVel']
+    vFree = VRef
 
+phi = []
+for vRes1, vFree1 in zip(vRes, vFree):
+    if vRes1-vFree1 > 0:
+        phi.append(np.arctan2(np.sqrt(np.abs(vRes1**2-vFree1**2)), vFree1))
+    else:
+        print('Warning: vRes < vFree')
+        phi.append(0)
+
+# induced angle, phi
 alphaLookup = (180.0/np.pi)*(data['secCL']/CLa_lin + alf0)
 machlist = data['secVel']/params['velSound']
 
@@ -70,29 +84,36 @@ if c81File == None:
 with open(c81File, 'r') as fh:
     c81Airfoil = c81.load(fh)
 
+# Lift and drag are w.r.t resultant velocity direction
 CL_nonlin = []
-CD_nonlin = []
+CD0_nonlin = []
 for i, alpha in enumerate(alphaLookup):
     CL_nonlin.append(c81Airfoil.getCL(alpha, machlist[i]))
-    CD_nonlin.append(c81Airfoil.getCD(alpha, machlist[i]))
+    CD0_nonlin.append(c81Airfoil.getCD(alpha, machlist[i]))
 
 secLift_nonLin = CL_nonlin*(0.5*params['density']* \
-                            data['secArea']*vInf*vInf)
-secDrag_nonLin = CD_nonlin*(0.5*params['density']* \
-                            data['secArea']*vInf*vInf)
+                            data['secArea']*vRes*vRes)
+secDrag0_nonLin = CD0_nonlin*(0.5*params['density']* \
+                            data['secArea']*vRes*vRes)
+
+# Assuming X along and Z perpendicular to freestream
+secFz_nonLin = secLift_nonLin*np.cos(phi) - secDrag0_nonLin*np.sin(phi)
+secFx_nonLin = secLift_nonLin*np.sin(phi) + secDrag0_nonLin*np.cos(phi)
 
 if isRotor:
-    secTorque = data['secSpan']*secDrag_nonLin
+    secTorque = data['secSpan']*secFx_nonLin
     Torque = np.sum(secTorque)
     denom = params['density']*np.pi*params['radius']**2.0*(vRef)**2.0
     CQ = Torque / (denom*params['radius'])
 else:
-    Drag = np.sum(secDrag_nonLin)
+    Drag0 = np.sum(secDrag0_nonLin)
+    Fx = np.sum(secFx_nonLin)
     denom = 0.5*params['density']*params['chord']*params['radius']*(vRef)**2.0
-    CD = Drag / denom
+    CFx = Fx / denom
+    CD0 = Drag0 / denom
 
-Thrust = np.sum(secLift_nonLin)
-CT = Thrust / denom
+Fz = np.sum(secFz_nonLin)
+CFz = Fz / denom
 
 # Print inputs
 print('C81 file = ' + c81File)
@@ -101,25 +122,26 @@ print()
 # Print stats
 print('Min/Max alpha (deg) = ' + \
       str(np.min(alphaLookup)) +' / ' + str(np.max(alphaLookup)))
-print('Thrust = ' + str(Thrust))
-print('CT = ' + str(CT))
+print('Fz = ' + str(Fz))
+print('CFz = ' + str(CFz))
 if isRotor:
-    print('Torque0 = ' + str(Torque))
-    print('CQ0 = ' + str(CQ))
-    print('Nb x Thrust = ' + str(params['nb']*Thrust))
-    print('Nb x CT = ' + str(params['nb']*CT))
+    print('Torque = ' + str(Torque))
+    print('CQ = ' + str(CQ))
+    print('Nb x Fz = ' + str(params['nb']*Fz))
+    print('Nb x CFz = ' + str(params['nb']*CFz))
 else:
-    print('Drag0 = ' + str(Drag))
-    print('CD0 = ' + str(CD))
+    print('Fx = ' + str(Fx))
+    print('CFx = ' + str(CFx))
 
 # Write distribution to file
 sectDict = {'rbyR': data['secSpan']/params['radius'], \
-            'secArea': data['secArea'], \
-            'secVel': vInf, 'dx': dx, \
-            'secAlpha': data['secAlpha'], \
+            'area': data['secArea'], \
+            'velRes': vRes, 'dx': dx, 'velFree': vFree, \
+            'alpha': data['secAlpha'], 'phi': phi, \
             'alphaLookup': alphaLookup, 'CL_lin': data['secCL'], \
-            'CL_nonlin': CL_nonlin, 'secLift': secLift_nonLin, \
-            'CD0_nonlin': CD_nonlin, 'secDrag0': secDrag_nonLin \
+            'CL_nonlin': CL_nonlin, 'Lift': secLift_nonLin, \
+            'CD0_nonlin': CD0_nonlin, 'Drag0': secDrag0_nonLin, \
+            'Fz_nonLin': secFz_nonLin, 'Fx_nonLin': secFx_nonLin
            }
 outTable = tb.tabulate(sectDict, headers='keys', tablefmt='tsv', \
                        showindex=False)
@@ -135,7 +157,7 @@ if args.quiet == False:
     ax[0].set_ylabel('Alpha (deg)')
     ax[0].grid(True)
 
-    ax[1].plot(sectDict['rbyR'], secLift_nonLin/dx, label='CL interpolated')
+    ax[1].plot(sectDict['rbyR'], secFz_nonLin/dx, label='CL interpolated')
     ax[1].set_ylabel('Lift per unit span')
     ax[1].grid(True)
     ax[1].legend()
