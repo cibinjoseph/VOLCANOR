@@ -3,15 +3,15 @@
 # NO. OF TIMESTEPS [nt]    TIMESTEP (sec) [dt]         NO. OF ROTORS [nr]
 # [-nt]chords or revs    [0]default [-nt]chords or revs
 # -----------------------------------------------------------------------
-       -20                      0.0                      2
+       -40                     -0.04                      2
 # 
 # restartWriteNt    restartFromNt [0]Off [1..]timesteps
 # -----------------------------------------------------------------------
-     -5                   0
+       0                   0
 # 
 # NO. OF SUBITERATIONS [ntSub]  NO. OF INITIAL SUBITERATIONS [ntSubInit] 
 # -----------------------------------------------------------------------
-     15                          15
+     20                          20
 # 
 # SPAN DISCRETIZATION : [1]linear [2]cosine [3]halfsine
 # spanSpacingSwitch
@@ -27,7 +27,7 @@
 # PLOT WAKE: [0]Off [n]Every n'th iteration [-n]chords or revs
 # wakePlotSwitch   wakeTipPlotSwitch   forcePlotSwitch   gridPlotSwitch
 # -----------------------------------------------------------------------
-      -10                -10                  1                 0
+      -5                 -5                    -5                 0
 # =======================================================================
 # 
 # WAKE PROPERTY SWITCHES: [0]Off [1]On
