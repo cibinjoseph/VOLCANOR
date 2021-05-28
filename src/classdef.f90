@@ -2161,6 +2161,7 @@ contains
     call this%toChordsRevs(switches%gridPlot, dt)
     call this%toChordsRevs(this%wakeTruncateNt, dt)
 
+    call this%toChordsRevs(this%nNwake, dt)
     call this%toChordsRevs(this%inflowPlotSwitch, dt)
     call this%toChordsRevs(this%bladeForcePlotSwitch, dt)
     call this%toChordsRevs(this%gammaPlotSwitch, dt)
