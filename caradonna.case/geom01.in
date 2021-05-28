@@ -1,5 +1,5 @@
 # File format version
-  0.5
+  0.6
 # Fixed-Wing or Rotor
 # ===================================================================
 # No. of blades,nb  Prop convention  NcamberFiles  geometry filename
@@ -17,7 +17,7 @@
 #
 # Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 # -------------------------------------------------------------------
-      10                     25                  580 
+      10                     25                  -3
 # ===================================================================
 # 
 # X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
@@ -51,9 +51,10 @@
   12.0             0.0              0.0           0.0
 # ===================================================================
 # 
-# customTrajectorySwitch [0]Off [1]On
+# customTrajectorySwitch    imposeAxisymmetry
+# [0]Off [1]On              [0]Off [1]On
 # ------------------------------------------------------------------
-           0
+           0                      1
 # 
 # u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]
 # -------------------------------------------------------------------
@@ -91,7 +92,7 @@
 #  [n] Timesteps
 # [-n] Chords/revs
 # -------------------------------------------------------------------
-     0                 0.0                   0.0            0.5
+     -10                 0.0                   0.0            0.5
 # ===================================================================
 # 
 # CUSTOM WIND FRAME FOR FORCE OUTPUT
