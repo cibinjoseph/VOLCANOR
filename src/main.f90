@@ -656,12 +656,16 @@ program main
           rowErase = rotor(ir)%nFwake-(iter-rotor(ir)%wakeTruncateNt)+1
           rotor(ir)%nFwakeEnd = rowErase-1
           call rotor(ir)%eraseFwake(rowErase)
+          ! DEBUG
+          call rotor(ir)%blade(1)%wapF%update(rotor(ir)%blade(1)%waF(rotor(ir)%rowFar:rotor(ir)%nFwakeEnd), rotor(ir)%hubCoords, rotor(ir)%shaftAxis)
         else  ! truncation in near wake
           rowErase = rotor(ir)%nNwake-(iter-rotor(ir)%wakeTruncateNt)+1
           rotor(ir)%nNwakeEnd = rowErase-1
           rotor(ir)%nFwakeEnd = rotor(ir)%rowFar
           call rotor(ir)%eraseNwake(rowErase)
         endif
+        ! DEBUG
+        stop
       endif
     enddo
 

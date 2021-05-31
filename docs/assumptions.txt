@@ -1,5 +1,6 @@
 Positive pitch and positive omega produces negative circulation and vice versa used in:
 - rotor_rollup() for gam_max 
+This may cause problems for negative pitch input
 
 Panels have subdivisions along chord and not inclined to it 
 - blade_calcforce() for tangent vector

@@ -138,16 +138,21 @@ module classdef
   end type Fwake_class
 
   type pFwake_class
-    type(Fwake_class), allocatable, dimension(:) :: Fwake
+    !! Prescribed far wake
+    ! 10 revs with 15 deg vortex filaments
+    type(Fwake_class), dimension(240) :: Fwake
+    real(dp), dimension(3, 241) :: coords
+    real(dp) :: nRevs = 10.0
+    logical :: isClockwiseRotor = .True.
   contains
-    procedure :: create => pFwake_create
-    procedure :: shiftdP => pFwake_shiftdP
+    procedure :: update => pFwake_update
   end type pFwake_class
 
   type blade_class
     type(wingpanel_class), allocatable, dimension(:, :) :: wiP  ! Wing panel
     type(Nwake_class), allocatable, dimension(:, :) :: waN  ! Near wake
     type(Fwake_class), allocatable, dimension(:) :: waF  ! Far wake
+    type(pFwake_class) :: wapF  ! Prescribed far wake
     type(Nwake_class), allocatable, dimension(:, :) :: waNPredicted
     type(Fwake_class), allocatable, dimension(:) :: waFPredicted
     type(C81_class), allocatable, dimension(:) :: C81
@@ -265,7 +270,7 @@ module classdef
     integer :: nCamberFiles, nAirfoils
     integer :: imagePlane, imageRotorNum
     integer :: surfaceType  
-    integer :: imposeAxisymmetry
+    integer :: imposeAxisymmetry, prescribeFwake
     character(len=30), allocatable, dimension(:) :: camberFile, airfoilFile
     character(len=30) :: geometryFile
     real(dp) :: nonDimforceDenominator
@@ -822,47 +827,48 @@ contains
   !------+--
   ! ++++ | pFwake_class Methods
   !------+--
-  subroutine pFwake_create(this, nrevs, radius, pitch)
-  class(pFwake_class) :: this
-    real(dp), intent(in) :: nrevs, radius, pitch
-    real(dp) :: dtheta
-    real(dp), allocatable, dimension(:) :: theta
-    real(dp), dimension(3) :: coords
-    integer :: npoints, i
-    logical :: isCounterClockwise
+  subroutine pFwake_update(this, waF, hubCoords, shaftAxis)
+  class(pFwake_class), intent(inout) :: this
+    type(Fwake_class), intent(in), dimension(:) :: waF
+    real(dp), intent(in), dimension(3) :: hubCoords, shaftAxis
+    real(dp), dimension(size(this%coords, 2)) :: theta
+    real(dp), dimension(3) :: anchor, prevTurn, radiusVec
+    real(dp) :: radius, pitch, deltaPsi, deltaZ, dtheta
+    integer :: i, npFwake
 
-    isCounterClockwise = .False.
+    if (abs(shaftAxis(1)) > eps .or. abs(shaftAxis(2)) > eps) then
+      error stop "Prescribed far wake not implemented for non Z-axis shaft"
+    endif
 
+    ! Debug
+    ! Assumes dtheta is 15 degs
     dtheta = 15._dp
-    npoints = int(ceiling(nrevs*360._dp/dtheta))
 
-    allocate(this%Fwake(npoints-1))
-    allocate(theta(npoints))
+    ! Find helix parameters
+    anchor = waF(size(waF))%vf%fc(:, 2)
+    prevTurn = waF(size(waF)-ceiling(360._dp/dtheta)+1)%vf%fc(:, 1)
+    radiusVec = (anchor-hubCoords)-projVec((anchor-hubCoords), shaftAxis)
+    radius = norm2(radiusVec)
+    pitch = -1._dp * dot_product((anchor-prevTurn), shaftAxis)
+    deltaPsi = getAngleTan(radiusVec, (/1._dp, 0._dp, 0._dp/))
+    deltaZ = anchor(3)
 
-    theta = linspace(0._dp, 2._dp*pi*nrevs, npoints)
-    if (isCounterClockwise) theta = theta*1._dp
+    theta = linspace(0._dp, 2._dp*pi*this%nRevs, size(theta, 1))
+    if (this%isClockwiseRotor) theta = -1._dp*theta
 
-    call this%Fwake(1)%assignP(1, (/0._dp, radius, 0._dp/))
-    do i = 2, npoints-2
-      coords = (/radius*sin(theta(i)), radius*cos(theta(i)), &
-        & abs(theta(i))*pitch/(2._dp*pi)/)
+    this%coords(1, :) = radius * cos(theta+deltaPsi)
+    this%coords(2, :) = radius * sin(theta+deltaPsi)
+    this%coords(3, :) = pitch*abs(theta)/(2._dp*pi) + deltaZ
 
-      call this%Fwake(i)%assignP(2, coords)
-      call this%Fwake(i+1)%assignP(1, coords)
+    ! Assign to prescribed wake
+    npFwake = size(this%Fwake)
+    do i = 1, npFwake
+      call this%Fwake(i)%assignP(1, this%coords(:, i))
+      call this%Fwake(i)%assignP(2, this%coords(:, i+1))
     enddo
-    call this%Fwake(npoints-1)%assignP(2, coords)
-  end subroutine pFwake_create
 
-  subroutine pFwake_shiftdP(this, dshift)
-  class(pFwake_class) :: this
-    real(dp), intent(in), dimension(3) :: dshift
-    integer :: i
-
-    do i = 1, size(this%Fwake)
-      call this%Fwake(i)%shiftdP(1, dshift)
-      call this%Fwake(i)%shiftdP(2, dshift)
-    enddo
-  end subroutine pFwake_shiftdP
+    this%Fwake%gam = waF(size(waF))%gam
+  end subroutine pFwake_update
 
   !------+--
   ! ++++ | blade_class Methods
@@ -2012,21 +2018,8 @@ contains
 
     ! [0/1]Lifting [2]Non-lifting [-1]Lifting Image [-2]Non-lifting Image
     read (12, *) this%surfaceType, this%imagePlane, this%imageRotorNum
-    if (this%surfaceType == 0) this%surfaceType = 1
     call skip_comments(12)
-
     read (12, *) this%nc, this%ns, this%nNwake
-    ! If nNwake is -ve, far wake is suppressed
-    if (abs(this%surfaceType) == 1) then
-      if (this%nNwake < 0) then
-        this%suppressFwakeSwitch = 1
-        this%nNwake = abs(this%nNwake)
-      else
-        if (abs(this%surfaceType) == 2) this%suppressFwakeSwitch = 0
-      endif
-    endif
-
-    if (this%nNwake < 2) error stop 'ERROR: Atleast 2 near wake rows mandatory'
     call skip_comments(12)
     read (12, *) this%hubCoords(1), this%hubCoords(2), this%hubCoords(3)
     call skip_comments(12)
@@ -2097,6 +2090,7 @@ contains
       enddo
     endif
     close (12)
+    this%prescribeFwake = 1
   end subroutine rotor_read_geom
 
   subroutine rotor_init(this, rotorNumber, density, dt, nt, switches)
@@ -2167,6 +2161,15 @@ contains
     call this%toChordsRevs(this%gammaPlotSwitch, dt)
     call this%toChordsRevs(this%alphaPlotSwitch, dt)
     call this%toChordsRevs(this%skewPlotSwitch, dt)
+
+    if (abs(this%Omega) < eps .and. this%wakeTruncateNt > 0) then
+      this%wakeTruncateNt = 0
+    endif
+
+    if (this%surfaceType == 0) this%surfaceType = 1
+    if (abs(this%surfaceType) == 2) this%suppressFwakeSwitch = 0
+
+    if (this%nNwake < 2) error stop 'ERROR: Atleast 2 near wake rows mandatory'
 
     ! Override ns to 1 if non-lifting surface
     if (abs(this%surfaceType) .eq. 2) this%ns = 1
