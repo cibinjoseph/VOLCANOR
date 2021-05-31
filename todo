@@ -21,8 +21,12 @@ and torque/drag
 
 LOW PRIORITY
 - Alpha sweep mode
-- Implement prescribed far-wake
 - Add provision for root vortex
 - Implement non-lifting surfaces: 
 -- Use source induced velocity for non-lifting surfaces in vind
 - Convert grid output to binary format
+
+HIGH PRIORITY
+- Implement prescribed far-wake
+-- Add induced velocity computation to rotor_wake_vind
+-- Add provision to specify timestep at which prescribed wake should be added
