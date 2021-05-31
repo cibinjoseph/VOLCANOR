@@ -20,6 +20,7 @@ and torque/drag
 - Compute blade flap moment and rotor moments
 
 LOW PRIORITY
+- Check if intermmediate data structure for arrays of wake and far wake would make it easier to handle induced velocities and such.
 - Alpha sweep mode
 - Add provision for root vortex
 - Implement non-lifting surfaces: 
