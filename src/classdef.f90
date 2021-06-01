@@ -2181,7 +2181,8 @@ class(blade_class), intent(inout) :: this
     call this%toChordsRevs(this%skewPlotSwitch, dt)
 
     if (this%wakeTruncateNt > 0) then
-      this%prescribeFwakeNt = this%wakeTruncateNt+5
+      this%prescribeFwakeNt = this%wakeTruncateNt+ &
+        & ceiling(2.0*this%wakeTruncateNt)
     endif
     if (abs(this%Omega) < eps .and. this%wakeTruncateNt > 0) then
       this%wakeTruncateNt = 0
