@@ -3791,7 +3791,7 @@ class(blade_class), intent(inout) :: this
   class(rotor_class), intent(inout) :: this
     integer :: ib
 
-    do ib = 1, this%nbConvect
+    do ib = 1, this%nb
       ! This should ideally be handled by the blade_class
       call this%blade(ib)%wapF%update( &
         & this%blade(ib)%waF(this%rowFar:this%nFwakeEnd), &
