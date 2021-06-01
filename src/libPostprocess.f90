@@ -127,6 +127,7 @@ contains
     real(dp), dimension(3, rotor%nc + 1, rotor%ns + 1) :: wingMesh
     real(dp), dimension(3, rotor%nNwake + 1, rotor%ns + 1) :: wakeMesh
     real(dp), dimension(3, rotor%nFwake + 1) :: wakeTip   ! Optimise this by only initialising reqd size
+    real(dp), dimension(3, size(rotor%blade(1)%wapF%Fwake) + 1) :: wakeTipPresc
     integer :: i, j, nx, ny, ib
 
     write (rotorNumberChar, '(I0.2)') rotorNumber
@@ -239,6 +240,43 @@ contains
           !write(10,*) 0._dp
         endif
 
+        ! Prescribed far wake
+        nx = size(rotor%blade(1)%wapF%Fwake)
+        if (rotor%blade(1)%wapF%isPresent) then
+          write (nxChar, '(I5)') nx + 1
+
+          !Check if necessary - $omp parallel do collapse(2)
+          do i = 1, nx
+            wakeTipPresc(:, i) = rotor%blade(ib)%wapF%Fwake(i)%vf%fc(:, 2)
+          enddo
+          wakeTipPresc(:, nx + 1) = rotor%blade(ib)%wapF%Fwake(size(rotor%blade(1)%wapF%Fwake))%vf%fc(:, 1)
+          !Check if necessary -$omp end parallel do
+
+          write (10, *) 'Zone I='//trim(nxChar)//' J=1   K=1   T="PrescFarWake"'
+          write (10, *) 'DATAPACKING=BLOCK'
+          write (10, *) 'VARLOCATION=([4]=CELLCENTERED ,[5]=CELLCENTERED)' !,[6]=CELLCENTERED)'
+          write (10, *) (wakeTipPresc(1, i), i=rotor%rowFar, nx + 1)
+          write (10, *) (wakeTipPresc(2, i), i=rotor%rowFar, nx + 1)
+          write (10, *) (wakeTipPresc(3, i), i=rotor%rowFar, nx + 1)
+          write (10, *) (-1._dp*rotor%blade(ib)%wapF%Fwake(i)%gam, i=1, nx)
+          write(10,*) (rotor%blade(ib)%wapF%Fwake(i)%vf%rVc, i=1, nx)
+          !write(10,*) (rotor%blade(ib)%waF(i)%vf%age,i=rotor%rowFar,nx)
+
+        else  ! No prescribed far wake present
+
+          write (nxChar, '(I5)') 2  ! Plot mesh as single redundant point
+          wakeTip(:, 1) = rotor%blade(ib)%waN(rotor%nNwake, rotor%ns)%vr%vf(3)%fc(:, 1)
+
+          write (10, *) 'Zone I='//trim(nxChar)//' J=1   K=1   T="PrescFarWake"'
+          write (10, *) 'DATAPACKING=BLOCK'
+          write (10, *) 'VARLOCATION=([4]=CELLCENTERED, [5]=CELLCENTERED)' !,[6]=CELLCENTERED)'
+          write (10, *) wakeTip(1, 1), wakeTip(1, 1)
+          write (10, *) wakeTip(2, 1), wakeTip(2, 1)
+          write (10, *) wakeTip(3, 1), wakeTip(3, 1)
+          write (10, *) 0._dp
+          write(10,*) 0._dp
+          !write(10,*) 0._dp
+        endif
       enddo
     elseif (abs(rotor%surfaceType) == 2) then
       ! Non-lifting surface

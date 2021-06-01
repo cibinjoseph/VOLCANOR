@@ -144,6 +144,7 @@ module classdef
     real(dp), dimension(3, 241) :: coords
     real(dp) :: nRevs = 10.0
     logical :: isClockwiseRotor = .True.
+    logical :: isPresent = .false.
   contains
     procedure :: update => pFwake_update
   end type pFwake_class
@@ -840,6 +841,8 @@ contains
     if (abs(shaftAxis(1)) > eps .or. abs(shaftAxis(2)) > eps) then
       error stop "Prescribed far wake not implemented for non Z-axis shaft"
     endif
+
+    this%isPresent = .true.
 
     ! Debug
     ! Assumes dtheta is 15 degs
