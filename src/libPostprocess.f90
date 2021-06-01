@@ -241,23 +241,23 @@ contains
         endif
 
         ! Prescribed far wake
-        nx = size(rotor%blade(1)%wapF%Fwake)
-        if (rotor%blade(1)%wapF%isPresent) then
+        nx = size(rotor%blade(ib)%wapF%Fwake)
+        if (rotor%blade(ib)%wapF%isPresent) then
           write (nxChar, '(I5)') nx + 1
 
           !Check if necessary - $omp parallel do collapse(2)
           do i = 1, nx
-            wakeTipPresc(:, i) = rotor%blade(ib)%wapF%Fwake(i)%vf%fc(:, 2)
+            wakeTipPresc(:, i) = rotor%blade(ib)%wapF%Fwake(i)%vf%fc(:, 1)
           enddo
-          wakeTipPresc(:, nx + 1) = rotor%blade(ib)%wapF%Fwake(size(rotor%blade(1)%wapF%Fwake))%vf%fc(:, 1)
+          wakeTipPresc(:, nx + 1) = rotor%blade(ib)%wapF%Fwake(size(rotor%blade(1)%wapF%Fwake))%vf%fc(:, 2)
           !Check if necessary -$omp end parallel do
 
           write (10, *) 'Zone I='//trim(nxChar)//' J=1   K=1   T="PrescFarWake"'
           write (10, *) 'DATAPACKING=BLOCK'
           write (10, *) 'VARLOCATION=([4]=CELLCENTERED ,[5]=CELLCENTERED)' !,[6]=CELLCENTERED)'
-          write (10, *) (wakeTipPresc(1, i), i=rotor%rowFar, nx + 1)
-          write (10, *) (wakeTipPresc(2, i), i=rotor%rowFar, nx + 1)
-          write (10, *) (wakeTipPresc(3, i), i=rotor%rowFar, nx + 1)
+          write (10, *) (wakeTipPresc(1, i), i=1, nx + 1)
+          write (10, *) (wakeTipPresc(2, i), i=1, nx + 1)
+          write (10, *) (wakeTipPresc(3, i), i=1, nx + 1)
           write (10, *) (-1._dp*rotor%blade(ib)%wapF%Fwake(i)%gam, i=1, nx)
           write(10,*) (rotor%blade(ib)%wapF%Fwake(i)%vf%rVc, i=1, nx)
           !write(10,*) (rotor%blade(ib)%waF(i)%vf%age,i=rotor%rowFar,nx)
