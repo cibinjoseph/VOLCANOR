@@ -129,7 +129,7 @@ module classdef
     ! |
     ! V X along chord
     type(vf_class) :: vf
-    real(dp) :: gam
+    real(dp) :: gam = 0._dp
   contains
     procedure :: shiftdP => Fwake_shiftdP
     procedure :: assignP => Fwake_assignP
@@ -259,7 +259,7 @@ module classdef
     real(dp) :: rollupStartRadius, rollupEndRadius
     integer :: propConvention
     integer :: symmetricTau
-    integer :: wakeTruncateNt
+    integer :: wakeTruncateNt, prescribeFwakeNt
     integer :: rollupStart, rollupEnd
     integer :: suppressFwakeSwitch
     integer :: forceCalcSwitch, skewPlotSwitch
@@ -270,7 +270,7 @@ module classdef
     integer :: nCamberFiles, nAirfoils
     integer :: imagePlane, imageRotorNum
     integer :: surfaceType  
-    integer :: imposeAxisymmetry, prescribeFwake
+    integer :: imposeAxisymmetry
     character(len=30), allocatable, dimension(:) :: camberFile, airfoilFile
     character(len=30) :: geometryFile
     real(dp) :: nonDimforceDenominator
@@ -313,6 +313,7 @@ module classdef
     procedure :: toChordsRevs => rotor_toChordsRevs
     procedure :: eraseNwake => rotor_eraseNwake
     procedure :: eraseFwake => rotor_eraseFwake
+    procedure :: updatePrescribedWake => rotor_updatePrescribedWake
     ! I/O subroutines
     procedure :: rotor_write
     generic :: write(unformatted) => rotor_write
@@ -868,6 +869,7 @@ contains
     enddo
 
     this%Fwake%gam = waF(size(waF))%gam
+    this%Fwake%vf%rVc = waF(size(waF))%vf%rVc
   end subroutine pFwake_update
 
   !------+--
@@ -1240,7 +1242,14 @@ contains
             blade_vind_bywake = blade_vind_bywake &
             + this%waF(i)%vf%vind(P)*this%waF(i)%gam
         enddo
+
+        do i = 1, size(this%wapF%Fwake)
+          if (abs(this%wapF%Fwake(i)%gam) .gt. eps) &
+            blade_vind_bywake = blade_vind_bywake &
+            + this%wapF%Fwake(i)%vf%vind(P)*this%wapF%Fwake(i)%gam
+        enddo
       endif
+
     elseif ((optionalChar .eq. 'P') .or. (optionalChar .eq. 'p')) then
       do j = 1, size(this%waN, 2)
         do i = rowNear, nNwake
@@ -1262,6 +1271,13 @@ contains
             blade_vind_bywake = blade_vind_bywake &
             + this%waFPredicted(i)%vf%vind(P)*this%waFPredicted(i)%gam
         enddo
+
+        ! This should ideally be the predicted prescribed far wake
+        do i = 1, size(this%wapF%Fwake)
+          if (abs(this%wapF%Fwake(i)%gam) .gt. eps) &
+            blade_vind_bywake = blade_vind_bywake &
+            + this%wapF%Fwake(i)%vf%vind(P)*this%wapF%Fwake(i)%gam
+        enddo
       endif
     else
       error stop 'ERROR: Wrong character flag for blade_vind_bywake()'
@@ -1269,13 +1285,13 @@ contains
 
   end function blade_vind_bywake
 
-  subroutine blade_convectwake(this, rowNear, rowFar, dt, wakeType)
-    ! Convect wake collocation points using velNwake matrix
-  class(blade_class), intent(inout) :: this
-    integer, intent(in) :: rowNear, rowFar
-    real(dp), intent(in) :: dt
-    character(len=1), intent(in) :: wakeType  ! For predicted wake
-    integer :: i, j, nNwake, nFwake
+subroutine blade_convectwake(this, rowNear, rowFar, dt, wakeType)
+  ! Convect wake collocation points using velNwake matrix
+class(blade_class), intent(inout) :: this
+  integer, intent(in) :: rowNear, rowFar
+  real(dp), intent(in) :: dt
+  character(len=1), intent(in) :: wakeType  ! For predicted wake
+  integer :: i, j, nNwake, nFwake
 
     nNwake = size(this%waN, 1)
 
@@ -2090,7 +2106,6 @@ contains
       enddo
     endif
     close (12)
-    this%prescribeFwake = 1
   end subroutine rotor_read_geom
 
   subroutine rotor_init(this, rotorNumber, density, dt, nt, switches)
@@ -2162,6 +2177,9 @@ contains
     call this%toChordsRevs(this%alphaPlotSwitch, dt)
     call this%toChordsRevs(this%skewPlotSwitch, dt)
 
+    if (this%wakeTruncateNt > 0) then
+      this%prescribeFwakeNt = this%wakeTruncateNt+5
+    endif
     if (abs(this%Omega) < eps .and. this%wakeTruncateNt > 0) then
       this%wakeTruncateNt = 0
     endif
@@ -3764,6 +3782,24 @@ contains
       this%blade(ib)%waF(rowErase)%gam = 0._dp
     enddo
   end subroutine rotor_eraseFwake
+
+  subroutine rotor_updatePrescribedWake(this)
+    !! Attaches prescribed far wake
+  class(rotor_class), intent(inout) :: this
+    integer :: ib
+
+    do ib = 1, this%nbConvect
+      ! This should ideally be handled by the blade_class
+      call this%blade(ib)%wapF%update( &
+        & this%blade(ib)%waF(this%rowFar:this%nFwakeEnd), &
+        & this%hubCoords, this%shaftAxis)
+    enddo
+    if (this%imposeAxisymmetry == 0) then
+      ! The rest of the blades will get wakes copied
+      ! during convectWake subroutine
+    endif
+
+  end subroutine rotor_updatePrescribedWake
 
   subroutine rotor_read(this, unit, iostat, iomsg)
   class(rotor_class), intent(inout) :: this
