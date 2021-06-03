@@ -29,6 +29,6 @@ LOW PRIORITY
 
 HIGH PRIORITY
 - Implement prescribed far-wake
--- Add induced velocity computation to rotor_wake_vind
+-- Correct location of wake truncation and precribed wake so that plots do not have a gap
 -- Add provision to specify timestep at which prescribed wake should be added
 -- Compute dtheta from rpm and dt. Make it a rotor variable preferably
