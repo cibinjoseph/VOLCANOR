@@ -60,11 +60,11 @@ module classdef
     ! Panel coordinates
     ! o-------> Y along span
     ! |
-    ! |   1-------4
+    ! |   1-------4  - Leading edge
     ! |   |   4   |
     ! |   |1     3|
     ! |   |   2   |
-    ! |   2-------3
+    ! |   2-------3  - Trailing edge
     ! |
     ! V X along chord
     type(vr_class) :: vr
@@ -121,11 +121,11 @@ module classdef
     ! VF coordinates
     ! o-------> Y along span
     ! |
-    ! |   1
+    ! |   2 - Leading edge
     ! |   |
     ! |   |1
     ! |   |
-    ! |   2
+    ! |   1 - Trailing edge
     ! |
     ! V X along chord
     type(vf_class) :: vf
@@ -834,12 +834,12 @@ contains
     type(Fwake_class), intent(in), dimension(:) :: waF
     real(dp), intent(in), dimension(3) :: hubCoords, shaftAxis
     real(dp), dimension(size(this%coords, 2)) :: theta
-    real(dp), dimension(3) :: anchor, prevTurn, radiusVec
+    real(dp), dimension(3) :: anchor, radiusVec
     real(dp) :: radius, pitch, deltaPsi, deltaZ, dtheta
     integer :: i, npFwake
 
     if (abs(shaftAxis(1)) > eps .or. abs(shaftAxis(2)) > eps) then
-      error stop "Prescribed far wake not implemented for non Z-axis shaft"
+      error stop "Prescribed far wake only implemented for shaft along Z-axis"
     endif
 
     this%isPresent = .true.
@@ -849,12 +849,12 @@ contains
     dtheta = 15._dp
 
     ! Find helix parameters
-    anchor = waF(size(waF))%vf%fc(:, 2)
-    prevTurn = waF(size(waF)-ceiling(360._dp/dtheta)+1)%vf%fc(:, 1)
+    anchor = waF(size(waF))%vf%fc(:, 1)
     radiusVec = (anchor-hubCoords)-projVec((anchor-hubCoords), shaftAxis)
     radius = norm2(radiusVec)
-    pitch = -1._dp * dot_product((anchor-prevTurn), shaftAxis)
-    deltaPsi = getAngleTan(radiusVec, (/1._dp, 0._dp, 0._dp/))
+    ! Pitch computed using z coordinate of prev. far wake node and dPsi
+    pitch = (anchor(3)-waF(size(waF)-1)%vf%fc(3, 1))/(0.04)
+    deltaPsi = atan2(radiusVec(2), radiusVec(1))
     deltaZ = anchor(3)
 
     theta = linspace(0._dp, 2._dp*pi*this%nRevs, size(theta, 1))
@@ -867,8 +867,8 @@ contains
     ! Assign to prescribed wake
     npFwake = size(this%Fwake)
     do i = 1, npFwake
-      call this%Fwake(i)%assignP(1, this%coords(:, i))
-      call this%Fwake(i)%assignP(2, this%coords(:, i+1))
+      call this%Fwake(i)%assignP(2, this%coords(:, i))
+      call this%Fwake(i)%assignP(1, this%coords(:, i+1))
     enddo
 
     this%Fwake%gam = waF(size(waF))%gam
@@ -2181,8 +2181,11 @@ class(blade_class), intent(inout) :: this
     call this%toChordsRevs(this%skewPlotSwitch, dt)
 
     if (this%wakeTruncateNt > 0) then
+      ! DEBUG 
+      ! Specify this on input
       this%prescribeFwakeNt = this%wakeTruncateNt+ &
-        & ceiling(2.0*this%wakeTruncateNt)
+        & 20
+        ! & ceiling(2.0*this%wakeTruncateNt)
     endif
     if (abs(this%Omega) < eps .and. this%wakeTruncateNt > 0) then
       this%wakeTruncateNt = 0
@@ -3353,6 +3356,7 @@ class(blade_class), intent(inout) :: this
 
   subroutine rotor_shiftwake(this)
     ! Shift wake locations on rollup
+
   class(rotor_class), intent(inout) :: this
     integer :: ib, i
 
