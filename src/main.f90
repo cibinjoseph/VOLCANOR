@@ -423,7 +423,7 @@ program main
           call rotor(ir)%eraseNwake(rowErase)
         endif
         ! Prescribed wake
-        if (rotor(ir)%prescribeFwakeNt > 0 .and. &
+        if (rotor(ir)%prescWakeNt > 0 .and. &
           & iter >= rotor(ir)%prescribeFwakeNt) then
           call rotor(ir)%updatePrescribedWake(dt)
         endif
