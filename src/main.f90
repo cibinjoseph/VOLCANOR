@@ -407,6 +407,29 @@ program main
       endif
     enddo
 
+    ! Wake truncation
+    do ir = 1, nr
+      if (rotor(ir)%wakeTruncateNt > 0 .and. &
+        & iter > rotor(ir)%wakeTruncateNt) then
+        ! If truncation in far wake
+        if (iter > rotor(ir)%nNwake) then
+          rowErase = rotor(ir)%nFwake-(iter-rotor(ir)%wakeTruncateNt)+1
+          rotor(ir)%nFwakeEnd = rowErase-1
+          call rotor(ir)%eraseFwake(rowErase)
+        else  ! truncation in near wake
+          rowErase = rotor(ir)%nNwake-(iter-rotor(ir)%wakeTruncateNt)+1
+          rotor(ir)%nNwakeEnd = rowErase-1
+          rotor(ir)%nFwakeEnd = rotor(ir)%rowFar
+          call rotor(ir)%eraseNwake(rowErase)
+        endif
+        ! Prescribed wake
+        if (rotor(ir)%prescribeFwakeNt > 0 .and. &
+          & iter >= rotor(ir)%prescribeFwakeNt) then
+          call rotor(ir)%updatePrescribedWake()
+        endif
+      endif
+    enddo
+
     ! Write out wing n' wake
     do ir = 1, nr
       if (switches%wakePlot .ne. 0) then
@@ -646,30 +669,6 @@ program main
         rotor(ir)%blade(ib)%velFwake(:, rotor(ir)%rowFar:rotor(ir)%nFwake) = 0._dp
       enddo
     enddo
-
-    ! Wake truncation
-    do ir = 1, nr
-      if (rotor(ir)%wakeTruncateNt > 0 .and. &
-        & iter > rotor(ir)%wakeTruncateNt) then
-        ! If truncation in far wake
-        if (iter > rotor(ir)%nNwake) then
-          rowErase = rotor(ir)%nFwake-(iter-rotor(ir)%wakeTruncateNt)+1
-          rotor(ir)%nFwakeEnd = rowErase-1
-          call rotor(ir)%eraseFwake(rowErase)
-        else  ! truncation in near wake
-          rowErase = rotor(ir)%nNwake-(iter-rotor(ir)%wakeTruncateNt)+1
-          rotor(ir)%nNwakeEnd = rowErase-1
-          rotor(ir)%nFwakeEnd = rotor(ir)%rowFar
-          call rotor(ir)%eraseNwake(rowErase)
-        endif
-        ! Prescribed wake
-        if (rotor(ir)%prescribeFwakeNt > 0 .and. &
-          & iter >= rotor(ir)%prescribeFwakeNt) then
-          call rotor(ir)%updatePrescribedWake()
-        endif
-      endif
-    enddo
-
 
     ! Compute induced velocity due to rotors in domain
     do ir = 1, nr
