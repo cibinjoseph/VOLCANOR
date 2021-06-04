@@ -855,7 +855,7 @@ contains
     ! Pitch computed using z coordinate of prev. far wake node and dPsi
     pitch = (anchor(3)-waF(size(waF)-1)%vf%fc(3, 1))/(0.04)
     deltaPsi = atan2(radiusVec(2), radiusVec(1))
-    deltaZ = anchor(3)
+    deltaZ = anchor(3)-hubCoords(3)
 
     theta = linspace(0._dp, 2._dp*pi*this%nRevs, size(theta, 1))
     if (this%isClockwiseRotor) theta = -1._dp*theta
