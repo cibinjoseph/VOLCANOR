@@ -260,7 +260,7 @@ module classdef
     real(dp) :: rollupStartRadius, rollupEndRadius
     integer :: propConvention
     integer :: symmetricTau
-    integer :: wakeTruncateNt, prescribeFwakeNt
+    integer :: wakeTruncateNt, prescWakeNt, prescWakeAfterTruncNt
     integer :: rollupStart, rollupEnd
     integer :: suppressFwakeSwitch
     integer :: forceCalcSwitch, skewPlotSwitch
@@ -829,13 +829,14 @@ contains
   !------+--
   ! ++++ | pFwake_class Methods
   !------+--
-  subroutine pFwake_update(this, waF, hubCoords, shaftAxis)
+  subroutine pFwake_update(this, waF, hubCoords, shaftAxis, deltaPsi)
   class(pFwake_class), intent(inout) :: this
     type(Fwake_class), intent(in), dimension(:) :: waF
     real(dp), intent(in), dimension(3) :: hubCoords, shaftAxis
+    real(dp), intent(in) :: deltaPsi
     real(dp), dimension(size(this%coords, 2)) :: theta
     real(dp), dimension(3) :: anchor, radiusVec
-    real(dp) :: radius, pitch, deltaPsi, deltaZ, dtheta
+    real(dp) :: radius, pitch, deltaZ, dTheta
     integer :: i, npFwake
 
     if (abs(shaftAxis(1)) > eps .or. abs(shaftAxis(2)) > eps) then
@@ -844,24 +845,20 @@ contains
 
     this%isPresent = .true.
 
-    ! Debug
-    ! Assumes dtheta is 15 degs
-    dtheta = 15._dp
-
     ! Find helix parameters
     anchor = waF(size(waF))%vf%fc(:, 1)
     radiusVec = (anchor-hubCoords)-projVec((anchor-hubCoords), shaftAxis)
     radius = norm2(radiusVec)
-    ! Pitch computed using z coordinate of prev. far wake node and dPsi
-    pitch = (anchor(3)-waF(size(waF)-1)%vf%fc(3, 1))/(0.04)
-    deltaPsi = atan2(radiusVec(2), radiusVec(1))
+    ! Pitch computed using slope of far wake filament
+    pitch = (anchor(3)-waF(size(waF)-1)%vf%fc(3, 1))*(2*pi/deltaPsi)
+    dTheta = atan2(radiusVec(2), radiusVec(1))
     deltaZ = anchor(3)-hubCoords(3)
 
     theta = linspace(0._dp, 2._dp*pi*this%nRevs, size(theta, 1))
     if (this%isClockwiseRotor) theta = -1._dp*theta
 
-    this%coords(1, :) = radius * cos(theta+deltaPsi)
-    this%coords(2, :) = radius * sin(theta+deltaPsi)
+    this%coords(1, :) = radius * cos(theta+dTheta)
+    this%coords(2, :) = radius * sin(theta+dTheta)
     this%coords(3, :) = pitch*abs(theta)/(2._dp*pi) + deltaZ
 
     ! Assign to prescribed wake
@@ -2172,6 +2169,7 @@ class(blade_class), intent(inout) :: this
     call this%toChordsRevs(switches%wakePlot, dt)
     call this%toChordsRevs(switches%gridPlot, dt)
     call this%toChordsRevs(this%wakeTruncateNt, dt)
+    call this%toChordsRevs(this%prescWakeAfterTruncNt, dt)
 
     call this%toChordsRevs(this%nNwake, dt)
     call this%toChordsRevs(this%inflowPlotSwitch, dt)
@@ -2183,9 +2181,7 @@ class(blade_class), intent(inout) :: this
     if (this%wakeTruncateNt > 0) then
       ! DEBUG 
       ! Specify this on input
-      this%prescribeFwakeNt = this%wakeTruncateNt+ &
-        & 20
-        ! & ceiling(2.0*this%wakeTruncateNt)
+      this%prescWakeNt = this%wakeTruncateNt+this%prescWakeAfterTruncNt
     endif
     if (abs(this%Omega) < eps .and. this%wakeTruncateNt > 0) then
       this%wakeTruncateNt = 0
@@ -3791,16 +3787,17 @@ class(blade_class), intent(inout) :: this
     enddo
   end subroutine rotor_eraseFwake
 
-  subroutine rotor_updatePrescribedWake(this)
+  subroutine rotor_updatePrescribedWake(this, dt)
     !! Attaches prescribed far wake
   class(rotor_class), intent(inout) :: this
+    real(dp), intent(in) :: dt
     integer :: ib
 
     do ib = 1, this%nb
       ! This should ideally be handled by the blade_class
       call this%blade(ib)%wapF%update( &
         & this%blade(ib)%waF(this%rowFar:this%nFwakeEnd), &
-        & this%hubCoords, this%shaftAxis)
+        & this%hubCoords, this%shaftAxis, this%omegaSlow*dt)
     enddo
     if (this%imposeAxisymmetry == 0) then
       ! The rest of the blades will get wakes copied
