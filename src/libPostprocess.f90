@@ -247,9 +247,9 @@ contains
 
           !Check if necessary - $omp parallel do collapse(2)
           do i = 1, nx
-            wakeTipPresc(:, i) = rotor%blade(ib)%wapF%Fwake(i)%vf%fc(:, 1)
+            wakeTipPresc(:, i) = rotor%blade(ib)%wapF%Fwake(i)%vf%fc(:, 2)
           enddo
-          wakeTipPresc(:, nx + 1) = rotor%blade(ib)%wapF%Fwake(size(rotor%blade(1)%wapF%Fwake))%vf%fc(:, 2)
+          wakeTipPresc(:, nx + 1) = rotor%blade(ib)%wapF%Fwake(size(rotor%blade(1)%wapF%Fwake))%vf%fc(:, 1)
           !Check if necessary -$omp end parallel do
 
           write (10, *) 'Zone I='//trim(nxChar)//' J=1   K=1   T="PrescFarWake"'
