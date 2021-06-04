@@ -2180,7 +2180,7 @@ class(blade_class), intent(inout) :: this
     call this%toChordsRevs(this%alphaPlotSwitch, dt)
     call this%toChordsRevs(this%skewPlotSwitch, dt)
 
-    if (this%wakeTruncateNt > 0) then
+    if (this%wakeTruncateNt > 0 .and. this%prescWakeAfterTruncNt > 0) then
       this%prescWakeNt = this%wakeTruncateNt+this%prescWakeAfterTruncNt
     else
       this%prescWakeNt = 0

@@ -105,6 +105,7 @@ contains
       write(10, *) '"alpha0": ', 0._dp, ','
     endif
     write(10, *) '"wakeTruncateNt": ', rotor%wakeTruncateNt, ','
+    write(10, *) '"prescWakeNt": ', rotor%prescWakeNt, ','
     write(10, *) '"initWakeVel": ', rotor%initWakeVel, ','
     write(10, *) '"psiStart": ', rotor%psiStart*180._dp/pi, ','
     write(10, *) '"forceCalcSwitch": ', rotor%forceCalcSwitch*180._dp/pi, ','
