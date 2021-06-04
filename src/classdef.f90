@@ -2001,7 +2001,7 @@ class(blade_class), intent(inout) :: this
     integer :: i
     real :: fileFormatVersion, currentTemplateVersion
 
-    currentTemplateVersion = 0.6
+    currentTemplateVersion = 0.7
 
     open (unit=12, file=filename, status='old', action='read')
     call skip_comments(12)
@@ -2056,9 +2056,11 @@ class(blade_class), intent(inout) :: this
     read (12, *) this%velBody(1), this%velBody(2), this%velBody(3) &
       , this%omegaBody(1), this%omegaBody(2), this%omegaBody(3)
     call skip_comments(12)
-    read (12, *) this%pivotLE, this%flapHinge, this%spanwiseLiftSwitch, this%symmetricTau
+    read (12, *) this%pivotLE, this%flapHinge, this%spanwiseLiftSwitch, &
+      & this%symmetricTau
     call skip_comments(12)
-    read (12, *) this%turbulentViscosity
+    read (12, *) this%turbulentViscosity, this%wakeTruncateNt, &
+      & this%prescWakeAfterTruncNt 
     call skip_comments(12)
     read (12, *) this%spanwiseCore, this%streamwiseCoreSwitch
     call skip_comments(12)
@@ -2077,7 +2079,7 @@ class(blade_class), intent(inout) :: this
     ! Dimensional quantities
     read (12, *) this%rollupStartRadius, this%rollupEndRadius
     call skip_comments(12)
-    read (12, *) this%wakeTruncateNt, this%initWakeVel, &
+    read (12, *) this%initWakeVel, &
       & this%psiStart, this%skewLimit
     call skip_comments(12)
     read (12, *) this%dragUnitVec(1), this%dragUnitVec(2), this%dragUnitVec(3)
@@ -2179,10 +2181,11 @@ class(blade_class), intent(inout) :: this
     call this%toChordsRevs(this%skewPlotSwitch, dt)
 
     if (this%wakeTruncateNt > 0) then
-      ! DEBUG 
-      ! Specify this on input
       this%prescWakeNt = this%wakeTruncateNt+this%prescWakeAfterTruncNt
+    else
+      this%prescWakeNt = 0
     endif
+
     if (abs(this%Omega) < eps .and. this%wakeTruncateNt > 0) then
       this%wakeTruncateNt = 0
     endif
