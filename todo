@@ -29,5 +29,4 @@ LOW PRIORITY
 
 HIGH PRIORITY
 - Implement prescribed far-wake
--- test for hover and axial climb
-- Correct current test cases for geom format
+-- test for hover and axial climb (try 5 bladed ELEVATE test case itself)
