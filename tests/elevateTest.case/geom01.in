@@ -1,5 +1,5 @@
 # File format version
-  0.6
+  0.7
 # Fixed-Wing or Rotor
 # ===================================================================
 # No. of blades,nb  Prop convention  NcamberFiles  geometry filename
@@ -16,6 +16,7 @@
      0                                            3             0
 #
 # Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
+#                                       [n]timesteps [-n]chords/revs
 # -------------------------------------------------------------------
       16                       16                   30
 # ===================================================================
@@ -67,10 +68,10 @@
 0.00                0.0               0                 1
 # ===================================================================
 # 
-# turbulentViscosity
-# (10-10000) 
+# turbulentViscosity  wakeTruncateNt        prescWakeAfterTruncNt
+# (10-10000)         [0]Off [n] timesteps [-n] chords/revs
 # -------------------------------------------------------------------
-  5000
+  5000                     -3                       0
 # ===================================================================
 # 
 # spanwise core radius[x/c]       streamwise core_switch
@@ -87,12 +88,9 @@
 # -------------------------------------------------------------------
            0.75             1.0 
 # 
-# wakeTruncateNt  initWakeVel[m/s]     psiStart[deg]      skewLimit
-#  [0] Off
-#  [n] Timesteps
-# [-n] Chords/revs
+# initWakeVel[m/s]     psiStart[deg]      skewLimit
 # -------------------------------------------------------------------
-     -3               0.0                   0.0            0.5
+     0.0                   0.0            0.5
 # ===================================================================
 # 
 # CUSTOM WIND FRAME FOR FORCE OUTPUT
