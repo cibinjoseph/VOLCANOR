@@ -29,4 +29,5 @@ LOW PRIORITY
 
 HIGH PRIORITY
 - Implement prescribed far-wake
--- Add provision to specify timestep at which prescribed wake should be added
+-- test for hover and axial climb
+- Correct current test cases for geom format
