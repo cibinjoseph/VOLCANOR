@@ -424,7 +424,7 @@ program main
         endif
         ! Prescribed wake
         if (rotor(ir)%prescWakeNt > 0 .and. &
-          & iter >= rotor(ir)%prescribeFwakeNt) then
+          & iter >= rotor(ir)%prescWakeNt) then
           call rotor(ir)%updatePrescribedWake(dt)
         endif
       endif
