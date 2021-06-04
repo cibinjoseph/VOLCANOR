@@ -867,8 +867,8 @@ contains
     ! Assign to prescribed wake
     npFwake = size(this%Fwake)
     do i = 1, npFwake
-      call this%Fwake(i)%assignP(2, this%coords(:, i))
-      call this%Fwake(i)%assignP(1, this%coords(:, i+1))
+      call this%Fwake(i)%assignP(2, hubCoords + this%coords(:, i))
+      call this%Fwake(i)%assignP(1, hubCoords + this%coords(:, i+1))
     enddo
 
     this%Fwake%gam = waF(size(waF))%gam
