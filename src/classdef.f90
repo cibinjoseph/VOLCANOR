@@ -387,12 +387,10 @@ contains
 
     vind = 0._dp
 
-    if (abs(this%gam) > eps) then
     do i = 1, 4
       vindMat(i, :) = this%vf(i)%vind(P)
     enddo
     vind = sum(vindMat, 1)
-    endif
 
   end function vr_vind
 
