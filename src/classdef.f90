@@ -387,10 +387,12 @@ contains
 
     vind = 0._dp
 
+    if (abs(this%gam) > eps) then
     do i = 1, 4
       vindMat(i, :) = this%vf(i)%vind(P)
     enddo
     vind = sum(vindMat, 1)
+    endif
 
   end function vr_vind
 
@@ -2528,7 +2530,7 @@ class(blade_class), intent(inout) :: this
       this%blade(ib)%secCP = this%blade(ib)%getSecChordwiseLocations(secCPLoc)
 
       ! Initialize gamma
-      this%blade(ib)%wiP%vr%gam = 0._dp
+      this%blade(ib)%wiP%vr%gam = 1._dp  ! For computing AIC matrix
       this%blade(ib)%wiP%vr%skew = 0._dp
       this%blade(ib)%pivotLE = this%pivotLE
 
