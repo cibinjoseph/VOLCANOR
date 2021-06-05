@@ -13,8 +13,6 @@ TESTING & VALIDATION
 - Validate Friedrich's unsteady rotor case
 
 FELS
-- Correct computation of nonlinear forces in script with estimation of induced drag
-and torque/drag
 - While computing drag from FELS in unsteady case, ensure unsteady 'induced' drag term is not counted twice by neglecting it in force computation using gamma 
 - Create output folder with nonlinear data
 - Compute blade flap moment and rotor moments
