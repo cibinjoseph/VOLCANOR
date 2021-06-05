@@ -18,6 +18,7 @@ FELS
 - Compute blade flap moment and rotor moments
 
 LOW PRIORITY
+- make run_prof and run_prof_dbg targets return run-time errors
 - Check if intermmediate data structure for arrays of wake and far wake would make it easier to handle induced velocities and such.
 - Alpha sweep mode
 - Add provision for root vortex
