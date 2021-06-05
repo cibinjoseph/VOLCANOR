@@ -836,7 +836,7 @@ contains
     real(dp), intent(in) :: deltaPsi
     real(dp), dimension(size(this%coords, 2)) :: theta
     real(dp), dimension(3) :: anchor, radiusVec
-    real(dp) :: radius, pitch, deltaZ, dTheta
+    real(dp) :: helixRadius, helixPitch, deltaZ, dTheta
     integer :: i, npFwake
 
     if (abs(shaftAxis(1)) > eps .or. abs(shaftAxis(2)) > eps) then
@@ -848,18 +848,28 @@ contains
     ! Find helix parameters
     anchor = waF(size(waF))%vf%fc(:, 1)
     radiusVec = (anchor-hubCoords)-projVec((anchor-hubCoords), shaftAxis)
-    radius = norm2(radiusVec)
-    ! Pitch computed using slope of far wake filament
-    pitch = (anchor(3)-waF(size(waF)-1)%vf%fc(3, 1))*(2*pi/deltaPsi)
+    helixRadius = norm2(radiusVec)
+
+    ! Pitch of helix computed using average slope of all far wake filaments
+    helixPitch = 0._dp
+    do i = 1, size(waF)-1
+      helixPitch = helixPitch + &
+        & waF(i)%vf%fc(3, 1) - waF(i+1)%vf%fc(3, 1)
+    enddo
+    helixPitch = helixPitch * (-2._dp*pi/deltaPsi)/(size(waF)-1)
+    
+    ! Angle by which unit helix has to be rotated
     dTheta = atan2(radiusVec(2), radiusVec(1))
+
+    ! delta z by which unit helix has to be translated
     deltaZ = anchor(3)-hubCoords(3)
 
     theta = linspace(0._dp, 2._dp*pi*this%nRevs, size(theta, 1))
     if (this%isClockwiseRotor) theta = -1._dp*theta
 
-    this%coords(1, :) = radius * cos(theta+dTheta)
-    this%coords(2, :) = radius * sin(theta+dTheta)
-    this%coords(3, :) = pitch*abs(theta)/(2._dp*pi) + deltaZ
+    this%coords(1, :) = helixRadius * cos(theta+dTheta)
+    this%coords(2, :) = helixRadius * sin(theta+dTheta)
+    this%coords(3, :) = helixPitch*abs(theta)/(2._dp*pi) + deltaZ
 
     ! Assign to prescribed wake
     npFwake = size(this%Fwake)
@@ -3802,10 +3812,6 @@ class(blade_class), intent(inout) :: this
         & this%blade(ib)%waF(this%rowFar:this%nFwakeEnd), &
         & this%hubCoords, this%shaftAxis, this%omegaSlow*dt)
     enddo
-    if (this%imposeAxisymmetry == 0) then
-      ! The rest of the blades will get wakes copied
-      ! during convectWake subroutine
-    endif
 
   end subroutine rotor_updatePrescribedWake
 
