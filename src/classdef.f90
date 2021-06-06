@@ -882,7 +882,10 @@ contains
       call this%Fwake(i)%assignP(1, hubCoords + this%coords(:, i+1))
     enddo
 
-    this%Fwake%gam = waF(size(waF))%gam
+    ! To maintain continuity
+    call this%Fwake(1)%assignP(2, anchor)
+
+    this%Fwake%gam = sum(waF%gam)/size(waF)
     this%Fwake%vf%rVc = waF(size(waF))%vf%rVc
   end subroutine pFwake_update
 
