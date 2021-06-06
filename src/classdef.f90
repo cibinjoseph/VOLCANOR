@@ -147,6 +147,7 @@ module classdef
     logical :: isPresent = .false.
   contains
     procedure :: update => pFwake_update
+    procedure :: rot_wake_axis => pFwake_rot_wake_axis
   end type pFwake_class
 
   type blade_class
@@ -154,6 +155,7 @@ module classdef
     type(Nwake_class), allocatable, dimension(:, :) :: waN  ! Near wake
     type(Fwake_class), allocatable, dimension(:) :: waF  ! Far wake
     type(pFwake_class) :: wapF  ! Prescribed far wake
+    type(pFwake_class) :: wapFPredicted  ! Prescribed far wake
     type(Nwake_class), allocatable, dimension(:, :) :: waNPredicted
     type(Fwake_class), allocatable, dimension(:) :: waFPredicted
     type(C81_class), allocatable, dimension(:) :: C81
@@ -889,6 +891,45 @@ contains
     this%Fwake%vf%rVc = waF(size(waF))%vf%rVc
   end subroutine pFwake_update
 
+  subroutine pFwake_rot_wake_axis(this, theta, axisVec, origin)
+  class(pFwake_class), intent(inout) :: this
+    real(dp), intent(in) :: theta
+    real(dp), intent(in), dimension(3) :: axisVec
+    real(dp), intent(in), dimension(3) :: origin
+    real(dp), dimension(3, 3) :: Tmat
+    real(dp), dimension(3) :: axis
+    real(dp) :: ct, st, omct
+    integer :: i
+
+    if (abs(theta) > eps) then
+      ! Ensure axis is normalized
+      axis = axisVec/norm2(axisVec)
+
+      ! Calculate TMat
+      ct = cos(theta)
+      st = sin(theta)
+      omct = 1 - ct
+
+      Tmat(:, 1) = (/ct + axis(1)*axis(1)*omct, &
+        axis(3)*st + axis(2)*axis(1)*omct, &
+        -axis(2)*st + axis(3)*axis(1)*omct/)
+      Tmat(:, 2) = (/-axis(3)*st + axis(1)*axis(2)*omct, &
+        ct + axis(2)*axis(2)*omct, &
+        axis(1)*st + axis(3)*axis(2)*omct/)
+      Tmat(:, 3) = (/axis(2)*st + axis(1)*axis(3)*omct, &
+        -axis(1)*st + axis(2)*axis(3)*omct, &
+        ct + axis(3)*axis(3)*omct/)
+
+      !$omp parallel do
+      do i = 1, size(this%Fwake)
+        call this%Fwake(i)%shiftdP(0, -origin)
+        call this%Fwake(i)%rot(TMat)
+        call this%Fwake(i)%shiftdP(0, origin)
+      enddo
+      !$omp end parallel do
+    endif
+  end subroutine pFwake_rot_wake_axis
+
   !------+--
   ! ++++ | blade_class Methods
   !------+--
@@ -1289,11 +1330,11 @@ contains
             + this%waFPredicted(i)%vf%vind(P)*this%waFPredicted(i)%gam
         enddo
 
-        ! This should ideally be the predicted prescribed far wake
-        do i = 1, size(this%wapF%Fwake)
-          if (abs(this%wapF%Fwake(i)%gam) .gt. eps) &
+        do i = 1, size(this%wapFPredicted%Fwake)
+          if (abs(this%wapFPredicted%Fwake(i)%gam) .gt. eps) &
             blade_vind_bywake = blade_vind_bywake &
-            + this%wapF%Fwake(i)%vf%vind(P)*this%wapF%Fwake(i)%gam
+            & + this%wapFPredicted%Fwake(i)%vf%vind(P) &
+            & *this%wapFPredicted%Fwake(i)%gam
         enddo
       endif
     else
@@ -3523,8 +3564,9 @@ class(blade_class), intent(inout) :: this
     enddo
   end subroutine rotor_calc_secAlpha
 
-  subroutine rotor_convectwake(this, dt, wakeType)
+  subroutine rotor_convectwake(this, iter, dt, wakeType)
   class(rotor_class), intent(inout) :: this
+    integer, intent(in) :: iter
     real(dp), intent(in) :: dt
     character(len=1), intent(in) :: wakeType  ! For predicted wake
     integer :: ib
@@ -3558,6 +3600,12 @@ class(blade_class), intent(inout) :: this
           & this%shaftAxis, this%hubCoords, this%rowNear, this%rowFar, wakeType)
       enddo
     endif
+
+    ! Add prescribed wake
+    if (this%prescWakeNt > 0 .and. iter > this%prescWakeNt) then
+      call this%updatePrescribedWake(dt, waketype)
+    endif
+
   end subroutine rotor_convectwake
 
   subroutine rotor_burst_wake(this)
@@ -3807,19 +3855,45 @@ class(blade_class), intent(inout) :: this
     enddo
   end subroutine rotor_eraseFwake
 
-  subroutine rotor_updatePrescribedWake(this, dt)
+  subroutine rotor_updatePrescribedWake(this, dt, wakeType)
     !! Attaches prescribed far wake
   class(rotor_class), intent(inout) :: this
     real(dp), intent(in) :: dt
+    character(len=1), intent(in) :: wakeType
+    real(dp) :: bladeOffset
     integer :: ib
 
-    do ib = 1, this%nb
-      ! This should ideally be handled by the blade_class
-      call this%blade(ib)%wapF%update( &
-        & this%blade(ib)%waF(this%rowFar:this%nFwakeEnd), &
-        & this%hubCoords, this%shaftAxis, this%omegaSlow*dt)
-    enddo
+    ! This should ideally be handled by the blade_class
+    select case (wakeType)
+    case ('C')
+      do ib = 1, this%nbConvect
+        call this%blade(ib)%wapF%update( &
+          & this%blade(ib)%waF(this%rowFar:this%nFwakeEnd), &
+          & this%hubCoords, this%shaftAxis, this%omegaSlow*dt)
+      enddo
+    case ('P')
+      do ib = 1, this%nbConvect
+        call this%blade(ib)%wapFPredicted%update( &
+          & this%blade(ib)%waFPredicted(this%rowFar:this%nFwakeEnd), &
+          & this%hubCoords, this%shaftAxis, this%omegaSlow*dt)
+      enddo
+    end select
 
+    if (this%imposeAxisymmetry == 1) then
+      do ib = 2, this%nb
+        bladeOffset = 2._dp*pi/this%nb*(ib - 1)
+        select case (wakeType)
+        case ('C')
+          this%blade(ib)%wapF = this%blade(1)%wapF
+          call this%blade(ib)%wapF%rot_wake_axis(bladeOffset, &
+            & this%shaftAxis, this%hubCoords)
+        case ('P')
+          this%blade(ib)%wapFPredicted = this%blade(1)%wapFPredicted
+          call this%blade(ib)%wapFPredicted%rot_wake_axis(bladeOffset, &
+            & this%shaftAxis, this%hubCoords)
+        end select
+      enddo
+    endif
   end subroutine rotor_updatePrescribedWake
 
   subroutine rotor_read(this, unit, iostat, iomsg)
