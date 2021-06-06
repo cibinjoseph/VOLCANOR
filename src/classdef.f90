@@ -835,7 +835,7 @@ contains
     real(dp), intent(in), dimension(3) :: hubCoords, shaftAxis
     real(dp), intent(in) :: deltaPsi
     real(dp), dimension(size(this%coords, 2)) :: theta
-    real(dp), dimension(3) :: anchor, radiusVec
+    real(dp), dimension(3) :: anchor
     real(dp) :: helixRadius, helixPitch, deltaZ, dTheta
     integer :: i, npFwake
 
@@ -847,19 +847,23 @@ contains
 
     ! Find helix parameters
     anchor = waF(size(waF))%vf%fc(:, 1)
-    radiusVec = (anchor-hubCoords)-projVec((anchor-hubCoords), shaftAxis)
-    helixRadius = norm2(radiusVec)
 
-    ! Pitch of helix computed using average slope of all far wake filaments
+    ! Radius and pitch of helix computed using 
+    ! average radius and slope of all far wake filaments
     helixPitch = 0._dp
-    do i = 1, size(waF)-1
-      helixPitch = helixPitch + &
-        & waF(i)%vf%fc(3, 1) - waF(i+1)%vf%fc(3, 1)
+    do i = 1, size(waF)
+      helixRadius = helixRadius + &
+        & norm2((/waF(i)%vf%fc(2, 1), waF(i)%vf%fc(1, 1)/))
+      if (i < size(waF)) then
+        helixPitch = helixPitch + &
+          & waF(i)%vf%fc(3, 1) - waF(i+1)%vf%fc(3, 1)
+      endif
     enddo
     helixPitch = helixPitch * (-2._dp*pi/deltaPsi)/(size(waF)-1)
-    
+    helixRadius = helixRadius / size(waF)
+
     ! Angle by which unit helix has to be rotated
-    dTheta = atan2(radiusVec(2), radiusVec(1))
+    dTheta = atan2(anchor(2), anchor(1))
 
     ! delta z by which unit helix has to be translated
     deltaZ = anchor(3)-hubCoords(3)
