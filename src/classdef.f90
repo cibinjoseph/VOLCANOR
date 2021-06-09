@@ -167,6 +167,7 @@ module classdef
     integer, allocatable, dimension(:) :: airfoilNo
     character(len=30), allocatable, dimension(:) :: airfoilFile
     real(dp), allocatable, dimension(:) :: airfoilSectionLimit
+    real(dp), allocatable, dimension(:, :) :: velWingDummy
     real(dp), allocatable, dimension(:, :, :) :: velNwake, velNwake1
     real(dp), allocatable, dimension(:, :, :) :: velNwake2, velNwake3
     real(dp), allocatable, dimension(:, :, :) :: velNwakePredicted
@@ -1175,18 +1176,21 @@ contains
 
   function blade_vind_bywing(this, P)
     ! Compute induced velocity by blade bound vorticity
-  class(blade_class), intent(in) :: this
+  class(blade_class), intent(inout) :: this
     real(dp), intent(in), dimension(3) :: P
     real(dp), dimension(3) :: blade_vind_bywing
-    integer :: i, j
+    integer :: i, j, indx
 
-    blade_vind_bywing = 0._dp
+    !$omp parallel do collapse(2)
     do j = 1, this%ns
       do i = 1, this%nc
-        blade_vind_bywing = blade_vind_bywing + &
-          this%wiP(i, j)%vr%vind(P)*this%wiP(i, j)%vr%gam
+        indx = i + this%nc*(j-1)
+        this%velWingDummy(:, indx) = &
+          & this%wiP(i, j)%vr%vind(P)*this%wiP(i, j)%vr%gam
       enddo
     enddo
+    !$omp end parallel do
+    blade_vind_bywing = sum(this%velWingDummy, dim=2)
 
   end function blade_vind_bywing
 
@@ -2724,8 +2728,9 @@ class(blade_class), intent(inout) :: this
     ! Allocate vars required for wake convection
     ! on the basis of finite diff scheme
     do ib = 1, this%nb
-      allocate (this%blade(ib)%velNwake(3, this%nNwake, this%ns + 1))
-      allocate (this%blade(ib)%velFwake(3, this%nFwake))
+      allocate(this%blade(ib)%velWingDummy(3, this%nc*this%ns))
+      allocate(this%blade(ib)%velNwake(3, this%nNwake, this%ns + 1))
+      allocate(this%blade(ib)%velFwake(3, this%nFwake))
       this%blade(ib)%velNwake = 0._dp
       this%blade(ib)%velFwake = 0._dp
 
@@ -3358,7 +3363,7 @@ class(blade_class), intent(inout) :: this
 
   function rotor_vind_bywing(this, P)
     ! Compute induced velocity by all wing vortices at P
-  class(rotor_class), intent(in) :: this
+  class(rotor_class), intent(inout) :: this
     real(dp), intent(in), dimension(3) :: P
     real(dp), dimension(3) :: rotor_vind_bywing
     integer :: ib
@@ -3366,11 +3371,13 @@ class(blade_class), intent(inout) :: this
     rotor_vind_bywing = 0._dp
     if (abs(this%surfaceType) == 1) then
       do ib = 1, this%nb
-        rotor_vind_bywing = rotor_vind_bywing + this%blade(ib)%vind_bywing(P)
+        rotor_vind_bywing = rotor_vind_bywing &
+          & + this%blade(ib)%vind_bywing(P)
       enddo
     elseif (abs(this%surfaceType) == 2) then
       do ib = 1, this%nb
-        rotor_vind_bywing = rotor_vind_bywing + this%blade(ib)%vindSource_bywing(P)
+        rotor_vind_bywing = rotor_vind_bywing &
+          & + this%blade(ib)%vindSource_bywing(P)
       enddo
     endif
   end function rotor_vind_bywing

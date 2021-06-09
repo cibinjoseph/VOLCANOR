@@ -312,7 +312,7 @@ contains
 
   subroutine probes2file(timestamp, probe, probeVel, rotor, t)
     ! Write velocities at probe locations
-    type(rotor_class), intent(in), dimension(:) :: rotor
+    type(rotor_class), intent(inout), dimension(:) :: rotor
     character(len=*), intent(in) :: timestamp
     real(dp), intent(in) :: t
     real(dp), intent(in) , dimension(:, :) :: probe, probeVel
