@@ -1181,6 +1181,7 @@ contains
     real(dp), dimension(3) :: blade_vind_bywing
     integer :: i, j, indx
 
+    this%velWingDummy = 0._dp
     !$omp parallel do collapse(2)
     do j = 1, this%ns
       do i = 1, this%nc
@@ -1216,16 +1217,21 @@ contains
   class(blade_class), intent(in) :: this
     real(dp), intent(in), dimension(3) :: P
     real(dp), dimension(3) :: blade_vind_bywing_boundVortices
-    integer :: i, j
+    integer :: i, j, indx
 
-    blade_vind_bywing_boundVortices = 0._dp
+    this%velWingDummy = 0._dp
+    !$omp paralll do collapse(2)
     do j = 1, this%ns
       do i = 1, this%nc
-        blade_vind_bywing_boundVortices = blade_vind_bywing_boundVortices + &
-          (this%wiP(i, j)%vr%vf(2)%vind(P) + this%wiP(i, j)%vr%vf(4)%vind(P))* &
+        indx = i + this%nc*(j-1)
+        this%velWingDummy(:, indx) = (this%wiP(i, j)%vr%vf(2)%vind(P) &
+          & + this%wiP(i, j)%vr%vf(4)%vind(P))* &
           this%wiP(i, j)%vr%gam
       enddo
     enddo
+    !$omp end parallel do
+
+    blade_vind_bywing_boundVortices = sum(velWingDummy, dim=2)
     do j = 1, this%ns
       blade_vind_bywing_boundVortices = blade_vind_bywing_boundVortices - &
         this%wiP(this%nc, j)%vr%vf(2)%vind(P)*this%wiP(this%nc, j)%vr%gam
