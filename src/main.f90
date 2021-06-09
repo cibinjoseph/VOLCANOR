@@ -163,7 +163,7 @@ program main
     do ir = 1, nr
       rotor(ir)%gamVecPrev = rotor(ir)%gamVec
       if (rotor(ir)%surfaceType .gt. 0) then
-        rotor(ir)%gamVec = matmul(rotor(ir)%AIC_inv, rotor(ir)%RHS)
+        rotor(ir)%gamVec = matmulAX(rotor(ir)%AIC_inv, rotor(ir)%RHS)
       else  ! Image lifting or non-lifting surface
         call rotor(ir)%mirrorGamma(rotor(rotor(ir)%imageRotorNum))
       endif
@@ -485,7 +485,7 @@ program main
       do ir = 1, nr
         rotor(ir)%gamvecPrev = rotor(ir)%gamVec
         if (rotor(ir)%surfaceType .gt. 0) then
-          rotor(ir)%gamVec = matmul(rotor(ir)%AIC_inv, rotor(ir)%RHS)
+          rotor(ir)%gamVec = matmulAX(rotor(ir)%AIC_inv, rotor(ir)%RHS)
         else
           call rotor(ir)%mirrorGamma(rotor(rotor(ir)%imageRotorNum))
         endif

@@ -6,7 +6,17 @@ project(VOLCANOR Fortran)
 
 # Variables for gfortran
 if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
-  set(common_flags "-ffree-form -std=f2008 -fimplicit-none -ffree-line-length-none -fall-intrinsics")
+  # Check for LAPACK and BLAS
+  find_package(LAPACK)
+  find_package(BLAS)
+  if(NOT LAPACK_FOUND)
+    message(WARNING "LAPACK might not be available")
+  endif()
+  if(NOT BLAS_FOUND)
+    message(WARNING "BLAS might not be available")
+  endif()
+
+  set(common_flags "-ffree-form -std=f2008 -fimplicit-none -ffree-line-length-none -fall-intrinsics -llapack -lblas")
   set(dbg_flags "-fbacktrace -O0 -Wall -Wextra -Wimplicit-interface -Wunused-parameter -Wcharacter-truncation -Wsurprising -Waliasing -fcheck=all -g -ffpe-trap=invalid,zero,overflow -fbounds-check")
   set(rls_flags "-O2 -fopenmp")
   set(COMPILERMSG "Compiler: GFORTRAN ${CMAKE_Fortran_COMPILER_VERSION}\n")
@@ -14,7 +24,7 @@ endif()
 
 # Variables for ifort
 if(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
-  set(common_flags "-free -implicitnone")
+  set(common_flags "-free -implicitnone -mkl")
   if(DEFINED PROF)
     if (PROF)
       set(dbg_flags "-traceback -O2 -g -pg -fpe0")

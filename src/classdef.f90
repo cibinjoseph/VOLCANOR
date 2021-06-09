@@ -3139,7 +3139,7 @@ class(blade_class), intent(inout) :: this
       enddo
     enddo
     !$omp end parallel do
-    this%AIC_inv = inv(this%AIC)
+    this%AIC_inv = inv2(this%AIC)
   end subroutine rotor_calcAIC
 
   subroutine rotor_map_gam(this)
