@@ -145,8 +145,8 @@ contains
   !                unitVec
   ! -------------------------------------------------
   function unitVec(aVec)
-    real(dp), intent(in), dimension(:) :: aVec
-    real(dp), dimension(size(aVec)) :: unitVec
+    real(dp), intent(in), dimension(3) :: aVec
+    real(dp), dimension(3) :: unitVec
     real(dp) :: normVal
 
     normVal = norm2(aVec)
@@ -356,20 +356,6 @@ contains
     enddo
 100 format(ES14.3)
   end subroutine print_mat
-
-  ! -------------------------------------------------
-  !                norm
-  ! -------------------------------------------------
-  function norm(abcvec)
-    real(dp), intent(in), dimension(:) :: abcvec
-    real(dp) :: norm
-    integer :: is
-    norm = 0._dp
-    do is = 1, size(abcvec)
-      norm = norm + abcvec(is)*abcvec(is)
-    enddo
-    norm = sqrt(norm)
-  end function norm
 
   ! -------------------------------------------------
   !                interp1
