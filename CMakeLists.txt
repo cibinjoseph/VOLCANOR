@@ -24,6 +24,9 @@ endif()
 
 # Variables for ifort
 if(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
+  if (NOT DEFINED ENV{MKLROOT})
+    message(WARNING "MKL might not be available")
+  endif()
   set(common_flags "-free -implicitnone -mkl")
   if(DEFINED PROF)
     if (PROF)
