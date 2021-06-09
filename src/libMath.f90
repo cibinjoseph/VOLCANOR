@@ -18,6 +18,79 @@ module libMath
 contains
 
   ! -------------------------------------------------
+  !                inv2
+  ! -------------------------------------------------
+  function inv2(A) result(Ainv)
+    !! Inverse of a matrix calculated by finding the LU
+    !! decomposition using LAPACK
+    real(dp), dimension(:, :), intent(in) :: A
+    real(dp), dimension(size(A,1),size(A,2)) :: Ainv
+
+    real(dp), dimension(size(A,1)) :: work  ! work array for LAPACK
+    integer, dimension(size(A,1)) :: ipiv   ! pivot indices
+    integer :: n, info
+
+    external DGETRF
+    external DGETRI
+
+    ! Store A in Ainv to prevent it from being overwritten by LAPACK
+    Ainv = A
+    n = size(A,1)
+
+    ! DGETRF computes an LU factorization of a general M-by-N matrix A
+    ! using partial pivoting with row interchanges.
+    call DGETRF(n, n, Ainv, n, ipiv, info)
+
+    if (info /= 0) then
+      error stop 'Matrix is numerically singular!'
+    end if
+
+    ! DGETRI computes the inverse of a matrix using the LU factorization
+    ! computed by DGETRF.
+    call DGETRI(n, Ainv, n, ipiv, work, n, info)
+
+    if (info /= 0) then
+      error stop 'Matrix inversion failed!'
+    end if
+  end function inv2
+
+  ! -------------------------------------------------
+  !                matmul2
+  ! -------------------------------------------------
+  function matmul2(A, B) result(AB)
+    !! Matrix multiplication implemented using BLAS
+    real(dp), dimension(:, :), intent(in) :: A, B
+    real(dp), dimension(size(A, 1), size(B, 2)) :: AB
+    integer :: m, k
+
+    external DGEMM
+
+    m = size(A, 1)
+    k = size(A, 2)
+    AB = 0._dp
+
+    call DGEMM('N', 'N', m, size(B, 2), k, 1._dp, A, m, B, k, 0._dp, AB, m)
+  end function matmul2
+
+  ! -------------------------------------------------
+  !                matmulAX
+  ! -------------------------------------------------
+  function matmulAX(A, X) result(AX)
+    !! Matrix multiplication with vector implemented using BLAS
+    real(dp), dimension(:, :), intent(in) :: A
+    real(dp), dimension(:), intent(in) :: X
+    real(dp), dimension(size(A, 1)) :: AX
+    integer :: m, n
+
+    external DGEMV
+
+    m = size(A, 1)
+    n = size(A, 2)
+
+    call DGEMV('N', m, n, 1._dp, A, m, X, 1, 0._dp, AX, 1)
+  end function matmulAX
+
+  ! -------------------------------------------------
   !                length3d
   ! -------------------------------------------------
   function length3d(P1, P2) result(length)
