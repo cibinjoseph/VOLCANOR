@@ -9,6 +9,7 @@ module classdef
   real(dp), parameter :: tol = 1.E-6
   real(dp), parameter :: invTol2 = 1.E06
   real(dp), parameter :: inv4pi = 0.25_dp/pi
+  real(dp), parameter :: twoPi = 2.0_dp*pi
 
   type switches_class
     integer :: ntSub, ntSubInit
@@ -864,7 +865,7 @@ contains
           & waF(i)%vf%fc(3, 1) - waF(i+1)%vf%fc(3, 1)
       endif
     enddo
-    helixPitch = helixPitch * (-2._dp*pi/deltaPsi)/(nFwake-1)
+    helixPitch = helixPitch * (-twoPi/deltaPsi)/(nFwake-1)
     helixRadius = helixRadius / nFwake
 
     ! Angle by which unit helix has to be rotated
@@ -873,12 +874,12 @@ contains
     ! delta z by which unit helix has to be translated
     deltaZ = anchor(3)-hubCoords(3)
 
-    theta = linspace(0._dp, 2._dp*pi*this%nRevs, size(theta, 1))
+    theta = linspace(0._dp, twoPi*this%nRevs, size(theta, 1))
     if (this%isClockwiseRotor) theta = -1._dp*theta
 
     this%coords(1, :) = helixRadius * cos(theta+dTheta)
     this%coords(2, :) = helixRadius * sin(theta+dTheta)
-    this%coords(3, :) = helixPitch*abs(theta)/(2._dp*pi) + deltaZ
+    this%coords(3, :) = helixPitch*abs(theta)/twoPi + deltaZ
 
     ! Assign to prescribed wake
     npFwake = size(this%Fwake)
@@ -1717,7 +1718,7 @@ class(blade_class), intent(inout) :: this
         unitVec(liftDir)) / (secDynamicPressure(is)*this%secArea(is))
 
       ! Compute angle of attack from linear CL
-      this%secArea(is) = this%secCL(is)/(2._dp*pi) + &
+      this%secArea(is) = this%secCL(is)/twoPi + &
         & this%alpha0(this%airfoilNo(is))
     enddo
 
@@ -2202,7 +2203,7 @@ class(blade_class), intent(inout) :: this
       if (abs(this%Omega) < eps) then  ! Fixed wing
         dt = abs(dt)*this%chord/norm2(this%velBody)
       else  ! Rotor
-        dt = 2._dp*pi*abs(dt)/abs(this%Omega)
+        dt = twoPi*abs(dt)/abs(this%Omega)
       endif
       print*, 'dt set to ', dt
     endif
@@ -2662,7 +2663,7 @@ class(blade_class), intent(inout) :: this
     ! Rotate remaining blades to their positions
     ! Rotate blades for multi-bladed rotors
     do ib = 2, this%nb
-      bladeOffset = 2._dp*pi/this%nb*(ib - 1)
+      bladeOffset = twoPi/this%nb*(ib - 1)
       call this%blade(ib)%rot_axis(bladeOffset, this%shaftAxis, this%hubCoords)
     enddo
 
@@ -2680,7 +2681,7 @@ class(blade_class), intent(inout) :: this
           (this%radius*this%Omega)**2._dp
       else
         ! Propeller
-        this%nonDimforceDenominator = density*(this%Omega/(2._dp*pi))**2._dp* &
+        this%nonDimforceDenominator = density*(this%Omega/twoPi)**2._dp* &
           (2._dp*this%radius)**4._dp
       endif
     else
@@ -3088,7 +3089,7 @@ class(blade_class), intent(inout) :: this
     real(dp) :: rotor_gettheta
     real(dp) :: bladeOffset
 
-    bladeOffset = 2._dp*pi/this%nb*(ib - 1)
+    bladeOffset = twoPi/this%nb*(ib - 1)
     rotor_gettheta = this%controlPitch(1) &
       + this%controlPitch(2)*cos(psi + bladeOffset) &
       + this%controlPitch(3)*sin(psi + bladeOffset)
@@ -3102,7 +3103,7 @@ class(blade_class), intent(inout) :: this
     real(dp) :: rotor_getthetadot
     real(dp) :: bladeOffset
 
-    bladeOffset = 2._dp*pi/this%nb*(ib - 1)
+    bladeOffset = twoPi/this%nb*(ib - 1)
     rotor_getthetadot = -this%controlPitch(2)*sin(psi + bladeOffset) &
       + this%controlPitch(3)*cos(psi + bladeOffset)
 
@@ -3588,7 +3589,7 @@ class(blade_class), intent(inout) :: this
     else
       call this%blade(1)%convectwake(this%rowNear, this%rowFar, dt, wakeType)
       do ib = 2, this%nb
-        bladeOffset = 2._dp*pi/this%nb*(ib - 1)
+        bladeOffset = twoPi/this%nb*(ib - 1)
         ! Copy wakes from blade1
         select case (wakeType)
         case ('C')
@@ -3837,7 +3838,7 @@ class(blade_class), intent(inout) :: this
         nsteps = ceiling(abs(nsteps)*this%chord/(dt*norm2(this%velBody)))
       else  ! Rotor
         ! nt revs
-        nsteps = ceiling(2._dp*pi*abs(nsteps)/(abs(this%Omega)*dt))
+        nsteps = ceiling(twoPi*abs(nsteps)/(abs(this%Omega)*dt))
       endif
     endif
   end subroutine rotor_toChordsRevs
@@ -3896,7 +3897,7 @@ class(blade_class), intent(inout) :: this
 
     if (this%imposeAxisymmetry == 1) then
       do ib = 2, this%nb
-        bladeOffset = 2._dp*pi/this%nb*(ib - 1)
+        bladeOffset = twoPi/this%nb*(ib - 1)
         select case (wakeType)
         case ('C')
           this%blade(ib)%wapF = this%blade(1)%wapF
