@@ -388,7 +388,7 @@ contains
     integer :: i, j
     real(dp) :: tol
 
-    productMat = matmul(A, Ainv)
+    productMat = matmul2(A, Ainv)
     isInverse = .TRUE.
     tol = 1E-04
 
@@ -591,6 +591,36 @@ contains
     Tgb(3, 2) = cs_phi(2)*cs_theta(1)
     Tgb(3, 3) = cs_phi(1)*cs_theta(1)
   end function Tgb
+
+  function getTransformAxis(theta, axisVec) result(TMat)
+    !! Transformation matrix for rotation about an axis
+    !! theta in radians
+    real(dp), intent(in) :: theta
+    real(dp), dimension(3), intent(in) :: axisVec
+    real(dp), dimension(3, 3) :: TMat
+    real(dp), dimension(3) :: axis
+    real(dp) :: ct, st, omct
+
+    ! Ensure axis is normalized
+    axis = axisVec/norm2(axisVec)
+
+    ! Calculate TMat
+    ct = cos(theta)
+    st = sin(theta)
+    omct = 1._dp - ct
+
+    Tmat(:, 1) = (/ct + axis(1)*axis(1)*omct, &
+      & axis(3)*st + axis(2)*axis(1)*omct, &
+      & -axis(2)*st + axis(3)*axis(1)*omct/)
+
+    Tmat(:, 2) = (/-axis(3)*st + axis(1)*axis(2)*omct, &
+      & ct + axis(2)*axis(2)*omct, &
+      & axis(1)*st + axis(3)*axis(2)*omct/)
+
+    Tmat(:, 3) = (/axis(2)*st + axis(1)*axis(3)*omct, &
+      & -axis(1)*st + axis(2)*axis(3)*omct, &
+      & ct + axis(3)*axis(3)*omct/)
+  end function getTransformAxis
 
   function trapz(y, x)
     !! Trapezoid integration unequal intervals
