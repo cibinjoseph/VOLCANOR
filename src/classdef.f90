@@ -167,7 +167,6 @@ module classdef
     integer, allocatable, dimension(:) :: airfoilNo
     character(len=30), allocatable, dimension(:) :: airfoilFile
     real(dp), allocatable, dimension(:) :: airfoilSectionLimit
-    real(dp), allocatable, dimension(:, :) :: velWingDummy
     real(dp), allocatable, dimension(:, :, :) :: velNwake, velNwake1
     real(dp), allocatable, dimension(:, :, :) :: velNwake2, velNwake3
     real(dp), allocatable, dimension(:, :, :) :: velNwakePredicted
@@ -1179,19 +1178,15 @@ contains
   class(blade_class), intent(inout) :: this
     real(dp), intent(in), dimension(3) :: P
     real(dp), dimension(3) :: blade_vind_bywing
-    integer :: i, j, indx
+    integer :: i, j
 
-    this%velWingDummy = 0._dp
-    !$omp parallel do collapse(2)
+    blade_vind_bywing = 0._dp
     do j = 1, this%ns
       do i = 1, this%nc
-        indx = i + this%nc*(j-1)
-        this%velWingDummy(:, indx) = &
+        blade_vind_bywing = blade_vind_bywing + &
           & this%wiP(i, j)%vr%vind(P)*this%wiP(i, j)%vr%gam
       enddo
     enddo
-    !$omp end parallel do
-    blade_vind_bywing = sum(this%velWingDummy, dim=2)
 
   end function blade_vind_bywing
 
@@ -1217,21 +1212,17 @@ contains
   class(blade_class), intent(inout) :: this
     real(dp), intent(in), dimension(3) :: P
     real(dp), dimension(3) :: blade_vind_bywing_boundVortices
-    integer :: i, j, indx
+    integer :: i, j
 
-    this%velWingDummy = 0._dp
-    !$omp parallel do collapse(2)
+    blade_vind_bywing_boundVortices = 0._dp
     do j = 1, this%ns
       do i = 1, this%nc
-        indx = i + this%nc*(j-1)
-        this%velWingDummy(:, indx) = (this%wiP(i, j)%vr%vf(2)%vind(P) &
-          & + this%wiP(i, j)%vr%vf(4)%vind(P))* &
-          this%wiP(i, j)%vr%gam
+        blade_vind_bywing_boundVortices = blade_vind_bywing_boundVortices + &
+          & (this%wiP(i, j)%vr%vf(2)%vind(P) + &
+          & this%wiP(i, j)%vr%vf(4)%vind(P))*this%wiP(i, j)%vr%gam
       enddo
     enddo
-    !$omp end parallel do
 
-    blade_vind_bywing_boundVortices = sum(this%velWingDummy, dim=2)
     do j = 1, this%ns
       blade_vind_bywing_boundVortices = blade_vind_bywing_boundVortices - &
         this%wiP(this%nc, j)%vr%vf(2)%vind(P)*this%wiP(this%nc, j)%vr%gam
@@ -1312,9 +1303,10 @@ contains
         enddo
 
         do i = 1, size(this%wapF%Fwake)
-          if (abs(this%wapF%Fwake(i)%gam) .gt. eps) &
+          if (abs(this%wapF%Fwake(i)%gam) .gt. eps) then
             blade_vind_bywake = blade_vind_bywake &
-            + this%wapF%Fwake(i)%vf%vind(P)*this%wapF%Fwake(i)%gam
+              & + this%wapF%Fwake(i)%vf%vind(P)*this%wapF%Fwake(i)%gam
+          endif
         enddo
       endif
 
@@ -1341,10 +1333,11 @@ contains
         enddo
 
         do i = 1, size(this%wapFPredicted%Fwake)
-          if (abs(this%wapFPredicted%Fwake(i)%gam) .gt. eps) &
+          if (abs(this%wapFPredicted%Fwake(i)%gam) .gt. eps) then
             blade_vind_bywake = blade_vind_bywake &
-            & + this%wapFPredicted%Fwake(i)%vf%vind(P) &
-            & *this%wapFPredicted%Fwake(i)%gam
+              & + this%wapFPredicted%Fwake(i)%vf%vind(P) &
+              & * this%wapFPredicted%Fwake(i)%gam
+          endif
         enddo
       endif
     else
@@ -2734,7 +2727,6 @@ class(blade_class), intent(inout) :: this
     ! Allocate vars required for wake convection
     ! on the basis of finite diff scheme
     do ib = 1, this%nb
-      allocate(this%blade(ib)%velWingDummy(3, this%nc*this%ns))
       allocate(this%blade(ib)%velNwake(3, this%nNwake, this%ns + 1))
       allocate(this%blade(ib)%velFwake(3, this%nFwake))
       this%blade(ib)%velNwake = 0._dp
@@ -3616,7 +3608,7 @@ class(blade_class), intent(inout) :: this
 
     ! Add prescribed wake
     if (this%prescWakeNt > 0 .and. iter > this%prescWakeNt) then
-      call this%updatePrescribedWake(dt, waketype)
+      call this%updatePrescribedWake(dt, wakeType)
     endif
 
   end subroutine rotor_convectwake
