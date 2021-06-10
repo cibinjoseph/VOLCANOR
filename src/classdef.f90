@@ -483,15 +483,20 @@ contains
 
   end subroutine vr_shiftdP
 
-  subroutine vr_rot(this, Tmat)
-    ! Rotate vortex ring using Tmat
+  subroutine vr_rot(this, Tmat, originVec)
+    !! Rotate vortex ring using Tmat about origin
   class(vr_class) :: this
     real(dp), intent(in), dimension(3, 3) :: Tmat
+    real(dp), dimension(3), optional :: originVec
+    real(dp), dimension(3) :: origin
     integer :: i
 
+    origin = [0._dp, 0._dp, 0._dp]
+    if (present(originVec)) origin = originVec
+
     do i = 1, 4
-      this%vf(i)%fc(:, 1) = matmul(Tmat, this%vf(i)%fc(:, 1))
-      this%vf(i)%fc(:, 2) = matmul(Tmat, this%vf(i)%fc(:, 2))
+      this%vf(i)%fc(:, 1) = matmul(Tmat, this%vf(i)%fc(:, 1)-origin)+origin
+      this%vf(i)%fc(:, 2) = matmul(Tmat, this%vf(i)%fc(:, 2)-origin)+origin
     enddo
 
   end subroutine vr_rot
@@ -677,17 +682,22 @@ contains
     endif
   end subroutine wingpanel_calcTau
 
-  subroutine wingpanel_rot(this, Tmat)
+  subroutine wingpanel_rot(this, Tmat, originVec)
     ! Rotate panel using transformation matrix
   class(wingpanel_class) :: this
     real(dp), dimension(3, 3) :: Tmat
+    real(dp), dimension(3), optional :: originVec
+    real(dp), dimension(3) :: origin
     integer :: i
 
+    origin = [0._dp, 0._dp, 0._dp]
+    if (present(originVec)) origin = originVec
+
     do i = 1, 4
-      this%pc(:, i) = matmul(Tmat, this%pc(:, i))
+      this%pc(:, i) = matmul(Tmat, this%pc(:, i)-origin)+origin
     enddo
-    call this%vr%rot(Tmat)
-    this%CP = matmul(Tmat, this%CP)
+    call this%vr%rot(Tmat, origin)
+    this%CP = matmul(Tmat, this%CP-origin)+origin
     this%nCap = matmul(Tmat, this%nCap)
     this%tauCapChord = matmul(Tmat, this%tauCapChord)
     this%tauCapSpan = matmul(Tmat, this%tauCapSpan)
@@ -808,13 +818,18 @@ contains
     this%vf%fc(:, n) = P
   end subroutine Fwake_assignP
 
-  subroutine Fwake_rot(this, TMat)
-    !! Rotate using TMat
+  subroutine Fwake_rot(this, TMat, originVec)
+    !! Rotate using TMat about originVec
   class(Fwake_class) :: this
     real(dp), intent(in), dimension(3, 3) :: TMat
+    real(dp), dimension(3), optional :: originVec
+    real(dp), dimension(3) :: origin
 
-    this%vf%fc(:, 1) = matmul(TMat, this%vf%fc(:, 1))
-    this%vf%fc(:, 2) = matmul(TMat, this%vf%fc(:, 2))
+    origin = [0._dp, 0._dp, 0._dp]
+    if (present(originVec)) origin = originVec
+
+    this%vf%fc(:, 1) = matmul(TMat, this%vf%fc(:, 1)-origin)+origin
+    this%vf%fc(:, 2) = matmul(TMat, this%vf%fc(:, 2)-origin)+origin
   end subroutine Fwake_rot
 
   subroutine Fwake_mirror(this, coordNum)
@@ -901,34 +916,14 @@ contains
     real(dp), intent(in), dimension(3) :: axisVec
     real(dp), intent(in), dimension(3) :: origin
     real(dp), dimension(3, 3) :: Tmat
-    real(dp), dimension(3) :: axis
-    real(dp) :: ct, st, omct
     integer :: i
 
     if (abs(theta) > eps) then
-      ! Ensure axis is normalized
-      axis = axisVec/norm2(axisVec)
-
-      ! Calculate TMat
-      ct = cos(theta)
-      st = sin(theta)
-      omct = 1 - ct
-
-      Tmat(:, 1) = (/ct + axis(1)*axis(1)*omct, &
-        axis(3)*st + axis(2)*axis(1)*omct, &
-        -axis(2)*st + axis(3)*axis(1)*omct/)
-      Tmat(:, 2) = (/-axis(3)*st + axis(1)*axis(2)*omct, &
-        ct + axis(2)*axis(2)*omct, &
-        axis(1)*st + axis(3)*axis(2)*omct/)
-      Tmat(:, 3) = (/axis(2)*st + axis(1)*axis(3)*omct, &
-        -axis(1)*st + axis(2)*axis(3)*omct, &
-        ct + axis(3)*axis(3)*omct/)
+      TMat = getTransformAxis(theta, axisVec)
 
       !$omp parallel do
       do i = 1, size(this%Fwake)
-        call this%Fwake(i)%shiftdP(0, -origin)
-        call this%Fwake(i)%rot(TMat)
-        call this%Fwake(i)%shiftdP(0, origin)
+        call this%Fwake(i)%rot(TMat, origin)
       enddo
       !$omp end parallel do
     endif
@@ -983,14 +978,10 @@ contains
     !$omp parallel do
     do j = 1, this%ns
       do i = 1, this%nc
-        call this%wiP(i, j)%shiftdP(-origin)
-        call this%wiP(i, j)%rot(TMat)
-        call this%wiP(i, j)%shiftdP(origin)
+        call this%wiP(i, j)%rot(TMat, origin)
       enddo
 
-      this%secCP(:, j) = this%secCP(:, j) - origin
-      this%secCP(:, j) = matmul(TMat, this%secCP(:, j))
-      this%secCP(:, j) = this%secCP(:, j) + origin
+      this%secCP(:, j) = matmul(TMat, this%secCP(:, j)-origin)+origin
 
       ! Rotate sec vectors
       this%secTauCapChord(:, j) = matmul(TMat, this%secTauCapChord(:, j))
@@ -1037,33 +1028,14 @@ contains
     real(dp), intent(in), dimension(3) :: axisVec
     real(dp), intent(in), dimension(3) :: origin
     real(dp), dimension(3, 3) :: Tmat
-    real(dp), dimension(3) :: axis
     integer :: i, j
-    real(dp) :: ct, st, omct
 
     if (abs(theta) > eps) then
       ! Translate to origin
       call this%move(-origin)
 
-      ! Ensure axis is normalized
-      axis = axisVec/norm2(axisVec)
-
-      ! Calculate TMat
-      ct = cos(theta)
-      st = sin(theta)
-      omct = 1 - ct
-
-      Tmat(:, 1) = (/ct + axis(1)*axis(1)*omct, &
-        axis(3)*st + axis(2)*axis(1)*omct, &
-        -axis(2)*st + axis(3)*axis(1)*omct/)
-      Tmat(:, 2) = (/-axis(3)*st + axis(1)*axis(2)*omct, &
-        ct + axis(2)*axis(2)*omct, &
-        axis(1)*st + axis(3)*axis(2)*omct/)
-      Tmat(:, 3) = (/axis(2)*st + axis(1)*axis(3)*omct, &
-        -axis(1)*st + axis(2)*axis(3)*omct, &
-        ct + axis(3)*axis(3)*omct/)
-
-      ! Rotate about axis
+      ! Rotate about axisVec
+      Tmat = getTransformAxis(theta, axisVec)
       do j = 1, this%ns
         do i = 1, this%nc
           call this%wiP(i, j)%rot(TMat)
@@ -1076,9 +1048,7 @@ contains
       ! Rotate secCP also
       !$omp parallel do
       do i = 1, this%ns
-        this%secCP(:, i) = this%secCP(:, i) - origin
-        this%secCP(:, i) = matmul(TMat, this%secCP(:, i))
-        this%secCP(:, i) = this%secCP(:, i) + origin
+        this%secCP(:, i) = matmul(TMat, this%secCP(:, i)-origin)+origin
 
       ! Rotate sec vectors also along with blade
         this%secTauCapChord(:, i) = matmul(TMat, this%secTauCapChord(:, i))
@@ -1104,28 +1074,10 @@ contains
     character(len=1), intent(in) :: wakeType  ! For predicted wake
     integer :: nNwake, nFwake
     real(dp), dimension(3, 3) :: Tmat
-    real(dp), dimension(3) :: axis
     integer :: i, j
-    real(dp) :: ct, st, omct
 
     if (abs(theta) > eps) then
-      ! Ensure axis is normalized
-      axis = axisVec/norm2(axisVec)
-
-      ! Calculate TMat
-      ct = cos(theta)
-      st = sin(theta)
-      omct = 1 - ct
-
-      Tmat(:, 1) = (/ct + axis(1)*axis(1)*omct, &
-        axis(3)*st + axis(2)*axis(1)*omct, &
-        -axis(2)*st + axis(3)*axis(1)*omct/)
-      Tmat(:, 2) = (/-axis(3)*st + axis(1)*axis(2)*omct, &
-        ct + axis(2)*axis(2)*omct, &
-        axis(1)*st + axis(3)*axis(2)*omct/)
-      Tmat(:, 3) = (/axis(2)*st + axis(1)*axis(3)*omct, &
-        -axis(1)*st + axis(2)*axis(3)*omct, &
-        ct + axis(3)*axis(3)*omct/)
+      TMat = getTransformAxis(theta, axisVec)
 
       select case (wakeType)
       case ('C')
@@ -1136,18 +1088,14 @@ contains
         !$omp parallel do collapse(2)
         do j = 1, this%ns
           do i = rowNear, nNwake
-            call this%waN(i, j)%vr%shiftdP(0, -origin)
-            call this%waN(i, j)%vr%rot(TMat)
-            call this%waN(i, j)%vr%shiftdP(0, origin)
+            call this%waN(i, j)%vr%rot(TMat, origin)
           enddo
         enddo
         !$omp end parallel do
 
         !$omp parallel do
         do i = rowFar, nFwake
-          call this%waF(i)%shiftdP(0, -origin)
-          call this%waF(i)%rot(TMat)
-          call this%waF(i)%shiftdP(0, origin)
+          call this%waF(i)%rot(TMat, origin)
         enddo
         !$omp end parallel do
 
@@ -1159,18 +1107,14 @@ contains
         !$omp parallel do collapse(2)
         do j = 1, this%ns
           do i = rowNear, nNwake
-            call this%waNPredicted(i, j)%vr%shiftdP(0, -origin)
-            call this%waNPredicted(i, j)%vr%rot(TMat)
-            call this%waNPredicted(i, j)%vr%shiftdP(0, origin)
+            call this%waNPredicted(i, j)%vr%rot(TMat, origin)
           enddo
         enddo
         !$omp end parallel do
 
         !$omp parallel do
         do i = rowFar, nFwake
-          call this%waFPredicted(i)%shiftdP(0, -origin)
-          call this%waFPredicted(i)%rot(TMat)
-          call this%waFPredicted(i)%shiftdP(0, origin)
+          call this%waFPredicted(i)%rot(TMat, origin)
         enddo
         !$omp end parallel do
       end select
@@ -2650,8 +2594,7 @@ class(blade_class), intent(inout) :: this
 
     ! Move rotor to hub coordinates
     do ib = 1, this%nb
-      call this%blade(ib)%move(-1._dp*this%fromCoords)
-      call this%blade(ib)%move(this%hubCoords)
+      call this%blade(ib)%move(this%hubCoords-this%fromCoords)
     enddo
 
     ! Set Coning angle
@@ -3205,13 +3148,8 @@ class(blade_class), intent(inout) :: this
 
     this%shaftAxis = matmul(TMat, this%shaftAxis)
 
-    this%hubCoords = this%hubCoords - origin
-    this%hubCoords = matmul(TMat, this%hubCoords)
-    this%hubCoords = this%hubCoords + origin
-
-    this%cgCoords = this%cgCoords - origin
-    this%cgCoords = matmul(TMat, this%cgCoords)
-    this%cgCoords = this%cgCoords + origin
+    this%hubCoords = matmul(TMat, this%hubCoords-origin)+origin
+    this%cgCoords = matmul(TMat, this%cgCoords-origin)+origin
 
   end subroutine rotor_rot_pts
 
