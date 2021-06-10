@@ -262,7 +262,8 @@ module classdef
     real(dp) :: rollupStartRadius, rollupEndRadius
     integer :: propConvention
     integer :: symmetricTau
-    integer :: wakeTruncateNt, prescWakeNt, prescWakeAfterTruncNt
+    integer :: wakeTruncateNt
+    integer :: prescWakeNt, prescWakeAfterTruncNt, prescWakeGenNt
     integer :: rollupStart, rollupEnd
     integer :: suppressFwakeSwitch
     integer :: forceCalcSwitch, skewPlotSwitch
@@ -839,7 +840,7 @@ contains
     real(dp), dimension(size(this%coords, 2)) :: theta
     real(dp), dimension(3) :: anchor
     real(dp) :: helixRadius, helixPitch, deltaZ, dTheta
-    integer :: i, npFwake
+    integer :: i, npFwake, nFwake
 
     if (abs(shaftAxis(1)) > eps .or. abs(shaftAxis(2)) > eps) then
       error stop "Prescribed far wake only implemented for shaft along Z-axis"
@@ -848,12 +849,14 @@ contains
     this%isPresent = .true.
 
     ! Find helix parameters
-    anchor = waF(size(waF))%vf%fc(:, 1)
+    anchor = waF(nFwake)%vf%fc(:, 1)
 
     ! Radius and pitch of helix computed using 
     ! average radius and slope of all far wake filaments
     helixPitch = 0._dp
-    do i = 1, size(waF)
+    helixRadius = 0._dp
+    nFwake = size(waF)
+    do i = 1, nFwake
       helixRadius = helixRadius + &
         & norm2((/waF(i)%vf%fc(2, 1), waF(i)%vf%fc(1, 1)/))
       if (i < size(waF)) then
@@ -861,8 +864,8 @@ contains
           & waF(i)%vf%fc(3, 1) - waF(i+1)%vf%fc(3, 1)
       endif
     enddo
-    helixPitch = helixPitch * (-2._dp*pi/deltaPsi)/(size(waF)-1)
-    helixRadius = helixRadius / size(waF)
+    helixPitch = helixPitch * (-2._dp*pi/deltaPsi)/(nFwake-1)
+    helixRadius = helixRadius / nFwake
 
     ! Angle by which unit helix has to be rotated
     dTheta = atan2(anchor(2), anchor(1))
@@ -887,8 +890,8 @@ contains
     ! To maintain continuity
     call this%Fwake(1)%assignP(2, anchor)
 
-    this%Fwake%gam = sum(waF%gam)/size(waF)
-    this%Fwake%vf%rVc = waF(size(waF))%vf%rVc
+    this%Fwake%gam = waF(nFwake)%gam
+    this%Fwake%vf%rVc = waF(nFwake)%vf%rVc
   end subroutine pFwake_update
 
   subroutine pFwake_rot_wake_axis(this, theta, axisVec, origin)
@@ -2062,7 +2065,7 @@ class(blade_class), intent(inout) :: this
     integer :: i
     real :: fileFormatVersion, currentTemplateVersion
 
-    currentTemplateVersion = 0.7
+    currentTemplateVersion = 0.8
 
     open (unit=12, file=filename, status='old', action='read')
     call skip_comments(12)
@@ -2121,7 +2124,7 @@ class(blade_class), intent(inout) :: this
       & this%symmetricTau
     call skip_comments(12)
     read (12, *) this%turbulentViscosity, this%wakeTruncateNt, &
-      & this%prescWakeAfterTruncNt 
+      & this%prescWakeAfterTruncNt, this%prescWakeGenNt
     call skip_comments(12)
     read (12, *) this%spanwiseCore, this%streamwiseCoreSwitch
     call skip_comments(12)
@@ -2233,6 +2236,7 @@ class(blade_class), intent(inout) :: this
     call this%toChordsRevs(switches%gridPlot, dt)
     call this%toChordsRevs(this%wakeTruncateNt, dt)
     call this%toChordsRevs(this%prescWakeAfterTruncNt, dt)
+    call this%toChordsRevs(this%prescWakeGenNt, dt)
 
     call this%toChordsRevs(this%nNwake, dt)
     call this%toChordsRevs(this%inflowPlotSwitch, dt)
@@ -3866,20 +3870,26 @@ class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: dt
     character(len=1), intent(in) :: wakeType
     real(dp) :: bladeOffset
-    integer :: ib
+    integer :: ib, rowStart
+
+    if (this%prescWakeGenNt == 0) then
+      rowStart = this%rowFar
+    else
+      rowStart = this%nFwakeEnd - this%prescWakeGenNt
+    endif
 
     ! This should ideally be handled by the blade_class
     select case (wakeType)
     case ('C')
       do ib = 1, this%nbConvect
         call this%blade(ib)%wapF%update( &
-          & this%blade(ib)%waF(this%rowFar:this%nFwakeEnd), &
+          & this%blade(ib)%waF(rowStart:this%nFwakeEnd), &
           & this%hubCoords, this%shaftAxis, this%omegaSlow*dt)
       enddo
     case ('P')
       do ib = 1, this%nbConvect
         call this%blade(ib)%wapFPredicted%update( &
-          & this%blade(ib)%waFPredicted(this%rowFar:this%nFwakeEnd), &
+          & this%blade(ib)%waFPredicted(rowStart:this%nFwakeEnd), &
           & this%hubCoords, this%shaftAxis, this%omegaSlow*dt)
       enddo
     end select
