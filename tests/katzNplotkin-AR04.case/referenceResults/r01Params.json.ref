@@ -47,6 +47,7 @@
  "nonDimForceDenom":    200.000000000000      ,
  "alpha0":   0.000000000000000E+000 ,
  "wakeTruncateNt":            0 ,
+ "prescWakeNt":            0 ,
  "initWakeVel":   0.000000000000000E+000 ,
  "psiStart":   0.000000000000000E+000 ,
  "forceCalcSwitch":   0.000000000000000E+000 ,

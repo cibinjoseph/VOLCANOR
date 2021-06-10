@@ -9,6 +9,7 @@ module classdef
   real(dp), parameter :: tol = 1.E-6
   real(dp), parameter :: invTol2 = 1.E06
   real(dp), parameter :: inv4pi = 0.25_dp/pi
+  real(dp), parameter :: twoPi = 2.0_dp*pi
 
   type switches_class
     integer :: ntSub, ntSubInit
@@ -60,11 +61,11 @@ module classdef
     ! Panel coordinates
     ! o-------> Y along span
     ! |
-    ! |   1-------4
+    ! |   1-------4  - Leading edge
     ! |   |   4   |
     ! |   |1     3|
     ! |   |   2   |
-    ! |   2-------3
+    ! |   2-------3  - Trailing edge
     ! |
     ! V X along chord
     type(vr_class) :: vr
@@ -121,15 +122,15 @@ module classdef
     ! VF coordinates
     ! o-------> Y along span
     ! |
-    ! |   1
+    ! |   2 - Leading edge
     ! |   |
     ! |   |1
     ! |   |
-    ! |   2
+    ! |   1 - Trailing edge
     ! |
     ! V X along chord
     type(vf_class) :: vf
-    real(dp) :: gam
+    real(dp) :: gam = 0._dp
   contains
     procedure :: shiftdP => Fwake_shiftdP
     procedure :: assignP => Fwake_assignP
@@ -138,16 +139,24 @@ module classdef
   end type Fwake_class
 
   type pFwake_class
-    type(Fwake_class), allocatable, dimension(:) :: Fwake
+    !! Prescribed far wake
+    ! 10 revs with 15 deg vortex filaments
+    type(Fwake_class), dimension(240) :: Fwake
+    real(dp), dimension(3, 241) :: coords
+    real(dp) :: nRevs = 10.0
+    logical :: isClockwiseRotor = .True.
+    logical :: isPresent = .false.
   contains
-    procedure :: create => pFwake_create
-    procedure :: shiftdP => pFwake_shiftdP
+    procedure :: update => pFwake_update
+    procedure :: rot_wake_axis => pFwake_rot_wake_axis
   end type pFwake_class
 
   type blade_class
     type(wingpanel_class), allocatable, dimension(:, :) :: wiP  ! Wing panel
     type(Nwake_class), allocatable, dimension(:, :) :: waN  ! Near wake
     type(Fwake_class), allocatable, dimension(:) :: waF  ! Far wake
+    type(pFwake_class) :: wapF  ! Prescribed far wake
+    type(pFwake_class) :: wapFPredicted  ! Prescribed far wake
     type(Nwake_class), allocatable, dimension(:, :) :: waNPredicted
     type(Fwake_class), allocatable, dimension(:) :: waFPredicted
     type(C81_class), allocatable, dimension(:) :: C81
@@ -255,6 +264,7 @@ module classdef
     integer :: propConvention
     integer :: symmetricTau
     integer :: wakeTruncateNt
+    integer :: prescWakeNt, prescWakeAfterTruncNt, prescWakeGenNt
     integer :: rollupStart, rollupEnd
     integer :: suppressFwakeSwitch
     integer :: forceCalcSwitch, skewPlotSwitch
@@ -308,6 +318,7 @@ module classdef
     procedure :: toChordsRevs => rotor_toChordsRevs
     procedure :: eraseNwake => rotor_eraseNwake
     procedure :: eraseFwake => rotor_eraseFwake
+    procedure :: updatePrescribedWake => rotor_updatePrescribedWake
     ! I/O subroutines
     procedure :: rotor_write
     generic :: write(unformatted) => rotor_write
@@ -822,47 +833,106 @@ contains
   !------+--
   ! ++++ | pFwake_class Methods
   !------+--
-  subroutine pFwake_create(this, nrevs, radius, pitch)
-  class(pFwake_class) :: this
-    real(dp), intent(in) :: nrevs, radius, pitch
-    real(dp) :: dtheta
-    real(dp), allocatable, dimension(:) :: theta
-    real(dp), dimension(3) :: coords
-    integer :: npoints, i
-    logical :: isCounterClockwise
+  subroutine pFwake_update(this, waF, hubCoords, shaftAxis, deltaPsi)
+  class(pFwake_class), intent(inout) :: this
+    type(Fwake_class), intent(in), dimension(:) :: waF
+    real(dp), intent(in), dimension(3) :: hubCoords, shaftAxis
+    real(dp), intent(in) :: deltaPsi
+    real(dp), dimension(size(this%coords, 2)) :: theta
+    real(dp), dimension(3) :: anchor
+    real(dp) :: helixRadius, helixPitch, deltaZ, dTheta
+    integer :: i, npFwake, nFwake
 
-    isCounterClockwise = .False.
+    if (abs(shaftAxis(1)) > eps .or. abs(shaftAxis(2)) > eps) then
+      error stop "Prescribed far wake only implemented for shaft along Z-axis"
+    endif
 
-    dtheta = 15._dp
-    npoints = int(ceiling(nrevs*360._dp/dtheta))
+    this%isPresent = .true.
 
-    allocate(this%Fwake(npoints-1))
-    allocate(theta(npoints))
+    ! Find helix parameters
+    anchor = waF(nFwake)%vf%fc(:, 1)
 
-    theta = linspace(0._dp, 2._dp*pi*nrevs, npoints)
-    if (isCounterClockwise) theta = theta*1._dp
-
-    call this%Fwake(1)%assignP(1, (/0._dp, radius, 0._dp/))
-    do i = 2, npoints-2
-      coords = (/radius*sin(theta(i)), radius*cos(theta(i)), &
-        & abs(theta(i))*pitch/(2._dp*pi)/)
-
-      call this%Fwake(i)%assignP(2, coords)
-      call this%Fwake(i+1)%assignP(1, coords)
+    ! Radius and pitch of helix computed using 
+    ! average radius and slope of all far wake filaments
+    helixPitch = 0._dp
+    helixRadius = 0._dp
+    nFwake = size(waF)
+    do i = 1, nFwake
+      helixRadius = helixRadius + &
+        & norm2((/waF(i)%vf%fc(2, 1), waF(i)%vf%fc(1, 1)/))
+      if (i < size(waF)) then
+        helixPitch = helixPitch + &
+          & waF(i)%vf%fc(3, 1) - waF(i+1)%vf%fc(3, 1)
+      endif
     enddo
-    call this%Fwake(npoints-1)%assignP(2, coords)
-  end subroutine pFwake_create
+    helixPitch = helixPitch * (-twoPi/deltaPsi)/(nFwake-1)
+    helixRadius = helixRadius / nFwake
 
-  subroutine pFwake_shiftdP(this, dshift)
-  class(pFwake_class) :: this
-    real(dp), intent(in), dimension(3) :: dshift
+    ! Angle by which unit helix has to be rotated
+    dTheta = atan2(anchor(2), anchor(1))
+
+    ! delta z by which unit helix has to be translated
+    deltaZ = anchor(3)-hubCoords(3)
+
+    theta = linspace(0._dp, twoPi*this%nRevs, size(theta, 1))
+    if (this%isClockwiseRotor) theta = -1._dp*theta
+
+    this%coords(1, :) = helixRadius * cos(theta+dTheta)
+    this%coords(2, :) = helixRadius * sin(theta+dTheta)
+    this%coords(3, :) = helixPitch*abs(theta)/twoPi + deltaZ
+
+    ! Assign to prescribed wake
+    npFwake = size(this%Fwake)
+    do i = 1, npFwake
+      call this%Fwake(i)%assignP(2, hubCoords + this%coords(:, i))
+      call this%Fwake(i)%assignP(1, hubCoords + this%coords(:, i+1))
+    enddo
+
+    ! To maintain continuity
+    call this%Fwake(1)%assignP(2, anchor)
+
+    this%Fwake%gam = waF(nFwake)%gam
+    this%Fwake%vf%rVc = waF(nFwake)%vf%rVc
+  end subroutine pFwake_update
+
+  subroutine pFwake_rot_wake_axis(this, theta, axisVec, origin)
+  class(pFwake_class), intent(inout) :: this
+    real(dp), intent(in) :: theta
+    real(dp), intent(in), dimension(3) :: axisVec
+    real(dp), intent(in), dimension(3) :: origin
+    real(dp), dimension(3, 3) :: Tmat
+    real(dp), dimension(3) :: axis
+    real(dp) :: ct, st, omct
     integer :: i
 
-    do i = 1, size(this%Fwake)
-      call this%Fwake(i)%shiftdP(1, dshift)
-      call this%Fwake(i)%shiftdP(2, dshift)
-    enddo
-  end subroutine pFwake_shiftdP
+    if (abs(theta) > eps) then
+      ! Ensure axis is normalized
+      axis = axisVec/norm2(axisVec)
+
+      ! Calculate TMat
+      ct = cos(theta)
+      st = sin(theta)
+      omct = 1 - ct
+
+      Tmat(:, 1) = (/ct + axis(1)*axis(1)*omct, &
+        axis(3)*st + axis(2)*axis(1)*omct, &
+        -axis(2)*st + axis(3)*axis(1)*omct/)
+      Tmat(:, 2) = (/-axis(3)*st + axis(1)*axis(2)*omct, &
+        ct + axis(2)*axis(2)*omct, &
+        axis(1)*st + axis(3)*axis(2)*omct/)
+      Tmat(:, 3) = (/axis(2)*st + axis(1)*axis(3)*omct, &
+        -axis(1)*st + axis(2)*axis(3)*omct, &
+        ct + axis(3)*axis(3)*omct/)
+
+      !$omp parallel do
+      do i = 1, size(this%Fwake)
+        call this%Fwake(i)%shiftdP(0, -origin)
+        call this%Fwake(i)%rot(TMat)
+        call this%Fwake(i)%shiftdP(0, origin)
+      enddo
+      !$omp end parallel do
+    endif
+  end subroutine pFwake_rot_wake_axis
 
   !------+--
   ! ++++ | blade_class Methods
@@ -1109,7 +1179,7 @@ contains
 
   function blade_vind_bywing(this, P)
     ! Compute induced velocity by blade bound vorticity
-  class(blade_class), intent(in) :: this
+  class(blade_class), intent(inout) :: this
     real(dp), intent(in), dimension(3) :: P
     real(dp), dimension(3) :: blade_vind_bywing
     integer :: i, j
@@ -1118,7 +1188,7 @@ contains
     do j = 1, this%ns
       do i = 1, this%nc
         blade_vind_bywing = blade_vind_bywing + &
-          this%wiP(i, j)%vr%vind(P)*this%wiP(i, j)%vr%gam
+          & this%wiP(i, j)%vr%vind(P)*this%wiP(i, j)%vr%gam
       enddo
     enddo
 
@@ -1143,7 +1213,7 @@ contains
 
   function blade_vind_bywing_boundVortices(this, P)
     ! Compute induced velocity by bound vortices alone
-  class(blade_class), intent(in) :: this
+  class(blade_class), intent(inout) :: this
     real(dp), intent(in), dimension(3) :: P
     real(dp), dimension(3) :: blade_vind_bywing_boundVortices
     integer :: i, j
@@ -1152,10 +1222,11 @@ contains
     do j = 1, this%ns
       do i = 1, this%nc
         blade_vind_bywing_boundVortices = blade_vind_bywing_boundVortices + &
-          (this%wiP(i, j)%vr%vf(2)%vind(P) + this%wiP(i, j)%vr%vf(4)%vind(P))* &
-          this%wiP(i, j)%vr%gam
+          & (this%wiP(i, j)%vr%vf(2)%vind(P) + &
+          & this%wiP(i, j)%vr%vf(4)%vind(P))*this%wiP(i, j)%vr%gam
       enddo
     enddo
+
     do j = 1, this%ns
       blade_vind_bywing_boundVortices = blade_vind_bywing_boundVortices - &
         this%wiP(this%nc, j)%vr%vf(2)%vind(P)*this%wiP(this%nc, j)%vr%gam
@@ -1234,7 +1305,15 @@ contains
             blade_vind_bywake = blade_vind_bywake &
             + this%waF(i)%vf%vind(P)*this%waF(i)%gam
         enddo
+
+        do i = 1, size(this%wapF%Fwake)
+          if (abs(this%wapF%Fwake(i)%gam) .gt. eps) then
+            blade_vind_bywake = blade_vind_bywake &
+              & + this%wapF%Fwake(i)%vf%vind(P)*this%wapF%Fwake(i)%gam
+          endif
+        enddo
       endif
+
     elseif ((optionalChar .eq. 'P') .or. (optionalChar .eq. 'p')) then
       do j = 1, size(this%waN, 2)
         do i = rowNear, nNwake
@@ -1256,6 +1335,14 @@ contains
             blade_vind_bywake = blade_vind_bywake &
             + this%waFPredicted(i)%vf%vind(P)*this%waFPredicted(i)%gam
         enddo
+
+        do i = 1, size(this%wapFPredicted%Fwake)
+          if (abs(this%wapFPredicted%Fwake(i)%gam) .gt. eps) then
+            blade_vind_bywake = blade_vind_bywake &
+              & + this%wapFPredicted%Fwake(i)%vf%vind(P) &
+              & * this%wapFPredicted%Fwake(i)%gam
+          endif
+        enddo
       endif
     else
       error stop 'ERROR: Wrong character flag for blade_vind_bywake()'
@@ -1263,13 +1350,13 @@ contains
 
   end function blade_vind_bywake
 
-  subroutine blade_convectwake(this, rowNear, rowFar, dt, wakeType)
-    ! Convect wake collocation points using velNwake matrix
-  class(blade_class), intent(inout) :: this
-    integer, intent(in) :: rowNear, rowFar
-    real(dp), intent(in) :: dt
-    character(len=1), intent(in) :: wakeType  ! For predicted wake
-    integer :: i, j, nNwake, nFwake
+subroutine blade_convectwake(this, rowNear, rowFar, dt, wakeType)
+  ! Convect wake collocation points using velNwake matrix
+class(blade_class), intent(inout) :: this
+  integer, intent(in) :: rowNear, rowFar
+  real(dp), intent(in) :: dt
+  character(len=1), intent(in) :: wakeType  ! For predicted wake
+  integer :: i, j, nNwake, nFwake
 
     nNwake = size(this%waN, 1)
 
@@ -1631,7 +1718,7 @@ contains
         unitVec(liftDir)) / (secDynamicPressure(is)*this%secArea(is))
 
       ! Compute angle of attack from linear CL
-      this%secArea(is) = this%secCL(is)/(2._dp*pi) + &
+      this%secArea(is) = this%secCL(is)/twoPi + &
         & this%alpha0(this%airfoilNo(is))
     enddo
 
@@ -1979,7 +2066,7 @@ contains
     integer :: i
     real :: fileFormatVersion, currentTemplateVersion
 
-    currentTemplateVersion = 0.6
+    currentTemplateVersion = 0.8
 
     open (unit=12, file=filename, status='old', action='read')
     call skip_comments(12)
@@ -2012,21 +2099,8 @@ contains
 
     ! [0/1]Lifting [2]Non-lifting [-1]Lifting Image [-2]Non-lifting Image
     read (12, *) this%surfaceType, this%imagePlane, this%imageRotorNum
-    if (this%surfaceType == 0) this%surfaceType = 1
     call skip_comments(12)
-
     read (12, *) this%nc, this%ns, this%nNwake
-    ! If nNwake is -ve, far wake is suppressed
-    if (abs(this%surfaceType) == 1) then
-      if (this%nNwake < 0) then
-        this%suppressFwakeSwitch = 1
-        this%nNwake = abs(this%nNwake)
-      else
-        if (abs(this%surfaceType) == 2) this%suppressFwakeSwitch = 0
-      endif
-    endif
-
-    if (this%nNwake < 2) error stop 'ERROR: Atleast 2 near wake rows mandatory'
     call skip_comments(12)
     read (12, *) this%hubCoords(1), this%hubCoords(2), this%hubCoords(3)
     call skip_comments(12)
@@ -2047,9 +2121,11 @@ contains
     read (12, *) this%velBody(1), this%velBody(2), this%velBody(3) &
       , this%omegaBody(1), this%omegaBody(2), this%omegaBody(3)
     call skip_comments(12)
-    read (12, *) this%pivotLE, this%flapHinge, this%spanwiseLiftSwitch, this%symmetricTau
+    read (12, *) this%pivotLE, this%flapHinge, this%spanwiseLiftSwitch, &
+      & this%symmetricTau
     call skip_comments(12)
-    read (12, *) this%turbulentViscosity
+    read (12, *) this%turbulentViscosity, this%wakeTruncateNt, &
+      & this%prescWakeAfterTruncNt, this%prescWakeGenNt
     call skip_comments(12)
     read (12, *) this%spanwiseCore, this%streamwiseCoreSwitch
     call skip_comments(12)
@@ -2068,7 +2144,7 @@ contains
     ! Dimensional quantities
     read (12, *) this%rollupStartRadius, this%rollupEndRadius
     call skip_comments(12)
-    read (12, *) this%wakeTruncateNt, this%initWakeVel, &
+    read (12, *) this%initWakeVel, &
       & this%psiStart, this%skewLimit
     call skip_comments(12)
     read (12, *) this%dragUnitVec(1), this%dragUnitVec(2), this%dragUnitVec(3)
@@ -2127,7 +2203,7 @@ contains
       if (abs(this%Omega) < eps) then  ! Fixed wing
         dt = abs(dt)*this%chord/norm2(this%velBody)
       else  ! Rotor
-        dt = 2._dp*pi*abs(dt)/abs(this%Omega)
+        dt = twoPi*abs(dt)/abs(this%Omega)
       endif
       print*, 'dt set to ', dt
     endif
@@ -2160,6 +2236,8 @@ contains
     call this%toChordsRevs(switches%wakePlot, dt)
     call this%toChordsRevs(switches%gridPlot, dt)
     call this%toChordsRevs(this%wakeTruncateNt, dt)
+    call this%toChordsRevs(this%prescWakeAfterTruncNt, dt)
+    call this%toChordsRevs(this%prescWakeGenNt, dt)
 
     call this%toChordsRevs(this%nNwake, dt)
     call this%toChordsRevs(this%inflowPlotSwitch, dt)
@@ -2167,6 +2245,21 @@ contains
     call this%toChordsRevs(this%gammaPlotSwitch, dt)
     call this%toChordsRevs(this%alphaPlotSwitch, dt)
     call this%toChordsRevs(this%skewPlotSwitch, dt)
+
+    if (this%wakeTruncateNt > 0 .and. this%prescWakeAfterTruncNt > 0) then
+      this%prescWakeNt = this%wakeTruncateNt+this%prescWakeAfterTruncNt
+    else
+      this%prescWakeNt = 0
+    endif
+
+    if (abs(this%Omega) < eps .and. this%wakeTruncateNt > 0) then
+      this%wakeTruncateNt = 0
+    endif
+
+    if (this%surfaceType == 0) this%surfaceType = 1
+    if (abs(this%surfaceType) == 2) this%suppressFwakeSwitch = 0
+
+    if (this%nNwake < 2) error stop 'ERROR: Atleast 2 near wake rows mandatory'
 
     ! Override ns to 1 if non-lifting surface
     if (abs(this%surfaceType) .eq. 2) this%ns = 1
@@ -2570,7 +2663,7 @@ contains
     ! Rotate remaining blades to their positions
     ! Rotate blades for multi-bladed rotors
     do ib = 2, this%nb
-      bladeOffset = 2._dp*pi/this%nb*(ib - 1)
+      bladeOffset = twoPi/this%nb*(ib - 1)
       call this%blade(ib)%rot_axis(bladeOffset, this%shaftAxis, this%hubCoords)
     enddo
 
@@ -2588,7 +2681,7 @@ contains
           (this%radius*this%Omega)**2._dp
       else
         ! Propeller
-        this%nonDimforceDenominator = density*(this%Omega/(2._dp*pi))**2._dp* &
+        this%nonDimforceDenominator = density*(this%Omega/twoPi)**2._dp* &
           (2._dp*this%radius)**4._dp
       endif
     else
@@ -2639,8 +2732,8 @@ contains
     ! Allocate vars required for wake convection
     ! on the basis of finite diff scheme
     do ib = 1, this%nb
-      allocate (this%blade(ib)%velNwake(3, this%nNwake, this%ns + 1))
-      allocate (this%blade(ib)%velFwake(3, this%nFwake))
+      allocate(this%blade(ib)%velNwake(3, this%nNwake, this%ns + 1))
+      allocate(this%blade(ib)%velFwake(3, this%nFwake))
       this%blade(ib)%velNwake = 0._dp
       this%blade(ib)%velFwake = 0._dp
 
@@ -2996,7 +3089,7 @@ contains
     real(dp) :: rotor_gettheta
     real(dp) :: bladeOffset
 
-    bladeOffset = 2._dp*pi/this%nb*(ib - 1)
+    bladeOffset = twoPi/this%nb*(ib - 1)
     rotor_gettheta = this%controlPitch(1) &
       + this%controlPitch(2)*cos(psi + bladeOffset) &
       + this%controlPitch(3)*sin(psi + bladeOffset)
@@ -3010,7 +3103,7 @@ contains
     real(dp) :: rotor_getthetadot
     real(dp) :: bladeOffset
 
-    bladeOffset = 2._dp*pi/this%nb*(ib - 1)
+    bladeOffset = twoPi/this%nb*(ib - 1)
     rotor_getthetadot = -this%controlPitch(2)*sin(psi + bladeOffset) &
       + this%controlPitch(3)*cos(psi + bladeOffset)
 
@@ -3043,7 +3136,7 @@ contains
       enddo
     enddo
     !$omp end parallel do
-    this%AIC_inv = inv(this%AIC)
+    this%AIC_inv = inv2(this%AIC)
   end subroutine rotor_calcAIC
 
   subroutine rotor_map_gam(this)
@@ -3273,7 +3366,7 @@ contains
 
   function rotor_vind_bywing(this, P)
     ! Compute induced velocity by all wing vortices at P
-  class(rotor_class), intent(in) :: this
+  class(rotor_class), intent(inout) :: this
     real(dp), intent(in), dimension(3) :: P
     real(dp), dimension(3) :: rotor_vind_bywing
     integer :: ib
@@ -3281,11 +3374,13 @@ contains
     rotor_vind_bywing = 0._dp
     if (abs(this%surfaceType) == 1) then
       do ib = 1, this%nb
-        rotor_vind_bywing = rotor_vind_bywing + this%blade(ib)%vind_bywing(P)
+        rotor_vind_bywing = rotor_vind_bywing &
+          & + this%blade(ib)%vind_bywing(P)
       enddo
     elseif (abs(this%surfaceType) == 2) then
       do ib = 1, this%nb
-        rotor_vind_bywing = rotor_vind_bywing + this%blade(ib)%vindSource_bywing(P)
+        rotor_vind_bywing = rotor_vind_bywing &
+          & + this%blade(ib)%vindSource_bywing(P)
       enddo
     endif
   end function rotor_vind_bywing
@@ -3328,6 +3423,7 @@ contains
 
   subroutine rotor_shiftwake(this)
     ! Shift wake locations on rollup
+
   class(rotor_class), intent(inout) :: this
     integer :: ib, i
 
@@ -3478,8 +3574,9 @@ contains
     enddo
   end subroutine rotor_calc_secAlpha
 
-  subroutine rotor_convectwake(this, dt, wakeType)
+  subroutine rotor_convectwake(this, iter, dt, wakeType)
   class(rotor_class), intent(inout) :: this
+    integer, intent(in) :: iter
     real(dp), intent(in) :: dt
     character(len=1), intent(in) :: wakeType  ! For predicted wake
     integer :: ib
@@ -3492,7 +3589,7 @@ contains
     else
       call this%blade(1)%convectwake(this%rowNear, this%rowFar, dt, wakeType)
       do ib = 2, this%nb
-        bladeOffset = 2._dp*pi/this%nb*(ib - 1)
+        bladeOffset = twoPi/this%nb*(ib - 1)
         ! Copy wakes from blade1
         select case (wakeType)
         case ('C')
@@ -3513,6 +3610,12 @@ contains
           & this%shaftAxis, this%hubCoords, this%rowNear, this%rowFar, wakeType)
       enddo
     endif
+
+    ! Add prescribed wake
+    if (this%prescWakeNt > 0 .and. iter > this%prescWakeNt) then
+      call this%updatePrescribedWake(dt, wakeType)
+    endif
+
   end subroutine rotor_convectwake
 
   subroutine rotor_burst_wake(this)
@@ -3735,7 +3838,7 @@ contains
         nsteps = ceiling(abs(nsteps)*this%chord/(dt*norm2(this%velBody)))
       else  ! Rotor
         ! nt revs
-        nsteps = ceiling(2._dp*pi*abs(nsteps)/(abs(this%Omega)*dt))
+        nsteps = ceiling(twoPi*abs(nsteps)/(abs(this%Omega)*dt))
       endif
     endif
   end subroutine rotor_toChordsRevs
@@ -3761,6 +3864,53 @@ contains
       this%blade(ib)%waF(rowErase)%gam = 0._dp
     enddo
   end subroutine rotor_eraseFwake
+
+  subroutine rotor_updatePrescribedWake(this, dt, wakeType)
+    !! Attaches prescribed far wake
+  class(rotor_class), intent(inout) :: this
+    real(dp), intent(in) :: dt
+    character(len=1), intent(in) :: wakeType
+    real(dp) :: bladeOffset
+    integer :: ib, rowStart
+
+    if (this%prescWakeGenNt == 0) then
+      rowStart = this%rowFar
+    else
+      rowStart = this%nFwakeEnd - this%prescWakeGenNt
+    endif
+
+    ! This should ideally be handled by the blade_class
+    select case (wakeType)
+    case ('C')
+      do ib = 1, this%nbConvect
+        call this%blade(ib)%wapF%update( &
+          & this%blade(ib)%waF(rowStart:this%nFwakeEnd), &
+          & this%hubCoords, this%shaftAxis, this%omegaSlow*dt)
+      enddo
+    case ('P')
+      do ib = 1, this%nbConvect
+        call this%blade(ib)%wapFPredicted%update( &
+          & this%blade(ib)%waFPredicted(rowStart:this%nFwakeEnd), &
+          & this%hubCoords, this%shaftAxis, this%omegaSlow*dt)
+      enddo
+    end select
+
+    if (this%imposeAxisymmetry == 1) then
+      do ib = 2, this%nb
+        bladeOffset = twoPi/this%nb*(ib - 1)
+        select case (wakeType)
+        case ('C')
+          this%blade(ib)%wapF = this%blade(1)%wapF
+          call this%blade(ib)%wapF%rot_wake_axis(bladeOffset, &
+            & this%shaftAxis, this%hubCoords)
+        case ('P')
+          this%blade(ib)%wapFPredicted = this%blade(1)%wapFPredicted
+          call this%blade(ib)%wapFPredicted%rot_wake_axis(bladeOffset, &
+            & this%shaftAxis, this%hubCoords)
+        end select
+      enddo
+    endif
+  end subroutine rotor_updatePrescribedWake
 
   subroutine rotor_read(this, unit, iostat, iomsg)
   class(rotor_class), intent(inout) :: this

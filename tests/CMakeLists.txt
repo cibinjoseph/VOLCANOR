@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 3.12)
 project(VOLCANOR_TESTS Fortran)
 
 # Check for python3 for full unit tests

@@ -1,5 +1,5 @@
 # File format version
-  0.6
+  0.7
 # Fixed-Wing or Rotor
 # ===================================================================
 # No. of blades,nb  Prop convention  NcamberFiles  geometry filename
@@ -16,8 +16,9 @@
      0                                        0            0
 #
 # Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
+#                                       [n]timesteps [-n]chords/revs
 # -------------------------------------------------------------------
-      10                     25                  -3
+      10                     25                  580
 # ===================================================================
 # 
 # X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
@@ -54,7 +55,7 @@
 # customTrajectorySwitch    imposeAxisymmetry
 # [0]Off [1]On              [0]Off [1]On
 # ------------------------------------------------------------------
-           0                      1
+           0                                1
 # 
 # u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]
 # -------------------------------------------------------------------
@@ -67,10 +68,10 @@
 1.00                0.0               0                 1
 # ===================================================================
 # 
-# turbulentViscosity
-# (10-10000) 
+# turbulentViscosity  wakeTruncateNt        prescWakeAfterTruncNt
+# (10-10000)         [0]Off [n] timesteps [-n] chords/revs
 # -------------------------------------------------------------------
-  1000                         
+  1000                     0                      0
 # ===================================================================
 # 
 # spanwise core radius[x/c]       streamwise core_switch
@@ -87,12 +88,9 @@
 # -------------------------------------------------------------------
            0.75             1.0 
 # 
-# wakeTruncateNt  initWakeVel[m/s]     psiStart[deg]      skewLimit
-#  [0] Off
-#  [n] Timesteps
-# [-n] Chords/revs
+# initWakeVel[m/s]     psiStart[deg]      skewLimit
 # -------------------------------------------------------------------
-     -10                 0.0                   0.0            0.5
+     0.0                   0.0            0.5
 # ===================================================================
 # 
 # CUSTOM WIND FRAME FOR FORCE OUTPUT
