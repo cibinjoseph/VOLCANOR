@@ -7,11 +7,11 @@
 # 
 # restartWriteNt    restartFromNt [0]Off [1..]timesteps
 # -----------------------------------------------------------------------
-     -5                   0
+     0                   0
 # 
 # NO. OF SUBITERATIONS [ntSub]  NO. OF INITIAL SUBITERATIONS [ntSubInit] 
 # -----------------------------------------------------------------------
-     15                          15
+     0                          0
 # 
 # SPAN DISCRETIZATION : [1]linear [2]cosine [3]halfsine
 # spanSpacingSwitch
