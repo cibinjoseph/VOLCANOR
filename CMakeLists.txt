@@ -115,6 +115,7 @@ add_custom_target(run_dbg_prof
 
 # Target to build all testrunners since make test does not seem to work
 add_custom_target(testrunners
+  COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target libMath_testrunner
   COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target panel1x2_testrunner
   COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target panel1x3_testrunner
   COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target panel1x3NegPitch_testrunner)
