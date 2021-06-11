@@ -35,9 +35,9 @@ def isValid(filename, refInput):
             pass
         else:
             if l[i] != refInput[refIndex]:
-                print('Mismatch on line ' + str(i+1), end='. ')
-                print('Only ' + str(l[i]) + ' of ' + \
-                      str(refInput[refIndex]) + ' inputs found')
+                print('Mismatch on line ' + str(i+1), end=': ')
+                print('Expected ' + str(l[i]) + \
+                      ', found ' + str(refInput[refIndex]))
                 returnVal = False
             refIndex += 1
 
