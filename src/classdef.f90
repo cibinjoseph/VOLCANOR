@@ -2978,6 +2978,11 @@ class(blade_class), intent(inout) :: this
 
   function rotor_getCamber(this, x, y)
     !! Get z coordinate on wing from x, y values
+    ! File format:
+    ! <num of lines>
+    ! <x1>  <z1>
+    ! <x2>  <z2>
+    ! ...
   class(rotor_class) :: this
     real(dp), intent(in), dimension(:) :: x, y
     real(dp), dimension(size(x), size(y)) :: rotor_getCamber
