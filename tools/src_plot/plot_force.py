@@ -25,6 +25,7 @@ while True:
         CTmin = CT[-1]*0.95
         plt.plot(it, CT, label=file[8:11])
         plt.legend()
+        plt.title('Current iteration: '+ str(int(it[-1])))
         plt.plot(itLims, [CTmin, CTmin], 'r-', alpha = 0.3)
         plt.plot(itLims, [CTmax, CTmax], 'r-', alpha = 0.3)
     plt.pause(1.0)
