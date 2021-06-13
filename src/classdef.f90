@@ -2290,8 +2290,8 @@ class(blade_class), intent(inout) :: this
 
     this%spanwiseCore = this%spanwiseCore*this%chord
     this%streamwiseCoreVec = this%streamwiseCoreVec*this%chord
-    this%rollupStart = ceiling(this%rollupStartRadius*this%ns)
-    this%rollupEnd = floor(this%rollupEndRadius*this%ns)
+    this%rollupStart = max(ceiling(this%rollupStartRadius*this%ns), 1)
+    this%rollupEnd = min(floor(this%rollupEndRadius*this%ns), this%ns)
 
     ! Rotor initialization
     this%gamVec = 0._dp
@@ -3391,53 +3391,72 @@ class(blade_class), intent(inout) :: this
     !    1
 
   class(rotor_class), intent(inout) :: this
-    integer :: ib, ispan, rowFarNext
+    integer :: ib, is, rowFarNext
     real(dp), dimension(3) :: centroidLE, centroidTE
-    real(dp) :: gamRollup, ageRollup, radiusRollup, gamSum
+    real(dp) :: gamRollup, ageRollup, radiusRollup
+    real(dp), dimension(this%rollupEnd-this%rollupStart+2) :: gamWake
+    real(dp), dimension(3, this%rollupEnd-this%rollupStart+2) :: arrTE, arrLE
+    real(dp), dimension(this%rollupEnd-this%rollupStart+2) :: arrRad, arrAge
+    real(dp) :: gamSum
+    integer :: row, last
 
     rowFarNext = this%rowFar - 1    ! Rollup the vortex filament of 'next' row
 
+    row = this%nNwakeEnd
+    last = size(gamWake)
     do ib = 1, this%nb
-      gamRollup = this%blade(ib)%waN(this%nNwake, this%ns)%vr%gam
-      centroidLE = 0._dp
-      centroidTE = 0._dp
-      radiusRollup = 0._dp
-      gamSum = 0._dp
+      ! Compute effective gamma, LE, TE, wake age and core radius 
+      ! of trailing wake as filaments
+      if (this%rollupStart == 1) then
+        gamWake(1) = -this%blade(ib)%waN(row, 1)%vr%gam
+      else
+        gamWake(1) = this%blade(ib)%waN(row, this%rollupStart-1)%vr%gam- &
+          & this%blade(ib)%waN(row, this%rollupStart)%vr%gam
+      endif
+      arrLE(:, 1) = this%blade(ib)%waN(row, this%rollupStart)%vr%vf(1)%fc(:, 1)
+      arrTE(:, 1) = this%blade(ib)%waN(row, this%rollupStart)%vr%vf(1)%fc(:, 2)
+      arrRad(1) = this%bladE(ib)%waN(row, this%rollupStart)%vr%vf(1)%rVc
+      arrAge(1) = this%bladE(ib)%waN(row, this%rollupStart)%vr%vf(1)%age
 
-      do ispan = this%rollupStart, this%rollupEnd
-        ! Find centroid LE and TE
-        centroidLE = centroidLE + this%blade(ib)%waN(this%nNwake, ispan)%vr%vf(4)%fc(:, 1)* &
-          this%blade(ib)%waN(this%nNwake, ispan)%vr%gam
-        centroidTE = centroidTE + this%blade(ib)%waN(this%nNwake, ispan)%vr%vf(3)%fc(:, 1)* &
-          this%blade(ib)%waN(this%nNwake, ispan)%vr%gam
-        gamSum = gamSum + this%blade(ib)%waN(this%nNwake, ispan)%vr%gam
-
-        ! Assign gamRollup and radiusRollup from last row to wake filament gamma
-        ! Compute gamRollup
-        if (sign(1._dp, this%Omega*this%controlPitch(1)) > eps) then    ! +ve Omega or zero Omega with +ve pitch
-          if (this%blade(ib)%waN(this%nNwake, ispan)%vr%gam < gamRollup) then    ! '<' because of negative gamma
-            gamRollup = this%blade(ib)%waN(this%nNwake, ispan)%vr%gam
-          endif
-        else    ! one of Omega or pitch is negative
-          if (this%blade(ib)%waN(this%nNwake, ispan)%vr%gam > gamRollup) then    ! '>' because of positive gamma
-            gamRollup = this%blade(ib)%waN(this%nNwake, ispan)%vr%gam
-          endif
-        endif
-
-        ! Compute radiusRollup
-        radiusRollup = radiusRollup + this%blade(ib)%waN(this%nNwake, ispan)%vr%vf(3)%rVc* &
-          this%blade(ib)%waN(this%nNwake, ispan)%vr%gam
+      do is = this%rollupStart+1, this%rollupEnd-1
+        gamWake(is) = this%blade(ib)%waN(row, is-1)%vr%gam- &
+          & this%blade(ib)%waN(row, is)%vr%gam
+        arrLE(:, is) = this%blade(ib)%waN(row, is)%vr%vf(1)%fc(:, 1)
+        arrTE(:, is) = this%blade(ib)%waN(row, is)%vr%vf(1)%fc(:, 2)
+        arrRad(is) = this%blade(ib)%waN(row, is)%vr%vf(1)%rVc
+        arrAge(is) = this%blade(ib)%waN(row, is)%vr%vf(1)%age
       enddo
 
-      ageRollup = this%blade(ib)%waN(this%nNwake, this%ns)%vr%vf(3)%age
-      if (abs(gamSum) > eps) then
-        centroidLE = centroidLE/gamSum
-        centroidTE = centroidTE/gamSum
-        radiusRollup = radiusRollup/gamSum
+      if (this%rollupEnd == this%ns) then
+        gamWake(last) = this%blade(ib)%waN(row, this%ns)%vr%gam
       else
-        centroidLE = this%blade(ib)%waN(this%nNwake, this%rollupEnd)%vr%vf(2)%fc(:, 1)
-        centroidTE = this%blade(ib)%waN(this%nNwake, this%rollupEnd)%vr%vf(3)%fc(:, 1)
-        radiusRollup = this%blade(ib)%waN(this%nNwake, this%rollupEnd)%vr%vf(3)%rVc
+        gamWake(last) = this%blade(ib)%waN(row, this%rollupEnd-1)%vr%gam- &
+          & this%blade(ib)%waN(row, this%rollupEnd)%vr%gam
+      endif
+      arrLE(:, last) = this%blade(ib)%waN(row, this%rollupEnd)%vr%vf(3)%fc(:, 2)
+      arrTE(:, last) = this%blade(ib)%waN(row, this%rollupEnd)%vr%vf(3)%fc(:, 1)
+      arrRad(last) = this%bladE(ib)%waN(row, this%rollupEnd)%vr%vf(3)%rVc
+      arrAge(last) = this%bladE(ib)%waN(row, this%rollupEnd)%vr%vf(3)%age
+
+      gamSum = sum(gamWake)
+
+      ! Compute index of max gamma
+      if (sign(1._dp, this%Omega*this%controlPitch(1)) > eps) then
+        ! +ve Omega or zero Omega with +ve pitch
+        gamRollup = minval(gamWake)  ! '<' because of negative gamma
+      else  ! one of Omega or pitch is negative
+        gamRollup = maxval(gamWake)  ! '>' because of positive gamma
+      endif
+
+      radiusRollup =  dot_product(arrRad, gamWake)/gamSum
+      ageRollup =  dot_product(arrAge, gamWake)/gamSum
+
+      if (abs(gamSum) > eps) then
+        centroidLE = matmul(arrLE, gamWake)/gamSum
+        centroidTE = matmul(arrTE, gamWake)/gamSum
+      else
+        centroidLE = this%blade(ib)%waN(row, this%rollupEnd)%vr%vf(2)%fc(:, 1)
+        centroidTE = this%blade(ib)%waN(row, this%rollupEnd)%vr%vf(3)%fc(:, 1)
       endif
 
       ! Suppress Fwake gam if required
