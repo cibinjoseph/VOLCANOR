@@ -3398,7 +3398,7 @@ class(blade_class), intent(inout) :: this
     real(dp), dimension(3, this%rollupEnd-this%rollupStart+2) :: arrTE, arrLE
     real(dp), dimension(this%rollupEnd-this%rollupStart+2) :: arrRad, arrAge
     real(dp) :: gamSum
-    integer :: row, last
+    integer :: row, last, idx
 
     rowFarNext = this%rowFar - 1    ! Rollup the vortex filament of 'next' row
 
@@ -3418,13 +3418,15 @@ class(blade_class), intent(inout) :: this
       arrRad(1) = this%bladE(ib)%waN(row, this%rollupStart)%vr%vf(1)%rVc
       arrAge(1) = this%bladE(ib)%waN(row, this%rollupStart)%vr%vf(1)%age
 
+      idx = 1
       do is = this%rollupStart+1, this%rollupEnd-1
-        gamWake(is) = this%blade(ib)%waN(row, is-1)%vr%gam- &
+        idx = idx + 1
+        gamWake(idx) = this%blade(ib)%waN(row, is-1)%vr%gam- &
           & this%blade(ib)%waN(row, is)%vr%gam
-        arrLE(:, is) = this%blade(ib)%waN(row, is)%vr%vf(1)%fc(:, 1)
-        arrTE(:, is) = this%blade(ib)%waN(row, is)%vr%vf(1)%fc(:, 2)
-        arrRad(is) = this%blade(ib)%waN(row, is)%vr%vf(1)%rVc
-        arrAge(is) = this%blade(ib)%waN(row, is)%vr%vf(1)%age
+        arrLE(:, idx) = this%blade(ib)%waN(row, is)%vr%vf(1)%fc(:, 1)
+        arrTE(:, idx) = this%blade(ib)%waN(row, is)%vr%vf(1)%fc(:, 2)
+        arrRad(idx) = this%blade(ib)%waN(row, is)%vr%vf(1)%rVc
+        arrAge(idx) = this%blade(ib)%waN(row, is)%vr%vf(1)%age
       enddo
 
       if (this%rollupEnd == this%ns) then
@@ -3455,7 +3457,7 @@ class(blade_class), intent(inout) :: this
         centroidLE = matmul(arrLE, gamWake)/gamSum
         centroidTE = matmul(arrTE, gamWake)/gamSum
       else
-        centroidLE = this%blade(ib)%waN(row, this%rollupEnd)%vr%vf(2)%fc(:, 1)
+        centroidLE = this%blade(ib)%waN(row, this%rollupEnd)%vr%vf(3)%fc(:, 2)
         centroidTE = this%blade(ib)%waN(row, this%rollupEnd)%vr%vf(3)%fc(:, 1)
       endif
 
