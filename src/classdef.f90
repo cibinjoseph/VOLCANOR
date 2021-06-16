@@ -144,6 +144,9 @@ module classdef
     type(Fwake_class), dimension(240) :: waF
     real(dp), dimension(3, 241) :: coords
     real(dp) :: nRevs = 10.0
+    real(dp) :: helixPitch = 0._dp
+    real(dp) :: helixRadius = 0._dp
+    real(dp) :: relaxFactor = 0.7_dp
     logical :: isClockwiseRotor = .True.
     logical :: isPresent = .false.
   contains
@@ -862,7 +865,7 @@ contains
     real(dp), intent(in) :: deltaPsi
     real(dp), dimension(size(this%coords, 2)) :: theta
     real(dp), dimension(3) :: anchor
-    real(dp) :: helixRadius, helixPitch, deltaZ, dTheta
+    real(dp) :: helixRadiusCurrent, helixPitchCurrent, deltaZ, dTheta
     integer :: i, npFwake, nFwake
 
     if (abs(shaftAxis(1)) > eps .or. abs(shaftAxis(2)) > eps) then
@@ -876,19 +879,26 @@ contains
 
     ! Radius and pitch of helix computed using 
     ! average radius and slope of all far wake filaments
-    helixPitch = 0._dp
-    helixRadius = 0._dp
+    helixPitchCurrent = 0._dp
+    helixRadiusCurrent = 0._dp
     nFwake = size(waF)
     do i = 1, nFwake
-      helixRadius = helixRadius + &
+      helixRadiusCurrent = helixRadiusCurrent + &
         & norm2((/waF(i)%vf%fc(2, 1), waF(i)%vf%fc(1, 1)/))
       if (i < size(waF)) then
-        helixPitch = helixPitch + &
+        helixPitchCurrent = helixPitchCurrent + &
           & waF(i)%vf%fc(3, 1) - waF(i+1)%vf%fc(3, 1)
       endif
     enddo
-    helixPitch = helixPitch * (-twoPi/deltaPsi)/(nFwake-1)
-    helixRadius = helixRadius / nFwake
+    helixPitchCurrent = helixPitchCurrent * (-twoPi/deltaPsi)/(nFwake-1)
+    helixRadiusCurrent = helixRadiusCurrent / nFwake
+
+    ! Update pitch and radius using a relaxation factor
+    ! to avoid sudden variations
+    this%helixPitch = this%relaxFactor*helixPitchCurrent + &
+      & (1-this%relaxFactor)*this%helixPitch
+    this%helixRadius = this%relaxFactor*helixRadiusCurrent + &
+      & (1-this%relaxFactor)*this%helixRadius
 
     ! Angle by which unit helix has to be rotated
     dTheta = atan2(anchor(2), anchor(1))
@@ -899,9 +909,9 @@ contains
     theta = linspace(0._dp, twoPi*this%nRevs, size(theta, 1))
     if (this%isClockwiseRotor) theta = -1._dp*theta
 
-    this%coords(1, :) = helixRadius * cos(theta+dTheta)
-    this%coords(2, :) = helixRadius * sin(theta+dTheta)
-    this%coords(3, :) = helixPitch*abs(theta)/twoPi + deltaZ
+    this%coords(1, :) = this%helixRadius * cos(theta+dTheta)
+    this%coords(2, :) = this%helixRadius * sin(theta+dTheta)
+    this%coords(3, :) = this%helixPitch * abs(theta)/twoPi + deltaZ
 
     ! Assign to prescribed wake
     npFwake = size(this%waF)
