@@ -1128,19 +1128,19 @@ program main
                 ! Store Nwake to Nwake_step for later use
                 rotor(ir)%blade(ib)%velNwakeStep = rotor(ir)%blade(ib)%velNwake
                 rotor(ir)%blade(ib)%velNwake = &
-                  55._dp/24._dp*rotor(ir)%blade(ib)%velNwake &  ! Overwrite Nwake
-                  - 59._dp/24._dp*rotor(ir)%blade(ib)%velNwake3 &
-                  + 37._dp/24._dp*rotor(ir)%blade(ib)%velNwake2 &
-                  - 09._dp/24._dp*rotor(ir)%blade(ib)%velNwake1
+                  & (55._dp*rotor(ir)%blade(ib)%velNwake &  ! Overwrite Nwake
+                  & - 59._dp*rotor(ir)%blade(ib)%velNwake3 &
+                  & + 37._dp*rotor(ir)%blade(ib)%velNwake2 &
+                  & - 09._dp*rotor(ir)%blade(ib)%velNwake1)/24._dp
                 rotor(ir)%blade(ib)%waFPredicted(rotor(ir)%rowFar:rotor(ir)%nFwakeEnd) = &
                   rotor(ir)%blade(ib)%waF(rotor(ir)%rowFar:rotor(ir)%nFwakeEnd)
                 ! Store Fwake to Fwake_step for later use
                 rotor(ir)%blade(ib)%velFwakeStep = rotor(ir)%blade(ib)%velFwake
                 rotor(ir)%blade(ib)%velFwake = &
-                  55._dp/24._dp*rotor(ir)%blade(ib)%velFwake &  ! Overwrite Fwake
-                  - 59._dp/24._dp*rotor(ir)%blade(ib)%velFwake3 &
-                  + 37._dp/24._dp*rotor(ir)%blade(ib)%velFwake2 &
-                  - 09._dp/24._dp*rotor(ir)%blade(ib)%velFwake1
+                  & (55._dp*rotor(ir)%blade(ib)%velFwake &  ! Overwrite Fwake
+                  & - 59._dp*rotor(ir)%blade(ib)%velFwake3 &
+                  & + 37._dp*rotor(ir)%blade(ib)%velFwake2 &
+                  & - 09._dp*rotor(ir)%blade(ib)%velFwake1)/24._dp
               enddo
               call rotor(ir)%convectwake(iter, dt, 'P')
             else
@@ -1188,17 +1188,17 @@ program main
             if (rotor(ir)%surfaceType .gt. 0) then
               do ib = 1, rotor(ir)%nbConvect
                 rotor(ir)%blade(ib)%velNwake = &
-                  09._dp/24._dp*rotor(ir)%blade(ib)%velNwakePredicted &
-                  + 19._dp/24._dp*rotor(ir)%blade(ib)%velNwakeStep &
-                  - 05._dp/24._dp*rotor(ir)%blade(ib)%velNwake3 &
-                  + 01._dp/24._dp*rotor(ir)%blade(ib)%velNwake2
+                  & (09._dp*rotor(ir)%blade(ib)%velNwakePredicted &
+                  & + 19._dp*rotor(ir)%blade(ib)%velNwakeStep &
+                  & - 05._dp*rotor(ir)%blade(ib)%velNwake3 &
+                  & + 01._dp*rotor(ir)%blade(ib)%velNwake2)/24._dp
                 rotor(ir)%blade(ib)%velFwake = &
-                  09._dp/24._dp*rotor(ir)%blade(ib)%velFwakePredicted &
-                  + 19._dp/24._dp*rotor(ir)%blade(ib)%velFwakeStep &
-                  - 05._dp/24._dp*rotor(ir)%blade(ib)%velFwake3 &
-                  + 01._dp/24._dp*rotor(ir)%blade(ib)%velFwake2
+                  & (09._dp*rotor(ir)%blade(ib)%velFwakePredicted &
+                  & + 19._dp*rotor(ir)%blade(ib)%velFwakeStep &
+                  & - 05._dp*rotor(ir)%blade(ib)%velFwake3 &
+                  & + 01._dp*rotor(ir)%blade(ib)%velFwake2)/24._dp
               enddo
-                call rotor(ir)%convectwake(iter, dt, 'C')
+              call rotor(ir)%convectwake(iter, dt, 'C')
               do ib = 1, rotor(ir)%nbConvect
                 rotor(ir)%blade(ib)%velNwake1 = rotor(ir)%blade(ib)%velNwake2
                 rotor(ir)%blade(ib)%velNwake2 = rotor(ir)%blade(ib)%velNwake3
