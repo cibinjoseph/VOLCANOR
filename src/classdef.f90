@@ -141,7 +141,7 @@ module classdef
   type pFwake_class
     !! Prescribed far wake
     ! 10 revs with 15 deg vortex filaments
-    type(Fwake_class), dimension(240) :: Fwake
+    type(Fwake_class), dimension(240) :: waF
     real(dp), dimension(3, 241) :: coords
     real(dp) :: nRevs = 10.0
     logical :: isClockwiseRotor = .True.
@@ -904,17 +904,17 @@ contains
     this%coords(3, :) = helixPitch*abs(theta)/twoPi + deltaZ
 
     ! Assign to prescribed wake
-    npFwake = size(this%Fwake)
+    npFwake = size(this%waF)
     do i = 1, npFwake
-      call this%Fwake(i)%assignP(2, hubCoords + this%coords(:, i))
-      call this%Fwake(i)%assignP(1, hubCoords + this%coords(:, i+1))
+      call this%waF(i)%assignP(2, hubCoords + this%coords(:, i))
+      call this%waF(i)%assignP(1, hubCoords + this%coords(:, i+1))
     enddo
 
     ! To maintain continuity
-    call this%Fwake(1)%assignP(2, anchor)
+    call this%waF(1)%assignP(2, anchor)
 
-    this%Fwake%gam = waF(nFwake)%gam
-    this%Fwake%vf%rVc = waF(nFwake)%vf%rVc
+    this%waF%gam = waF(nFwake)%gam
+    this%waF%vf%rVc = waF(nFwake)%vf%rVc
   end subroutine pFwake_update
 
   subroutine pFwake_rot_wake_axis(this, theta, axisVec, origin)
@@ -930,8 +930,8 @@ contains
       TMat = getTransformAxis(theta, axisVec)
 
       !$omp parallel do
-      do i = 1, size(this%Fwake)
-        call this%Fwake(i)%rot(TMat, origin)
+      do i = 1, size(this%waF)
+        call this%waF(i)%rot(TMat, origin)
       enddo
       !$omp end parallel do
     endif
@@ -1261,10 +1261,10 @@ contains
             + this%waF(i)%vf%vind(P)*this%waF(i)%gam
         enddo
 
-        do i = 1, size(this%wapF%Fwake)
-          if (abs(this%wapF%Fwake(i)%gam) .gt. eps) then
+        do i = 1, size(this%wapF%waF)
+          if (abs(this%wapF%waF(i)%gam) .gt. eps) then
             blade_vind_bywake = blade_vind_bywake &
-              & + this%wapF%Fwake(i)%vf%vind(P)*this%wapF%Fwake(i)%gam
+              & + this%wapF%waF(i)%vf%vind(P)*this%wapF%waF(i)%gam
           endif
         enddo
       endif
@@ -1291,11 +1291,11 @@ contains
             + this%waFPredicted(i)%vf%vind(P)*this%waFPredicted(i)%gam
         enddo
 
-        do i = 1, size(this%wapFPredicted%Fwake)
-          if (abs(this%wapFPredicted%Fwake(i)%gam) .gt. eps) then
+        do i = 1, size(this%wapFPredicted%waF)
+          if (abs(this%wapFPredicted%waF(i)%gam) .gt. eps) then
             blade_vind_bywake = blade_vind_bywake &
-              & + this%wapFPredicted%Fwake(i)%vf%vind(P) &
-              & * this%wapFPredicted%Fwake(i)%gam
+              & + this%wapFPredicted%waF(i)%vf%vind(P) &
+              & * this%wapFPredicted%waF(i)%gam
           endif
         enddo
       endif
