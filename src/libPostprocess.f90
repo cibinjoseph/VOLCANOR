@@ -1,5 +1,5 @@
 module libPostprocess
-  use classdef
+  use libMath, only: dp, pi, eps
   character(len=8) :: ResultsDir = 'Results/'
 
 contains
@@ -39,6 +39,7 @@ contains
   subroutine params2file(rotor, rotorNumber, nt, dt, nr, &
       & density, velSound, switches)
     ! Write rotor parameters to json file
+    use classdef, only: rotor_class, switches_class
     type(rotor_class), intent(in) :: rotor
     type(switches_class), intent(in) :: switches
     integer, intent(in) :: rotorNumber, nt, nr
@@ -120,6 +121,7 @@ contains
 
   subroutine rotor2file(timestamp, rotor, rotorNumber)
     ! Plot rotor geometry and wake to file
+    use classdef, only: rotor_class
     type(rotor_class), intent(in) :: rotor
     character(len=*), intent(in) :: timestamp
     integer, intent(in) :: rotorNumber
@@ -312,6 +314,7 @@ contains
 
   subroutine probes2file(timestamp, probe, probeVel, rotor, t)
     ! Write velocities at probe locations
+    use classdef, only: rotor_class
     type(rotor_class), intent(inout), dimension(:) :: rotor
     character(len=*), intent(in) :: timestamp
     real(dp), intent(in) :: t
@@ -341,6 +344,7 @@ contains
 
   subroutine filaments2file(timestamp, rotor)
     ! Write filaments to file for using with grid-based plots
+    use classdef, only: vf_class, vr_class, rotor_class
     type(rotor_class), intent(in), dimension(:) :: rotor
     character(len=*), intent(in) :: timestamp
 
@@ -452,6 +456,7 @@ contains
 
   subroutine mesh2file(wing_array, wake_array, filename)
     ! Obsolete
+    use classdef, only: wingpanel_class, Nwake_class
     type(wingpanel_class), intent(in), dimension(:, :) :: wing_array
     type(Nwake_class), intent(in), dimension(:, :) :: wake_array
     character(len=*), intent(in) :: filename
@@ -523,6 +528,7 @@ contains
   subroutine wingverify(wing_array)
     ! Write wing geometry to file in detail
     ! For verifying orientation of wing panels, bound vortex rings and CPs
+    use classdef, only: wingpanel_class
     type(wingpanel_class), intent(in), dimension(:, :) :: wing_array
     character(len=5) :: nxChar, nyChar
     real(dp), dimension(3, size(wing_array, 1) + 1, size(wing_array, 2) + 1) :: wingMesh
@@ -606,6 +612,7 @@ contains
   end subroutine wingverify
 
   subroutine tip2file(timestamp, rotor, rotorNumber)
+    use classdef, only: rotor_class
     type(rotor_class), intent(in) :: rotor
     character(len=*), intent(in) :: timestamp
     integer, intent(in) :: rotorNumber
@@ -763,6 +770,7 @@ contains
   end subroutine tip2file
 
   subroutine skew2file(timestamp, rotor, rotorNumber)
+    use classdef, only: rotor_class
     type(rotor_class), intent(in) :: rotor
     character(len=*), intent(in) :: timestamp
     integer, intent(in) :: rotorNumber
@@ -795,6 +803,7 @@ contains
 
   subroutine force2file(timestamp, rotor, rotorNumber)
     ! Write sec and net force to file
+    use classdef, only: rotor_class
     type(rotor_class), intent(in) :: rotor
     character(len=*), intent(in) :: timestamp
     integer, intent(in) :: rotorNumber
@@ -863,6 +872,7 @@ contains
   subroutine inflow2file(timestamp, rotorArray, rotorNumber, directionVector)
     ! Calculate inflow velocity along directionVector on the blades of rotor(rotorNumber)
     ! at rotor(rotorNumber)%secCP
+    use classdef, only: rotor_class
     character(len=*), intent(in) :: timestamp
     type(rotor_class), intent(inout), dimension(:) :: rotorArray
     integer, intent(in) :: rotorNumber
@@ -910,6 +920,7 @@ contains
   subroutine gamma2file(timestamp, rotor, rotorNumber)
     ! Calculate inflow velocity along directionVector on the blades of rotor(rotorNumber)
     ! at rotor(rotorNumber)%secCP
+    use classdef, only: rotor_class
     character(len=*), intent(in) :: timestamp
     type(rotor_class), intent(in) :: rotor
     integer, intent(in) :: rotorNumber

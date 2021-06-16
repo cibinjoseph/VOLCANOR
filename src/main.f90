@@ -1,6 +1,8 @@
 program main
+  use libMath, only: isInverse, cross_product, matmulAX, zAxis
   use libCommon
   use libPostprocess
+  implicit none
 
   ! Ensure all necessary files exist
   inquire(file='config.in', exist=fileExists)

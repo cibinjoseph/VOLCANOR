@@ -2,8 +2,8 @@
 ! ++++ | MODULE DEFINITIONS | ++++ |
 !------+--------------------+------|
 module classdef
-  use libMath
-  use libC81
+  use libMath, only: dp, pi, eps
+  use libC81, only: C81_class
   implicit none
 
   real(dp), parameter :: tol = 1.E-6
@@ -335,6 +335,7 @@ contains
   ! Efficient implementation to vind calculation
   function vf_vind(this, P) result(vind)
     ! Compute induced velocity by unit strength vortex filament
+    use libMath, only: unitVec
   class(vf_class) :: this
     real(dp), intent(in), dimension(3) :: P
     real(dp), dimension(3) :: vind
@@ -521,6 +522,7 @@ contains
 
   function vr_getInteriorAngles(this)
     ! Obtain interior angles of vortex ring
+    use libMath, only: getAngleCos
   class(vr_class) :: this
     real(dp), dimension(4) :: vr_getInteriorAngles
     real(dp), dimension(3) :: p1, p2, p3, p4
@@ -539,6 +541,7 @@ contains
 
   function vr_getMedianAngle(this)
     ! Obtain median angle of vortex ring
+    use libMath, only: getAngleCos
   class(vr_class) :: this
     real(dp) :: vr_getMedianAngle
     real(dp), dimension(3) :: p1, p2, p3, p4
@@ -647,6 +650,7 @@ contains
 
   subroutine wingpanel_calcN(this, isTriangle)
     ! Compute normal vector
+    use libMath, only: unitVec, cross_product
   class(wingpanel_class) :: this
     logical, optional :: isTriangle
     logical :: triPanel
@@ -664,6 +668,7 @@ contains
 
   subroutine wingpanel_calcTau(this, isTriangle)
     ! Compute chordwise and spanwise tangential vectors
+    use libMath, only: unitVec
   class(wingpanel_class) :: this
     logical, optional :: isTriangle
     logical :: triPanel
@@ -718,6 +723,7 @@ contains
   end subroutine wingpanel_shiftdP
 
   subroutine wingpanel_calc_area(this)
+    use libMath, only: cross_product
   class(wingpanel_class) :: this
     this%panelArea = 0.5_dp*norm2(cross_product(this%pc(:, 3) &
       - this%pc(:, 1), this%pc(:, 4) - this%pc(:, 2)))
@@ -849,6 +855,7 @@ contains
   ! ++++ | pFwake_class Methods
   !------+--
   subroutine pFwake_update(this, waF, hubCoords, shaftAxis, deltaPsi)
+    use libMath, only: linspace
   class(pFwake_class), intent(inout) :: this
     type(Fwake_class), intent(in), dimension(:) :: waF
     real(dp), intent(in), dimension(3) :: hubCoords, shaftAxis
@@ -911,6 +918,7 @@ contains
   end subroutine pFwake_update
 
   subroutine pFwake_rot_wake_axis(this, theta, axisVec, origin)
+    use libMath, only: getTransformAxis
   class(pFwake_class), intent(inout) :: this
     real(dp), intent(in) :: theta
     real(dp), intent(in), dimension(3) :: axisVec
@@ -955,6 +963,7 @@ contains
 
   subroutine blade_rot_pts(this, pts, origin, order)
     ! Rotate blade using pts => phi theta psi
+    use libMath, only: Tbg, Tgb
   class(blade_class), intent(inout) :: this
     real(dp), dimension(3), intent(in) :: pts    ! pts => phi,theta,psi
     real(dp), dimension(3), intent(in) :: origin ! rotation about
@@ -1023,6 +1032,7 @@ contains
 
   subroutine blade_rot_axis(this, theta, axisVec, origin)
     ! Rotate about axis at specified origin
+    use libMath, only: getTransformAxis
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: theta
     real(dp), intent(in), dimension(3) :: axisVec
@@ -1066,6 +1076,7 @@ contains
   subroutine blade_rot_wake_axis(this, theta, axisVec, origin, &
       & rowNear, rowFar, wakeType)
     ! Rotate wake about axis at specified origin
+    use libMath, only: getTransformAxis
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: theta
     real(dp), intent(in), dimension(3) :: axisVec
@@ -1438,6 +1449,7 @@ class(blade_class), intent(inout) :: this
 
   subroutine blade_calc_force_gamma(this, density, invertGammaSign, dt)
     ! Compute force using blade circulation
+    use libMath, only: unitVec, cross_product, projVec
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: density, invertGammaSign, dt
     integer :: is, ic
@@ -1633,6 +1645,7 @@ class(blade_class), intent(inout) :: this
   subroutine blade_calc_force_alphaGamma(this, density, &
       & invertGammaSign, velSound, dt)
     ! Compute force using alpha approximated from sec circulation
+    use libMath, only: unitVec, cross_product
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: density, invertGammaSign, velSound, dt
     real(dp), dimension(3) :: secChordwiseVelFreestream, liftDir
@@ -1678,6 +1691,7 @@ class(blade_class), intent(inout) :: this
   end subroutine blade_calc_force_alphaGamma
 
   subroutine blade_secCoeffsToSecForces(this, density)
+    use libMath, only: unitVec, cross_product, lsq2
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: density
     integer :: is
@@ -1708,6 +1722,7 @@ class(blade_class), intent(inout) :: this
   end subroutine blade_secCoeffsToSecForces
 
   subroutine blade_lookup_secCoeffs(this, velSound)
+    use libC81, only: getCL, getCD
     ! Compute sec CL, CD, CM from C81 tables and sec resultant velocity
     ! Assumes only one airfoil section present
   class(blade_class), intent(inout) :: this
@@ -1726,6 +1741,7 @@ class(blade_class), intent(inout) :: this
 
   subroutine blade_calc_secChordwiseResVel(this)
     ! Compute sec resultant velocity by interpolating local panel velocity
+    use libMath, only: lsq2
   class(blade_class), intent(inout) :: this
     integer :: i, is, ic
     real(dp), dimension(this%nc) :: xDist
@@ -1821,6 +1837,7 @@ class(blade_class), intent(inout) :: this
   end function blade_getSecChordwiseLocations
 
   subroutine blade_burst_wake(this, rowFar, skewLimit, largeCoreRadius)
+    use libMath, only: getAngleCos
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: skewLimit
     integer, intent(in) :: rowFar !, rowNear
@@ -1869,6 +1886,7 @@ class(blade_class), intent(inout) :: this
   end subroutine blade_calc_skew
 
   subroutine blade_dirLiftDrag(this)
+    use libMath, only: unitVec, cross_product
   class(blade_class), intent(inout) :: this
     integer :: is
     do is = 1, this%ns
@@ -2005,6 +2023,7 @@ class(blade_class), intent(inout) :: this
   !------+--
 
   subroutine rotor_read_geom(this, filename)
+    use libMath, only: skip_comments
   class(rotor_class) :: this
     character(len=*), intent(in) :: filename
     integer :: i
@@ -2121,6 +2140,7 @@ class(blade_class), intent(inout) :: this
 
   subroutine rotor_init(this, rotorNumber, density, dt, nt, switches)
     ! Initialize variables of rotor geometry and wake
+    use libMath
   class(rotor_class) :: this
     integer, intent(in) :: rotorNumber
     real(dp), intent(in) :: density
@@ -2983,6 +3003,7 @@ class(blade_class), intent(inout) :: this
     ! <x1>  <z1>
     ! <x2>  <z2>
     ! ...
+    use libMath, only: interp1
   class(rotor_class) :: this
     real(dp), intent(in), dimension(:) :: x, y
     real(dp), dimension(size(x), size(y)) :: rotor_getCamber
@@ -3059,6 +3080,7 @@ class(blade_class), intent(inout) :: this
 
   subroutine rotor_calcAIC(this)
     ! Compute AIC matrix for rotor
+    use libMath, only: inv2
   class(rotor_class), intent(inout) :: this
     integer :: ib, jblade, is, ic, i, j, row, col
     real(dp), dimension(3) :: vec_dummy
@@ -3127,6 +3149,7 @@ class(blade_class), intent(inout) :: this
 
   subroutine rotor_rot_pts(this, pts, origin, order)
     ! Rotate using pts => phi theta psi
+    use libMath, only: Tbg, Tgb
   class(rotor_class), intent(inout) :: this
     real(dp), dimension(3), intent(in) :: pts    ! pts => phi,theta,psi
     real(dp), dimension(3), intent(in) :: origin ! rotation about

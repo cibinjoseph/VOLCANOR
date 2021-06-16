@@ -1,11 +1,14 @@
 module libCommon
-  use classdef
+  use libMath, only : dp
+  use classdef, only : switches_class, rotor_class
   implicit none
   include "init_file.f90"
 
 contains
 
   subroutine read_config(filename)
+    use libMath, only : eps, skip_comments
+    use classdef, only : switches_class
     character(len=*), intent(in) :: filename
     real :: fileFormatVersion, currentVersion
 
@@ -51,6 +54,7 @@ contains
 
   ! Induced velocity by rotor (wing n wake) on Nwake corner points
   function vind_onNwake_byRotor(rotor, Nwake, optionalChar) result(vindArray)
+    use classdef, only : rotor_class, Nwake_class
     type(rotor_class), intent(inout) :: rotor
     type(Nwake_class), intent(in), dimension(:, :) :: Nwake
     character(len=1), optional :: optionalChar
@@ -105,6 +109,7 @@ contains
 
   ! Induced velocity by rotor (wing n wake) on Fwake corner points
   function vind_onFwake_byRotor(rotor, Fwake, optionalChar) result(vindArray)
+    use classdef, only : rotor_class, Fwake_class
     type(rotor_class), intent(inout) :: rotor
     type(Fwake_class), intent(in), dimension(:) :: Fwake
     character(len=1), optional :: optionalChar
