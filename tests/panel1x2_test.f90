@@ -9,6 +9,7 @@ module panel1x2_test
   integer :: nt
 
   integer :: spanSpacingSwitch = 2
+  integer :: chordSpacingSwitch = 1
   integer :: fdSchemeSwitch = 3
 
 contains
@@ -65,6 +66,7 @@ contains
     rotor%nAirfoils = 0
 
     switches%spanSpacing = spanSpacingSwitch
+    switches%chordSpacing = chordSpacingSwitch
     switches%fdScheme = fdSchemeSwitch
 
     call rotor%init(1, density, dt, nt, switches)
