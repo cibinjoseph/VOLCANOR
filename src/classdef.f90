@@ -875,13 +875,13 @@ contains
     this%isPresent = .true.
 
     ! Find helix parameters
+    nFwake = size(waF)
     anchor = waF(nFwake)%vf%fc(:, 1)
 
     ! Radius and pitch of helix computed using 
     ! average radius and slope of all far wake filaments
     helixPitchCurrent = 0._dp
     helixRadiusCurrent = 0._dp
-    nFwake = size(waF)
     do i = 1, nFwake
       helixRadiusCurrent = helixRadiusCurrent + &
         & norm2((/waF(i)%vf%fc(2, 1), waF(i)%vf%fc(1, 1)/))
