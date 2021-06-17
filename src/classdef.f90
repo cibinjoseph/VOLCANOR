@@ -13,7 +13,7 @@ module classdef
 
   type switches_class
     integer :: ntSub, ntSubInit
-    integer :: spanSpacing
+    integer :: spanSpacing, chordSpacing
     integer :: wakeDissipation, wakeStrain, wakeBurst
     integer :: slowStart, slowStartNt
     integer :: wakeTipPlot, wakePlot, gridPlot
@@ -2329,11 +2329,27 @@ class(blade_class), intent(inout) :: this
 
     ! Blade initialization
     if (this%geometryFile(1:1) .eq. '0') then
-      if (this%Omega .ge. 0) then
-        xVec = linspace(-this%chord, 0._dp, this%nc + 1)
-      else
-        xVec = linspace(this%chord, 0._dp, this%nc + 1)
-      endif
+      select case (switches%chordSpacing)
+      case (1)
+        if (this%Omega .ge. 0) then
+          xVec = linspace(-this%chord, 0._dp, this%nc + 1)
+        else
+          xVec = linspace(this%chord, 0._dp, this%nc + 1)
+        endif
+      case (2)
+        if (this%Omega .ge. 0) then
+          xVec = cosspace(-this%chord, 0._dp, this%nc + 1)
+        else
+          xVec = cosspace(this%chord, 0._dp, this%nc + 1)
+        endif
+      case (3)
+        if (this%Omega .ge. 0) then
+          xVec = halfsinspace(-this%chord, 0._dp, this%nc + 1)
+        else
+          xVec = halfsinspace(this%chord, 0._dp, this%nc + 1)
+        endif
+      end select
+
       select case (switches%spanSpacing)
       case (1)
         yVec = linspace(this%root_cut*this%radius, this%radius, this%ns + 1)
