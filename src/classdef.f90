@@ -146,7 +146,7 @@ module classdef
     real(dp) :: nRevs = 10.0
     real(dp) :: helixPitch = 0._dp
     real(dp) :: helixRadius = 0._dp
-    real(dp) :: relaxFactor = 0.7_dp
+    real(dp) :: relaxFactor = 0.5_dp
     logical :: isClockwiseRotor = .True.
     logical :: isPresent = .false.
   contains
