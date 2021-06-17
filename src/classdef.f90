@@ -890,7 +890,7 @@ contains
           & waF(i)%vf%fc(3, 1) - waF(i+1)%vf%fc(3, 1)
       endif
     enddo
-    helixPitchCurrent = helixPitchCurrent * (-twoPi/deltaPsi)/(nFwake-1)
+    helixPitchCurrent = abs(helixPitchCurrent) * (-twoPi/deltaPsi)/(nFwake-1)
     helixRadiusCurrent = helixRadiusCurrent / nFwake
 
     ! Update pitch and radius using a relaxation factor
