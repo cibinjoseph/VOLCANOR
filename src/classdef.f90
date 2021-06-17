@@ -2037,14 +2037,14 @@ class(blade_class), intent(inout) :: this
   class(rotor_class) :: this
     character(len=*), intent(in) :: filename
     integer :: i
-    real :: fileFormatVersion, currentTemplateVersion
+    character(len=10) :: fileFormatVersion, currentTemplateVersion
 
-    currentTemplateVersion = 0.8
+    currentTemplateVersion = '0.8'
 
     open (unit=12, file=filename, status='old', action='read')
     call skip_comments(12)
     read(12, *) fileFormatVersion
-    if (abs(fileFormatVersion - currentTemplateVersion) > eps) then
+    if (adjustl(fileFormatVersion) /= currentTemplateVersion) then
       error stop "ERROR: geomXX.in template version does not match"
     endif
 

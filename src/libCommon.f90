@@ -10,14 +10,14 @@ contains
     use libMath, only : eps, skip_comments
     use classdef, only : switches_class
     character(len=*), intent(in) :: filename
-    real :: fileFormatVersion, currentVersion
+    character(len=10) :: fileFormatVersion, currentVersion
 
-    currentVersion = 0.2
+    currentVersion = '0.2'
 
     open (unit=11, file=filename, status='old', action='read')
     call skip_comments(11)
     read (11, *)  fileFormatVersion
-    if (abs(fileFormatVersion-currentVersion) > eps) then
+    if (adjustl(fileFormatVersion) /= currentVersion) then
       error stop "ERROR: config.in template version does not match"
     endif
 
@@ -35,7 +35,8 @@ contains
     read (11, *) switches%wakePlot, switches%wakeTipPlot, &
       & switches%rotorForcePlot, switches%gridPlot
     call skip_comments(11)
-    read (11, *) switches%wakeDissipation, switches%wakeStrain, switches%wakeBurst
+    read (11, *) switches%wakeDissipation, switches%wakeStrain, &
+      & switches%wakeBurst
     call skip_comments(11)
     read (11, *) switches%slowStart, switches%slowStartNt
     call skip_comments(11)
