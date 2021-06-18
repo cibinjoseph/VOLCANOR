@@ -7,8 +7,17 @@ def getData(filename):
     data = np.loadtxt(filename, skiprows=1)
     return data[:, 0], data[:, 1]
 
+def getIterMax(filename):
+    with open(filename) as fh:
+        lines = fh.read().splitlines()
+        last_line = lines[-1]
+        iterMax = last_line.split()[-1]
+        return iterMax
+
 # Initial plot
 it, CT = getData('Results/r01ForceNonDim.csv')
+itMax = getIterMax('volcanor.log')
+
 plt.ion()
 plt.plot(it, CT)
 plt.xlabel('iteration')
@@ -25,7 +34,7 @@ while True:
         CTmin = CT[-1]*0.95
         plt.plot(it, CT, label=file[8:11])
         plt.legend()
-        plt.title('Current iteration: '+ str(int(it[-1])))
+        plt.title('Iteration: '+ str(int(it[-1])) + '/' + str(itMax))
         plt.plot(itLims, [CTmin, CTmin], 'r-', alpha = 0.3)
         plt.plot(itLims, [CTmax, CTmax], 'r-', alpha = 0.3)
     plt.pause(1.0)
