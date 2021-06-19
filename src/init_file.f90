@@ -8,7 +8,7 @@ real(dp) :: dt
 ! Other Variables
 integer :: iterStart
 real(dp) :: t
-real(dp) :: density, velSound
+real(dp) :: density, velSound, kinematicVisc
 character(len=5) :: timestamp
 character(len=2) :: rotorChar
 character(len=10) :: rotorFile

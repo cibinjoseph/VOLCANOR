@@ -4,12 +4,12 @@
 import sys
 import time
 
-# Version 0.8
+# Version 0.9
 geomInput = [1, 4, 2, 3, 3, 3, 3, 3, 3, 4, 4, 4, 2, \
-             6, 4, 4, 2, 1, 2, 3, 3, 3, 3, 4, 1, 2, 3]
+             6, 4, 2, 3, 2, 1, 2, 3, 3, 3, 3, 4, 1, 2, 3]
 
-# Version 0.1
-configInput = [1, 3, 2, 2, 1, 2, 4, 3, 2, 1, 1, 1]
+# Version 0.3
+configInput = [1, 3, 2, 2, 1, 3, 4, 3, 2, 1, 1, 1]
 
 def isValid(filename, refInput):
     returnVal = True

@@ -12,7 +12,7 @@ contains
     character(len=*), intent(in) :: filename
     character(len=10) :: fileFormatVersion, currentVersion
 
-    currentVersion = '0.2'
+    currentVersion = '0.3'
 
     open (unit=11, file=filename, status='old', action='read')
     call skip_comments(11)
@@ -30,7 +30,7 @@ contains
     call skip_comments(11)
     read (11, *) switches%spanSpacing, switches%chordSpacing
     call skip_comments(11)
-    read (11, *) density, velSound
+    read (11, *) density, velSound, kinematicVisc
     call skip_comments(11)
     read (11, *) switches%wakePlot, switches%wakeTipPlot, &
       & switches%rotorForcePlot, switches%gridPlot

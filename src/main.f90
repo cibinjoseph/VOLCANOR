@@ -390,7 +390,7 @@ program main
     if (switches%wakeDissipation .eq. 1) then
       do ir = 1, nr
         ! Wake tip dissipation
-        call rotor(ir)%dissipate_wake(dt)
+        call rotor(ir)%dissipate_wake(dt, kinematicVisc)
       enddo
     endif
 

@@ -49,6 +49,7 @@ module classdef
     procedure :: rot => vr_rot
     procedure :: calclength => vr_calclength
     procedure :: strain => vr_strain
+    procedure :: decay => vr_decay
     procedure :: calc_skew => calc_skew
     procedure :: burst => vr_burst
     procedure :: getInteriorAngles => vr_getInteriorAngles
@@ -135,6 +136,7 @@ module classdef
     procedure :: shiftdP => Fwake_shiftdP
     procedure :: assignP => Fwake_assignP
     procedure :: rot => Fwake_rot
+    procedure :: decay => Fwake_decay
     procedure :: mirror => Fwake_mirror
   end type Fwake_class
 
@@ -262,7 +264,7 @@ module classdef
     real(dp), allocatable, dimension(:) :: airfoilSectionLimit
     real(dp), allocatable, dimension(:) :: alpha0
     real(dp) :: initWakeVel, psiStart, skewLimit
-    real(dp) :: turbulentViscosity
+    real(dp) :: apparentViscCoeff, decayCoeff
     real(dp) :: rollupStartRadius, rollupEndRadius
     integer :: propConvention
     integer :: symmetricTau
@@ -522,6 +524,14 @@ contains
       call this%vf(i)%strain()
     enddo
   end subroutine vr_strain
+
+  subroutine vr_decay(this, dt, decayCoeff)
+  class(vr_class), intent(inout) :: this
+    real(dp), intent(in) :: dt, decayCoeff
+
+  this%gam = this%gam*exp(-decayCoeff*dt)
+
+  end subroutine vr_decay
 
   function vr_getInteriorAngles(this)
     ! Obtain interior angles of vortex ring
@@ -840,6 +850,13 @@ contains
     this%vf%fc(:, 1) = matmul(TMat, this%vf%fc(:, 1)-origin)+origin
     this%vf%fc(:, 2) = matmul(TMat, this%vf%fc(:, 2)-origin)+origin
   end subroutine Fwake_rot
+
+  subroutine Fwake_decay(this, dt, decayCoeff)
+  class(Fwake_class), intent(inout) :: this
+    real(dp), intent(in) :: dt, decayCoeff
+
+    this%gam = this%gam*exp(-decayCoeff*dt)
+    end subroutine Fwake_decay
 
   subroutine Fwake_mirror(this, coordNum)
     !! Mirror gamma and coordinates about a specified plane
@@ -2039,7 +2056,7 @@ class(blade_class), intent(inout) :: this
     integer :: i
     character(len=10) :: fileFormatVersion, currentTemplateVersion
 
-    currentTemplateVersion = '0.8'
+    currentTemplateVersion = '0.9'
 
     open (unit=12, file=filename, status='old', action='read')
     call skip_comments(12)
@@ -2097,7 +2114,9 @@ class(blade_class), intent(inout) :: this
     read (12, *) this%pivotLE, this%flapHinge, this%spanwiseLiftSwitch, &
       & this%symmetricTau
     call skip_comments(12)
-    read (12, *) this%turbulentViscosity, this%wakeTruncateNt, &
+    read (12, *) this%apparentViscCoeff, this%decayCoeff
+    call skip_comments(12)
+    read(12, *) this%wakeTruncateNt, &
       & this%prescWakeAfterTruncNt, this%prescWakeGenNt
     call skip_comments(12)
     read (12, *) this%spanwiseCore, this%streamwiseCoreSwitch
@@ -3295,22 +3314,25 @@ class(blade_class), intent(inout) :: this
     enddo
   end subroutine rotor_age_wake
 
-  subroutine rotor_dissipate_wake(this, dt)
+  subroutine rotor_dissipate_wake(this, dt, kinematicViscosity)
   class(rotor_class), intent(inout) :: this
-    real(dp), intent(in) :: dt
-    real(dp) :: oseenParameter, kinematicViscosity
+    real(dp), intent(in) :: dt, kinematicViscosity
+    real(dp) :: oseenParameter
     integer :: ib, ic, is
     oseenParameter = 1.2564_dp
-    kinematicViscosity = 0.0000181_dp
 
     ! Dissipate near wake
     do ib = 1, this%nb
       do is = 1, this%ns
         !$omp parallel do
         do ic = this%rowNear, this%nNwake
-          this%blade(ib)%waN(ic, is)%vr%vf(1)%rVc = sqrt(this%blade(ib)%waN(ic, is)%vr%vf(1)%rVc**2._dp &
-            + 4._dp*oseenParameter*this%turbulentViscosity*kinematicViscosity*dt)
-          this%blade(ib)%waN(ic, is)%vr%vf(3)%rVc = this%blade(ib)%waN(ic, is)%vr%vf(1)%rVc
+          this%blade(ib)%waN(ic, is)%vr%vf(1)%rVc = &
+            & sqrt(this%blade(ib)%waN(ic, is)%vr%vf(1)%rVc**2._dp &
+            & + 4._dp*oseenParameter*this%apparentViscCoeff*kinematicViscosity*dt)
+          this%blade(ib)%waN(ic, is)%vr%vf(3)%rVc = &
+            & this%blade(ib)%waN(ic, is)%vr%vf(1)%rVc
+          ! Decay wake
+          call this%blade(ib)%waN(ic, is)%vr%decay(dt, this%decayCoeff)
         enddo
         !$omp end parallel do
 
@@ -3318,7 +3340,7 @@ class(blade_class), intent(inout) :: this
         !$omp parallel do
         do ic = this%rowNear, this%nNwake
           this%blade(ib)%waN(ic, is)%vr%vf(2)%rVc = sqrt(this%blade(ib)%waN(ic, is)%vr%vf(2)%rVc**2._dp &
-            + 4._dp*oseenParameter*this%turbulentViscosity*kinematicViscosity*dt)
+            + 4._dp*oseenParameter*this%apparentViscCoeff*kinematicViscosity*dt)
         enddo
         !$omp end parallel do
 
@@ -3334,8 +3356,12 @@ class(blade_class), intent(inout) :: this
       ! Dissipate far wake if present
       !$omp parallel do
       do ic = this%rowFar, this%nFwake
-        this%blade(ib)%waF(ic)%vf%rVc = sqrt(this%blade(ib)%waF(ic)%vf%rVc**2._dp &
-          + 4._dp*oseenParameter*this%turbulentViscosity*kinematicViscosity*dt)
+        this%blade(ib)%waF(ic)%vf%rVc = &
+          & sqrt(this%blade(ib)%waF(ic)%vf%rVc**2._dp &
+          & + 4._dp*oseenParameter*this%apparentViscCoeff* &
+          & kinematicViscosity*dt)
+          ! Decay wake
+          call this%blade(ib)%waF(ic)%decay(dt, this%decayCoeff)
       enddo
       !$omp end parallel do
     enddo

@@ -110,11 +110,8 @@ contains
     write(10, *) '"initWakeVel": ', rotor%initWakeVel, ','
     write(10, *) '"psiStart": ', rotor%psiStart*180._dp/pi, ','
     write(10, *) '"forceCalcSwitch": ', rotor%forceCalcSwitch*180._dp/pi, ','
-    if (switches%wakeDissipation .gt. 0) then
-      write(10, *) '"turbulentViscosity": ', rotor%turbulentViscosity
-    else
-      write(10, *) '"turbulentViscosity": ', 0.0
-    endif
+    write(10, *) '"apparentViscCoeff": ', rotor%apparentViscCoeff
+    write(10, *) '"decayCoeff": ', rotor%decayCoeff
     write(10, *) '}'
     close(10)
   end subroutine params2file
