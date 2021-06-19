@@ -1,5 +1,5 @@
 # File format version
-  0.2
+  0.3
 # NO. OF TIMESTEPS [nt]    TIMESTEP (sec) [dt]         NO. OF ROTORS [nr]
 # [-nt]chords or revs    [0]default [-nt]chords or revs
 # -----------------------------------------------------------------------
@@ -19,9 +19,9 @@
        2                      1
 # =======================================================================
 # 
-# DENSITY [kg/m3]    SOUND VEL. [m/s]
+# DENSITY [kg/m3]    SOUND VEL. [m/s]  KINEMATICVISC [m2/s]
 # -----------------------------------------------------------------------
-      1.0                330.0
+      1.0                330.0           0.0000181
 # =======================================================================
 # 
 # PLOT WAKE: [0]Off [n]Every n'th iteration [-n]chords or revs

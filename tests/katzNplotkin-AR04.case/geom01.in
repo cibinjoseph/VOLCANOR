@@ -68,10 +68,15 @@
 0.00                0.0               0                 1
 # ===================================================================
 # 
-# viscDiss   wakeTruncateNt  prescWakeAfterTruncNt   prescWakeGenNt
-# (10-10000)   [0]Off [n] timesteps [-n] chords/revs
+# viscDiss    decayCoeff
+# (10-10000)    (bq/s) 
 # -------------------------------------------------------------------
-  5                 0                 0                    0
+  5                 0
+# 
+# wakeTruncateNt  prescWakeAfterTruncNt   prescWakeGenNt
+#   [0]Off [n] timesteps [-n] chords/revs
+# -------------------------------------------------------------------
+  0                 0                    0
 # ===================================================================
 # 
 # spanwise core radius[x/c]       streamwise core_switch
