@@ -48,7 +48,8 @@ contains
     rotor%pivotLE = 0.25_dp
     rotor%flapHinge = 0._dp
     rotor%symmetricTau = 1._dp
-    rotor%turbulentViscosity = 5._dp
+    rotor%apparentViscCoeff = 5._dp
+    rotor%decayCoeff = 0._dp
 
     rotor%spanwiseCore = 0.04_dp
     allocate(rotor%streamwiseCoreVec(rotor%ns+1))
