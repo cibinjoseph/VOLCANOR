@@ -1,5 +1,5 @@
 # File format version
-    0.8
+    0.9
 # Fixed-Wing or Rotor
 # ===================================================================
 # No. of blades,nb  Prop convention  NcamberFiles  geometry filename
@@ -18,7 +18,7 @@
 # Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 #                                       [n]timesteps [-n]chords/revs
 # -------------------------------------------------------------------
-      20                       30                   -15
+      30                       25                   -21
 # ===================================================================
 # 
 # X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
@@ -68,10 +68,15 @@
    0.00                0.0               0                 1
 # ===================================================================
 # 
-# viscDiss   wakeTruncateNt  prescWakeAfterTruncNt   prescWakeGenNt
-# (10-10000)   [0]Off [n] timesteps [-n] chords/revs
+# viscDiss    decayCoeff
+# (10-10000)    (bq/s) 
 # -------------------------------------------------------------------
-   100             0                    0                  0
+   100            2.5
+# 
+# wakeTruncateNt  prescWakeAfterTruncNt   prescWakeGenNt
+#   [0]Off [n] timesteps [-n] chords/revs
+# -------------------------------------------------------------------
+     0                    0                  0
 # ===================================================================
 # 
 # spanwise core radius[x/c]       streamwise core_switch
