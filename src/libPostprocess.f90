@@ -110,7 +110,7 @@ contains
     write(10, *) '"initWakeVel": ', rotor%initWakeVel, ','
     write(10, *) '"psiStart": ', rotor%psiStart*180._dp/pi, ','
     write(10, *) '"forceCalcSwitch": ', rotor%forceCalcSwitch*180._dp/pi, ','
-    write(10, *) '"apparentViscCoeff": ', rotor%apparentViscCoeff
+    write(10, *) '"apparentViscCoeff": ', rotor%apparentViscCoeff, ','
     write(10, *) '"decayCoeff": ', rotor%decayCoeff
     write(10, *) '}'
     close(10)
