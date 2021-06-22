@@ -23,12 +23,14 @@ parser.add_argument('-b', '--blade', default=pr.bladeNum, metavar='XX', \
 parser.add_argument('-c', '--c81', action='store', help='C81 airfoil file')
 parser.add_argument('-d', '--dir', default=pr.ResultsDir, metavar='Results/', \
                     action='store', help='Directory')
+parser.add_argument('-f', '--filealpha', action='store_true', \
+                    help='Use alpha from input file')
 parser.add_argument('-i', '--iter', default=pr.iterNum, metavar='XXXXX', \
                     action='store', help='Iteration as string "XXXXX"')
-parser.add_argument('-r', '--rotor', default=pr.rotorNum, metavar='XX', \
-                    action='store', help='Rotor num as string "XX"')
 parser.add_argument('-q', '--quiet', action='store_true', \
                     help='Suppress plots')
+parser.add_argument('-r', '--rotor', default=pr.rotorNum, metavar='XX', \
+                    action='store', help='Rotor num as string "XX"')
 parser.add_argument('-z', '--zero', action='store', \
                     help='Override zero lift angle in degs')
 
@@ -75,7 +77,11 @@ for vRes1, vFree1 in zip(vRes, vFree):
         phi.append(0)
 
 # induced angle, phi
-alphaLookup = (180.0/np.pi)*(data['secCL']/CLa_lin + alf0)
+if args.filealpha:
+    alphaLookup = data['secAlpha']
+else:
+    alphaLookup = (180.0/np.pi)*(data['secCL']/CLa_lin + alf0)
+
 machlist = data['secVel']/params['velSound']
 
 if c81File == None:
