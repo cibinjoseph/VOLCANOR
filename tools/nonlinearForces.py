@@ -66,7 +66,7 @@ if isRotor:
 else:
     vRef = params['u']
     vRes = data['secVel']
-    vFree = VRef
+    vFree = np.ones(vRes.shape)*vRef
 
 phi = []
 for vRes1, vFree1 in zip(vRes, vFree):
