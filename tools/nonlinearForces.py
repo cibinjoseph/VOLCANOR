@@ -151,7 +151,8 @@ sectDict = {'rbyR': data['secSpan']/params['radius'], \
            }
 outTable = tb.tabulate(sectDict, headers='keys', tablefmt='tsv', \
                        showindex=False)
-with open(forceDistFile[0:-4] + '_nonlinear.csv', 'w') as fh:
+timestamp = forceDistFile[-9:-4]
+with open(forceDistFile[0:-9] + 'Nonlin' + timestamp + '.csv', 'w') as fh:
     fh.write(outTable)
 
 # Plots

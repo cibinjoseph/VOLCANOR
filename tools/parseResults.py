@@ -32,7 +32,10 @@ def _getLatestFile(filename):
     filelist = glob(filename + '*')
     if len(filelist) > 1:
         for currentFile in filelist:
-            fileNum = int(currentFile[filenameLen:filenameLen+5])
+            try:
+                fileNum = int(currentFile[filenameLen:filenameLen+5])
+            except:
+                pass
             if fileNum > fileNumPrev:
                 latestFile = currentFile
                 fileNumPrev = fileNum
