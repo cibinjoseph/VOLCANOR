@@ -64,16 +64,17 @@ if isRotor:
     vRes = data['secVel']
     vFree = data['secSpan']*params['Omega']
 else:
-    vRef = params['u']
-    vRes = data['secVel']
-    vFree = np.ones(vRes.shape)*vRef
+    vRef = abs(params['u'])
+    vRes = abs(data['secVel'])
+    vFree = abs(np.ones(vRes.shape)*vRef)
 
 phi = []
 for vRes1, vFree1 in zip(vRes, vFree):
     if vRes1-vFree1 > 0:
         phi.append(np.arctan2(np.sqrt(np.abs(vRes1**2-vFree1**2)), vFree1))
     else:
-        print('Warning: vRes < vFree')
+        print('Warning: vRes < vFree', end=' ')
+        print([vRes1, vFree1])
         phi.append(0)
 
 # induced angle, phi
@@ -82,7 +83,7 @@ if args.filealpha:
 else:
     alphaLookup = (180.0/np.pi)*(data['secCL']/CLa_lin + alf0)
 
-machlist = data['secVel']/params['velSound']
+machlist = vRes/params['velSound']
 
 if c81File == None:
     c81File = params['airfoilFile']
