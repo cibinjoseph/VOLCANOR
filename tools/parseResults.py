@@ -34,8 +34,8 @@ def _getLatestFile(filename):
         for currentFile in filelist:
             try:
                 fileNum = int(currentFile[filenameLen:filenameLen+5])
-            except:
-                pass
+            except ValueError:
+                fileNum = fileNumPrev
             if fileNum > fileNumPrev:
                 latestFile = currentFile
                 fileNumPrev = fileNum
