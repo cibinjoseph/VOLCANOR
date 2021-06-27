@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import tabulate as tb
 import sys
 import argparse
+from warnings import warn
 
 # Assumptions
 # 1. No sideslip in secVel
@@ -31,6 +32,8 @@ parser.add_argument('-q', '--quiet', action='store_true', \
                     help='Suppress plots')
 parser.add_argument('-r', '--rotor', default=pr.rotorNum, metavar='XX', \
                     action='store', help='Rotor num as string "XX"')
+parser.add_argument('-s', '--steady', action='store_true', \
+                    help='Rotor num as string "XX"')
 parser.add_argument('-z', '--zero', action='store', \
                     help='Override zero lift angle in degs')
 
@@ -45,7 +48,10 @@ c81File = args.c81
 params = pr.getParams()
 data, forceDistFile = pr.getForceDist()
 
-print(forceDistFile)
+# Print input files
+print('ForceDist file: ' + forceDistFile)
+print('C81 file: ' + c81File)
+print()
 
 # Check if rotor or wing
 isRotor = False
@@ -73,30 +79,38 @@ for vRes1, vFree1 in zip(vRes, vFree):
     if vRes1-vFree1 > 0:
         phi.append(np.arctan2(np.sqrt(np.abs(vRes1**2-vFree1**2)), vFree1))
     else:
-        print('Warning: vRes < vFree', end=' ')
-        print([vRes1, vFree1])
+        warn('vRes < vFree: ' + str(vRes1) + ' < ' + str(vFree1), stacklevel=2)
         phi.append(0)
 
 # induced angle, phi
 if args.filealpha:
     alphaLookup = data['secAlpha']
 else:
-    alphaLookup = (180.0/np.pi)*(data['secCL']/CLa_lin + alf0)
+    if args.steady:
+        CLvals = data['secCL']-data['secCLu']
+    else:
+        CLvals = data['secCL']
+    alphaLookup = (180.0/np.pi)*(CLvals/CLa_lin + alf0)
 
 machlist = vRes/params['velSound']
 
 if c81File == None:
     c81File = params['airfoilFile']
 
-with open(c81File, 'r') as fh:
-    c81Airfoil = c81.load(fh)
+try:
+    with open(c81File, 'r') as fh:
+        c81Airfoil = c81.load(fh)
 
-# Lift and drag are w.r.t resultant velocity direction
-CL_nonlin = []
-CD0_nonlin = []
-for i, alpha in enumerate(alphaLookup):
-    CL_nonlin.append(c81Airfoil.getCL(alpha, machlist[i]))
-    CD0_nonlin.append(c81Airfoil.getCD(alpha, machlist[i]))
+    # Lift and drag are w.r.t resultant velocity direction
+    CL_nonlin = []
+    CD0_nonlin = []
+    for i, alpha in enumerate(alphaLookup):
+        CL_nonlin.append(c81Airfoil.getCL(alpha, machlist[i]))
+        CD0_nonlin.append(c81Airfoil.getCD(alpha, machlist[i]))
+except FileNotFoundError:
+    warn(c81File + ' not found. Using linear results.', stacklevel=2)
+    CL_nonlin = data['secCL']
+    CD0_nonlin = np.zeros(CL_nonlin.shape)
 
 secLift_nonLin = CL_nonlin*(0.5*params['density']* \
                             data['secArea']*vRes*vRes)
@@ -121,10 +135,6 @@ else:
 
 Fz = np.sum(secFz_nonLin)
 CFz = Fz / denom
-
-# Print inputs
-print('C81 file = ' + c81File)
-print()
 
 # Print stats
 print('Min/Max alpha (deg) = ' + \

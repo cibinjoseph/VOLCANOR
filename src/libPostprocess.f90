@@ -28,12 +28,12 @@ contains
 
       open (unit=12, file=forceNonDimFilename, &
         & status='replace', action='write')
-      write (12, 101) 'iter','CL/CT','CD/CQ','CDi','CD0','CDu', &
+      write (12, 101) 'iter','CL/CT','CD/CQ', 'CLu','CDi','CD0','CDu', &
         & 'CFx','CFy','CFz'
       close (12)
     enddo
     100 format (A5,11(A15))
-    101 format (A5,8(A15))
+    101 format (A5,9(A15))
   end subroutine init_plots
 
   subroutine params2file(rotor, rotorNumber, nt, dt, nr, &
@@ -816,6 +816,7 @@ contains
     write (11, 100) timestamp, &
       norm2(rotor%lift) / rotor%nonDimforceDenominator, &          ! CL
       norm2(rotor%drag) / rotor%nonDimforceDenominator, &          ! CD
+      norm2(rotor%liftUnsteady) / rotor%nonDimforceDenominator, &  ! CLu
       norm2(rotor%dragInduced) / rotor%nonDimforceDenominator, &   ! CDi
       norm2(rotor%dragProfile) / rotor%nonDimforceDenominator, &   ! CDo
       norm2(rotor%dragUnsteady) / rotor%nonDimforceDenominator, &  ! CDu
@@ -823,7 +824,7 @@ contains
       rotor%forceInertial(2) / rotor%nonDimforceDenominator, &     ! CFy
       rotor%forceInertial(3) / rotor%nonDimforceDenominator        ! CFz
     close (11)
-    100 format(A, 8(E15.7))
+    100 format(A, 9(E15.7))
 
     forceDimFilename = ResultsDir//'r'//rotorNumberChar//'ForceDim.csv'
     open (unit=12, file=forceDimFilename, action='write', position='append')
@@ -843,7 +844,8 @@ contains
             & 'r'//rotorNumberChar// 'b'//bladeNumberChar// &
             & 'ForceDist'//timestamp//'.csv', & 
             & action='write', position='append')
-          write (12, 202) 'secSpan', 'secCL', 'secCD', 'secLift', 'secDrag', &
+          write (12, 202) 'secSpan', 'secCL', 'secCD', 'secCLu', &
+            & 'secLift', 'secDrag', &
             & 'secArea', 'secVel', 'secChord', 'secAlpha'
           ! secVel is resultant vel that the airfoil sees
           do ispan = 1, rotor%ns
@@ -851,6 +853,7 @@ contains
               & rotor%hubCoords, rotor%blade(ib)%yAxis), &
               & rotor%blade(ib)%secCL(ispan), &
               & rotor%blade(ib)%secCD(ispan), &
+              & rotor%blade(ib)%secCLu(ispan), &
               & norm2(rotor%blade(ib)%secLift(:, ispan)), &
               & norm2(rotor%blade(ib)%secDrag(:, ispan)), &
               & rotor%blade(ib)%secArea(ispan), &
@@ -860,8 +863,8 @@ contains
           enddo
           close (12)
         enddo
-        202 format(9(A15))
-        102 format(9(E15.7))
+        202 format(10(A15))
+        102 format(10(E15.7))
       endif
     endif
   end subroutine force2file

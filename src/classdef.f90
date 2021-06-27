@@ -82,9 +82,11 @@ module classdef
     real(dp), dimension(3) :: velCPTotal  ! including wing vortices
     real(dp), dimension(3) :: velCPm  ! rel. inertial vel at CP (due to motion)
     real(dp), dimension(3) :: normalForce ! normalForce vector (inertial frame)
+    real(dp), dimension(3) :: normalForceUnsteady 
     real(dp), dimension(3) :: chordwiseResVel
     real(dp) :: velPitch             ! pitch velocity
     real(dp) :: delP                  ! Pressure difference at panel
+    real(dp) :: delPUnsteady          ! Unsteady pressure at panel
     real(dp) :: delDiConstant         ! Induced drag (constant part) at panel
     real(dp) :: delDiUnsteady         ! Induced drag (unsteady part) at panel
     real(dp) :: meanChord, meanSpan ! Panel mean dimensions
@@ -169,7 +171,8 @@ module classdef
     real(dp) :: theta, psi, pivotLE
     real(dp), dimension(3) :: forceInertial
     real(dp), dimension(3) :: lift, drag
-    real(dp), dimension(3) :: dragInduced, dragProfile, dragUnsteady
+    real(dp), dimension(3) :: dragInduced, dragProfile
+    real(dp), dimension(3) :: liftUnsteady, dragUnsteady
     integer, allocatable, dimension(:) :: airfoilNo
     character(len=30), allocatable, dimension(:) :: airfoilFile
     real(dp), allocatable, dimension(:) :: airfoilSectionLimit
@@ -192,11 +195,12 @@ module classdef
     real(dp), allocatable, dimension(:, :) :: secLift, secDrag
     real(dp), allocatable, dimension(:, :) :: secLiftDir, secDragDir
     real(dp), allocatable, dimension(:, :) :: secDragInduced, secDragProfile
-    real(dp), allocatable, dimension(:, :) :: secDragUnsteady
+    real(dp), allocatable, dimension(:, :) :: secLiftUnsteady, secDragUnsteady
     real(dp), allocatable, dimension(:, :) :: secTauCapChord, secTauCapSpan
     real(dp), allocatable, dimension(:, :) :: secNormalVec, secVelFreestream
     real(dp), allocatable, dimension(:, :) :: secChordwiseResVel, secCP
-    real(dp), allocatable, dimension(:) :: secAlpha, secCL, secCD, secCM
+    real(dp), allocatable, dimension(:) :: secAlpha, secCL, secCLu
+    real(dp), allocatable, dimension(:) :: secCD, secCM
     real(dp), allocatable, dimension(:) :: alpha0
     integer :: spanwiseLiftSwitch
   contains
@@ -244,7 +248,8 @@ module classdef
     real(dp), dimension(3) :: hubCoords, cgCoords, fromCoords
     real(dp) :: radius, chord, root_cut, coningAngle
     real(dp), dimension(3) :: forceInertial, lift, drag
-    real(dp), dimension(3) :: dragInduced, dragProfile, dragUnsteady
+    real(dp), dimension(3) :: dragInduced, dragProfile
+    real(dp), dimension(3) :: liftUnsteady, dragUnsteady
     real(dp), dimension(3) :: liftUnitVec, dragUnitVec, sideUnitVec
     real(dp), dimension(3) :: controlPitch  ! theta0,thetaC,thetaS
     real(dp) :: thetaTwist
@@ -1480,7 +1485,6 @@ class(blade_class), intent(inout) :: this
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: density, invertGammaSign, dt
     integer :: is, ic
-    real(dp) :: unsteadyTerm
     real(dp), dimension(this%nc, this%ns) :: velTangentialChord
     real(dp), dimension(this%nc, this%ns) :: velTangentialSpan
     real(dp), dimension(this%nc, this%ns) :: velInduced
@@ -1492,6 +1496,7 @@ class(blade_class), intent(inout) :: this
     this%secForceInertial = 0._dp
     this%secLift = 0._dp
     this%secDrag = 0._dp
+    this%secLiftUnsteady = 0._dp
 
     ! Compute tangential velocity
     do is = 1, this%ns
@@ -1551,13 +1556,17 @@ class(blade_class), intent(inout) :: this
         ! velTangentialSpan(ic,is)=0._dp
 
         ! -1.0 multiplied to invert sign of gamma
-        unsteadyTerm = (this%wiP(ic, is)%gamTrapz - this%wiP(ic, is)%gamPrev)/dt
-        this%wiP(ic, is)%delP = density * &
-          (velTangentialChord(ic, is) * gamElementChord(ic, is) / this%wiP(ic, is)%meanChord + &
-          unsteadyTerm)
+        this%wiP(ic, is)%delPUnsteady = density * &
+          & (this%wiP(ic, is)%gamTrapz - this%wiP(ic, is)%gamPrev)/dt
+
+        this%wiP(ic, is)%delP = this%wiP(ic, is)%delPUnsteady + &
+          & density*velTangentialChord(ic, is)* &
+          & gamElementChord(ic, is) / this%wiP(ic, is)%meanChord
+          
         if (this%spanwiseLiftSwitch .ne. 0) then
           this%wiP(ic, is)%delP = this%wiP(ic, is)%delP + density * &
-            & velTangentialSpan(ic, is) * gamElementSpan(ic, is) / this%wiP(ic, is)%meanSpan
+            & velTangentialSpan(ic, is)* &
+            & gamElementSpan(ic, is) / this%wiP(ic, is)%meanSpan
         endif
 
         ! -1.0 multiplied to invert sign of gamma
@@ -1566,18 +1575,24 @@ class(blade_class), intent(inout) :: this
         ! Compute induced drag
         ! velInduced in either direction doesnt change drag direction
         this%wiP(ic, is)%delDiConstant = density*abs(velInduced(ic, is))* &
-          abs(gamElementChord(ic, is))*this%wiP(ic, is)%meanSpan
-        this%wiP(ic, is)%delDiUnsteady = density*unsteadyTerm*this%wiP(ic, is)%panelArea * &
-          dot_product(this%wiP(ic, is)%nCap, unitVec(this%wiP(ic, is)%velCPm))
+          & abs(gamElementChord(ic, is))*this%wiP(ic, is)%meanSpan
+        this%wiP(ic, is)%delDiUnsteady = this%wiP(ic, is)%delPUnsteady* &
+          & this%wiP(ic, is)%panelArea * &
+          & dot_product(this%wiP(ic, is)%nCap, unitVec(this%wiP(ic, is)%velCPm))
 
         ! Invert direction of normalForce according to sign of omega and collective pitch
         this%wiP(ic, is)%normalForce = this%wiP(ic, is)%delP* &
+          & this%wiP(ic, is)%panelArea*this%wiP(ic, is)%nCap*invertGammaSign
+
+        this%wiP(ic, is)%normalForceUnsteady = this%wiP(ic, is)%delPUnsteady* &
           & this%wiP(ic, is)%panelArea*this%wiP(ic, is)%nCap*invertGammaSign
 
         this%secForceInertial(:, is) = this%secForceInertial(:, is) + this%wiP(ic, is)%normalForce
 
         this%secLift(:, is) = this%secLift(:, is) + projVec(this%wiP(ic, is)%normalForce, &
           this%secLiftDir(:, is))
+        this%secLiftUnsteady(:, is) = this%secLiftUnsteady(:, is) + &
+          & projVec(this%wiP(ic, is)%normalForceUnsteady, this%secLiftDir(:, is))
       enddo
       this%secDragInduced(:, is) = this%secDragDir(:, is)* &
         sum(this%wiP(:, is)%delDiConstant + this%wiP(:, is)%delDiUnsteady)
@@ -1610,9 +1625,12 @@ class(blade_class), intent(inout) :: this
           & (secDynamicPressure(is)*this%secArea(is))
         this%secCD(is) = norm2(this%secDrag(:, is))/ &
           & (secDynamicPressure(is)*this%secArea(is))
+        this%secCLu(is) = norm2(this%secLiftUnsteady(:, is))*signSecCL/ &
+          & (secDynamicPressure(is)*this%secArea(is))
       else
         this%secCL(is) = 0._dp
         this%secCD(is) = 0._dp
+        this%secCLu(is) = 0._dp
       endif
     enddo
 
@@ -1705,6 +1723,7 @@ class(blade_class), intent(inout) :: this
       this%secArea(is) = this%secCL(is)/twoPi + &
         & this%alpha0(this%airfoilNo(is))
     enddo
+    this%secCLu = 0._dp
 
     ! Compute non-linear CL
     call this%lookup_secCoeffs(velSound)
@@ -1732,6 +1751,8 @@ class(blade_class), intent(inout) :: this
         & this%secLiftDir(:, is)*leadingTerm(is)*this%secCL(is) 
       this%secDragProfile(:, is) = &
         & this%secDragDir(:, is)*leadingTerm(is)*this%secCD(is)
+      this%secLiftUnsteady(:, is) = &
+        & this%secLiftDir(:, is)*leadingTerm(is)*this%secCLu(is) 
       ! Lift in inertial frame
       ! Warning: This would give a wrong answer if a considerable dihedral
       ! is present for the wing since the blade Y-axis is not flapped
@@ -1764,6 +1785,7 @@ class(blade_class), intent(inout) :: this
       this%secCD(is) = this%C81(this%airfoilNo(is))%getCD(alphaDeg, secMach)
       this%secCM(is) = this%C81(this%airfoilNo(is))%getCM(alphaDeg, secMach)
     enddo
+    this%secCLu = 0._dp
   end subroutine blade_lookup_secCoeffs
 
   subroutine blade_calc_secChordwiseResVel(this)
@@ -1929,9 +1951,10 @@ class(blade_class), intent(inout) :: this
     this%forceInertial = sum(this%secForceInertial, 2)
     this%lift = sum(this%secLift, 2)
     this%drag = sum(this%secDrag, 2)
+    this%liftUnsteady = sum(this%secLiftUnsteady, 2)
     this%dragProfile = sum(this%secDragProfile, 2)
-    this%dragUnsteady = sum(this%secDragUnsteady, 2)
     this%dragInduced = sum(this%secDragInduced, 2)
+    this%dragUnsteady = sum(this%secDragUnsteady, 2)
   end subroutine blade_sumSecToNetForces
 
   subroutine blade_calc_stlStats(this)
@@ -2000,7 +2023,7 @@ class(blade_class), intent(inout) :: this
     write(unit, iostat=iostat, iomsg=iomsg) this%wiP, this%waN, this%waF, &
       & this%waNPredicted, this%waFPredicted, &
       & this%theta, this%psi, &
-      & this%forceInertial, this%lift, & 
+      & this%forceInertial, this%lift, this%liftUnsteady, & 
       & this%drag, this%dragInduced, this%dragProfile, this%dragUnsteady, & 
       & this%velNwake, this%velNwake1, this%velNwake2, this%velNwake3, &
       & this%velNwakePredicted, this%velNwakeStep, &
@@ -2010,12 +2033,13 @@ class(blade_class), intent(inout) :: this
       & this%secChord, this%secArea, &
       & this%secForceInertial, this%secLift, this%secDrag, &
       & this%secLiftDir, this%secDragDir, &
-      & this%secDragInduced, this%secDragProfile, this%secDragUnsteady, &
+      & this%secDragInduced, this%secDragProfile, &
+      & this%secLiftUnsteady, this%secDragUnsteady, &
       & this%secTauCapChord, this%secTauCapSpan, &
       & this%secNormalVec, this%secVelFreestream, &
       & this%secChordwiseResVel, this%secCP, &
       & this%secAlpha, this%secCL, this%secCD, this%secCM, &
-      & this%alpha0
+      & this%secCLu, this%alpha0
   end subroutine blade_write
 
   subroutine blade_read(this, unit, iostat, iomsg)
@@ -2027,7 +2051,7 @@ class(blade_class), intent(inout) :: this
     read(unit, iostat=iostat, iomsg=iomsg) this%wiP, this%waN, this%waF, &
       & this%waNPredicted, this%waFPredicted, &
       & this%theta, this%psi, &
-      & this%forceInertial, this%lift, & 
+      & this%forceInertial, this%lift, this%liftUnsteady, & 
       & this%drag, this%dragInduced, this%dragProfile, this%dragUnsteady, & 
       & this%velNwake, this%velNwake1, this%velNwake2, this%velNwake3, &
       & this%velNwakePredicted, this%velNwakeStep, &
@@ -2037,12 +2061,13 @@ class(blade_class), intent(inout) :: this
       & this%secChord, this%secArea, &
       & this%secForceInertial, this%secLift, this%secDrag, &
       & this%secLiftDir, this%secDragDir, &
-      & this%secDragInduced, this%secDragProfile, this%secDragUnsteady, &
+      & this%secDragInduced, this%secDragProfile, &
+      & this%secLiftUnsteady, this%secDragUnsteady, &
       & this%secTauCapChord, this%secTauCapSpan, &
       & this%secNormalVec, this%secVelFreestream, &
       & this%secChordwiseResVel, this%secCP, &
       & this%secAlpha, this%secCL, this%secCD, this%secCM, &
-      & this%alpha0
+      & this%secCLu, this%alpha0
   end subroutine blade_read
 
   !------+--
@@ -2313,6 +2338,7 @@ class(blade_class), intent(inout) :: this
       allocate (this%blade(ib)%secChord(this%ns))
       allocate (this%blade(ib)%secArea(this%ns))
       allocate (this%blade(ib)%secLift(3, this%ns))
+      allocate (this%blade(ib)%secLiftUnsteady(3, this%ns))
       allocate (this%blade(ib)%secDrag(3, this%ns))
       allocate (this%blade(ib)%secLiftDir(3, this%ns))
       allocate (this%blade(ib)%secDragDir(3, this%ns))
@@ -2324,6 +2350,7 @@ class(blade_class), intent(inout) :: this
       allocate (this%blade(ib)%secCL(this%ns))
       allocate (this%blade(ib)%secCD(this%ns))
       allocate (this%blade(ib)%secCM(this%ns))
+      allocate (this%blade(ib)%secCLu(this%ns))
       allocate (this%blade(ib)%secChordwiseResVel(3, this%ns))
       allocate (this%blade(ib)%secCP(3, this%ns))
     enddo
@@ -3668,6 +3695,7 @@ class(blade_class), intent(inout) :: this
     this%forceInertial = 0._dp
     this%lift = 0._dp
     this%drag = 0._dp
+    this%liftUnsteady = 0._dp
     this%dragInduced = 0._dp
     this%dragProfile = 0._dp
     this%dragUnsteady = 0._dp
@@ -3676,6 +3704,7 @@ class(blade_class), intent(inout) :: this
       this%forceInertial = this%forceInertial + this%blade(ib)%forceInertial
       this%lift = this%lift + this%blade(ib)%lift
       this%drag = this%drag + this%blade(ib)%drag
+      this%liftUnsteady = this%liftUnsteady + this%blade(ib)%liftUnsteady
       this%dragInduced = this%dragInduced + this%blade(ib)%dragInduced
       this%dragProfile = this%dragProfile + this%blade(ib)%dragProfile
       this%dragUnsteady = this%dragUnsteady + this%blade(ib)%dragUnsteady
@@ -3940,6 +3969,7 @@ class(blade_class), intent(inout) :: this
       & this%nNwake, this%nFwake, this%omegaSlow, this%shaftAxis, &
       & this%hubCoords, this%cgCoords, &
       & this%forceInertial, this%lift, this%drag, &
+      & this%liftUnsteady, &
       & this%dragInduced, this%dragProfile, this%dragUnsteady, &
       & this%liftUnitVec, this%dragUnitVec, this%sideUnitVec, &
       & this%psi, this%AIC, this%AIC_inv, &
@@ -3957,6 +3987,7 @@ class(blade_class), intent(inout) :: this
       & this%nNwake, this%nFwake, this%omegaSlow, this%shaftAxis, &
       & this%hubCoords, this%cgCoords, &
       & this%forceInertial, this%lift, this%drag, &
+      & this%liftUnsteady, &
       & this%dragInduced, this%dragProfile, this%dragUnsteady, &
       & this%liftUnitVec, this%dragUnitVec, this%sideUnitVec, &
       & this%psi, this%AIC, this%AIC_inv, &
