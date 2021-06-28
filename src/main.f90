@@ -228,39 +228,36 @@ program main
       select case (rotor(ir)%forceCalcSwitch)
 
       case (0)  ! Compute using wing circulation
-        call rotor(ir)%calc_force_gamma(density, dt)
-
         ! Compute and plot alpha if requested
-        if (rotor(ir)%alphaPlotSwitch .ne. 0) then
-          if (mod(iter, rotor(ir)%bladeforcePlotSwitch) .eq. 0) then
-            ! Compute alpha
-            do ib = 1, rotor(ir)%nb
-              do is = 1, rotor(ir)%ns
-                do ic = 1, rotor(ir)%nc
-                  ! Compute local velocity vector
-                  ! (excluding induced velocities from wing bound vortices)
-                  rotor(ir)%blade(ib)%wiP(ic, is)%velCPTotal = &
-                    rotor(ir)%blade(ib)%wiP(ic, is)%velCP
+        ! Compute alpha
+        do ib = 1, rotor(ir)%nb
+          do is = 1, rotor(ir)%ns
+            do ic = 1, rotor(ir)%nc
+              ! Compute local velocity vector
+              ! (excluding induced velocities from wing bound vortices)
+              rotor(ir)%blade(ib)%wiP(ic, is)%velCPTotal = &
+                rotor(ir)%blade(ib)%wiP(ic, is)%velCP
 
-                  ! Neglect velocity due to spanwise vortices for all wings
-                  do jr = 1, nr
-                    rotor(ir)%blade(ib)%wip(ic, is)%velCPTotal = &
-                      rotor(ir)%blade(ib)%wip(ic, is)%velCPTotal - &
-                      rotor(jr)%vind_bywing_boundVortices( &
-                      rotor(ir)%blade(ib)%wiP(ic, is)%CP)
-                  enddo
-
-                  ! Add self induced velocity due to wing vortices
-                  rotor(ir)%blade(ib)%wiP(ic, is)%velCPTotal = &
-                    rotor(ir)%blade(ib)%wiP(ic, is)%velCPTotal + &
-                    rotor(ir)%vind_bywing(rotor(ir)%blade(ib)%wiP(ic, is)%CP)
-                enddo
+              ! Neglect velocity due to spanwise vortices for all wings
+              do jr = 1, nr
+                rotor(ir)%blade(ib)%wip(ic, is)%velCPTotal = &
+                  rotor(ir)%blade(ib)%wip(ic, is)%velCPTotal - &
+                  rotor(jr)%vind_bywing_boundVortices( &
+                  rotor(ir)%blade(ib)%wiP(ic, is)%CP)
               enddo
-            enddo
 
-            call rotor(ir)%calc_secAlpha()
-          endif
-        endif
+              ! Add self induced velocity due to wing vortices
+              rotor(ir)%blade(ib)%wiP(ic, is)%velCPTotal = &
+                rotor(ir)%blade(ib)%wiP(ic, is)%velCPTotal + &
+                rotor(ir)%vind_bywing(rotor(ir)%blade(ib)%wiP(ic, is)%CP)
+            enddo
+          enddo
+        enddo
+
+        call rotor(ir)%calc_force_gamma(density, dt)
+        ! Avoid recomputing secAlpha since calc_force_gamma()
+        ! already does it
+        call rotor(ir)%calc_secAlpha(updateSecVel=.False.)
 
       case (1)  ! Compute using alpha
         ! Compute alpha
@@ -288,7 +285,7 @@ program main
           enddo
         enddo
 
-        call rotor(ir)%calc_secAlpha()
+        call rotor(ir)%calc_secAlpha(updateSecVel=.True.)
         call rotor(ir)%calc_force_alpha(density, velSound)
 
       case (2)  ! Compute lift using alpha approximated from sec circulation
@@ -533,40 +530,35 @@ program main
           select case (rotor(ir)%forceCalcSwitch)
 
           case (0)  ! Compute using wing circulation
-            call rotor(ir)%calc_force_gamma(density, dt)
+            ! Compute alpha
+            do ib = 1, rotor(ir)%nb
+              do is = 1, rotor(ir)%ns
+                do ic = 1, rotor(ir)%nc
+                  ! Compute local velocity vector
+                  ! (excluding induced velocities from wing bound vortices)
+                  rotor(ir)%blade(ib)%wiP(ic, is)%velCPTotal = &
+                    rotor(ir)%blade(ib)%wiP(ic, is)%velCP
 
-            ! Compute and plot alpha if requested
-            if (rotor(ir)%alphaPlotSwitch .ne. 0) then
-              if (mod(iter, rotor(ir)%bladeforcePlotSwitch) .eq. 0) then
-                ! Compute alpha
-                do ib = 1, rotor(ir)%nb
-                  do is = 1, rotor(ir)%ns
-                    do ic = 1, rotor(ir)%nc
-                      ! Compute local velocity vector
-                      ! (excluding induced velocities from wing bound vortices)
-                      rotor(ir)%blade(ib)%wiP(ic, is)%velCPTotal = &
-                        rotor(ir)%blade(ib)%wiP(ic, is)%velCP
-
-                      ! Neglect velocity due to spanwise vortices for all wings
-                      do jr = 1, nr
-                        rotor(ir)%blade(ib)%wip(ic, is)%velCPTotal = &
-                          rotor(ir)%blade(ib)%wip(ic, is)%velCPTotal - &
-                          rotor(jr)%vind_bywing_boundVortices( &
-                          rotor(ir)%blade(ib)%wiP(ic, is)%CP)
-                      enddo
-
-                      ! Add self induced velocity due to wing vortices
-                      rotor(ir)%blade(ib)%wiP(ic, is)%velCPTotal = &
-                        rotor(ir)%blade(ib)%wiP(ic, is)%velCPTotal + &
-                        rotor(ir)%vind_bywing(rotor(ir)%blade(ib)%wiP(ic, is)%CP)
-                    enddo
+                  ! Neglect velocity due to spanwise vortices for all wings
+                  do jr = 1, nr
+                    rotor(ir)%blade(ib)%wip(ic, is)%velCPTotal = &
+                      rotor(ir)%blade(ib)%wip(ic, is)%velCPTotal - &
+                      rotor(jr)%vind_bywing_boundVortices( &
+                      rotor(ir)%blade(ib)%wiP(ic, is)%CP)
                   enddo
-                enddo
 
-                call rotor(ir)%calc_secAlpha()
-                ! call alpha2file(timestamp, rotor(ir), ir)
-              endif
-            endif
+                  ! Add self induced velocity due to wing vortices
+                  rotor(ir)%blade(ib)%wiP(ic, is)%velCPTotal = &
+                    rotor(ir)%blade(ib)%wiP(ic, is)%velCPTotal + &
+                    rotor(ir)%vind_bywing(rotor(ir)%blade(ib)%wiP(ic, is)%CP)
+                enddo
+              enddo
+            enddo
+
+            call rotor(ir)%calc_force_gamma(density, dt)
+            ! Avoid recomputing secAlpha since calc_force_gamma()
+            ! already does it
+            call rotor(ir)%calc_secAlpha(updateSecVel=.False.)
 
           case (1)  ! Compute using alpha
             ! Compute alpha
@@ -594,7 +586,7 @@ program main
               enddo
             enddo
 
-            call rotor(ir)%calc_secAlpha()
+            call rotor(ir)%calc_secAlpha(updateSecVel=.True.)
             call rotor(ir)%calc_force_alpha(density, velSound)
 
           case (2)  ! Compute lift using alpha approximated from sec circulation

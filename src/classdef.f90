@@ -278,9 +278,9 @@ module classdef
     integer :: rollupStart, rollupEnd
     integer :: suppressFwakeSwitch
     integer :: forceCalcSwitch, skewPlotSwitch
-    integer :: inflowPlotSwitch, bladeForcePlotSwitch
+    integer :: inflowPlotSwitch
     integer :: spanwiseLiftSwitch, customTrajectorySwitch
-    integer :: gammaPlotSwitch, alphaPlotSwitch
+    integer :: gammaPlotSwitch
     integer :: rowNear, rowFar
     integer :: nCamberFiles, nAirfoils
     integer :: imagePlane, imageRotorNum
@@ -1609,12 +1609,14 @@ class(blade_class), intent(inout) :: this
 
     ! Compute sectional coefficients
     ! Compute secChordwiseResVel for calculating secDynamicPressure
-    do is = 1, this%ns
-      ! Assuming sec resultant velocity is same as sec freestream vel
-      ! for computing corrected alpha later
-      this%secChordwiseResVel(:, is) = this%secVelFreestream(:, is) - &
-        & dot_product(this%secVelFreestream(:, is), this%yAxis)*this%yAxis
-    enddo
+    ! including induced velocities
+    call this%calc_secChordwiseResVel()
+
+    ! Alternately assuming sec resultant velocity is same as sec freestream vel
+    ! do is = 1, this%ns
+    !   this%secChordwiseResVel(:, is) = this%secVelFreestream(:, is) - &
+    !     & dot_product(this%secVelFreestream(:, is), this%yAxis)*this%yAxis
+    ! enddo
     secDynamicPressure = this%getSecDynamicPressure(density)
 
     do is = 1, this%ns
@@ -1823,12 +1825,13 @@ class(blade_class), intent(inout) :: this
     endif
   end subroutine blade_calc_secChordwiseResVel
 
-  subroutine blade_calc_secAlpha(this)
+  subroutine blade_calc_secAlpha(this, updateSecVel)
     ! Compute sec alpha using sec resultant velocity
   class(blade_class), intent(inout) :: this
+    logical, intent(in) :: updateSecVel
     integer :: is
 
-    call this%calc_secChordwiseResVel()
+    if (updateSecVel) call this%calc_secChordwiseResVel()
 
     !! Use acos() to find angle
     !do is=1,size(this%secAlpha)
@@ -2081,7 +2084,7 @@ class(blade_class), intent(inout) :: this
     integer :: i
     character(len=10) :: fileFormatVersion, currentTemplateVersion
 
-    currentTemplateVersion = '0.9'
+    currentTemplateVersion = '0.10'
 
     open (unit=12, file=filename, status='old', action='read')
     call skip_comments(12)
@@ -2170,8 +2173,7 @@ class(blade_class), intent(inout) :: this
     call skip_comments(12)
     read (12, *) this%liftUnitVec(1), this%liftUnitVec(2), this%liftUnitVec(3)
     call skip_comments(12)
-    read (12, *) this%inflowPlotSwitch, this%bladeForcePlotSwitch, &
-      & this%gammaPlotSwitch, this%alphaPlotSwitch
+    read (12, *) this%inflowPlotSwitch, this%gammaPlotSwitch
     call skip_comments(12)
     read (12, *) this%skewPlotSwitch
     call skip_comments(12)
@@ -2259,9 +2261,7 @@ class(blade_class), intent(inout) :: this
 
     call this%toChordsRevs(this%nNwake, dt)
     call this%toChordsRevs(this%inflowPlotSwitch, dt)
-    call this%toChordsRevs(this%bladeForcePlotSwitch, dt)
     call this%toChordsRevs(this%gammaPlotSwitch, dt)
-    call this%toChordsRevs(this%alphaPlotSwitch, dt)
     call this%toChordsRevs(this%skewPlotSwitch, dt)
 
     if (this%wakeTruncateNt > 0 .and. this%prescWakeAfterTruncNt > 0) then
@@ -3610,12 +3610,13 @@ class(blade_class), intent(inout) :: this
     call this%sumBladeToNetForces()
   end subroutine rotor_calc_force_alphaGamma
 
-  subroutine rotor_calc_secAlpha(this)
+  subroutine rotor_calc_secAlpha(this, updateSecVel)
   class(rotor_class), intent(inout) :: this
+    logical, intent(in) :: updateSecVel
     integer :: ib
 
     do ib = 1, this%nb
-      call this%blade(ib)%calc_secAlpha()
+      call this%blade(ib)%calc_secAlpha(updateSecVel)
     enddo
   end subroutine rotor_calc_secAlpha
 

@@ -51,6 +51,6 @@
  "initWakeVel":   0.000000000000000E+000 ,
  "psiStart":   0.000000000000000E+000 ,
  "forceCalcSwitch":   0.000000000000000E+000 ,
- "apparentViscCoeff":    5000.00000000000    ,
+ "apparentViscCoeff":    5000.00000000000      ,
  "decayCoeff":   0.000000000000000E+000
  }

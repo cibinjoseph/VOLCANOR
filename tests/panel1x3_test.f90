@@ -104,6 +104,7 @@ contains
     do is = 1, rotor%ns
       rotor%blade(1)%wiP(1, is)%velCP = -1._dp * rotor%velBody
       rotor%blade(1)%wiP(1, is)%velCPm = rotor%blade(1)%wiP(1, is)%velCP
+      rotor%blade(1)%wiP(1, is)%velCPTotal = rotor%blade(1)%wiP(1, is)%velCP
     enddo
     rotor%RHS = rotor%velBody(1) * &
       & sin(rotor%controlPitch(1))*(/1._dp, 1._dp, 1._dp/)
