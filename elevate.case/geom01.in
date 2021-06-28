@@ -1,5 +1,5 @@
 # File format version
-  0.8
+  0.10
 # Fixed-Wing or Rotor
 # ===================================================================
 # No. of blades,nb  Prop convention  NcamberFiles  geometry filename
@@ -68,10 +68,15 @@
 0.00                0.0               0                 1
 # ===================================================================
 # 
-# viscDiss   wakeTruncateNt  prescWakeAfterTruncNt   prescWakeGenNt
-# (10-10000)   [0]Off [n] timesteps [-n] chords/revs
+# apparentViscCoeff  decayCoeff
+# (10-10000)          (bq/s) 
 # -------------------------------------------------------------------
-  5000           0                        0                0
+  5000                  0
+# 
+# wakeTruncateNt  prescWakeAfterTruncNt   prescWakeGenNt
+#   [0]Off [n] timesteps [-n] chords/revs
+# -------------------------------------------------------------------
+    0                        0                0
 # ===================================================================
 # 
 # spanwise core radius[x/c]       streamwise core_switch
@@ -107,9 +112,9 @@
 # 
 # PLOTS OF SPANWISE DISTRIBUTIONS:
 # [0]Off  [n]Every nth iteration  [-n]Chords/revs
-# inflow    force    gamma    alpha
+# inflow    gamma
 # -------------------------------------------------------------------
-       0    1        0        0
+       0    0
 # 
 # skew
 # -------------------------------------------------------------------
