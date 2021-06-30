@@ -87,7 +87,8 @@ if args.filealpha:
     alphaLookup = data['secAlpha']
 else:
     if args.steady:
-        CLvals = data['secCL']-data['secCLu']
+        # Plus appears to be necessary at times
+        CLvals = data['secCL']+data['secCLu']
     else:
         CLvals = data['secCL']
     alphaLookup = (180.0/np.pi)*(CLvals/CLa_lin + alf0)
