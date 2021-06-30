@@ -170,7 +170,7 @@ sectDict = {'rbyR': data['secSpan']/params['radius'], \
 outTable = tb.tabulate(sectDict, headers='keys', tablefmt='tsv', \
                        showindex=False)
 if args.out:
-    with open(args.out) as fh:
+    with open(args.out, 'w') as fh:
         fh.write(outTable)
 
 # Plots
