@@ -74,15 +74,16 @@ else:
     vRes = abs(data['secVel'])
     vFree = abs(np.ones(vRes.shape)*vRef)
 
-phi = []
-for vRes1, vFree1 in zip(vRes, vFree):
-    if vRes1-vFree1 > 0:
-        phi.append(np.arctan2(np.sqrt(np.abs(vRes1**2-vFree1**2)), vFree1))
-    else:
-        warn('vRes < vFree: ' + str(vRes1) + ' < ' + str(vFree1), stacklevel=2)
-        phi.append(0)
+# for vRes1, vFree1 in zip(vRes, vFree):
+#     if vRes1-vFree1 > 0:
+#         phi.append(np.arctan2(np.sqrt(np.abs(vRes1**2-vFree1**2)), vFree1))
+#     else:
+#         warn('vRes < vFree: ' + str(vRes1) + ' < ' + str(vFree1), stacklevel=2)
+#         phi.append(0)
 
 # induced angle, phi
+phi = data['secPhi']*np.pi/180.0
+
 if args.filealpha:
     alphaLookup = data['secAlpha']
 else:

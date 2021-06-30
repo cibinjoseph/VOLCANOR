@@ -199,7 +199,7 @@ module classdef
     real(dp), allocatable, dimension(:, :) :: secTauCapChord, secTauCapSpan
     real(dp), allocatable, dimension(:, :) :: secNormalVec, secVelFreestream
     real(dp), allocatable, dimension(:, :) :: secChordwiseResVel, secCP
-    real(dp), allocatable, dimension(:) :: secAlpha, secCL, secCLu
+    real(dp), allocatable, dimension(:) :: secAlpha, secPhi, secCL, secCLu
     real(dp), allocatable, dimension(:) :: secCD, secCM
     real(dp), allocatable, dimension(:) :: alpha0
     integer :: spanwiseLiftSwitch
@@ -1827,6 +1827,7 @@ class(blade_class), intent(inout) :: this
 
   subroutine blade_calc_secAlpha(this, updateSecVel)
     ! Compute sec alpha using sec resultant velocity
+    use libMath, only: getAngleTan
   class(blade_class), intent(inout) :: this
     logical, intent(in) :: updateSecVel
     integer :: is
@@ -1847,6 +1848,9 @@ class(blade_class), intent(inout) :: this
         & this%secNormalVec(:, is)), &
         & dot_product(this%secChordwiseResVel(:, is), &
         & this%secTauCapChord(:, is)))
+
+      this%secPhi(is) = getAngleTan(this%secChordwiseResVel(:, is), &
+        & this%wiP(1, is)%velCPm)
     enddo
   end subroutine blade_calc_secAlpha
 
@@ -2041,7 +2045,7 @@ class(blade_class), intent(inout) :: this
       & this%secTauCapChord, this%secTauCapSpan, &
       & this%secNormalVec, this%secVelFreestream, &
       & this%secChordwiseResVel, this%secCP, &
-      & this%secAlpha, this%secCL, this%secCD, this%secCM, &
+      & this%secAlpha, this%secPhi, this%secCL, this%secCD, this%secCM, &
       & this%secCLu, this%alpha0
   end subroutine blade_write
 
@@ -2069,7 +2073,7 @@ class(blade_class), intent(inout) :: this
       & this%secTauCapChord, this%secTauCapSpan, &
       & this%secNormalVec, this%secVelFreestream, &
       & this%secChordwiseResVel, this%secCP, &
-      & this%secAlpha, this%secCL, this%secCD, this%secCM, &
+      & this%secAlpha, this%secPhi, this%secCL, this%secCD, this%secCM, &
       & this%secCLu, this%alpha0
   end subroutine blade_read
 
@@ -2346,6 +2350,7 @@ class(blade_class), intent(inout) :: this
       allocate (this%blade(ib)%secDragProfile(3, this%ns))
       allocate (this%blade(ib)%secDragUnsteady(3, this%ns))
       allocate (this%blade(ib)%secAlpha(this%ns))
+      allocate (this%blade(ib)%secPhi(this%ns))
       allocate (this%blade(ib)%airfoilNo(this%ns))
       allocate (this%blade(ib)%secCL(this%ns))
       allocate (this%blade(ib)%secCD(this%ns))
