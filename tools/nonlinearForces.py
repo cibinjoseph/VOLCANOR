@@ -28,6 +28,8 @@ parser.add_argument('-f', '--filealpha', action='store_true', \
                     help='Use alpha from input file')
 parser.add_argument('-i', '--iter', default=pr.iterNum, metavar='XXXXX', \
                     action='store', help='Iteration as string "XXXXX"')
+parser.add_argument('-o', '--out', action='store', default=None, \
+                    help='Output nonlinear results to file')
 parser.add_argument('-q', '--quiet', action='store_true', \
                     help='Suppress plots')
 parser.add_argument('-r', '--rotor', default=pr.rotorNum, metavar='XX', \
@@ -50,8 +52,6 @@ data, forceDistFile = pr.getForceDist()
 
 # Print input files
 print('ForceDist file: ' + forceDistFile)
-print('C81 file: ' + c81File)
-print()
 
 # Check if rotor or wing
 isRotor = False
@@ -95,7 +95,13 @@ else:
 machlist = vRes/params['velSound']
 
 if c81File == None:
-    c81File = params['airfoilFile']
+    try:
+        c81File = params['airfoilFile']
+    except KeyError:
+        pass
+
+print('C81 file: ' + str(c81File))
+print()
 
 try:
     with open(c81File, 'r') as fh:
@@ -107,8 +113,8 @@ try:
     for i, alpha in enumerate(alphaLookup):
         CL_nonlin.append(c81Airfoil.getCL(alpha, machlist[i]))
         CD0_nonlin.append(c81Airfoil.getCD(alpha, machlist[i]))
-except FileNotFoundError:
-    warn(c81File + ' not found. Using linear results.', stacklevel=2)
+except (FileNotFoundError, TypeError):
+    warn('c81File not found. Using linear curve.', stacklevel=2)
     CL_nonlin = data['secCL']
     CD0_nonlin = np.zeros(CL_nonlin.shape)
 
@@ -162,9 +168,9 @@ sectDict = {'rbyR': data['secSpan']/params['radius'], \
            }
 outTable = tb.tabulate(sectDict, headers='keys', tablefmt='tsv', \
                        showindex=False)
-timestamp = forceDistFile[-9:-4]
-with open(forceDistFile[0:-9] + 'Nonlin' + timestamp + '.csv', 'w') as fh:
-    fh.write(outTable)
+if args.out:
+    with open(args.out) as fh:
+        fh.write(outTable)
 
 # Plots
 if args.quiet == False:
