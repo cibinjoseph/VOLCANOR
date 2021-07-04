@@ -60,6 +60,9 @@ if abs(params['Omega']) > 0:
 
 if args.zero is not None:
     alf0 = float(args.zero)*np.pi/180.0
+    if alf0 > 0.0:
+        warn("Changing sign of alpha0 to negative", stacklevel=2)
+        alf0 = -1.0*alf0
 else:
     alf0 = params['alpha0']*np.pi/180.0
 
