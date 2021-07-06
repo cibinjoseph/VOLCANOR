@@ -1,5 +1,0 @@
-secVel in output file = secChordwiseResVel
-secChordwiseResVel = secVelFreestream - dot(secVelFreestream, yAxis)*yAxis
-secVelFreestream = velBody + omega*R
-
-Is -yAxis subtracting out anything? Ideally it shouldn't
