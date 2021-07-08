@@ -9,6 +9,7 @@ program testrunner_libMath
   call test_interp1d()
   call test_inv2()
   call test_matmulAX()
+  call test_pwl_interp1d()
 
   call testsuite_summary()
   call testsuite_finalize(exit_code)

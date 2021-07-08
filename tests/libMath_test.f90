@@ -93,4 +93,17 @@ contains
 
     call assert_equal(trueval, matmulAX(mat, x), delta=1.0D-6)
   end subroutine test_matmulAX
+
+  subroutine test_pwl_interp1d()
+    use libMath, only: pwl_interp1d
+    use naturalfruit
+    real(dp), dimension(5) :: x, y
+
+    x = [1.0, 2.0, 3.0, 4.0, 5.0]
+    y = 2*x
+
+    call assert_equal(pwl_interp1d(x, y, 1.3_dp), 2.6_dp, delta=1.0D-6)
+    call assert_equal(pwl_interp1d(x(5:1:-1), y(5:1:-1), 1.3_dp), &
+      & 2.6_dp, delta=1.0D-6)
+  end subroutine test_pwl_interp1d
 end module test_libMath

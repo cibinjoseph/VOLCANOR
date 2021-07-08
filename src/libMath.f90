@@ -18,6 +18,22 @@ module libMath
 contains
 
   ! -------------------------------------------------
+  !                isFloatEqual
+  ! -------------------------------------------------
+  function isFloatEqual(a, b, tol)
+    !! Checks if a == b with tolerance
+    real(dp), intent(in) :: a, b
+    real(dp), optional :: tol
+    logical :: isFloatEqual
+
+    if (.not. present(tol)) then
+      isFloatEqual = abs(a-b) < eps
+    else
+      isFloatEqual = abs(a-b) < tol
+    endif
+  end function isFloatEqual
+
+  ! -------------------------------------------------
   !                inv2
   ! -------------------------------------------------
   function inv2(A) result(Ainv)
@@ -429,6 +445,52 @@ contains
     enddo
 100 format(ES14.3)
   end subroutine print_mat
+
+  ! -------------------------------------------------
+  !                pwl_interp1d
+  ! -------------------------------------------------
+  function pwl_interp1d(x, y, q)
+    !! Piecewise linear 1d interpolation
+    real(dp), intent(in), dimension(:) :: x, y
+    real(dp), intent(in) :: q
+    integer :: n, i, idx
+    real(dp) :: pwl_interp1d
+    logical, dimension(size(x)) :: truthArray
+
+    n = size(x)
+
+    ! Edge cases
+    if (isFloatEqual(x(1), q)) then
+      pwl_interp1d = y(1)
+      return
+    elseif (isFloatEqual(x(n), q)) then
+      pwl_interp1d = y(n)
+      return
+    endif
+
+    if (x(1) < x(n) ) then
+      ! Ascending
+      truthArray = (x <= q)
+    elseif (x(1) > x(n)) then
+      ! Descending
+      truthArray = (x >= q)
+    else
+      error stop 'ERROR: Neither ascending nor descending'
+    endif
+
+    if (all(truthArray)) error stop "ERROR: Out of range (1)"
+    if (all(.not. truthArray)) error stop "ERROR: Out of range (2)"
+
+    do i = 1, n
+      if (.not. truthArray(i)) then
+        idx = i-1
+        exit
+      endif
+  enddo
+
+  pwl_interp1d = y(idx) + (y(idx+1)-y(idx))/(x(idx+1)-x(idx))*(q-x(idx))
+end function pwl_interp1d
+
 
   ! -------------------------------------------------
   !                interp1d
