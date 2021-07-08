@@ -1805,6 +1805,8 @@ class(blade_class), intent(inout) :: this
           xDist(ic) = dot_product(this%wiP(ic, is)%CP &
             & -this%wiP(1, is)%PC(:, 1), &
             & this%secTauCapChord(:, is))
+          ! DEBUG
+          if (is ==1 ) print*, xDist(ic)
         enddo
         do i = 1, 3
           this%secChordwiseResVel(i, is) = lsq2(dot_product(this%secCP(:, is) &
@@ -1823,6 +1825,12 @@ class(blade_class), intent(inout) :: this
         enddo
       enddo
     endif
+
+    ! DEBUG
+    print*, 'v', this%secChordwiseResVel(:, 1)
+    do ic = 1, this%nc
+      print*, this%wiP(ic, 1)%chordwiseResVel
+    enddo
   end subroutine blade_calc_secChordwiseResVel
 
   subroutine blade_calc_secAlpha(this, updateSecVel)
@@ -3080,7 +3088,7 @@ class(blade_class), intent(inout) :: this
     ! <x1>  <z1>
     ! <x2>  <z2>
     ! ...
-    use libMath, only: interp1
+    use libMath, only: interp1d
   class(rotor_class) :: this
     real(dp), intent(in), dimension(:) :: x, y
     real(dp), dimension(size(x), size(y)) :: rotor_getCamber
@@ -3121,7 +3129,7 @@ class(blade_class), intent(inout) :: this
       enddo
 
       do i = 1, size(x)
-        rotor_getCamber(i, j) = interp1((x(i)-x(1))/chord, &
+        rotor_getCamber(i, j) = interp1d((x(i)-x(1))/chord, &
           & xCamber(1:nPts(fNum), fNum), zCamber(1:nPts(fNum), fNum), 2)
       enddo
     enddo

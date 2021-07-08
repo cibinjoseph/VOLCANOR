@@ -431,13 +431,13 @@ contains
   end subroutine print_mat
 
   ! -------------------------------------------------
-  !                interp1
+  !                interp1d
   ! -------------------------------------------------
-  function interp1(xq, x, y, order)
+  function interp1d(xq, x, y, order)
     real(dp), intent(in) :: xq
     real(dp), intent(in), dimension(:) :: x, y
     integer, intent(in) :: order
-    real(dp) :: interp1
+    real(dp) :: interp1d
     logical, dimension(size(x)) :: TFvec
     integer :: i, ix
     real(dp) :: L0, L1, L2  !! Lagrange's basis functions
@@ -451,32 +451,32 @@ contains
     enddo
 
     if (abs(xq-x(ix)) <= eps) then
-      interp1 = y(ix)
+      interp1d = y(ix)
     else
       select case (order)
       case (1)
         if (norm2(y(ix-1:ix)) <= eps) then
-          interp1 = 0._dp
+          interp1d = 0._dp
         else
-          interp1 = y(ix-1) + (xq-x(ix-1))*(y(ix)-y(ix-1))/(x(ix)-x(ix-1))
+          interp1d = y(ix-1) + (xq-x(ix-1))*(y(ix)-y(ix-1))/(x(ix)-x(ix-1))
         endif
 
       case (2)
           if (norm2(y(ix-1:ix)) <= eps) then
-            interp1 = 0._dp
+            interp1d = 0._dp
           else
             if (size(x) == 2) then
-              interp1 = y(ix-1) + (xq-x(ix-1))*(y(ix)-y(ix-1))/(x(ix)-x(ix-1))
+              interp1d = y(ix-1) + (xq-x(ix-1))*(y(ix)-y(ix-1))/(x(ix)-x(ix-1))
             elseif (ix == 2) then
               L0 = (xq-x(ix))*(xq-x(ix+1))/((x(ix-1)-x(ix))*(x(ix-1)-x(ix+1)))
               L1 = (xq-x(ix-1))*(xq-x(ix+1))/((x(ix)-x(ix-1))*(x(ix)-x(ix+1)))
               L2 = (xq-x(ix-1))*(xq-x(ix))/((x(ix+1)-x(ix-1))*(x(ix+1)-x(ix)))
-              interp1 = y(ix-1)*L0 + y(ix)*L1 + y(ix+1)*L2
+              interp1d = y(ix-1)*L0 + y(ix)*L1 + y(ix+1)*L2
             else
               L0 = (xq-x(ix-1))*(xq-x(ix))/((x(ix-2)-x(ix-1))*(x(ix-2)-x(ix)))
               L1 = (xq-x(ix-2))*(xq-x(ix))/((x(ix-1)-x(ix-2))*(x(ix-1)-x(ix)))
               L2 = (xq-x(ix-2))*(xq-x(ix-1))/((x(ix)-x(ix-2))*(x(ix)-x(ix-1)))
-              interp1 = y(ix-2)*L0 + y(ix-1)*L1 + y(ix)*L2
+              interp1d = y(ix-2)*L0 + y(ix-1)*L1 + y(ix)*L2
             endif
           endif
 
@@ -486,7 +486,7 @@ contains
       end select
     endif
 
-  end function interp1
+  end function interp1d
 
   !--------------------------------------------------------!
   !        Linear Least Squares fitting (2nd order)        !

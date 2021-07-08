@@ -6,7 +6,7 @@ program testrunner_libMath
 
   call test_linspace()
   call test_trapz()
-  call test_interp1()
+  call test_interp1d()
   call test_inv2()
   call test_matmulAX()
 
