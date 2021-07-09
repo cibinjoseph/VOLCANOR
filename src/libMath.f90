@@ -486,10 +486,10 @@ contains
         idx = i-1
         exit
       endif
-  enddo
+    enddo
 
-  pwl_interp1d = y(idx) + (y(idx+1)-y(idx))/(x(idx+1)-x(idx))*(q-x(idx))
-end function pwl_interp1d
+    pwl_interp1d = y(idx) + (y(idx+1)-y(idx))/(x(idx+1)-x(idx))*(q-x(idx))
+  end function pwl_interp1d
 
 
   ! -------------------------------------------------
