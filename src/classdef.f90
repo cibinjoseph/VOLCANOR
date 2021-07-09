@@ -1886,17 +1886,37 @@ class(blade_class), intent(inout) :: this
 
   function blade_getSecChordwiseLocations(this, chordwiseFraction)
     ! Get coordinates of a point located at a fraction of chord on each section
+    use libMath, only: projVec, pwl_interp1d
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: chordwiseFraction
     real(dp), dimension(3, this%ns) :: blade_getSecChordwiseLocations
-    integer :: is
+    real(dp), dimension(2, this%nc+1) :: xzCoord  ! Along and normal to chord
+    real(dp), dimension(3) :: vecPC, vecLE, secCP
+    real(dp), dimension(2) :: xzCP
+    integer :: is, ic
 
     do is = 1, this%ns
-      blade_getSecChordwiseLocations(:, is) = &
-        & (1._dp-chordwiseFraction)*(this%wiP(1, is)%PC(:, 4) &
-        & + this%wiP(1, is)%PC(:, 1))*0.5_dp &
-        & + chordwiseFraction*(this%wiP(this%nc, is)%PC(:, 3) &
-        & + this%wiP(this%nc, is)%PC(:, 2))*0.5_dp
+      vecLE = 0.5_dp*(this%wiP(1, is)%PC(:, 1)+this%wiP(1, is)%PC(:, 4))
+      xzCoord(:, 1) = 0._dp
+      do ic = 1, this%nc
+        ! Find vector from leading edge to panel edge midpoint
+        vecPC = 0.5_dp*(this%wiP(ic, is)%PC(:, 2)+this%wiP(ic, is)%PC(:, 3)) &
+          & - vecLE
+        ! Find components along and normal to chordwise vector
+        xzCoord(1, ic+1) = norm2(projVec(vecPC, this%secTauCapChord(:, is)))
+        xzCoord(2, ic+1) = norm2(projVec(vecPC, this%secNormalVec(:, is)))
+      enddo
+      ! Get distance along chord for secCP
+      xzCP(1) = norm2(vecPC)*chordwiseFraction
+
+      ! Use piecewise linear interpolation to obtain camber
+      xzCP(2) = pwl_interp1d(xzCoord(1, :), xzCoord(2, :), xzCP(1))
+
+      ! Find actual coordinate of xzCP
+      secCP = vecLE + xzCP(1)*this%secTauCapChord(:, is) + &
+        & xzCP(2)*this%secNormalVec(:, is)
+
+      blade_getSecChordwiseLocations(:, is) = secCP
     enddo
   end function blade_getSecChordwiseLocations
 
