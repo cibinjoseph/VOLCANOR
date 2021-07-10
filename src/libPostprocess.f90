@@ -116,7 +116,7 @@ contains
     close(10)
   end subroutine params2file
 
-  subroutine rotor2file(timestamp, rotor, rotorNumber)
+  subroutine geom2file(timestamp, rotor, rotorNumber)
     ! Plot rotor geometry and wake to file
     use classdef, only: rotor_class
     type(rotor_class), intent(in) :: rotor
@@ -307,7 +307,7 @@ contains
       enddo
     endif
     close (10)
-  end subroutine rotor2file
+  end subroutine geom2file
 
   subroutine probes2file(timestamp, probe, probeVel, rotor, t)
     ! Write velocities at probe locations

@@ -410,7 +410,7 @@ program main
     do ir = 1, nr
       if (switches%wakePlot .ne. 0) then
         if (mod(iter, switches%wakePlot) .eq. 0) &
-          call rotor2file(timestamp, rotor(ir), ir)
+          call geom2file(timestamp, rotor(ir), ir)
       endif
 
       if (switches%wakeTipPlot .ne. 0) then
