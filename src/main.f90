@@ -49,8 +49,10 @@ program main
     endif
   enddo
 
-  ! Wing geometry plot for checks
-  ! call wingverify(rotor(1)%blade(1)%wiP)
+  ! Plot wing surface geometry
+  do ir = 1, nr
+    call geomSurface2file(rotor(ir), ir)
+  enddo
 
   ! Compute AIC and AIC_inv matrices for rotors
   do ir = 1, nr

@@ -522,91 +522,151 @@ contains
     close (10)
   end subroutine mesh2file
 
-  subroutine wingverify(wing_array)
-    ! Write wing geometry to file in detail
-    ! For verifying orientation of wing panels, bound vortex rings and CPs
-    use classdef, only: wingpanel_class
-    type(wingpanel_class), intent(in), dimension(:, :) :: wing_array
+  subroutine geomSurface2file(rotor, rotorNumber)
+    ! Plot surface geometry to file
+    use classdef, only: rotor_class
+    type(rotor_class), intent(in) :: rotor
+    integer, intent(in) :: rotorNumber
+
     character(len=5) :: nxChar, nyChar
-    real(dp), dimension(3, size(wing_array, 1) + 1, size(wing_array, 2) + 1) :: wingMesh
-    integer :: i, j, nx, ny
+    character(len=2) :: rotorNumberChar, bladeNumberChar
+    real(dp), dimension(3, rotor%nc+1, rotor%ns+1) :: mesh
+    integer :: i, j, nx, ny, ib
 
-    nx = size(wing_array, 1)
-    ny = size(wing_array, 2)
-    write (nxChar, '(I5)') nx + 1
-    write (nyChar, '(I5)') ny + 1
+    write (rotorNumberChar, '(I0.2)') rotorNumber
+    do ib = 1, rotor%nb
+      write (bladeNumberChar, '(I0.2)') ib
+      open (unit=10, file=ResultsDir// &
+        & 'r'//rotorNumberChar//'b'//bladeNumberChar//'Surface.plt', &
+        & action='write', position='append')
 
-    do j = 1, ny
-      do i = 1, nx
-        wingMesh(:, i, j) = wing_array(i, j)%pc(:, 1)
+      write (10, *) 'Title="r'//rotorNumberChar//'b'//bladeNumberChar//'"'
+      write (10, *) 'VARIABLES = "X" "Y" "Z" "nx" "ny" "nz"' 
+      ! nx , ny, nz can be used for vectors at nodes
+
+      ! Zone 1: Panel coordinates
+      nx = rotor%nc
+      ny = rotor%ns
+      write (nxChar, '(I5)') nx + 1
+      write (nyChar, '(I5)') ny + 1
+
+      do j = 1, ny
+        do i = 1, nx
+          mesh(:, i, j) = rotor%blade(ib)%wiP(i, j)%PC(:, 1)
+        enddo
       enddo
-    enddo
-    do i = 1, nx
-      wingMesh(:, i, ny + 1) = wing_array(i, ny)%pc(:, 4)
-    enddo
-    do j = 1, ny
-      wingMesh(:, nx + 1, j) = wing_array(nx, j)%pc(:, 2)
-    enddo
-    wingMesh(:, nx + 1, ny + 1) = wing_array(nx, ny)%pc(:, 3)
-
-    open (unit=10, file=ResultsDir//'wingPC.plt', &
-      & action='write', position='append')
-    write (10, *) 'Title = "Panel Vertices"'
-    write (10, *) 'VARIABLES = "X" "Y" "Z"'
-    write (10, *) 'Zone I='//trim(nxChar)//' J='//trim(nyChar)//' K=1  T="Panel Vertices"'
-    write (10, *) 'DATAPACKING=BLOCK'
-    write (10, *) ((wingMesh(1, i, j), i=1, nx + 1), j=1, ny + 1)
-    write (10, *) ((wingMesh(2, i, j), i=1, nx + 1), j=1, ny + 1)
-    write (10, *) ((wingMesh(3, i, j), i=1, nx + 1), j=1, ny + 1)
-    close (10)
-
-    write (nxChar, '(I5)') nx
-    write (nyChar, '(I5)') ny
-    do j = 1, ny
       do i = 1, nx
-        wingMesh(:, i, j) = wing_array(i, j)%CP
+        mesh(:, i, ny + 1) = rotor%blade(ib)%wiP(i, ny)%PC(:, 4)
       enddo
-    enddo
-    open (unit=11, file=ResultsDir//'wingCP.plt', &
-      & action='write', position='append')
-    write (11, *) 'Title = "Coll. points"'
-    write (11, *) 'VARIABLES = "X" "Y" "Z" "nx" "ny" "nz"' 
-    write (11, *) 'Zone I='//trim(nxChar)//' J='//trim(nyChar)//' K=1  T="Coll. points"'
-    write (11, *) 'DATAPACKING=BLOCK'
-    write (11, *) ((wingMesh(1, i, j), i=1, nx), j=1, ny)
-    write (11, *) ((wingMesh(2, i, j), i=1, nx), j=1, ny)
-    write (11, *) ((wingMesh(3, i, j), i=1, nx), j=1, ny)
-    write (11, *) ((wing_array(i, j)%nCap(1), i=1, nx), j=1, ny)
-    write (11, *) ((wing_array(i, j)%nCap(2), i=1, nx), j=1, ny)
-    write (11, *) ((wing_array(i, j)%nCap(3), i=1, nx), j=1, ny)
-    close (11)
+      do j = 1, ny
+        mesh(:, nx + 1, j) = rotor%blade(ib)%wiP(nx, j)%PC(:, 2)
+      enddo
+      mesh(:, nx + 1, ny + 1) = rotor%blade(ib)%wiP(nx, ny)%PC(:, 3)
 
-    write (nxChar, '(I5)') nx + 1
-    write (nyChar, '(I5)') ny + 1
-    do j = 1, ny
+      write (10, *) 'Zone I='//trim(nxChar)//' J='//trim(nyChar)//' K=1 T="PC"'
+      write (10, *) 'DATAPACKING=BLOCK'
+      write (10, *) ((mesh(1, i, j), i=1, nx + 1), j=1, ny+1)
+      write (10, *) ((mesh(2, i, j), i=1, nx + 1), j=1, ny+1)
+      write (10, *) ((mesh(3, i, j), i=1, nx + 1), j=1, ny+1)
+      write (10, *) ((0, i=1, nx + 1), j=1, ny+1)
+      write (10, *) ((0, i=1, nx + 1), j=1, ny+1)
+      write (10, *) ((0, i=1, nx + 1), j=1, ny+1)
+
+      ! Zone 2: Vortex filament coordinates
+      write (nxChar, '(I5)') nx + 1
+      write (nyChar, '(I5)') ny + 1
+      do j = 1, ny
+        do i = 1, nx
+          mesh(:, i, j) = rotor%blade(ib)%wiP(i, j)%vr%vf(1)%fc(:, 1)
+        enddo
+      enddo
       do i = 1, nx
-        wingMesh(:, i, j) = wing_array(i, j)%vr%vf(1)%fc(:, 1)
+        mesh(:, i, ny + 1) = rotor%blade(ib)%wiP(i, ny)%vr%vf(4)%fc(:, 1)
       enddo
-    enddo
-    do i = 1, nx
-      wingMesh(:, i, ny + 1) = wing_array(i, ny)%vr%vf(4)%fc(:, 1)
-    enddo
-    do j = 1, ny
-      wingMesh(:, nx + 1, j) = wing_array(nx, j)%vr%vf(2)%fc(:, 1)
-    enddo
-    wingMesh(:, nx + 1, ny + 1) = wing_array(nx, ny)%vr%vf(3)%fc(:, 1)
+      do j = 1, ny
+        mesh(:, nx + 1, j) = rotor%blade(ib)%wiP(nx, j)%vr%vf(2)%fc(:, 1)
+      enddo
+      mesh(:, nx + 1, ny + 1) = rotor%blade(ib)%wiP(nx, ny)%vr%vf(3)%fc(:, 1)
 
-    open (unit=12, file=ResultsDir//'wingVR.plt', &
-      & action='write', position='append')
-    write (12, *) 'Title = "Vortex Rings"'
-    write (12, *) 'VARIABLES = "X" "Y" "Z"'
-    write (12, *) 'Zone I='//trim(nxChar)//' J='//trim(nyChar)//' K=1  T="Vortex Rings"'
-    write (12, *) 'DATAPACKING=BLOCK'
-    write (12, *) ((wingMesh(1, i, j), i=1, nx + 1), j=1, ny + 1)
-    write (12, *) ((wingMesh(2, i, j), i=1, nx + 1), j=1, ny + 1)
-    write (12, *) ((wingMesh(3, i, j), i=1, nx + 1), j=1, ny + 1)
-    close (12)
-  end subroutine wingverify
+      write (10, *) 'Zone I='//trim(nxChar)//' J='//trim(nyChar)//' K=1 T="VR"'
+      write (10, *) 'DATAPACKING=BLOCK'
+      write (10, *) 'VARSHARELIST=([4-6]=1)'  ! Empty variables
+      write (10, *) ((mesh(1, i, j), i=1, nx+1), j=1, ny+1)
+      write (10, *) ((mesh(2, i, j), i=1, nx+1), j=1, ny+1)
+      write (10, *) ((mesh(3, i, j), i=1, nx+1), j=1, ny+1)
+
+      ! Zone 3: CP and nCap
+      nx = rotor%nc
+      ny = rotor%ns
+      write (nxChar, '(I5)') nx
+      write (nyChar, '(I5)') ny
+
+      write (10, *) 'Zone I='//trim(nxChar)//' J='//trim(nyChar)//' K=1 &
+        & T="CP, nCap"'
+      write (10, *) 'DATAPACKING=BLOCK'
+      write (10, *) ((rotor%blade(ib)%wiP(i, j)%CP(1), i=1, nx), j=1, ny)
+      write (10, *) ((rotor%blade(ib)%wiP(i, j)%CP(2), i=1, nx), j=1, ny)
+      write (10, *) ((rotor%blade(ib)%wiP(i, j)%CP(3), i=1, nx), j=1, ny)
+      write (10, *) ((rotor%blade(ib)%wiP(i, j)%nCap(1), i=1, nx), j=1, ny)
+      write (10, *) ((rotor%blade(ib)%wiP(i, j)%nCap(2), i=1, nx), j=1, ny)
+      write (10, *) ((rotor%blade(ib)%wiP(i, j)%nCap(3), i=1, nx), j=1, ny)
+
+      ! Zone4: CP and tauCapChord
+      write (10, *) 'Zone I='//trim(nxChar)//' J='//trim(nyChar)//' K=1 &
+        & T="CP, tauCapChord"'
+      write (10, *) 'DATAPACKING=BLOCK'
+      write (10, *) 'VARSHARELIST=([1-3]=3)'  ! Share CP coordinates
+      write (10, *) ((rotor%blade(ib)%wiP(i, j)%tauCapChord(1), i=1, nx), j=1, ny)
+      write (10, *) ((rotor%blade(ib)%wiP(i, j)%tauCapChord(2), i=1, nx), j=1, ny)
+      write (10, *) ((rotor%blade(ib)%wiP(i, j)%tauCapChord(3), i=1, nx), j=1, ny)
+
+      ! Zone 5: CP and tauCapSpan
+      write (10, *) 'Zone I='//trim(nxChar)//' J='//trim(nyChar)//' K=1 &
+        & T="CP, tauCapChord"'
+      write (10, *) 'DATAPACKING=BLOCK'
+      write (10, *) 'VARSHARELIST=([1-3]=3)'  ! Share CP coordinates
+      write (10, *) ((rotor%blade(ib)%wiP(i, j)%tauCapSpan(1), i=1, nx), j=1, ny)
+      write (10, *) ((rotor%blade(ib)%wiP(i, j)%tauCapSpan(2), i=1, nx), j=1, ny)
+      write (10, *) ((rotor%blade(ib)%wiP(i, j)%tauCapSpan(3), i=1, nx), j=1, ny)
+
+      ! Zone 6: Sectional CP and secNormalVec
+      nx = rotor%ns
+      write (nxChar, '(I5)') nx
+      write (10, *) 'Zone I='//trim(nxChar)//' J=1 K=1 T="secCP, secNcap"'
+      write (10, *) 'DATAPACKING=BLOCK'
+      write (10, *) (rotor%blade(ib)%secCP(1, i), i=1, nx)
+      write (10, *) (rotor%blade(ib)%secCP(2, i), i=1, nx)
+      write (10, *) (rotor%blade(ib)%secCP(3, i), i=1, nx)
+      write (10, *) (rotor%blade(ib)%secNormalVec(1, i), i=1, nx)
+      write (10, *) (rotor%blade(ib)%secNormalVec(2, i), i=1, nx)
+      write (10, *) (rotor%blade(ib)%secNormalVec(3, i), i=1, nx)
+
+      ! Zone 7: Sectional CP and secNormalVec
+      nx = rotor%ns
+      write (nxChar, '(I5)') nx
+      write (10, *) 'Zone I='//trim(nxChar)//' J=1 K=1 &
+        & T="secCP, secTauCapChord"'
+      write (10, *) 'DATAPACKING=BLOCK'
+      write (10, *) 'VARSHARELIST=([1-3]=6)'  ! Share secCP coordinates
+      write (10, *) (rotor%blade(ib)%secTauCapChord(1, i), i=1, nx)
+      write (10, *) (rotor%blade(ib)%secTauCapChord(2, i), i=1, nx)
+      write (10, *) (rotor%blade(ib)%secTauCapChord(3, i), i=1, nx)
+
+      ! Zone 8: Sectional CP and secNormalVec
+      nx = rotor%ns
+      write (nxChar, '(I5)') nx
+      write (10, *) 'Zone I='//trim(nxChar)//' J=1 K=1 &
+        & T="secCP, secTauCapSpan"'
+      write (10, *) 'DATAPACKING=BLOCK'
+      write (10, *) 'VARSHARELIST=([1-3]=6)'  ! Share secCP coordinates
+      write (10, *) (rotor%blade(ib)%secTauCapSpan(1, i), i=1, nx)
+      write (10, *) (rotor%blade(ib)%secTauCapSpan(2, i), i=1, nx)
+      write (10, *) (rotor%blade(ib)%secTauCapSpan(3, i), i=1, nx)
+
+      close(10)
+    enddo
+
+  end subroutine geomSurface2file
 
   subroutine tip2file(timestamp, rotor, rotorNumber)
     use classdef, only: rotor_class
