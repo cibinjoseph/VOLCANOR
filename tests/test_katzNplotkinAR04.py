@@ -4,6 +4,7 @@ import numpy as np
 import parseResults as pr
 import json
 import os
+import pandas as pd
 
 
 class TestAR04(unittest.TestCase):
@@ -31,14 +32,16 @@ class TestAR04(unittest.TestCase):
         cls.CTlast_ref = CT[-1]
         cls.CTavg_ref = np.average(CT[-10:])  # Over last 10 iterations
 
-        data = np.loadtxt(cls.refResultsDir + \
+        dataPD = pd.read_table(cls.refResultsDir + \
                           'r01b01ForceDist00160.csv' + '.ref', \
-                          skiprows=1)
-        cls.secSpan_ref = data[:, 0]
-        cls.secCL_ref = data[:, 1]
-        cls.secArea_ref = data[:, 5]
-        cls.secVel_ref = data[:, 6]
-        cls.secAlpha_ref = data[:, 8]
+                             delim_whitespace=True)
+        data = dataPD.to_dict(orient='list')
+
+        cls.secSpan_ref = data['secSpan']
+        cls.secCL_ref = data['secCL']
+        cls.secArea_ref = data['secArea']
+        cls.secVel_ref = data['secVel']
+        cls.secAlpha_ref = data['secAlpha']
 
     def testProcess(self):
         self.assertEqual(self.returncode, 0, 'Exit code is non-zero')
