@@ -1805,8 +1805,6 @@ class(blade_class), intent(inout) :: this
           xDist(ic) = dot_product(this%wiP(ic, is)%CP &
             & -this%wiP(1, is)%PC(:, 1), &
             & this%secTauCapChord(:, is))
-          ! DEBUG
-          if (is ==1 ) print*, xDist(ic)
         enddo
         do i = 1, 3
           this%secChordwiseResVel(i, is) = lsq2(dot_product(this%secCP(:, is) &
@@ -1826,11 +1824,6 @@ class(blade_class), intent(inout) :: this
       enddo
     endif
 
-    ! DEBUG
-    print*, 'v', this%secChordwiseResVel(:, 1)
-    do ic = 1, this%nc
-      print*, this%wiP(ic, 1)%chordwiseResVel
-    enddo
   end subroutine blade_calc_secChordwiseResVel
 
   subroutine blade_calc_secAlpha(this, updateSecVel)
