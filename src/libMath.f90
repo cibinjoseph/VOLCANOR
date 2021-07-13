@@ -4,6 +4,8 @@ module libMath
   integer, parameter :: dp = kind(1.d0)
   real(dp), parameter :: pi = atan(1._dp)*4._dp
   real(dp), parameter :: eps = epsilon(1._dp)
+  real(dp), parameter :: degToRad = pi/180._dp
+  real(dp), parameter :: radToDeg = 180._dp/pi
 
   real(dp), parameter, dimension(3) :: xAxis = (/1._dp, 0._dp, 0._dp/)
   real(dp), parameter, dimension(3) :: yAxis = (/0._dp, 1._dp, 0._dp/)
@@ -175,22 +177,6 @@ contains
     cross_product(3) = aVec(1)*bVec(2) - aVec(2)*bVec(1)
 
   end function cross_product
-
-  ! -------------------------------------------------
-  !                degtorad
-  ! -------------------------------------------------
-  subroutine degtorad(deg)
-    real(dp), intent(inout) :: deg
-    deg = deg*pi/180._dp
-  end subroutine degtorad
-
-  ! -------------------------------------------------
-  !                radtodeg
-  ! -------------------------------------------------
-  subroutine radtodeg(rad)
-    real(dp), intent(inout) :: rad
-    rad = rad*180._dp/pi
-  end subroutine radtodeg
 
   ! -------------------------------------------------
   !                outer_product

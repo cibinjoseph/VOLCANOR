@@ -1,5 +1,5 @@
 module libPostprocess
-  use libMath, only: dp, pi, eps
+  use libMath, only: dp, pi, eps, radToDeg
   character(len=8) :: ResultsDir = 'Results/'
 
 contains
@@ -87,15 +87,15 @@ contains
     write(10, *) '"radius": ', rotor%radius, ','
     write(10, *) '"root_cut": ', rotor%root_cut, ','
     write(10, *) '"chord": ', rotor%chord, ','
-    write(10, *) '"coningAngle": ', rotor%coningAngle*180._dp/pi, ','
+    write(10, *) '"coningAngle": ', rotor%coningAngle*radToDeg, ','
     write(10, *) '"Omega": ', rotor%Omega, ','
     write(10, *) '"phi": ', rotor%pts(1), ','
     write(10, *) '"theta": ', rotor%pts(2), ','
     write(10, *) '"psi": ', rotor%pts(3), ','
-    write(10, *) '"theta0": ', rotor%controlPitch(1)*180._dp/pi, ','
-    write(10, *) '"thetaC": ', rotor%controlPitch(2)*180._dp/pi, ','
-    write(10, *) '"thetaS": ', rotor%controlPitch(3)*180._dp/pi, ','
-    write(10, *) '"thetaTwist": ', rotor%thetaTwist*180._dp/pi, ','
+    write(10, *) '"theta0": ', rotor%controlPitch(1)*radToDeg, ','
+    write(10, *) '"thetaC": ', rotor%controlPitch(2)*radToDeg, ','
+    write(10, *) '"thetaS": ', rotor%controlPitch(3)*radToDeg, ','
+    write(10, *) '"thetaTwist": ', rotor%thetaTwist*radToDeg, ','
     write(10, *) '"u": ', rotor%velBody(1), ','
     write(10, *) '"v": ', rotor%velBody(2), ','
     write(10, *) '"w": ', rotor%velBody(3), ','
@@ -108,8 +108,8 @@ contains
     write(10, *) '"wakeTruncateNt": ', rotor%wakeTruncateNt, ','
     write(10, *) '"prescWakeNt": ', rotor%prescWakeNt, ','
     write(10, *) '"initWakeVel": ', rotor%initWakeVel, ','
-    write(10, *) '"psiStart": ', rotor%psiStart*180._dp/pi, ','
-    write(10, *) '"forceCalcSwitch": ', rotor%forceCalcSwitch*180._dp/pi, ','
+    write(10, *) '"psiStart": ', rotor%psiStart*radToDeg, ','
+    write(10, *) '"forceCalcSwitch": ', rotor%forceCalcSwitch*radToDeg, ','
     write(10, *) '"apparentViscCoeff": ', rotor%apparentViscCoeff, ','
     write(10, *) '"decayCoeff": ', rotor%decayCoeff
     write(10, *) '}'
@@ -719,7 +719,7 @@ contains
       write (10, *) ((wingMesh(3, i, j), i=1, nx + 1), j=1, ny + 1)
       write (10, *) ((-1._dp*rotor%blade(ib)%wiP(i, j)%vr%gam, i=1, nx), j=1, ny)
       write(10,*) ((rotor%blade(ib)%wiP(i,j)% &
-        & vr%vf(1)%ageAzimuthal*180._dp/pi, i=1,nx),j=1,ny)
+        & vr%vf(1)%ageAzimuthal*radToDeg, i=1,nx),j=1,ny)
       ! write(10,*) ((rotor%blade(ib)%wiP(i,j)%vr%skew,i=1,nx),j=1,ny)
 
       ! Near wake
@@ -779,7 +779,7 @@ contains
       write (10, *) (nWakeTip(3, i), i=rotor%rowNear, nx + 1)
       write (10, *) (-1._dp*gamRollup(i), i=rotor%rowNear, nx)
       write(10,*) (rotor%blade(ib)%waN(i, rotor%ns)% &
-        & vr%vf(4)%ageAzimuthal*180._dp/pi, i=rotor%rowNear, nx)
+        & vr%vf(4)%ageAzimuthal*radToDeg, i=rotor%rowNear, nx)
       !write(10,*) ((rotor%blade(ib)%waN(i,j)%vr%skew,i=rotor%rowNear,nx),j=1,ny)
 
       ! Far wake
@@ -801,7 +801,7 @@ contains
         write (10, *) (fWakeTip(2, i), i=rotor%rowFar, nx + 1)
         write (10, *) (fWakeTip(3, i), i=rotor%rowFar, nx + 1)
         write (10, *) (-1._dp*rotor%blade(ib)%waF(i)%gam, i=rotor%rowFar, nx)
-        write(10,*) (rotor%blade(ib)%waF(i)%vf%ageAzimuthal*180._dp/pi, &
+        write(10,*) (rotor%blade(ib)%waF(i)%vf%ageAzimuthal*radToDeg, &
           & i=rotor%rowFar, nx)
         !write(10,*) (rotor%blade(ib)%waF(i)%vf%age,i=rotor%rowFar,nx)
 
@@ -917,8 +917,8 @@ contains
           & rotor%blade(ib)%secArea(ispan), &
           & norm2(rotor%blade(ib)%secChordwiseResVel(:, ispan)), &
           & rotor%blade(ib)%secChord(ispan), &
-          & rotor%blade(ib)%secAlpha(ispan)*180._dp/pi, &
-          & rotor%blade(ib)%secPhi(ispan)*180._dp/pi
+          & rotor%blade(ib)%secAlpha(ispan)*radToDeg, &
+          & rotor%blade(ib)%secPhi(ispan)*radToDeg
       enddo
       close (12)
     enddo
@@ -1025,7 +1025,7 @@ contains
   !     write(12, 100) 'secSpan', 'alpha'
   !     do is = 1, rotor%ns
   !       write (12, 101) dot_product(rotor%blade(ib)%secCP(:, is) - rotor%hubCoords, &
-  !         & rotor%blade(ib)%yAxis), rotor%blade(ib)%secAlpha(is)*180._dp/pi
+  !         & rotor%blade(ib)%yAxis), rotor%blade(ib)%secAlpha(is)*radToDeg
   !     enddo
   !     close (12)
   !   enddo

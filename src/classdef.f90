@@ -2,7 +2,7 @@
 ! ++++ | MODULE DEFINITIONS | ++++ |
 !------+--------------------+------|
 module classdef
-  use libMath, only: dp, pi, eps
+  use libMath, only: dp, pi, eps, degToRad, radToDeg
   use libC81, only: C81_class
   implicit none
 
@@ -1552,7 +1552,7 @@ class(blade_class), intent(inout) :: this
 
         ! For checking against Katz's fixed wing code
         ! DEBUG
-        ! velTangentialChord(ic,is)=10._dp*cos(5._dp*pi/180._dp)
+        ! velTangentialChord(ic,is)=10._dp*cos(5._dp*degToRad)
         ! velTangentialSpan(ic,is)=0._dp
 
         ! -1.0 multiplied to invert sign of gamma
@@ -1782,7 +1782,7 @@ class(blade_class), intent(inout) :: this
 
     do is = 1, size(this%secAlpha, 1)
       secMach = norm2(this%secChordwiseResVel(:, is))/velSound
-      alphaDeg = this%secAlpha(is) * 180._dp / pi
+      alphaDeg = this%secAlpha(is) * radToDeg
       this%secCL(is) = this%C81(this%airfoilNo(is))%getCL(alphaDeg, secMach)
       this%secCD(is) = this%C81(this%airfoilNo(is))%getCD(alphaDeg, secMach)
       this%secCM(is) = this%C81(this%airfoilNo(is))%getCM(alphaDeg, secMach)
@@ -2260,7 +2260,7 @@ class(blade_class), intent(inout) :: this
         dt = dxMAC/norm2(this%velBody)
       else  ! Rotor
         ! Time for 5 deg
-        dt = 5._dp*pi/(180._dp*abs(this%Omega))
+        dt = 5._dp*degToRad/abs(this%Omega)
       endif
       print*, 'dt set to ', dt
     endif
@@ -2382,13 +2382,11 @@ class(blade_class), intent(inout) :: this
     enddo
 
     ! Conversions
-    do i = 1, 3
-      call degtorad(this%controlPitch(i))
-      call degtorad(this%pts(i))
-    enddo
-    call degtorad(this%thetaTwist)
-    call degtorad(this%coningAngle)
-    call degtorad(this%psiStart)
+    this%controlPitch = this%controlPitch * degToRad
+    this%pts = this%pts * degToRad
+    this%thetaTwist = this%thetaTwist * degToRad
+    this%coningAngle = this%coningAngle * degToRad
+    this%psiStart = this%psiStart * degToRad
 
     this%spanwiseCore = this%spanwiseCore*this%chord
     this%streamwiseCoreVec = this%streamwiseCoreVec*this%chord
