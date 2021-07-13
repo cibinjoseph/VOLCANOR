@@ -797,7 +797,7 @@ program main
           if (abs(rotor(ir)%surfaceType) == 1) then
             if (rotor(ir)%surfaceType .gt. 0) then
               ! Lifting surface
-                call rotor(ir)%convectwake(iter, dt, 'C')
+              call rotor(ir)%convectwake(iter, dt, 'C')
               do ib = 1, rotor(ir)%nbConvect
                 rotor(ir)%blade(ib)%velNwake1 = rotor(ir)%blade(ib)%velNwake
                 rotor(ir)%blade(ib)%velFwake1 = rotor(ir)%blade(ib)%velFwake
@@ -1103,7 +1103,7 @@ program main
         do ir = 1, nr
           if (abs(rotor(ir)%surfaceType) == 1) then
             if (rotor(ir)%surfaceType .gt. 0) then
-                call rotor(ir)%convectwake(iter, dt, 'C')
+              call rotor(ir)%convectwake(iter, dt, 'C')
               do ib = 1, rotor(ir)%nbConvect
                 rotor(ir)%blade(ib)%velNwake3 = rotor(ir)%blade(ib)%velNwake
                 rotor(ir)%blade(ib)%velFwake3 = rotor(ir)%blade(ib)%velFwake
