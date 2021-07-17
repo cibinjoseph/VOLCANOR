@@ -2242,6 +2242,13 @@ class(blade_class), intent(inout) :: this
     character(len=2) :: rotorChar
     logical :: warnUser
 
+    ! Warn if all velocities zero
+    if (abs(this%Omega) < eps) then
+      if (norm2(this%velBody) < eps) then
+        error stop "ERROR: All velocity set to zero"
+      endif
+    endif
+
     ! Set dt automatically if not prescribed
     ! if dt is negative, assume no. of chords or revs
     if (dsign(1._dp, dt) < 0._dp) then
