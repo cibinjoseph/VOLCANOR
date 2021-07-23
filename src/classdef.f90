@@ -3160,12 +3160,17 @@ class(blade_class), intent(inout) :: this
     integer, intent(in) :: ib
     real(dp) :: rotor_gettheta
     real(dp) :: bladeOffset
+    ! real(dp) :: pitchRateDegPerSec
 
     bladeOffset = twoPi/this%nb*(ib - 1)
     rotor_gettheta = this%controlPitch(1) &
       + this%controlPitch(2)*cos(psi + bladeOffset) &
       + this%controlPitch(3)*sin(psi + bladeOffset)
 
+    ! For sudden collective pitch testcases (Carpenter & Fridovich)
+    ! pitchRateDegPerSec = 20._dp
+    ! rotor_gettheta = min(psi/this%Omega*pitchRateDegPerSec*degToRad, &
+    !   & this%controlPitch(1))
   end function rotor_gettheta
 
   function rotor_getthetadot(this, psi, ib)
