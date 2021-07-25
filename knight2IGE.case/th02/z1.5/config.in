@@ -1,0 +1,56 @@
+# File format version
+  0.3
+# NO. OF TIMESTEPS [nt]    TIMESTEP (sec) [dt]         NO. OF ROTORS [nr]
+# [-nt]chords or revs    [0]default [-nt]chords or revs
+# -----------------------------------------------------------------------
+     -50                      -0.0278                         2
+# 
+# restartWriteNt    restartFromNt [0]Off [1..]timesteps
+# -----------------------------------------------------------------------
+     0                   0
+# 
+# NO. OF SUBITERATIONS [ntSub]  NO. OF INITIAL SUBITERATIONS [ntSubInit] 
+# -----------------------------------------------------------------------
+     0                          0
+# 
+# SPAN DISCRETIZATION : [1]linear [2]cosine [3]halfsine
+# spanSpacingSwitch   chordSpacingSwitch
+# -----------------------------------------------------------------------
+       2                      1
+# =======================================================================
+# 
+# DENSITY [kg/m3]    SOUND VEL. [m/s]  KINEMATICVISC [m2/s]
+# -----------------------------------------------------------------------
+      1.2                330.0            0.000018
+# =======================================================================
+# 
+# PLOT WAKE: [0]Off [n]Every n'th iteration [-n]chords or revs
+# wakePlotSwitch   wakeTipPlotSwitch   forcePlotSwitch   gridPlotSwitch
+# -----------------------------------------------------------------------
+       100                 0                 1                 0
+# =======================================================================
+# 
+# WAKE PROPERTY SWITCHES: [0]Off [1]On
+# wakeDissipationSwitch            wakeStrainSwitch   wakeBurstSwitch
+# -----------------------------------------------------------------------
+       1                                0                  0
+# 
+# SLOW START TO AVOID LARGE STARTING VORTEX:
+# [0]Off [1]linear [2]tanh [3]extended tanh
+# slowStartSwitch       slowStartNt [-nt] chords or revs
+# -----------------------------------------------------------------------
+       0                      0
+# 
+# WAKE CONVECTION FINITE-DIFFERENCE SCHEME:
+# fdSchemeSwitch  [0]FT1 [1]PC2 [2]AB2 [3]AM2 [4]AM3 [5]AM4
+# -----------------------------------------------------------------------
+       3
+# 
+# initWakeVelNt
+# -----------------------------------------------------------------------
+       0   
+# 
+# USE VEL PROBES
+# probeSwitch [0]Off [1]On
+# -----------------------------------------------------------------------
+       0                                          
