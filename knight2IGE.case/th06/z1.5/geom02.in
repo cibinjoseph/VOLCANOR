@@ -13,7 +13,7 @@
 # Surface type [0/1]Lifting [2]Non-lifting    Mirrored about X/Y/Z
 # [-1]Lifting Image [-2]Non-lifting Image    [1/2/3]plane  from rotor
 # -------------------------------------------------------------------
-     0                                        3                 1
+     -1                                        3                 1
 #
 # Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 #                                       [n]timesteps [-n]chords/revs
@@ -23,11 +23,11 @@
 # 
 # X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
 # -------------------------------------------------------------------
-   0.0             0.0           0.762
+   0.0             0.0           -1.143
 # 
 # X-cgCoords      Y-cgCoords      Z-cgCoords     [all in m]
 # -------------------------------------------------------------------
-   0.0             0.0           0.762
+   0.0             0.0           -1.143
 # 
 # X-from          Y-from          Z-from         [all in m]
 # -------------------------------------------------------------------
@@ -49,7 +49,7 @@
 # 
 # theta0[deg]    thetaC[deg]    thetaS[deg]    thetaTwist[deg]
 # -------------------------------------------------------------------
-  6.0             0.0              0.0           0.0
+   -6.0             0.0              0.0           0.0
 # ===================================================================
 # 
 # customTrajectorySwitch    imposeAxisymmetry
@@ -71,7 +71,7 @@
 # apparentViscCoeff  decayCoeff
 # (10-10000)          (bq/s) 
 # -------------------------------------------------------------------
-     1                0.5
+     1                 0.5
 # 
 # wakeTruncateNt  prescWakeAfterTruncNt   prescWakeGenNt
 #   [0]Off [n] timesteps [-n] chords/revs

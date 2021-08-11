@@ -71,7 +71,7 @@
 # apparentViscCoeff  decayCoeff
 # (10-10000)          (bq/s) 
 # -------------------------------------------------------------------
-     100                2.5
+     1                 0.5
 # 
 # wakeTruncateNt  prescWakeAfterTruncNt   prescWakeGenNt
 #   [0]Off [n] timesteps [-n] chords/revs
