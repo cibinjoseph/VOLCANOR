@@ -4,7 +4,7 @@
 # ===================================================================
 # No. of blades,nb  Prop convention  NcamberFiles  geometry filename
 # -------------------------------------------------------------------
-     3                 0                1             0
+     3                 0                1            CnFblade.xyz
 #
 # CamberSectionLimit[r/R]  Camber filename
 # -------------------------------------------------------------------
@@ -18,7 +18,7 @@
 # Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 #                                       [n]timesteps [-n]chords/revs
 # -------------------------------------------------------------------
-      20                       26                   250
+      22                       26                   250
 # ===================================================================
 # 
 # X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
