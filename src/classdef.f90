@@ -3160,7 +3160,7 @@ class(blade_class), intent(inout) :: this
     integer, intent(in) :: ib
     real(dp) :: rotor_gettheta
     real(dp) :: bladeOffset
-    ! real(dp) :: pitchRateDegPerSec
+    real(dp) :: pitchRateDegPerSec
 
     bladeOffset = twoPi/this%nb*(ib - 1)
     rotor_gettheta = this%controlPitch(1) &
@@ -3168,9 +3168,10 @@ class(blade_class), intent(inout) :: this
       + this%controlPitch(3)*sin(psi + bladeOffset)
 
     ! For sudden collective pitch testcases (Carpenter & Fridovich)
-    ! pitchRateDegPerSec = 20._dp
-    ! rotor_gettheta = min(psi/this%Omega*pitchRateDegPerSec*degToRad, &
-    !   & this%controlPitch(1))
+    pitchRateDegPerSec = 20._dp
+    rotor_gettheta = min(psi/this%Omega*pitchRateDegPerSec*degToRad, &
+      & this%controlPitch(1))
+    print*, rotor_gettheta
   end function rotor_gettheta
 
   function rotor_getthetadot(this, psi, ib)
@@ -3295,20 +3296,20 @@ class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: dpsi
     logical, optional ::  nopitch
     integer :: ib
-    real(dp) :: dtheta
+    real(dp) :: thetaNext
 
     this%psi = this%psi + dpsi
     do ib = 1, this%nb
       call this%blade(ib)%rot_axis(dpsi, this%shaftAxis, this%hubCoords)
       this%blade(ib)%psi = this%blade(ib)%psi + dpsi
       if (.not. present(nopitch)) then
-        dtheta = this%gettheta(this%psi, ib) - this%blade(ib)%theta
-        call this%blade(ib)%rot_pitch(dtheta)
-        this%blade(ib)%theta = this%gettheta(this%psi, ib)
+        thetaNext = this%gettheta(this%psi, ib)
+        call this%blade(ib)%rot_pitch(thetaNext - this%blade(ib)%theta)
+        this%blade(ib)%theta = thetaNext
       elseif (nopitch .eqv. .false.) then
-        dtheta = this%gettheta(this%psi, ib) - this%blade(ib)%theta
-        call this%blade(ib)%rot_pitch(dtheta)
-        this%blade(ib)%theta = this%gettheta(this%psi, ib)
+        thetaNext = this%gettheta(this%psi, ib)
+        call this%blade(ib)%rot_pitch(thetaNext - this%blade(ib)%theta)
+        this%blade(ib)%theta = thetaNext
       endif
     enddo
 
