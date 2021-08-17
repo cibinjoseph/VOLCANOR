@@ -3171,7 +3171,7 @@ class(blade_class), intent(inout) :: this
     pitchRateDegPerSec = 20._dp
     rotor_gettheta = min(psi/this%Omega*pitchRateDegPerSec*degToRad, &
       & this%controlPitch(1))
-    print*, rotor_gettheta
+    print*, "pitch", psi*radToDeg, rotor_gettheta*radToDeg
   end function rotor_gettheta
 
   function rotor_getthetadot(this, psi, ib)
