@@ -18,7 +18,7 @@
 # Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 #                                       [n]timesteps [-n]chords/revs
 # -------------------------------------------------------------------
-      30                       25                   -21
+      30                       25                   36
 # ===================================================================
 # 
 # X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
@@ -59,7 +59,7 @@
 # 
 # u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]
 # -------------------------------------------------------------------
-   0.0       0.0        14.3        0.0        0.0         0.0
+   0.0       0.0         0.0        0.0        0.0         0.0
 # ===================================================================
 # 
 # pivot point     flapHinge      spanwiseLiftTerm    invert tauSpan
@@ -71,7 +71,7 @@
 # viscDiss    decayCoeff
 # (10-10000)    (bq/s) 
 # -------------------------------------------------------------------
-   100            2.5
+   1             0.0
 # 
 # wakeTruncateNt  prescWakeAfterTruncNt   prescWakeGenNt
 #   [0]Off [n] timesteps [-n] chords/revs
