@@ -3147,7 +3147,7 @@ class(blade_class), intent(inout) :: this
       enddo
 
       do i = 1, size(x)
-        rotor_getCamber(i, j) = interp1d((x(i)-x(1))/chord, &
+        rotor_getCamber(i, j) = chord*interp1d((x(i)-x(1))/chord, &
           & xCamber(1:nPts(fNum), fNum), zCamber(1:nPts(fNum), fNum), 2)
       enddo
     enddo
