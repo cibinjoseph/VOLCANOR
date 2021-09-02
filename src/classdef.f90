@@ -170,9 +170,9 @@ module classdef
     integer :: nc, ns
     real(dp) :: theta, psi, pivotLE
     ! Flap dynamics parameters
-    real(dp) :: flap, dflap, ddflap, Iflap, kflap, Mflap
-    real(dp), dimension(3) :: forceInertial
-    real(dp), dimension(3) :: lift, drag
+    real(dp) :: flap, dflap, ddflap, Iflap, kflap, MflapConstant
+    real(dp), dimension(3) :: forceInertial, MomentInertial
+    real(dp), dimension(3) :: lift, drag, moment, momentFlap
     real(dp), dimension(3) :: dragInduced, dragProfile
     real(dp), dimension(3) :: liftUnsteady, dragUnsteady
     integer, allocatable, dimension(:) :: airfoilNo
