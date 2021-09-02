@@ -282,7 +282,7 @@ module classdef
     integer :: rollupStart, rollupEnd
     integer :: suppressFwakeSwitch
     integer :: forceCalcSwitch, skewPlotSwitch
-    integer :: inflowPlotSwitch
+    integer :: inflowPlotSwitch, flapDynamicsSwitch
     integer :: spanwiseLiftSwitch, customTrajectorySwitch
     integer :: gammaPlotSwitch
     integer :: rowNear, rowFar
@@ -2221,6 +2221,9 @@ class(blade_class), intent(inout) :: this
       enddo
     endif
     close (12)
+
+    ! Override for Carpenter & Fridovich testcases
+    this%flapDynamicsSwitch = 1
   end subroutine rotor_read_geom
 
   subroutine rotor_init(this, rotorNumber, density, dt, nt, switches)
@@ -2340,9 +2343,13 @@ class(blade_class), intent(inout) :: this
     allocate (this%gamVec(this%nc*this%ns*this%nb))
     allocate (this%gamVecPrev(this%nc*this%ns*this%nb))
     allocate (this%RHS(this%nc*this%ns*this%nb))
-    allocate (this%flap(nt))
-    allocate (this%dflap(nt))
-    allocate (this%ddflap(nt))
+
+    ! Allocate if flap dynamics present
+    if (this%flapDynamicsSwitch == 1) then
+      allocate (this%flap(nt))
+      allocate (this%dflap(nt))
+      allocate (this%ddflap(nt))
+    endif
 
     ! Read custom trajectory file if specified
     if (this%customTrajectorySwitch .eq. 1) then
