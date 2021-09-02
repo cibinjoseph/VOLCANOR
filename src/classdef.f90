@@ -169,6 +169,8 @@ module classdef
     type(C81_class), allocatable, dimension(:) :: C81
     integer :: nc, ns
     real(dp) :: theta, psi, pivotLE
+    ! Flap dynamics parameters
+    real(dp) :: flap, dflap, ddflap, Iflap, kflap, Mflap
     real(dp), dimension(3) :: forceInertial
     real(dp), dimension(3) :: lift, drag
     real(dp), dimension(3) :: dragInduced, dragProfile
@@ -246,7 +248,7 @@ module classdef
     real(dp) :: Omega, omegaSlow
     real(dp), dimension(3) :: shaftAxis
     real(dp), dimension(3) :: hubCoords, cgCoords, fromCoords
-    real(dp) :: radius, chord, root_cut, coningAngle
+    real(dp) :: radius, chord, root_cut, flapInitial
     real(dp), dimension(3) :: forceInertial, lift, drag
     real(dp), dimension(3) :: dragInduced, dragProfile
     real(dp), dimension(3) :: liftUnsteady, dragUnsteady
@@ -268,6 +270,8 @@ module classdef
     real(dp), allocatable, dimension(:) :: camberSectionLimit
     real(dp), allocatable, dimension(:) :: airfoilSectionLimit
     real(dp), allocatable, dimension(:) :: alpha0
+    ! Flap dynamics
+    real(dp), allocatable, dimension(:) :: flap, dflap, ddflap
     real(dp) :: initWakeVel, psiStart, skewLimit
     real(dp) :: apparentViscCoeff, decayCoeff
     real(dp) :: rollupStartRadius, rollupEndRadius
@@ -2153,7 +2157,7 @@ class(blade_class), intent(inout) :: this
     call skip_comments(12)
     read (12, *) this%pts(1), this%pts(2), this%pts(3)
     call skip_comments(12)
-    read (12, *) this%radius, this%root_cut, this%chord, this%coningAngle
+    read (12, *) this%radius, this%root_cut, this%chord, this%flapInitial
     call skip_comments(12)
     read (12, *) this%Omega, this%shaftAxis(1), this%shaftAxis(2), this%shaftAxis(3)
     call skip_comments(12)
@@ -2336,6 +2340,9 @@ class(blade_class), intent(inout) :: this
     allocate (this%gamVec(this%nc*this%ns*this%nb))
     allocate (this%gamVecPrev(this%nc*this%ns*this%nb))
     allocate (this%RHS(this%nc*this%ns*this%nb))
+    allocate (this%flap(nt))
+    allocate (this%dflap(nt))
+    allocate (this%ddflap(nt))
 
     ! Read custom trajectory file if specified
     if (this%customTrajectorySwitch .eq. 1) then
@@ -2392,7 +2399,7 @@ class(blade_class), intent(inout) :: this
     this%controlPitch = this%controlPitch * degToRad
     this%pts = this%pts * degToRad
     this%thetaTwist = this%thetaTwist * degToRad
-    this%coningAngle = this%coningAngle * degToRad
+    this%flapInitial = this%flapInitial * degToRad
     this%psiStart = this%psiStart * degToRad
 
     this%spanwiseCore = this%spanwiseCore*this%chord
@@ -2720,9 +2727,9 @@ class(blade_class), intent(inout) :: this
       call this%blade(ib)%move(this%hubCoords-this%fromCoords)
     enddo
 
-    ! Set Coning angle
+    ! Set Coning angle (initial flap angle)
     do ib = 1, this%nb
-      call this%blade(ib)%rot_axis(this%coningAngle, &
+      call this%blade(ib)%rot_axis(this%flapInitial, &
         & xAxis, (/0._dp, 0._dp, 0._dp/))
     enddo
 

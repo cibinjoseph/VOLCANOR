@@ -87,7 +87,7 @@ contains
     write(10, *) '"radius": ', rotor%radius, ','
     write(10, *) '"root_cut": ', rotor%root_cut, ','
     write(10, *) '"chord": ', rotor%chord, ','
-    write(10, *) '"coningAngle": ', rotor%coningAngle*radToDeg, ','
+    write(10, *) '"coningAngle": ', rotor%flapInitial*radToDeg, ','
     write(10, *) '"Omega": ', rotor%Omega, ','
     write(10, *) '"phi": ', rotor%pts(1), ','
     write(10, *) '"theta": ', rotor%pts(2), ','
