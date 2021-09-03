@@ -605,7 +605,7 @@ program main
     ! Flap dynamics
     do ir = 1, nr
       if (rotor(ir)%flapDynamicsSwitch .ne. 0) then
-        call rotor(ir)%computeBladeDyanmics(iter, dt)
+        call rotor(ir)%computeBladeDynamics(dt)
       endif
     enddo
 
