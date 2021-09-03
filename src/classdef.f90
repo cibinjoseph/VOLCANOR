@@ -170,7 +170,8 @@ module classdef
     integer :: nc, ns
     real(dp) :: theta, psi, pivotLE
     ! Flap dynamics parameters
-    real(dp) :: flap, dflap, ddflap, Iflap, kflap, MflapConstant
+    real(dp) :: flapInitial, dflapInitial, flapPrev, dflapPrev
+    real(dp) :: flap, dflap, Iflap, kflap, cflap, MflapConstant
     real(dp), dimension(3) :: forceInertial, MomentInertial
     real(dp), dimension(3) :: lift, drag, moment, momentFlap
     real(dp), dimension(3) :: dragInduced, dragProfile
@@ -235,6 +236,8 @@ module classdef
     procedure :: dirLiftDrag => blade_dirLiftDrag
     procedure :: sumSecToNetForces => blade_sumSecToNetForces
     procedure :: calc_stlStats => blade_calc_stlStats
+    procedure :: computeBladeDynamics => blade_computeBladeDynamics
+    procedure :: getddflap
     ! I/O subroutines
     procedure :: blade_write
     generic :: write(unformatted) => blade_write
@@ -270,8 +273,6 @@ module classdef
     real(dp), allocatable, dimension(:) :: camberSectionLimit
     real(dp), allocatable, dimension(:) :: airfoilSectionLimit
     real(dp), allocatable, dimension(:) :: alpha0
-    ! Flap dynamics
-    real(dp), allocatable, dimension(:) :: flap, dflap, ddflap
     real(dp) :: initWakeVel, psiStart, skewLimit
     real(dp) :: apparentViscCoeff, decayCoeff
     real(dp) :: rollupStartRadius, rollupEndRadius
@@ -333,6 +334,7 @@ module classdef
     procedure :: eraseNwake => rotor_eraseNwake
     procedure :: eraseFwake => rotor_eraseFwake
     procedure :: updatePrescribedWake => rotor_updatePrescribedWake
+    procedure :: computeBladeDynamics => rotor_computeBladeDynamics
     ! I/O subroutines
     procedure :: rotor_write
     generic :: write(unformatted) => rotor_write
@@ -2046,6 +2048,43 @@ class(blade_class), intent(inout) :: this
     enddo
   end subroutine blade_calc_stlStats
 
+  function getddflap(this, flap, dflap, omega)
+    !! Returns ddflap from blade flap equation
+  class(blade_class), intent(in) :: this
+    real(dp), intent(in) :: flap, dflap, omega
+    real(dp) :: getddflap
+    getddflap = (this%MflapConstant - this%cflap*dflap - &
+      & (this%Iflap*omega**2._dp+this%kflap)*flap)/this%Iflap
+  end function getddflap
+
+  subroutine blade_computeBladeDynamics(this, dt, omega)
+  class(blade_class), intent(inout) :: this
+    real(dp), intent(in) :: dt, omega
+    real(dp) :: flapPred, dflapPred, flapNew, dflapNew
+
+    ! Blade flap dynamics
+    ! AM2 predictor corrector
+    ! Predictor step
+    dflapPred = this%dflap + 0.5_dp*dt* &
+      & (3._dp*this%getddflap(this%flap, this%dflap, omega) - &
+      & this%getddflap(this%flapPrev, this%dflapPrev, omega))
+    flapPred = this%flap + 0.5_dp*dt* &
+      & (3._dp*this%dflap - this%dflapPrev)
+
+    ! Corrector step
+    dflapNew = this%dflap + 0.5_dp*dt* &
+      & (this%getddflap(flapPred, dflapPred, omega) + &
+      & this%getddflap(this%flap, this%dflap, omega))
+    flapNew = this%flap + 0.5_dp*dt* &
+      & (dflapPred + this%dflap)
+
+    this%dflapPrev = this%dflap
+    this%flapPrev = this%flap
+
+    this%dflap = dflapNew
+    this%flap = flapNew
+  end subroutine blade_computeBladeDynamics
+
   subroutine blade_write(this, unit, iostat, iomsg)
   class(blade_class), intent(in) :: this
     integer, intent(in) :: unit
@@ -2343,13 +2382,6 @@ class(blade_class), intent(inout) :: this
     allocate (this%gamVec(this%nc*this%ns*this%nb))
     allocate (this%gamVecPrev(this%nc*this%ns*this%nb))
     allocate (this%RHS(this%nc*this%ns*this%nb))
-
-    ! Allocate if flap dynamics present
-    if (this%flapDynamicsSwitch == 1) then
-      allocate (this%flap(nt))
-      allocate (this%dflap(nt))
-      allocate (this%ddflap(nt))
-    endif
 
     ! Read custom trajectory file if specified
     if (this%customTrajectorySwitch .eq. 1) then
@@ -2736,6 +2768,12 @@ class(blade_class), intent(inout) :: this
 
     ! Set Coning angle (initial flap angle)
     do ib = 1, this%nb
+      this%blade(ib)%dflapInitial = 0._dp
+      this%blade(ib)%flapInitial = this%flapInitial
+
+      this%blade(ib)%dflapPrev = this%blade(ib)%dflapInitial
+      this%blade(ib)%flapPrev = this%blade(ib)%flapInitial
+
       call this%blade(ib)%rot_axis(this%flapInitial, &
         & xAxis, (/0._dp, 0._dp, 0._dp/))
     enddo
@@ -3714,6 +3752,15 @@ class(blade_class), intent(inout) :: this
     endif
 
   end subroutine rotor_convectwake
+
+  subroutine rotor_computeBladeDynamics(this, dt)
+  class(rotor_class), intent(inout) :: this
+    real(dp), intent(in) :: dt
+    integer :: ib
+    do ib = 1, this%nb
+      call this%blade(ib)%computeBladeDynamics(dt, this%omegaSlow)
+    enddo
+  end subroutine rotor_computeBladeDynamics
 
   subroutine rotor_burst_wake(this)
   class(rotor_class), intent(inout) :: this

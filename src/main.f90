@@ -602,6 +602,14 @@ program main
       endif
     endif
 
+    ! Flap dynamics
+    do ir = 1, nr
+      if (rotor(ir)%flapDynamicsSwitch .ne. 0) then
+        call rotor(ir)%computeBladeDyanmics(iter, dt)
+      endif
+    enddo
+
+
     ! Plot inflow
     do ir = 1, nr
       if (rotor(ir)%inflowPlotSwitch .ne. 0) then
