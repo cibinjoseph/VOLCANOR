@@ -7,8 +7,9 @@ contains
   subroutine init_plots(numOfRotors)
     ! Initialise headers for plot files
     integer, intent(in) :: numOfRotors
-    character(len=24) :: forceDimFilename
-    character(len=27) :: forceNonDimFilename
+    character(len=30) :: forceDimFilename
+    character(len=30) :: forceNonDimFilename
+    character(len=30) :: dynamicsFilename
     integer :: rotorNumber
     character(len=2) :: rotorNumberChar
 
@@ -16,24 +17,32 @@ contains
       write (rotorNumberChar, '(I0.2)') rotorNumber
       forceDimFilename = ResultsDir//'r'//rotorNumberChar//'ForceDim.csv'
       forceNonDimFilename = ResultsDir//'r'//rotorNumberChar//'ForceNonDim.csv'
+      dynamicsFilename = ResultsDir//'r'//rotorNumberChar//'bladedynamics.csv'
 
       ! Add data headers
-      open (unit=11, file=forceDimFilename, &
+      open (unit=10, file=forceDimFilename, &
         & status='replace', action='write')
-      write (11, 100) 'iter','LiftMag','DragMag', &
+      write (10, 100) 'iter','LiftMag','DragMag', &
         & 'Lx','Ly','Lz', &
         & 'Dx','Dy','Dz', &
         & 'FInertx','FInerty','FInertz'
+      close (10)
+
+      open (unit=11, file=forceNonDimFilename, &
+        & status='replace', action='write')
+      write (11, 101) 'iter','CL/CT','CD/CQ', 'CLu','CDi','CD0','CDu', &
+        & 'CFx','CFy','CFz'
       close (11)
 
-      open (unit=12, file=forceNonDimFilename, &
+      open(unit=12, file=dynamicsFilename, &
         & status='replace', action='write')
-      write (12, 101) 'iter','CL/CT','CD/CQ', 'CLu','CDi','CD0','CDu', &
-        & 'CFx','CFy','CFz'
-      close (12)
+      write(12, 102) 'iter', 'flap', 'dflap'
+      close(12)
     enddo
-    100 format (A5,11(A15))
-    101 format (A5,9(A15))
+
+    100 format (A5, 11(A15))
+    101 format (A5, 9(A15))
+    102 format (A5, 2(A15))
   end subroutine init_plots
 
   subroutine params2file(rotor, rotorNumber, nt, dt, nr, &
@@ -865,7 +874,7 @@ contains
     character(len=*), intent(in) :: timestamp
     integer, intent(in) :: rotorNumber
     character(len=2) :: rotorNumberChar, bladeNumberChar
-    integer :: ib, ispan, iter
+    integer :: ib, ispan
     character(len=24) :: forceDimFilename
     character(len=27) :: forceNonDimFilename
 
@@ -895,7 +904,6 @@ contains
     close (12)
     101 format(A, 11(E15.7))
 
-    read(timestamp, *) iter
     do ib = 1, rotor%nb
       write (bladeNumberChar, '(I0.2)') ib
       open (unit=12, file=ResultsDir// &
@@ -926,9 +934,27 @@ contains
     102 format(11(E15.7))
   end subroutine force2file
 
+  subroutine dynamics2file(timestamp, rotor, rotorNumber)
+    use classdef, only: rotor_class
+    character(len=*), intent(in) :: timestamp
+    type(rotor_class), intent(in) :: rotor
+    character(len=30) :: dynamicsFilename
+    integer, intent(in) :: rotorNumber
+    character(len=2) :: rotorNumberChar
+
+    write (rotorNumberChar, '(I0.2)') rotorNumber
+    dynamicsFilename = ResultsDir//'r'//rotorNumberChar//'bladedynamics.csv'
+    open(unit=10, file=dynamicsFilename, action='write', position='append')
+    write(10, 100) timestamp, rotor%blade(1)%flap*radToDeg, &
+      & rotor%blade(1)%dflap*radToDeg
+    close(10)
+
+    100 format (A5, 2(E15.7))
+  end subroutine dynamics2file
+
   subroutine inflow2file(timestamp, rotorArray, rotorNumber, directionVector)
-    ! Calculate inflow velocity along directionVector on the blades of rotor(rotorNumber)
-    ! at rotor(rotorNumber)%secCP
+    ! Calculate inflow velocity along directionVector 
+    ! on the blades of rotor(rotorNumber) at rotor(rotorNumber)%secCP
     use classdef, only: rotor_class
     character(len=*), intent(in) :: timestamp
     type(rotor_class), intent(inout), dimension(:) :: rotorArray
