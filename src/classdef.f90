@@ -231,7 +231,7 @@ module classdef
     procedure :: calc_secChordwiseResVel => blade_calc_secChordwiseResVel
     procedure :: burst_wake => blade_burst_wake
     procedure :: calc_skew => blade_calc_skew
-    procedure :: getSecChordwiseLocations => blade_getSecChordwiseLocations
+    procedure :: calc_secLocations => blade_calc_secLocations
     procedure :: lookup_secCoeffs => blade_lookup_secCoeffs
     procedure :: secCoeffsToSecForces => blade_secCoeffsTosecForces
     procedure :: dirLiftDrag => blade_dirLiftDrag
@@ -1637,7 +1637,7 @@ class(blade_class), intent(inout) :: this
         this%secCLu(is) = norm2(this%secLiftUnsteady(:, is))*signSecCL/ &
           & (secDynamicPressure(is)*this%secArea(is))
         this%secMflap(is) = norm2(this%secLift(:, is))*signSecCL* &
-          & this%secMflapArm
+          & this%secMflapArm(is)
       else
         this%secCL(is) = 0._dp
         this%secCD(is) = 0._dp
@@ -1887,14 +1887,15 @@ class(blade_class), intent(inout) :: this
   !  endif
   !end subroutine blade_calc_secAlpha
 
-  function blade_getSecChordwiseLocations(this, chordwiseFraction)
-    ! Get coordinates of a point located at a fraction of chord on each section
+  subroutine blade_calc_secLocations(this, chordwiseFraction, flapHingeRadius)
+    ! Computes important locations at each section
+    ! coordinates of collocation point located at chord fraction
+    ! flap moment arm
     use libMath, only: projVec, pwl_interp1d
   class(blade_class), intent(inout) :: this
-    real(dp), intent(in) :: chordwiseFraction
-    real(dp), dimension(3, this%ns) :: blade_getSecChordwiseLocations
+    real(dp), intent(in) :: chordwiseFraction, flapHingeRadius
     real(dp), dimension(2, this%nc+1) :: xzCoord  ! Along and normal to chord
-    real(dp), dimension(3) :: vecPC, vecLE, secCP
+    real(dp), dimension(3) :: vecPC, vecLE
     real(dp), dimension(2) :: xzCP
     integer :: is, ic
 
@@ -1916,12 +1917,14 @@ class(blade_class), intent(inout) :: this
       xzCP(2) = pwl_interp1d(xzCoord(1, :), xzCoord(2, :), xzCP(1))
 
       ! Find actual coordinate of xzCP
-      secCP = vecLE + xzCP(1)*this%secTauCapChord(:, is) + &
+      this%secCP(:, is) = vecLE + xzCP(1)*this%secTauCapChord(:, is) + &
         & xzCP(2)*this%secNormalVec(:, is)
 
-      blade_getSecChordwiseLocations(:, is) = secCP
+      ! Find flapping moment arm
+      this%secMflapArm(is) = norm2(projVec(this%secCP(:, is), this%yAxis)) - &
+        & flapHingeRadius
     enddo
-  end function blade_getSecChordwiseLocations
+  end subroutine blade_calc_secLocations
 
   subroutine blade_burst_wake(this, rowFar, skewLimit, largeCoreRadius)
     use libMath, only: getAngleCos
@@ -1993,6 +1996,7 @@ class(blade_class), intent(inout) :: this
     this%dragProfile = sum(this%secDragProfile, 2)
     this%dragInduced = sum(this%secDragInduced, 2)
     this%dragUnsteady = sum(this%secDragUnsteady, 2)
+    this%MflapLift = sum(this%secMflap)
   end subroutine blade_sumSecToNetForces
 
   subroutine blade_calc_stlStats(this)
@@ -2052,12 +2056,12 @@ class(blade_class), intent(inout) :: this
     enddo
   end subroutine blade_calc_stlStats
 
-  function getddflap(this, flap, dflap, omega)
+  function getddflap(this, flap, dflap, omega, MflapLift)
     !! Returns ddflap from blade flap equation
   class(blade_class), intent(in) :: this
-    real(dp), intent(in) :: flap, dflap, omega
+    real(dp), intent(in) :: flap, dflap, omega, MflapLift
     real(dp) :: getddflap
-    getddflap = (this%MflapConstant - this%cflap*dflap - &
+    getddflap = (MflapLift + this%MflapConstant - this%cflap*dflap - &
       & (this%Iflap*omega**2._dp+this%kflap)*flap)/this%Iflap
   end function getddflap
 
@@ -2070,15 +2074,17 @@ class(blade_class), intent(inout) :: this
     ! AM2 predictor corrector
     ! Predictor step
     dflapPred = this%dflap + 0.5_dp*dt* &
-      & (3._dp*this%getddflap(this%flap, this%dflap, omega) - &
-      & this%getddflap(this%flapPrev, this%dflapPrev, omega))
+      & (3._dp*this%getddflap(this%flap, this%dflap, omega, this%MflapLift) - &
+      & this%getddflap(this%flapPrev, this%dflapPrev, omega, this%MflapLiftPrev))
     flapPred = this%flap + 0.5_dp*dt* &
       & (3._dp*this%dflap - this%dflapPrev)
 
+    ! Assumption is made that the flap moment does not vary at the
+    ! predicted flap angle
     ! Corrector step
     dflapNew = this%dflap + 0.5_dp*dt* &
-      & (this%getddflap(flapPred, dflapPred, omega) + &
-      & this%getddflap(this%flap, this%dflap, omega))
+      & (this%getddflap(flapPred, dflapPred, omega, this%MflapLift) + &
+      & this%getddflap(this%flap, this%dflap, omega, this%MflapLift))
     flapNew = this%flap + 0.5_dp*dt* &
       & (dflapPred + this%dflap)
 
@@ -2700,7 +2706,7 @@ class(blade_class), intent(inout) :: this
 
       ! Inflow calculated at mid-chord
       secCPLoc = 0.5_dp
-      this%blade(ib)%secCP = this%blade(ib)%getSecChordwiseLocations(secCPLoc)
+      call this%blade(ib)%calc_secLocations(secCPLoc, this%flapHinge*this%radius)
 
       ! Initialize gamma
       this%blade(ib)%wiP%vr%gam = 0._dp

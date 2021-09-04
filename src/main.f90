@@ -212,6 +212,7 @@ program main
   enddo
 
   ! Compute forces
+
   if (switches%rotorForcePlot .ne. 0) then
     call init_plots(nr)    ! Create headers for plot files
     do ir = 1, nr
@@ -257,9 +258,16 @@ program main
         enddo
 
         call rotor(ir)%calc_force_gamma(density, dt)
+
         ! Avoid recomputing secAlpha since calc_force_gamma()
         ! already does it
         call rotor(ir)%calc_secAlpha(updateSecVel=.False.)
+
+        ! For the first iteration, assign the first flap moment to 
+        ! prev flap moment for use in flap dynamics equation
+        do ib = 1, rotor(ir)%nb
+          rotor(ir)%blade(ib)%MflapLiftPrev = rotor(ir)%blade(ib)%MflapLift
+        enddo
 
       case (1)  ! Compute using alpha
         ! Compute alpha
@@ -298,6 +306,10 @@ program main
       ! Initial force value
       call force2file(timestamp, rotor(ir), ir)
 
+      ! Flap dynamics
+      if (rotor(ir)%flapDynamicsSwitch .ne. 0) then
+        call rotor(ir)%computeBladeDynamics(dt)
+      endif
     enddo
   endif
 
@@ -600,14 +612,12 @@ program main
 
         enddo
       endif
-    endif
 
-    ! Flap dynamics
-    do ir = 1, nr
+      ! Flap dynamics
       if (rotor(ir)%flapDynamicsSwitch .ne. 0) then
         call rotor(ir)%computeBladeDynamics(dt)
       endif
-    enddo
+    endif
 
 
     ! Plot inflow
