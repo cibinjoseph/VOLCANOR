@@ -308,8 +308,8 @@ program main
 
       ! Flap dynamics
       if (rotor(ir)%flapDynamicsSwitch .ne. 0) then
-        call rotor(ir)%computeBladeDynamics(dt)
         call dynamics2file(timestamp, rotor(ir))
+        call rotor(ir)%computeBladeDynamics(dt)
       endif
     enddo
   endif
@@ -615,10 +615,12 @@ program main
       endif
 
       ! Flap dynamics
-      if (rotor(ir)%flapDynamicsSwitch .ne. 0) then
-        call rotor(ir)%computeBladeDynamics(dt)
-        call dynamics2file(timestamp, rotor(ir))
-      endif
+      do ir = 1, nr
+        if (rotor(ir)%flapDynamicsSwitch .ne. 0) then
+          call dynamics2file(timestamp, rotor(ir))
+          call rotor(ir)%computeBladeDynamics(dt)
+        endif
+      enddo
     endif
 
 

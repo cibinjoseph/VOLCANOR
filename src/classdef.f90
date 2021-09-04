@@ -2063,6 +2063,7 @@ class(blade_class), intent(inout) :: this
   class(blade_class), intent(in) :: this
     real(dp), intent(in) :: flap, dflap, omega, MflapLift
     real(dp) :: getddflap
+
     getddflap = (MflapLift + this%MflapConstant - this%cflap*dflap - &
       & (this%Iflap*omega**2._dp+this%kflap)*flap)/this%Iflap
   end function getddflap
@@ -2788,13 +2789,22 @@ class(blade_class), intent(inout) :: this
       call this%blade(ib)%move(this%hubCoords-this%fromCoords)
     enddo
 
-    ! Set Coning angle (initial flap angle)
+    ! Set Dihedral/coning angle (initial flap angle)
     do ib = 1, this%nb
+      ! DEBUG flap equations
+      ! this%blade(ib)%Iflap = 0.8_dp
+      ! this%blade(ib)%cflap = 0.2_dp
+      ! this%blade(ib)%kflap = 0.4_dp
+      ! this%blade(ib)%MflapConstant = 0.3_dp
+
       this%blade(ib)%dflapInitial = 0._dp
       this%blade(ib)%flapInitial = this%flapInitial
 
-      this%blade(ib)%dflapPrev = this%blade(ib)%dflapInitial
-      this%blade(ib)%flapPrev = this%blade(ib)%flapInitial
+      this%blade(ib)%dflap = this%blade(ib)%dflapInitial
+      this%blade(ib)%flap = this%blade(ib)%flapInitial
+
+      this%blade(ib)%dflapPrev = this%blade(ib)%dflap
+      this%blade(ib)%flapPrev = this%blade(ib)%flap
 
       call this%blade(ib)%rot_axis(this%flapInitial, &
         & xAxis, (/0._dp, 0._dp, 0._dp/))
