@@ -31,7 +31,7 @@ program main
   ! Rotor and wake initialization
   do ir = 1, nr
     call rotor(ir)%init(ir, density, dt, nt, switches)
-    call params2file(rotor(ir), ir, nt, dt, nr, density, velSound, switches)
+    call params2file(rotor(ir), nt, dt, nr, density, velSound, switches)
   enddo
 
   ! Rotate wing pc, vr, cp and nCap by initial pitch angle
@@ -51,7 +51,7 @@ program main
 
   ! Plot wing surface geometry
   do ir = 1, nr
-    call geomSurface2file(rotor(ir), ir)
+    call geomSurface2file(rotor(ir))
   enddo
 
   ! Compute AIC and AIC_inv matrices for rotors
@@ -304,12 +304,12 @@ program main
       end select
 
       ! Initial force value
-      call force2file(timestamp, rotor(ir), ir)
+      call force2file(timestamp, rotor(ir))
 
       ! Flap dynamics
       if (rotor(ir)%flapDynamicsSwitch .ne. 0) then
         call rotor(ir)%computeBladeDynamics(dt)
-        call dynamics2file(timestamp, rotor(ir), ir)
+        call dynamics2file(timestamp, rotor(ir))
       endif
     enddo
   endif
@@ -416,7 +416,7 @@ program main
       if (rotor(ir)%skewPlotSwitch .ne. 0) then
         if (mod(iter, rotor(ir)%skewPlotSwitch) .eq. 0) then
           call rotor(ir)%calc_skew()
-          call skew2file(timestamp, rotor(ir), ir)
+          call skew2file(timestamp, rotor(ir))
         endif
       endif
     enddo
@@ -425,12 +425,12 @@ program main
     do ir = 1, nr
       if (switches%wakePlot .ne. 0) then
         if (mod(iter, switches%wakePlot) .eq. 0) &
-          call geom2file(timestamp, rotor(ir), ir)
+          call geom2file(timestamp, rotor(ir))
       endif
 
       if (switches%wakeTipPlot .ne. 0) then
         if (mod(iter, switches%wakeTipPlot) .eq. 0) &
-          call tip2file(timestamp, rotor(ir), ir)
+          call tip2file(timestamp, rotor(ir))
       endif
     enddo
 
@@ -609,7 +609,7 @@ program main
 
           end select
 
-          call force2file(timestamp, rotor(ir), ir)
+          call force2file(timestamp, rotor(ir))
 
         enddo
       endif
@@ -617,7 +617,7 @@ program main
       ! Flap dynamics
       if (rotor(ir)%flapDynamicsSwitch .ne. 0) then
         call rotor(ir)%computeBladeDynamics(dt)
-        call dynamics2file(timestamp, rotor(ir), ir)
+        call dynamics2file(timestamp, rotor(ir))
       endif
     endif
 
@@ -635,7 +635,7 @@ program main
     do ir = 1, nr
       if (rotor(ir)%gammaPlotSwitch .ne. 0) then
         if (mod(iter, rotor(ir)%gammaPlotSwitch) .eq. 0) then
-          call gamma2file(timestamp, rotor(1), ir)
+          call gamma2file(timestamp, rotor(1))
         endif
       endif
     enddo

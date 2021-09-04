@@ -159,6 +159,7 @@ module classdef
   end type pFwake_class
 
   type blade_class
+    character(len=2) :: id
     type(wingpanel_class), allocatable, dimension(:, :) :: wiP  ! Wing panel
     type(Nwake_class), allocatable, dimension(:, :) :: waN  ! Near wake
     type(Fwake_class), allocatable, dimension(:) :: waF  ! Far wake
@@ -247,6 +248,7 @@ module classdef
   end type blade_class
 
   type rotor_class
+    character(len=2) :: id
     integer :: nb, ns, nc, nNwake, nFwake, nbConvect, nNwakeEnd, nFwakeEnd
     type(blade_class), allocatable, dimension(:) :: blade
     real(dp) :: Omega, omegaSlow
@@ -2101,7 +2103,8 @@ class(blade_class), intent(inout) :: this
     integer, intent(out) :: iostat
     character(len=*), intent(inout) :: iomsg
 
-    write(unit, iostat=iostat, iomsg=iomsg) this%wiP, this%waN, this%waF, &
+    write(unit, iostat=iostat, iomsg=iomsg) this%id, this%wiP, &
+      & this%waN, this%waF, &
       & this%waNPredicted, this%waFPredicted, &
       & this%theta, this%psi, &
       & this%forceInertial, this%lift, this%liftUnsteady, & 
@@ -2129,7 +2132,8 @@ class(blade_class), intent(inout) :: this
     integer, intent(out) :: iostat
     character(len=*), intent(inout) :: iomsg
 
-    read(unit, iostat=iostat, iomsg=iomsg) this%wiP, this%waN, this%waF, &
+    read(unit, iostat=iostat, iomsg=iomsg) this%id, this%wiP, &
+      & this%waN, this%waF, &
       & this%waNPredicted, this%waFPredicted, &
       & this%theta, this%psi, &
       & this%forceInertial, this%lift, this%liftUnsteady, & 
@@ -2295,8 +2299,10 @@ class(blade_class), intent(inout) :: this
     real(dp) :: bladeOffset
     real(dp) :: velShed
     real(dp), dimension(4) :: xshift
-    character(len=2) :: rotorChar
     logical :: warnUser
+
+    ! Set id
+    write(this%id, '(I0.2)') rotorNumber
 
     ! Warn if all velocities zero
     if (abs(this%Omega) < eps) then
@@ -2395,11 +2401,10 @@ class(blade_class), intent(inout) :: this
 
     ! Read custom trajectory file if specified
     if (this%customTrajectorySwitch .eq. 1) then
-      write(rotorChar, '(I0.2)') rotorNumber
       allocate(this%velBodyHistory(3, nt))
       allocate(this%omegaBodyHistory(3, nt))
 
-      open (unit=13, file='trajectory'//rotorChar//'.in', &
+      open (unit=13, file='trajectory'//this%id//'.in', &
         & status='old', action='read')
       call skip_comments(13)
       do i = 1, nt
@@ -2461,6 +2466,11 @@ class(blade_class), intent(inout) :: this
     ! Rotor initialization
     this%gamVec = 0._dp
     this%gamVecPrev = 0._dp
+
+    ! Set blade ids
+    do ib = 1, this%nb
+      write(this%blade(ib)%id, '(I0.2)') ib
+    enddo
 
     ! Blade initialization
     if (this%geometryFile(1:1) .eq. '0') then
