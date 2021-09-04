@@ -117,15 +117,15 @@ program main
               row = ic + rotor(ir)%nc*(is - 1) &
                 + rotor(ir)%ns*rotor(ir)%nc*(ib - 1)
 
-              ! Translational vel
+              ! Translational, rotational, omega, flap vel
               rotor(ir)%blade(ib)%wiP(ic, is)%velCP = &
-                -1._dp*rotor(ir)%velBody &
-                ! Rotational vel
-              - cross_product(rotor(ir)%omegaBody, &
-                rotor(ir)%blade(ib)%wiP(ic, is)%CP - rotor(ir)%cgCoords) + &
-                ! Omega vel
-              cross_product(-rotor(ir)%omegaSlow*rotor(ir)%shaftAxis, &
-                rotor(ir)%blade(ib)%wiP(ic, is)%CP - rotor(ir)%hubCoords)
+                & -1._dp*rotor(ir)%velBody &
+                & -cross_product(rotor(ir)%omegaBody, &
+                & rotor(ir)%blade(ib)%wiP(ic, is)%CP - rotor(ir)%cgCoords) &
+                & -cross_product(rotor(ir)%omegaSlow*rotor(ir)%shaftAxis, &
+                & rotor(ir)%blade(ib)%wiP(ic, is)%CP - rotor(ir)%hubCoords) &
+                & -rotor(ir)%blade(ib)%secMFlapArm(is)* &
+                & rotor(ir)%blade(ib)%dflap
 
               ! Record velocities due to motion for 
               ! computing lift and drag directions
@@ -447,15 +447,15 @@ program main
                 row = ic + rotor(ir)%nc*(is - 1) &
                   + rotor(ir)%ns*rotor(ir)%nc*(ib - 1)
 
-                ! Translational vel
+                ! Translational, rotationa, omega, flap vel
                 rotor(ir)%blade(ib)%wiP(ic, is)%velCP = &
-                  -1._dp*rotor(ir)%velBody &
-                  ! Rotational vel
-                - cross_product(rotor(ir)%omegaBody, &
-                  rotor(ir)%blade(ib)%wiP(ic, is)%CP - rotor(ir)%cgCoords) + &
-                  ! Omega vel
-                cross_product(-rotor(ir)%omegaSlow*rotor(ir)%shaftAxis, &
-                  rotor(ir)%blade(ib)%wiP(ic, is)%CP - rotor(ir)%hubCoords)
+                  & -1._dp*rotor(ir)%velBody &
+                  & -cross_product(rotor(ir)%omegaBody, &
+                  & rotor(ir)%blade(ib)%wiP(ic, is)%CP - rotor(ir)%cgCoords) &
+                  & -cross_product(rotor(ir)%omegaSlow*rotor(ir)%shaftAxis, &
+                  & rotor(ir)%blade(ib)%wiP(ic, is)%CP - rotor(ir)%hubCoords) &
+                  & -rotor(ir)%blade(ib)%secMFlapArm(is)* &
+                  & rotor(ir)%blade(ib)%dflap
 
                 ! Record velocities due to motion for induced drag computation
                 rotor(ir)%blade(ib)%wiP(ic, is)%velCPm = &
