@@ -172,8 +172,9 @@ module classdef
     ! Flap dynamics parameters
     real(dp) :: flapInitial, dflapInitial, flapPrev, dflapPrev
     real(dp) :: flap, dflap, Iflap, kflap, cflap, MflapConstant
-    real(dp), dimension(3) :: forceInertial, MomentInertial
-    real(dp), dimension(3) :: lift, drag, moment, momentFlap
+    real(dp) :: MflapLift, MflapLiftPrev
+    real(dp), dimension(3) :: forceInertial
+    real(dp), dimension(3) :: lift, drag
     real(dp), dimension(3) :: dragInduced, dragProfile
     real(dp), dimension(3) :: liftUnsteady, dragUnsteady
     integer, allocatable, dimension(:) :: airfoilNo
@@ -203,7 +204,7 @@ module classdef
     real(dp), allocatable, dimension(:, :) :: secNormalVec, secVelFreestream
     real(dp), allocatable, dimension(:, :) :: secChordwiseResVel, secCP
     real(dp), allocatable, dimension(:) :: secAlpha, secPhi, secCL, secCLu
-    real(dp), allocatable, dimension(:) :: secCD, secCM
+    real(dp), allocatable, dimension(:) :: secCD, secCM, secMflap, secMflapArm
     real(dp), allocatable, dimension(:) :: alpha0
     integer :: spanwiseLiftSwitch
   contains
@@ -1635,10 +1636,13 @@ class(blade_class), intent(inout) :: this
           & (secDynamicPressure(is)*this%secArea(is))
         this%secCLu(is) = norm2(this%secLiftUnsteady(:, is))*signSecCL/ &
           & (secDynamicPressure(is)*this%secArea(is))
+        this%secMflap(is) = norm2(this%secLift(:, is))*signSecCL* &
+          & this%secMflapArm
       else
         this%secCL(is) = 0._dp
         this%secCD(is) = 0._dp
         this%secCLu(is) = 0._dp
+        this%secMflap(is) = 0._dp
       endif
     enddo
 
@@ -2430,6 +2434,8 @@ class(blade_class), intent(inout) :: this
       allocate (this%blade(ib)%secCD(this%ns))
       allocate (this%blade(ib)%secCM(this%ns))
       allocate (this%blade(ib)%secCLu(this%ns))
+      allocate (this%blade(ib)%secMflap(this%ns))
+      allocate (this%blade(ib)%secMflapArm(this%ns))
       allocate (this%blade(ib)%secChordwiseResVel(3, this%ns))
       allocate (this%blade(ib)%secCP(3, this%ns))
     enddo
@@ -3757,9 +3763,16 @@ class(blade_class), intent(inout) :: this
   class(rotor_class), intent(inout) :: this
     real(dp), intent(in) :: dt
     integer :: ib
-    do ib = 1, this%nb
+    do ib = 1, this%nbConvect
       call this%blade(ib)%computeBladeDynamics(dt, this%omegaSlow)
     enddo
+
+    if (this%imposeAxisymmetry == 1) then
+      do ib = 2, this%nb
+        this%blade(ib)%flap = this%blade(1)%flap
+        this%blade(ib)%dflap = this%blade(1)%dflap
+      enddo
+    endif
   end subroutine rotor_computeBladeDynamics
 
   subroutine rotor_burst_wake(this)
