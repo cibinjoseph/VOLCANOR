@@ -386,6 +386,9 @@ program main
       call rotor(ir)%move(rotor(ir)%velBody*dt)
       call rotor(ir)%rot_pts(rotor(ir)%omegaBody*dt, rotor(ir)%cgCoords, 1)
       call rotor(ir)%rot_advance(rotor(ir)%omegaSlow*dt)
+      if (rotor(ir)%bladeDynamicsSwitch) then
+        call rotor(ir)%rot_flap()
+      endif
     enddo
 
     ! Assign LE of near wake

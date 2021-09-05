@@ -174,6 +174,7 @@ module classdef
     real(dp) :: flapInitial, dflapInitial, flapPrev, dflapPrev
     real(dp) :: flap, dflap, Iflap, kflap, cflap, MflapConstant
     real(dp) :: MflapLift, MflapLiftPrev
+    real(dp), dimension(3) :: flapAxis, flapOrigin
     real(dp), dimension(3) :: forceInertial
     real(dp), dimension(3) :: lift, drag
     real(dp), dimension(3) :: dragInduced, dragProfile
@@ -214,6 +215,7 @@ module classdef
     procedure :: rot_axis => blade_rot_axis
     procedure :: rot_wake_axis => blade_rot_wake_axis
     procedure :: rot_pts => blade_rot_pts
+    procedure :: rot_flap => blade_rot_flap
     procedure :: vind_bywing => blade_vind_bywing
     procedure :: vindSource_bywing => blade_vindSource_bywing
     procedure :: vind_bywing_boundVortices => blade_vind_bywing_boundVortices
@@ -311,6 +313,7 @@ module classdef
     procedure :: move => rotor_move
     procedure :: rot_pts => rotor_rot_pts
     procedure :: rot_advance => rotor_rot_advance
+    procedure :: rot_flap => rotor_rot_flap
     procedure :: assignshed => rotor_assignshed
     procedure :: map_gam => rotor_map_gam
     procedure :: age_wake => rotor_age_wake
@@ -1002,6 +1005,8 @@ contains
       this%secCP(:, i) = this%secCP(:, i) + dshift
     enddo
 
+    this%flapOrigin = this%flapOrigin + dshift
+
   end subroutine blade_move
 
   subroutine blade_rot_pts(this, pts, origin, order)
@@ -1045,6 +1050,8 @@ contains
     this%yAxis = matmul(Tmat, this%yAxis)
     this%zAxis = matmul(Tmat, this%zAxis)
 
+    this%flapAxis = matmul(Tmat, this%flapAxis)
+
   end subroutine blade_rot_pts
 
   subroutine blade_rot_pitch(this, theta)
@@ -1055,6 +1062,7 @@ contains
     real(dp), intent(in) :: theta
     real(dp), dimension(3) :: axis
     real(dp), dimension(3) :: axisOrigin!, axisEnd
+    real(dp), dimension(3) :: flapAxisPrev
 
     if (abs(theta) > eps) then
       axisOrigin = this%wiP(1, 1)%PC(:, 1)*(1._dp - this%pivotLE) &
@@ -1066,12 +1074,24 @@ contains
       !axis=axisEnd-axisOrigin
       !axis=axis/norm2(axis)
 
-      ! Use blade X axis for rotation
-      axis = this%yAxis
+      ! Do not rotate flap axis during pitch rotation
+      flapAxisPrev = this%flapAxis
 
+      ! Use blade Y axis for rotation
+      axis = this%yAxis
       call this%rot_axis(theta, axis, axisOrigin)
+
+      this%flapAxis = flapAxisPrev
     endif
   end subroutine blade_rot_pitch
+
+  subroutine blade_rot_flap(this, beta)
+    ! Rotate blade by flap angle
+  class(blade_class), intent(inout) :: this
+    real(dp), intent(in) :: beta
+
+    call this%rot_axis(beta, this%flapAxis, this%flapOrigin)
+  end subroutine blade_rot_flap
 
   subroutine blade_rot_axis(this, theta, axisVec, origin)
     ! Rotate about axis at specified origin
@@ -1113,6 +1133,8 @@ contains
       this%xAxis = matmul(TMat, this%xAxis)
       this%yAxis = matmul(TMat, this%yAxis)
       this%zAxis = matmul(TMat, this%zAxis)
+
+      this%flapAxis = matmul(TMat, this%flapAxis)
     endif
   end subroutine blade_rot_axis
 
@@ -2563,6 +2585,10 @@ class(blade_class), intent(inout) :: this
       this%blade(ib)%yAxis = yAxis
       this%blade(ib)%zAxis = zAxis
 
+      this%blade(ib)%flapAxis = this%blade(ib)%xAxis
+      this%blade(ib)%flapOrigin = this%blade(ib)%yAxis* &
+        & this%radius*this%flapHinge
+
       ! Initialize sec vectors
       if (abs(this%surfaceType) == 1) then
         do j = 1, this%ns
@@ -2806,10 +2832,8 @@ class(blade_class), intent(inout) :: this
       this%blade(ib)%dflapPrev = this%blade(ib)%dflap
       this%blade(ib)%flapPrev = this%blade(ib)%flap
 
-      call this%blade(ib)%rot_axis(this%preconeAngle, &
-        & xAxis, (/0._dp, 0._dp, 0._dp/))
-      call this%blade(ib)%rot_axis(this%flapInitial, &
-        & xAxis, (/0._dp, 0._dp, 0._dp/))
+      call this%blade(ib)%rot_flap(this%preconeAngle)
+      call this%blade(ib)%rot_flap(this%flapInitial)
     enddo
 
     ! Rotate remaining blades to their positions
@@ -3377,8 +3401,19 @@ class(blade_class), intent(inout) :: this
 
   end subroutine rotor_rot_pts
 
+  subroutine rotor_rot_flap(this)
+    ! Rotate blades by flap angle
+  class(rotor_class), intent(inout) :: this
+    integer :: ib
+
+    do ib = 1, this%nb
+      call this%blade(ib)%rot_flap( &
+        & this%blade(ib)%flap-this%blade(ib)%flapPrev)
+    enddo
+  end subroutine rotor_rot_flap
+
   subroutine rotor_rot_advance(this, dpsi, nopitch)
-    ! Rotate rotos by dpsi angle about axis
+    ! Rotate rotor by dpsi angle about axis
   class(rotor_class), intent(inout) :: this
     real(dp), intent(in) :: dpsi
     logical, optional ::  nopitch
