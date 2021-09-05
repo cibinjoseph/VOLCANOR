@@ -169,7 +169,7 @@ module classdef
     type(Fwake_class), allocatable, dimension(:) :: waFPredicted
     type(C81_class), allocatable, dimension(:) :: C81
     integer :: nc, ns
-    real(dp) :: theta, psi, pivotLE
+    real(dp) :: theta, psi, pivotLE, preconeAngle
     ! Flap dynamics parameters
     real(dp) :: flapInitial, dflapInitial, flapPrev, dflapPrev
     real(dp) :: flap, dflap, Iflap, kflap, cflap, MflapConstant
@@ -254,7 +254,9 @@ module classdef
     real(dp) :: Omega, omegaSlow
     real(dp), dimension(3) :: shaftAxis
     real(dp), dimension(3) :: hubCoords, cgCoords, fromCoords
-    real(dp) :: radius, chord, root_cut, flapInitial
+    real(dp) :: radius, chord, root_cut
+    real(dp) :: preconeAngle
+    real(dp) :: flapInitial, dflapInitial, Iflap, cflap, kflap, MflapConstant
     real(dp), dimension(3) :: forceInertial, lift, drag
     real(dp), dimension(3) :: dragInduced, dragProfile
     real(dp), dimension(3) :: liftUnsteady, dragUnsteady
@@ -286,7 +288,7 @@ module classdef
     integer :: rollupStart, rollupEnd
     integer :: suppressFwakeSwitch
     integer :: forceCalcSwitch, skewPlotSwitch
-    integer :: inflowPlotSwitch, flapDynamicsSwitch
+    integer :: inflowPlotSwitch, bladeDynamicsSwitch
     integer :: spanwiseLiftSwitch, customTrajectorySwitch
     integer :: gammaPlotSwitch
     integer :: rowNear, rowFar
@@ -2065,7 +2067,7 @@ class(blade_class), intent(inout) :: this
     real(dp) :: getddflap
 
     getddflap = (MflapLift + this%MflapConstant - this%cflap*dflap - &
-      & (this%Iflap*omega**2._dp+this%kflap)*flap)/this%Iflap
+      & (this%Iflap*omega**2._dp+this%kflap)*(flap-this%preconeAngle))/this%Iflap
   end function getddflap
 
   subroutine blade_computeBladeDynamics(this, dt, omega)
@@ -2211,7 +2213,7 @@ class(blade_class), intent(inout) :: this
     call skip_comments(12)
     read (12, *) this%pts(1), this%pts(2), this%pts(3)
     call skip_comments(12)
-    read (12, *) this%radius, this%root_cut, this%chord, this%flapInitial
+    read (12, *) this%radius, this%root_cut, this%chord, this%preconeAngle
     call skip_comments(12)
     read (12, *) this%Omega, this%shaftAxis(1), this%shaftAxis(2), this%shaftAxis(3)
     call skip_comments(12)
@@ -2247,8 +2249,12 @@ class(blade_class), intent(inout) :: this
     ! Dimensional quantities
     read (12, *) this%rollupStartRadius, this%rollupEndRadius
     call skip_comments(12)
-    read (12, *) this%initWakeVel, &
-      & this%psiStart, this%skewLimit
+    read (12, *) this%initWakeVel, this%psiStart, this%skewLimit
+    call skip_comments(12)
+    read (12, *) this%bladeDynamicsSwitch
+    call skip_comments(12)
+    read (12, *) this%flapInitial, this%dflapInitial, &
+      & this%Iflap, this%cflap, this%kflap, this%MflapConstant
     call skip_comments(12)
     read (12, *) this%dragUnitVec(1), this%dragUnitVec(2), this%dragUnitVec(3)
     call skip_comments(12)
@@ -2256,9 +2262,8 @@ class(blade_class), intent(inout) :: this
     call skip_comments(12)
     read (12, *) this%liftUnitVec(1), this%liftUnitVec(2), this%liftUnitVec(3)
     call skip_comments(12)
-    read (12, *) this%inflowPlotSwitch, this%gammaPlotSwitch
-    call skip_comments(12)
-    read (12, *) this%skewPlotSwitch
+    read (12, *) this%inflowPlotSwitch, this%gammaPlotSwitch, &
+      & this%skewPlotSwitch
     call skip_comments(12)
     read (12, *) this%forceCalcSwitch, this%nAirfoils
     ! Ensure airfoil tables are provided when force calculation requires them
@@ -2275,9 +2280,6 @@ class(blade_class), intent(inout) :: this
       enddo
     endif
     close (12)
-
-    ! Override for Carpenter & Fridovich testcases
-    this%flapDynamicsSwitch = 1
   end subroutine rotor_read_geom
 
   subroutine rotor_init(this, rotorNumber, density, dt, nt, switches)
@@ -2456,7 +2458,7 @@ class(blade_class), intent(inout) :: this
     this%controlPitch = this%controlPitch * degToRad
     this%pts = this%pts * degToRad
     this%thetaTwist = this%thetaTwist * degToRad
-    this%flapInitial = this%flapInitial * degToRad
+    this%preconeAngle = this%preconeAngle * degToRad
     this%psiStart = this%psiStart * degToRad
 
     this%spanwiseCore = this%spanwiseCore*this%chord
@@ -2789,15 +2791,11 @@ class(blade_class), intent(inout) :: this
       call this%blade(ib)%move(this%hubCoords-this%fromCoords)
     enddo
 
-    ! Set Dihedral/coning angle (initial flap angle)
+    ! Set Dihedral/precone angle (initial flap angle)
     do ib = 1, this%nb
-      ! DEBUG flap equations
-      ! this%blade(ib)%Iflap = 0.8_dp
-      ! this%blade(ib)%cflap = 0.2_dp
-      ! this%blade(ib)%kflap = 0.4_dp
-      ! this%blade(ib)%MflapConstant = 0.3_dp
+      this%blade(ib)%preconeAngle = this%preconeAngle
 
-      this%blade(ib)%dflapInitial = 0._dp
+      this%blade(ib)%dflapInitial = this%dflapInitial
       this%blade(ib)%flapInitial = this%flapInitial
 
       this%blade(ib)%dflap = this%blade(ib)%dflapInitial
@@ -2806,6 +2804,8 @@ class(blade_class), intent(inout) :: this
       this%blade(ib)%dflapPrev = this%blade(ib)%dflap
       this%blade(ib)%flapPrev = this%blade(ib)%flap
 
+      call this%blade(ib)%rot_axis(this%preconeAngle, &
+        & xAxis, (/0._dp, 0._dp, 0._dp/))
       call this%blade(ib)%rot_axis(this%flapInitial, &
         & xAxis, (/0._dp, 0._dp, 0._dp/))
     enddo
