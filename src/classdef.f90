@@ -2823,6 +2823,11 @@ class(blade_class), intent(inout) :: this
     do ib = 1, this%nb
       this%blade(ib)%preconeAngle = this%preconeAngle
 
+      this%blade(ib)%Iflap = this%Iflap
+      this%blade(ib)%cflap = this%cflap
+      this%blade(ib)%kflap = this%kflap
+      this%blade(ib)%MflapConstant = this%MflapConstant
+
       this%blade(ib)%dflapInitial = this%dflapInitial
       this%blade(ib)%flapInitial = this%flapInitial
 
@@ -3281,7 +3286,7 @@ class(blade_class), intent(inout) :: this
         + this%controlPitch(3)*sin(psi + bladeOffset)
     case (1)
       ! Ramp collective pitch input
-      rotor_gettheta = min(psi/this%omegaSlow*this%dpitch, this%controlPitch(1))
+      rotor_gettheta = min(psi/this%Omega*this%dpitch, this%controlPitch(1))
     end select
   end function rotor_gettheta
 
@@ -3835,6 +3840,9 @@ class(blade_class), intent(inout) :: this
       do ib = 2, this%nb
         this%blade(ib)%flap = this%blade(1)%flap
         this%blade(ib)%dflap = this%blade(1)%dflap
+
+        this%blade(ib)%flapPrev = this%blade(1)%flapPrev
+        this%blade(ib)%dflapPrev = this%blade(1)%dflapPrev
       enddo
     endif
   end subroutine rotor_computeBladeDynamics
