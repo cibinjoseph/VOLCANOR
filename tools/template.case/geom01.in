@@ -94,13 +94,17 @@
 # ===================================================================
 # BLADE DYNAMICS [Angles in radians]
 # I*ddflap + c*dflap + (I*Om^2 + k)*flap = MflapLift + MflapConst
-# bladeDynamicsSwitch    
+# bladeDynamicsSwitch
 # -------------------------------------------------------------------
        0
 #
 # flap0     dflap0      Iflap      cflap     kflap     MflapConst
 # -------------------------------------------------------------------
   0.0       0.0          0.0       0.0        0.0         0.0
+#
+# pitchDynamicsSwitch    dpitch
+# -------------------------------------------------------------------
+       0                  0.0
 # ===================================================================
 # CUSTOM WIND FRAME FOR FORCE OUTPUT
 #             Drag (x-wind)

@@ -255,7 +255,7 @@ module classdef
     real(dp), dimension(3) :: shaftAxis
     real(dp), dimension(3) :: hubCoords, cgCoords, fromCoords
     real(dp) :: radius, chord, root_cut
-    real(dp) :: preconeAngle
+    real(dp) :: preconeAngle, dpitch
     real(dp) :: flapInitial, dflapInitial, Iflap, cflap, kflap, MflapConstant
     real(dp), dimension(3) :: forceInertial, lift, drag
     real(dp), dimension(3) :: dragInduced, dragProfile
@@ -288,7 +288,7 @@ module classdef
     integer :: rollupStart, rollupEnd
     integer :: suppressFwakeSwitch
     integer :: forceCalcSwitch, skewPlotSwitch
-    integer :: inflowPlotSwitch, bladeDynamicsSwitch
+    integer :: inflowPlotSwitch, bladeDynamicsSwitch, pitchDynamicsSwitch
     integer :: spanwiseLiftSwitch, customTrajectorySwitch
     integer :: gammaPlotSwitch
     integer :: rowNear, rowFar
@@ -2169,7 +2169,7 @@ class(blade_class), intent(inout) :: this
     integer :: i
     character(len=10) :: fileFormatVersion, currentTemplateVersion
 
-    currentTemplateVersion = '0.10'
+    currentTemplateVersion = '0.11'
 
     open (unit=12, file=filename, status='old', action='read')
     call skip_comments(12)
@@ -2255,6 +2255,8 @@ class(blade_class), intent(inout) :: this
     call skip_comments(12)
     read (12, *) this%flapInitial, this%dflapInitial, &
       & this%Iflap, this%cflap, this%kflap, this%MflapConstant
+    call skip_comments(12)
+    read (12, *) this%pitchDynamicsSwitch, this%dpitch
     call skip_comments(12)
     read (12, *) this%dragUnitVec(1), this%dragUnitVec(2), this%dragUnitVec(3)
     call skip_comments(12)
@@ -3244,18 +3246,19 @@ class(blade_class), intent(inout) :: this
     integer, intent(in) :: ib
     real(dp) :: rotor_gettheta
     real(dp) :: bladeOffset
-    ! real(dp) :: pitchRateDegPerSec
 
     bladeOffset = twoPi/this%nb*(ib - 1)
-    rotor_gettheta = this%controlPitch(1) &
-      + this%controlPitch(2)*cos(psi + bladeOffset) &
-      + this%controlPitch(3)*sin(psi + bladeOffset)
 
-    ! For sudden collective pitch testcases (Carpenter & Fridovich)
-    ! pitchRateDegPerSec = 06._dp
-    ! rotor_gettheta = min(psi/this%Omega*pitchRateDegPerSec*degToRad, &
-    !   & this%controlPitch(1))
-    ! print*, "pitch", psi*radToDeg, rotor_gettheta*radToDeg
+    select case (this%pitchDynamicsSwitch)
+    case (0)
+      ! Constant collective pitch
+      rotor_gettheta = this%controlPitch(1) &
+        + this%controlPitch(2)*cos(psi + bladeOffset) &
+        + this%controlPitch(3)*sin(psi + bladeOffset)
+    case (1)
+      ! Ramp collective pitch input
+      rotor_gettheta = min(psi/this%omegaSlow*this%dpitch, this%controlPitch(1))
+    end select
   end function rotor_gettheta
 
   function rotor_getthetadot(this, psi, ib)

@@ -36,13 +36,13 @@ contains
 
       open(unit=12, file=dynamicsFilename, &
         & status='replace', action='write')
-      write(12, 102) 'iter', 'flap', 'dflap'
+      write(12, 102) 'iter', 'pitch','flap', 'dflap'
       close(12)
     enddo
 
     100 format (A5, 11(A15))
     101 format (A5, 9(A15))
-    102 format (A5, 2(A15))
+    102 format (A5, 3(A15))
   end subroutine init_plots
 
   subroutine params2file(rotor, nt, dt, nr, &
@@ -94,7 +94,7 @@ contains
     write(10, *) '"radius": ', rotor%radius, ','
     write(10, *) '"root_cut": ', rotor%root_cut, ','
     write(10, *) '"chord": ', rotor%chord, ','
-    write(10, *) '"coningAngle": ', rotor%flapInitial*radToDeg, ','
+    write(10, *) '"preconeAngle": ', rotor%preconeAngle*radToDeg, ','
     write(10, *) '"Omega": ', rotor%Omega, ','
     write(10, *) '"phi": ', rotor%pts(1), ','
     write(10, *) '"theta": ', rotor%pts(2), ','
@@ -118,7 +118,16 @@ contains
     write(10, *) '"psiStart": ', rotor%psiStart*radToDeg, ','
     write(10, *) '"forceCalcSwitch": ', rotor%forceCalcSwitch*radToDeg, ','
     write(10, *) '"apparentViscCoeff": ', rotor%apparentViscCoeff, ','
-    write(10, *) '"decayCoeff": ', rotor%decayCoeff
+    write(10, *) '"decayCoeff": ', rotor%decayCoeff, ','
+    write(10, *) '"bladeDynamicsSwitch": ', rotor%bladeDynamicsSwitch, ','
+    write(10, *) '"flapInitial": ', rotor%flapInitial, ','
+    write(10, *) '"dFlapInitial": ', rotor%dflapInitial, ','
+    write(10, *) '"Iflap": ', rotor%Iflap, ','
+    write(10, *) '"cflap": ', rotor%cflap, ','
+    write(10, *) '"kflap": ', rotor%kflap, ','
+    write(10, *) '"MflapConstant": ', rotor%MflapConstant, ','
+    write(10, *) '"pitchDynamicsSwitch": ', rotor%pitchDynamicsSwitch, ','
+    write(10, *) '"dpitch": ', rotor%dpitch
     write(10, *) '}'
     close(10)
   end subroutine params2file
@@ -916,11 +925,11 @@ contains
 
     dynamicsFilename = ResultsDir//'r'//rotor%id//'bladedynamics.csv'
     open(unit=10, file=dynamicsFilename, action='write', position='append')
-    write(10, 100) timestamp, rotor%blade(1)%flap*radToDeg, &
+    write(10, 100) timestamp, rotor%blade(1)%theta*radToDeg, rotor%blade(1)%flap*radToDeg, &
       & rotor%blade(1)%dflap*radToDeg
     close(10)
 
-    100 format (A5, 2(E15.7))
+    100 format (A5, 3(E15.7))
   end subroutine dynamics2file
 
   subroutine inflow2file(timestamp, rotorArray, rotorNumber, directionVector)
