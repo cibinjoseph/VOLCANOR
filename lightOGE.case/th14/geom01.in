@@ -49,7 +49,7 @@
 # 
 # theta0[deg]    thetaC[deg]    thetaS[deg]    thetaTwist[deg]
 # -------------------------------------------------------------------
-   -0.608             0.0              0.0           0.0
+   14.0             0.0              0.0           0.0
 # ===================================================================
 # 
 # customTrajectorySwitch    imposeAxisymmetry
@@ -71,7 +71,7 @@
 # apparentViscCoeff  decayCoeff
 # (10-10000)          (bq/s) 
 # -------------------------------------------------------------------
-   1000            0
+   1               0
 # 
 # wakeTruncateNt  prescWakeAfterTruncNt   prescWakeGenNt
 #   [0]Off [n] timesteps [-n] chords/revs
