@@ -9,6 +9,7 @@ import tabulate as tb
 import sys
 import argparse
 from warnings import warn
+from scipy import integrate
 
 # Assumptions
 # 1. No sideslip in secVel
@@ -137,8 +138,13 @@ if isRotor:
     Torque = np.sum(secTorque)
     denom = params['density']*np.pi*params['radius']**2.0*(vRef)**2.0
     CQ = Torque / (denom*params['radius'])
+    vi = np.tan(phi)*data['secSpan']*params['Omega']
+    viMean = 2*integrate.simps(vi*data['secSpan'], data['secSpan']) \
+            /(params['radius'])**2.0
 else:
     Drag0 = np.sum(secDrag0_nonLin)
+    vi = np.tan(phi)*vRef
+    viMean = np.mean(vi)
     Fx = np.sum(secFx_nonLin)
     denom = 0.5*params['density']*params['chord']*params['radius']*(vRef)**2.0
     CFx = Fx / denom
@@ -152,6 +158,7 @@ print('Min/Max alpha (deg) = ' + \
       str(np.min(alphaLookup)) +' / ' + str(np.max(alphaLookup)))
 print('Fz = ' + str(Fz))
 print('CFz = ' + str(CFz))
+print('Mean downwash = ' + str(viMean))
 if isRotor:
     print('Torque = ' + str(Torque))
     print('CQ = ' + str(CQ))
