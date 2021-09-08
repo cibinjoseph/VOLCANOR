@@ -32,7 +32,7 @@
  "radius":    5.00000000000000      ,
  "root_cut":   0.000000000000000E+000 ,
  "chord":    1.00000000000000      ,
- "coningAngle":   0.000000000000000E+000 ,
+ "preconeAngle":   0.000000000000000E+000 ,
  "Omega":    89.9800000000000      ,
  "phi":   0.000000000000000E+000 ,
  "theta":   0.000000000000000E+000 ,
@@ -52,5 +52,15 @@
  "psiStart":   0.000000000000000E+000 ,
  "forceCalcSwitch":   0.000000000000000E+000 ,
  "apparentViscCoeff":    5000.00000000000      ,
- "decayCoeff":   0.000000000000000E+000
+ "decayCoeff":   0.000000000000000E+000 ,
+ "axisymmetrySwitch":            1 ,
+ "bladeDynamicsSwitch":            0 ,
+ "flapInitial":   0.000000000000000E+000 ,
+ "dFlapInitial":   0.000000000000000E+000 ,
+ "Iflap":   0.000000000000000E+000 ,
+ "cflap":   0.000000000000000E+000 ,
+ "kflap":   0.000000000000000E+000 ,
+ "MflapConstant":   0.000000000000000E+000 ,
+ "pitchDynamicsSwitch":            0 ,
+ "dpitch":   0.000000000000000E+000
  }
