@@ -31,7 +31,7 @@ program main
   ! Rotor and wake initialization
   do ir = 1, nr
     call rotor(ir)%init(ir, density, dt, nt, switches)
-    call params2file(rotor(ir), ir, nt, dt, nr, density, velSound, switches)
+    call params2file(rotor(ir), nt, dt, nr, density, velSound, switches)
   enddo
 
   ! Rotate wing pc, vr, cp and nCap by initial pitch angle
@@ -51,7 +51,7 @@ program main
 
   ! Plot wing surface geometry
   do ir = 1, nr
-    call geomSurface2file(rotor(ir), ir)
+    call geomSurface2file(rotor(ir))
   enddo
 
   ! Compute AIC and AIC_inv matrices for rotors
@@ -117,15 +117,15 @@ program main
               row = ic + rotor(ir)%nc*(is - 1) &
                 + rotor(ir)%ns*rotor(ir)%nc*(ib - 1)
 
-              ! Translational vel
+              ! Translational, rotational, omega, flap vel
               rotor(ir)%blade(ib)%wiP(ic, is)%velCP = &
-                -1._dp*rotor(ir)%velBody &
-                ! Rotational vel
-              - cross_product(rotor(ir)%omegaBody, &
-                rotor(ir)%blade(ib)%wiP(ic, is)%CP - rotor(ir)%cgCoords) + &
-                ! Omega vel
-              cross_product(-rotor(ir)%omegaSlow*rotor(ir)%shaftAxis, &
-                rotor(ir)%blade(ib)%wiP(ic, is)%CP - rotor(ir)%hubCoords)
+                & -1._dp*rotor(ir)%velBody &
+                & -cross_product(rotor(ir)%omegaBody, &
+                & rotor(ir)%blade(ib)%wiP(ic, is)%CP - rotor(ir)%cgCoords) &
+                & -cross_product(rotor(ir)%omegaSlow*rotor(ir)%shaftAxis, &
+                & rotor(ir)%blade(ib)%wiP(ic, is)%CP - rotor(ir)%hubCoords) &
+                & -rotor(ir)%blade(ib)%secMFlapArm(is)* &
+                & rotor(ir)%blade(ib)%dflap
 
               ! Record velocities due to motion for 
               ! computing lift and drag directions
@@ -212,6 +212,7 @@ program main
   enddo
 
   ! Compute forces
+
   if (switches%rotorForcePlot .ne. 0) then
     call init_plots(nr)    ! Create headers for plot files
     do ir = 1, nr
@@ -257,9 +258,16 @@ program main
         enddo
 
         call rotor(ir)%calc_force_gamma(density, dt)
+
         ! Avoid recomputing secAlpha since calc_force_gamma()
         ! already does it
         call rotor(ir)%calc_secAlpha(updateSecVel=.False.)
+
+        ! For the first iteration, assign the first flap moment to 
+        ! prev flap moment for use in flap dynamics equation
+        do ib = 1, rotor(ir)%nb
+          rotor(ir)%blade(ib)%MflapLiftPrev = rotor(ir)%blade(ib)%MflapLift
+        enddo
 
       case (1)  ! Compute using alpha
         ! Compute alpha
@@ -296,8 +304,13 @@ program main
       end select
 
       ! Initial force value
-      call force2file(timestamp, rotor(ir), ir)
+      call force2file(timestamp, rotor(ir))
 
+      ! Flap dynamics
+      if (rotor(ir)%bladeDynamicsSwitch .ne. 0) then
+        call dynamics2file(timestamp, rotor(ir))
+        call rotor(ir)%computeBladeDynamics(dt)
+      endif
     enddo
   endif
 
@@ -373,6 +386,9 @@ program main
       call rotor(ir)%move(rotor(ir)%velBody*dt)
       call rotor(ir)%rot_pts(rotor(ir)%omegaBody*dt, rotor(ir)%cgCoords, 1)
       call rotor(ir)%rot_advance(rotor(ir)%omegaSlow*dt)
+      if (rotor(ir)%bladeDynamicsSwitch) then
+        call rotor(ir)%rot_flap()
+      endif
     enddo
 
     ! Assign LE of near wake
@@ -403,7 +419,7 @@ program main
       if (rotor(ir)%skewPlotSwitch .ne. 0) then
         if (mod(iter, rotor(ir)%skewPlotSwitch) .eq. 0) then
           call rotor(ir)%calc_skew()
-          call skew2file(timestamp, rotor(ir), ir)
+          call skew2file(timestamp, rotor(ir))
         endif
       endif
     enddo
@@ -412,12 +428,12 @@ program main
     do ir = 1, nr
       if (switches%wakePlot .ne. 0) then
         if (mod(iter, switches%wakePlot) .eq. 0) &
-          call geom2file(timestamp, rotor(ir), ir)
+          call geom2file(timestamp, rotor(ir))
       endif
 
       if (switches%wakeTipPlot .ne. 0) then
         if (mod(iter, switches%wakeTipPlot) .eq. 0) &
-          call tip2file(timestamp, rotor(ir), ir)
+          call tip2file(timestamp, rotor(ir))
       endif
     enddo
 
@@ -434,15 +450,15 @@ program main
                 row = ic + rotor(ir)%nc*(is - 1) &
                   + rotor(ir)%ns*rotor(ir)%nc*(ib - 1)
 
-                ! Translational vel
+                ! Translational, rotationa, omega, flap vel
                 rotor(ir)%blade(ib)%wiP(ic, is)%velCP = &
-                  -1._dp*rotor(ir)%velBody &
-                  ! Rotational vel
-                - cross_product(rotor(ir)%omegaBody, &
-                  rotor(ir)%blade(ib)%wiP(ic, is)%CP - rotor(ir)%cgCoords) + &
-                  ! Omega vel
-                cross_product(-rotor(ir)%omegaSlow*rotor(ir)%shaftAxis, &
-                  rotor(ir)%blade(ib)%wiP(ic, is)%CP - rotor(ir)%hubCoords)
+                  & -1._dp*rotor(ir)%velBody &
+                  & -cross_product(rotor(ir)%omegaBody, &
+                  & rotor(ir)%blade(ib)%wiP(ic, is)%CP - rotor(ir)%cgCoords) &
+                  & -cross_product(rotor(ir)%omegaSlow*rotor(ir)%shaftAxis, &
+                  & rotor(ir)%blade(ib)%wiP(ic, is)%CP - rotor(ir)%hubCoords) &
+                  & -rotor(ir)%blade(ib)%secMFlapArm(is)* &
+                  & rotor(ir)%blade(ib)%dflap
 
                 ! Record velocities due to motion for induced drag computation
                 rotor(ir)%blade(ib)%wiP(ic, is)%velCPm = &
@@ -596,11 +612,20 @@ program main
 
           end select
 
-          call force2file(timestamp, rotor(ir), ir)
+          call force2file(timestamp, rotor(ir))
 
         enddo
       endif
+
+      ! Flap dynamics
+      do ir = 1, nr
+        if (rotor(ir)%bladeDynamicsSwitch .ne. 0) then
+          call dynamics2file(timestamp, rotor(ir))
+          call rotor(ir)%computeBladeDynamics(dt)
+        endif
+      enddo
     endif
+
 
     ! Plot inflow
     do ir = 1, nr
@@ -615,7 +640,7 @@ program main
     do ir = 1, nr
       if (rotor(ir)%gammaPlotSwitch .ne. 0) then
         if (mod(iter, rotor(ir)%gammaPlotSwitch) .eq. 0) then
-          call gamma2file(timestamp, rotor(1), ir)
+          call gamma2file(timestamp, rotor(1))
         endif
       endif
     enddo

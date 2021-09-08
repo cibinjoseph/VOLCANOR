@@ -159,6 +159,7 @@ module classdef
   end type pFwake_class
 
   type blade_class
+    character(len=2) :: id
     type(wingpanel_class), allocatable, dimension(:, :) :: wiP  ! Wing panel
     type(Nwake_class), allocatable, dimension(:, :) :: waN  ! Near wake
     type(Fwake_class), allocatable, dimension(:) :: waF  ! Far wake
@@ -168,7 +169,12 @@ module classdef
     type(Fwake_class), allocatable, dimension(:) :: waFPredicted
     type(C81_class), allocatable, dimension(:) :: C81
     integer :: nc, ns
-    real(dp) :: theta, psi, pivotLE
+    real(dp) :: theta, psi, pivotLE, preconeAngle
+    ! Flap dynamics parameters
+    real(dp) :: flapInitial, dflapInitial, flapPrev, dflapPrev
+    real(dp) :: flap, dflap, Iflap, kflap, cflap, MflapConstant
+    real(dp) :: MflapLift, MflapLiftPrev
+    real(dp), dimension(3) :: flapAxis, flapOrigin
     real(dp), dimension(3) :: forceInertial
     real(dp), dimension(3) :: lift, drag
     real(dp), dimension(3) :: dragInduced, dragProfile
@@ -200,7 +206,7 @@ module classdef
     real(dp), allocatable, dimension(:, :) :: secNormalVec, secVelFreestream
     real(dp), allocatable, dimension(:, :) :: secChordwiseResVel, secCP
     real(dp), allocatable, dimension(:) :: secAlpha, secPhi, secCL, secCLu
-    real(dp), allocatable, dimension(:) :: secCD, secCM
+    real(dp), allocatable, dimension(:) :: secCD, secCM, secMflap, secMflapArm
     real(dp), allocatable, dimension(:) :: alpha0
     integer :: spanwiseLiftSwitch
   contains
@@ -209,6 +215,7 @@ module classdef
     procedure :: rot_axis => blade_rot_axis
     procedure :: rot_wake_axis => blade_rot_wake_axis
     procedure :: rot_pts => blade_rot_pts
+    procedure :: rot_flap => blade_rot_flap
     procedure :: vind_bywing => blade_vind_bywing
     procedure :: vindSource_bywing => blade_vindSource_bywing
     procedure :: vind_bywing_boundVortices => blade_vind_bywing_boundVortices
@@ -227,12 +234,14 @@ module classdef
     procedure :: calc_secChordwiseResVel => blade_calc_secChordwiseResVel
     procedure :: burst_wake => blade_burst_wake
     procedure :: calc_skew => blade_calc_skew
-    procedure :: getSecChordwiseLocations => blade_getSecChordwiseLocations
+    procedure :: calc_secLocations => blade_calc_secLocations
     procedure :: lookup_secCoeffs => blade_lookup_secCoeffs
     procedure :: secCoeffsToSecForces => blade_secCoeffsTosecForces
     procedure :: dirLiftDrag => blade_dirLiftDrag
     procedure :: sumSecToNetForces => blade_sumSecToNetForces
     procedure :: calc_stlStats => blade_calc_stlStats
+    procedure :: computeBladeDynamics => blade_computeBladeDynamics
+    procedure :: getddflap
     ! I/O subroutines
     procedure :: blade_write
     generic :: write(unformatted) => blade_write
@@ -241,12 +250,15 @@ module classdef
   end type blade_class
 
   type rotor_class
+    character(len=2) :: id
     integer :: nb, ns, nc, nNwake, nFwake, nbConvect, nNwakeEnd, nFwakeEnd
     type(blade_class), allocatable, dimension(:) :: blade
     real(dp) :: Omega, omegaSlow
     real(dp), dimension(3) :: shaftAxis
     real(dp), dimension(3) :: hubCoords, cgCoords, fromCoords
-    real(dp) :: radius, chord, root_cut, coningAngle
+    real(dp) :: radius, chord, root_cut
+    real(dp) :: preconeAngle, dpitch
+    real(dp) :: flapInitial, dflapInitial, Iflap, cflap, kflap, MflapConstant
     real(dp), dimension(3) :: forceInertial, lift, drag
     real(dp), dimension(3) :: dragInduced, dragProfile
     real(dp), dimension(3) :: liftUnsteady, dragUnsteady
@@ -278,14 +290,14 @@ module classdef
     integer :: rollupStart, rollupEnd
     integer :: suppressFwakeSwitch
     integer :: forceCalcSwitch, skewPlotSwitch
-    integer :: inflowPlotSwitch
+    integer :: inflowPlotSwitch, bladeDynamicsSwitch, pitchDynamicsSwitch
     integer :: spanwiseLiftSwitch, customTrajectorySwitch
     integer :: gammaPlotSwitch
     integer :: rowNear, rowFar
     integer :: nCamberFiles, nAirfoils
     integer :: imagePlane, imageRotorNum
     integer :: surfaceType  
-    integer :: imposeAxisymmetry
+    integer :: axisymmetrySwitch
     character(len=30), allocatable, dimension(:) :: camberFile, airfoilFile
     character(len=30) :: geometryFile
     real(dp) :: nonDimforceDenominator
@@ -301,6 +313,7 @@ module classdef
     procedure :: move => rotor_move
     procedure :: rot_pts => rotor_rot_pts
     procedure :: rot_advance => rotor_rot_advance
+    procedure :: rot_flap => rotor_rot_flap
     procedure :: assignshed => rotor_assignshed
     procedure :: map_gam => rotor_map_gam
     procedure :: age_wake => rotor_age_wake
@@ -329,6 +342,7 @@ module classdef
     procedure :: eraseNwake => rotor_eraseNwake
     procedure :: eraseFwake => rotor_eraseFwake
     procedure :: updatePrescribedWake => rotor_updatePrescribedWake
+    procedure :: computeBladeDynamics => rotor_computeBladeDynamics
     ! I/O subroutines
     procedure :: rotor_write
     generic :: write(unformatted) => rotor_write
@@ -991,6 +1005,8 @@ contains
       this%secCP(:, i) = this%secCP(:, i) + dshift
     enddo
 
+    this%flapOrigin = this%flapOrigin + dshift
+
   end subroutine blade_move
 
   subroutine blade_rot_pts(this, pts, origin, order)
@@ -1034,6 +1050,8 @@ contains
     this%yAxis = matmul(Tmat, this%yAxis)
     this%zAxis = matmul(Tmat, this%zAxis)
 
+    this%flapAxis = matmul(Tmat, this%flapAxis)
+
   end subroutine blade_rot_pts
 
   subroutine blade_rot_pitch(this, theta)
@@ -1044,6 +1062,7 @@ contains
     real(dp), intent(in) :: theta
     real(dp), dimension(3) :: axis
     real(dp), dimension(3) :: axisOrigin!, axisEnd
+    real(dp), dimension(3) :: flapAxisPrev
 
     if (abs(theta) > eps) then
       axisOrigin = this%wiP(1, 1)%PC(:, 1)*(1._dp - this%pivotLE) &
@@ -1055,12 +1074,24 @@ contains
       !axis=axisEnd-axisOrigin
       !axis=axis/norm2(axis)
 
-      ! Use blade X axis for rotation
-      axis = this%yAxis
+      ! Do not rotate flap axis during pitch rotation
+      flapAxisPrev = this%flapAxis
 
+      ! Use blade Y axis for rotation
+      axis = this%yAxis
       call this%rot_axis(theta, axis, axisOrigin)
+
+      this%flapAxis = flapAxisPrev
     endif
   end subroutine blade_rot_pitch
+
+  subroutine blade_rot_flap(this, beta)
+    ! Rotate blade by flap angle
+  class(blade_class), intent(inout) :: this
+    real(dp), intent(in) :: beta
+
+    call this%rot_axis(beta, this%flapAxis, this%flapOrigin)
+  end subroutine blade_rot_flap
 
   subroutine blade_rot_axis(this, theta, axisVec, origin)
     ! Rotate about axis at specified origin
@@ -1102,6 +1133,8 @@ contains
       this%xAxis = matmul(TMat, this%xAxis)
       this%yAxis = matmul(TMat, this%yAxis)
       this%zAxis = matmul(TMat, this%zAxis)
+
+      this%flapAxis = matmul(TMat, this%flapAxis)
     endif
   end subroutine blade_rot_axis
 
@@ -1629,10 +1662,13 @@ class(blade_class), intent(inout) :: this
           & (secDynamicPressure(is)*this%secArea(is))
         this%secCLu(is) = norm2(this%secLiftUnsteady(:, is))*signSecCL/ &
           & (secDynamicPressure(is)*this%secArea(is))
+        this%secMflap(is) = norm2(this%secLift(:, is))*signSecCL* &
+          & this%secMflapArm(is)
       else
         this%secCL(is) = 0._dp
         this%secCD(is) = 0._dp
         this%secCLu(is) = 0._dp
+        this%secMflap(is) = 0._dp
       endif
     enddo
 
@@ -1877,14 +1913,15 @@ class(blade_class), intent(inout) :: this
   !  endif
   !end subroutine blade_calc_secAlpha
 
-  function blade_getSecChordwiseLocations(this, chordwiseFraction)
-    ! Get coordinates of a point located at a fraction of chord on each section
+  subroutine blade_calc_secLocations(this, chordwiseFraction, flapHingeRadius)
+    ! Computes important locations at each section
+    ! coordinates of collocation point located at chord fraction
+    ! flap moment arm
     use libMath, only: projVec, pwl_interp1d
   class(blade_class), intent(inout) :: this
-    real(dp), intent(in) :: chordwiseFraction
-    real(dp), dimension(3, this%ns) :: blade_getSecChordwiseLocations
+    real(dp), intent(in) :: chordwiseFraction, flapHingeRadius
     real(dp), dimension(2, this%nc+1) :: xzCoord  ! Along and normal to chord
-    real(dp), dimension(3) :: vecPC, vecLE, secCP
+    real(dp), dimension(3) :: vecPC, vecLE
     real(dp), dimension(2) :: xzCP
     integer :: is, ic
 
@@ -1906,12 +1943,14 @@ class(blade_class), intent(inout) :: this
       xzCP(2) = pwl_interp1d(xzCoord(1, :), xzCoord(2, :), xzCP(1))
 
       ! Find actual coordinate of xzCP
-      secCP = vecLE + xzCP(1)*this%secTauCapChord(:, is) + &
+      this%secCP(:, is) = vecLE + xzCP(1)*this%secTauCapChord(:, is) + &
         & xzCP(2)*this%secNormalVec(:, is)
 
-      blade_getSecChordwiseLocations(:, is) = secCP
+      ! Find flapping moment arm
+      this%secMflapArm(is) = norm2(projVec(this%secCP(:, is), this%yAxis)) - &
+        & flapHingeRadius
     enddo
-  end function blade_getSecChordwiseLocations
+  end subroutine blade_calc_secLocations
 
   subroutine blade_burst_wake(this, rowFar, skewLimit, largeCoreRadius)
     use libMath, only: getAngleCos
@@ -1983,6 +2022,7 @@ class(blade_class), intent(inout) :: this
     this%dragProfile = sum(this%secDragProfile, 2)
     this%dragInduced = sum(this%secDragInduced, 2)
     this%dragUnsteady = sum(this%secDragUnsteady, 2)
+    this%MflapLift = sum(this%secMflap)
   end subroutine blade_sumSecToNetForces
 
   subroutine blade_calc_stlStats(this)
@@ -2042,13 +2082,54 @@ class(blade_class), intent(inout) :: this
     enddo
   end subroutine blade_calc_stlStats
 
+  function getddflap(this, flap, dflap, omega, MflapLift)
+    !! Returns ddflap from blade flap equation
+  class(blade_class), intent(in) :: this
+    real(dp), intent(in) :: flap, dflap, omega, MflapLift
+    real(dp) :: getddflap
+
+    getddflap = (MflapLift + this%MflapConstant - this%cflap*dflap - &
+      & (this%Iflap*omega**2._dp+this%kflap)*(flap-this%preconeAngle))/this%Iflap
+  end function getddflap
+
+  subroutine blade_computeBladeDynamics(this, dt, omega)
+  class(blade_class), intent(inout) :: this
+    real(dp), intent(in) :: dt, omega
+    real(dp) :: flapPred, dflapPred, flapNew, dflapNew
+
+    ! Blade flap dynamics
+    ! AM2 predictor corrector
+    ! Predictor step
+    dflapPred = this%dflap + 0.5_dp*dt* &
+      & (3._dp*this%getddflap(this%flap, this%dflap, omega, this%MflapLift) - &
+      & this%getddflap(this%flapPrev, this%dflapPrev, omega, this%MflapLiftPrev))
+    flapPred = this%flap + 0.5_dp*dt* &
+      & (3._dp*this%dflap - this%dflapPrev)
+
+    ! Assumption is made that the flap moment does not vary at the
+    ! predicted flap angle
+    ! Corrector step
+    dflapNew = this%dflap + 0.5_dp*dt* &
+      & (this%getddflap(flapPred, dflapPred, omega, this%MflapLift) + &
+      & this%getddflap(this%flap, this%dflap, omega, this%MflapLift))
+    flapNew = this%flap + 0.5_dp*dt* &
+      & (dflapPred + this%dflap)
+
+    this%dflapPrev = this%dflap
+    this%flapPrev = this%flap
+
+    this%dflap = dflapNew
+    this%flap = flapNew
+  end subroutine blade_computeBladeDynamics
+
   subroutine blade_write(this, unit, iostat, iomsg)
   class(blade_class), intent(in) :: this
     integer, intent(in) :: unit
     integer, intent(out) :: iostat
     character(len=*), intent(inout) :: iomsg
 
-    write(unit, iostat=iostat, iomsg=iomsg) this%wiP, this%waN, this%waF, &
+    write(unit, iostat=iostat, iomsg=iomsg) this%id, this%wiP, &
+      & this%waN, this%waF, &
       & this%waNPredicted, this%waFPredicted, &
       & this%theta, this%psi, &
       & this%forceInertial, this%lift, this%liftUnsteady, & 
@@ -2076,7 +2157,8 @@ class(blade_class), intent(inout) :: this
     integer, intent(out) :: iostat
     character(len=*), intent(inout) :: iomsg
 
-    read(unit, iostat=iostat, iomsg=iomsg) this%wiP, this%waN, this%waF, &
+    read(unit, iostat=iostat, iomsg=iomsg) this%id, this%wiP, &
+      & this%waN, this%waF, &
       & this%waNPredicted, this%waFPredicted, &
       & this%theta, this%psi, &
       & this%forceInertial, this%lift, this%liftUnsteady, & 
@@ -2109,7 +2191,7 @@ class(blade_class), intent(inout) :: this
     integer :: i
     character(len=10) :: fileFormatVersion, currentTemplateVersion
 
-    currentTemplateVersion = '0.10'
+    currentTemplateVersion = '0.11'
 
     open (unit=12, file=filename, status='old', action='read')
     call skip_comments(12)
@@ -2153,13 +2235,13 @@ class(blade_class), intent(inout) :: this
     call skip_comments(12)
     read (12, *) this%pts(1), this%pts(2), this%pts(3)
     call skip_comments(12)
-    read (12, *) this%radius, this%root_cut, this%chord, this%coningAngle
+    read (12, *) this%radius, this%root_cut, this%chord, this%preconeAngle
     call skip_comments(12)
     read (12, *) this%Omega, this%shaftAxis(1), this%shaftAxis(2), this%shaftAxis(3)
     call skip_comments(12)
     read (12, *) this%controlPitch(1), this%controlPitch(2), this%controlPitch(3), this%thetaTwist
     call skip_comments(12)
-    read(12, *) this%customTrajectorySwitch, this%imposeAxisymmetry
+    read(12, *) this%customTrajectorySwitch, this%axisymmetrySwitch
     call skip_comments(12)
     read (12, *) this%velBody(1), this%velBody(2), this%velBody(3) &
       , this%omegaBody(1), this%omegaBody(2), this%omegaBody(3)
@@ -2189,8 +2271,14 @@ class(blade_class), intent(inout) :: this
     ! Dimensional quantities
     read (12, *) this%rollupStartRadius, this%rollupEndRadius
     call skip_comments(12)
-    read (12, *) this%initWakeVel, &
-      & this%psiStart, this%skewLimit
+    read (12, *) this%initWakeVel, this%psiStart, this%skewLimit
+    call skip_comments(12)
+    read (12, *) this%bladeDynamicsSwitch
+    call skip_comments(12)
+    read (12, *) this%flapInitial, this%dflapInitial, &
+      & this%Iflap, this%cflap, this%kflap, this%MflapConstant
+    call skip_comments(12)
+    read (12, *) this%pitchDynamicsSwitch, this%dpitch
     call skip_comments(12)
     read (12, *) this%dragUnitVec(1), this%dragUnitVec(2), this%dragUnitVec(3)
     call skip_comments(12)
@@ -2198,9 +2286,8 @@ class(blade_class), intent(inout) :: this
     call skip_comments(12)
     read (12, *) this%liftUnitVec(1), this%liftUnitVec(2), this%liftUnitVec(3)
     call skip_comments(12)
-    read (12, *) this%inflowPlotSwitch, this%gammaPlotSwitch
-    call skip_comments(12)
-    read (12, *) this%skewPlotSwitch
+    read (12, *) this%inflowPlotSwitch, this%gammaPlotSwitch, &
+      & this%skewPlotSwitch
     call skip_comments(12)
     read (12, *) this%forceCalcSwitch, this%nAirfoils
     ! Ensure airfoil tables are provided when force calculation requires them
@@ -2239,8 +2326,10 @@ class(blade_class), intent(inout) :: this
     real(dp) :: bladeOffset
     real(dp) :: velShed
     real(dp), dimension(4) :: xshift
-    character(len=2) :: rotorChar
     logical :: warnUser
+
+    ! Set id
+    write(this%id, '(I0.2)') rotorNumber
 
     ! Warn if all velocities zero
     if (abs(this%Omega) < eps) then
@@ -2325,7 +2414,7 @@ class(blade_class), intent(inout) :: this
 
     ! Define limits for use in wake convection
     this%nbConvect = this%nb
-    if (this%imposeAxisymmetry == 1) this%nbConvect = 1
+    if (this%axisymmetrySwitch == 1) this%nbConvect = 1
     this%nNwakeEnd = this%nNwake
     this%nFwakeEnd = this%nFwake
 
@@ -2339,11 +2428,10 @@ class(blade_class), intent(inout) :: this
 
     ! Read custom trajectory file if specified
     if (this%customTrajectorySwitch .eq. 1) then
-      write(rotorChar, '(I0.2)') rotorNumber
       allocate(this%velBodyHistory(3, nt))
       allocate(this%omegaBodyHistory(3, nt))
 
-      open (unit=13, file='trajectory'//rotorChar//'.in', &
+      open (unit=13, file='trajectory'//this%id//'.in', &
         & status='old', action='read')
       call skip_comments(13)
       do i = 1, nt
@@ -2384,6 +2472,8 @@ class(blade_class), intent(inout) :: this
       allocate (this%blade(ib)%secCD(this%ns))
       allocate (this%blade(ib)%secCM(this%ns))
       allocate (this%blade(ib)%secCLu(this%ns))
+      allocate (this%blade(ib)%secMflap(this%ns))
+      allocate (this%blade(ib)%secMflapArm(this%ns))
       allocate (this%blade(ib)%secChordwiseResVel(3, this%ns))
       allocate (this%blade(ib)%secCP(3, this%ns))
     enddo
@@ -2392,7 +2482,7 @@ class(blade_class), intent(inout) :: this
     this%controlPitch = this%controlPitch * degToRad
     this%pts = this%pts * degToRad
     this%thetaTwist = this%thetaTwist * degToRad
-    this%coningAngle = this%coningAngle * degToRad
+    this%preconeAngle = this%preconeAngle * degToRad
     this%psiStart = this%psiStart * degToRad
 
     this%spanwiseCore = this%spanwiseCore*this%chord
@@ -2403,6 +2493,11 @@ class(blade_class), intent(inout) :: this
     ! Rotor initialization
     this%gamVec = 0._dp
     this%gamVecPrev = 0._dp
+
+    ! Set blade ids
+    do ib = 1, this%nb
+      write(this%blade(ib)%id, '(I0.2)') ib
+    enddo
 
     ! Blade initialization
     if (this%geometryFile(1:1) .eq. '0') then
@@ -2489,6 +2584,10 @@ class(blade_class), intent(inout) :: this
       this%blade(ib)%xAxis = xAxis
       this%blade(ib)%yAxis = yAxis
       this%blade(ib)%zAxis = zAxis
+
+      this%blade(ib)%flapAxis = this%blade(ib)%xAxis
+      this%blade(ib)%flapOrigin = this%blade(ib)%yAxis* &
+        & this%radius*this%flapHinge
 
       ! Initialize sec vectors
       if (abs(this%surfaceType) == 1) then
@@ -2648,7 +2747,7 @@ class(blade_class), intent(inout) :: this
 
       ! Inflow calculated at mid-chord
       secCPLoc = 0.5_dp
-      this%blade(ib)%secCP = this%blade(ib)%getSecChordwiseLocations(secCPLoc)
+      call this%blade(ib)%calc_secLocations(secCPLoc, this%flapHinge*this%radius)
 
       ! Initialize gamma
       this%blade(ib)%wiP%vr%gam = 0._dp
@@ -2720,10 +2819,26 @@ class(blade_class), intent(inout) :: this
       call this%blade(ib)%move(this%hubCoords-this%fromCoords)
     enddo
 
-    ! Set Coning angle
+    ! Set Dihedral/precone angle (initial flap angle)
     do ib = 1, this%nb
-      call this%blade(ib)%rot_axis(this%coningAngle, &
-        & xAxis, (/0._dp, 0._dp, 0._dp/))
+      this%blade(ib)%preconeAngle = this%preconeAngle
+
+      this%blade(ib)%Iflap = this%Iflap
+      this%blade(ib)%cflap = this%cflap
+      this%blade(ib)%kflap = this%kflap
+      this%blade(ib)%MflapConstant = this%MflapConstant
+
+      this%blade(ib)%dflapInitial = this%dflapInitial
+      this%blade(ib)%flapInitial = this%flapInitial
+
+      this%blade(ib)%dflap = this%blade(ib)%dflapInitial
+      this%blade(ib)%flap = this%blade(ib)%flapInitial
+
+      this%blade(ib)%dflapPrev = this%blade(ib)%dflap
+      this%blade(ib)%flapPrev = this%blade(ib)%flap
+
+      call this%blade(ib)%rot_flap(this%preconeAngle)
+      call this%blade(ib)%rot_flap(this%flapInitial)
     enddo
 
     ! Rotate remaining blades to their positions
@@ -3160,18 +3275,19 @@ class(blade_class), intent(inout) :: this
     integer, intent(in) :: ib
     real(dp) :: rotor_gettheta
     real(dp) :: bladeOffset
-    ! real(dp) :: pitchRateDegPerSec
 
     bladeOffset = twoPi/this%nb*(ib - 1)
-    rotor_gettheta = this%controlPitch(1) &
-      + this%controlPitch(2)*cos(psi + bladeOffset) &
-      + this%controlPitch(3)*sin(psi + bladeOffset)
 
-    ! For sudden collective pitch testcases (Carpenter & Fridovich)
-    ! pitchRateDegPerSec = 06._dp
-    ! rotor_gettheta = min(psi/this%Omega*pitchRateDegPerSec*degToRad, &
-    !   & this%controlPitch(1))
-    ! print*, "pitch", psi*radToDeg, rotor_gettheta*radToDeg
+    select case (this%pitchDynamicsSwitch)
+    case (0)
+      ! Constant collective pitch
+      rotor_gettheta = this%controlPitch(1) &
+        + this%controlPitch(2)*cos(psi + bladeOffset) &
+        + this%controlPitch(3)*sin(psi + bladeOffset)
+    case (1)
+      ! Ramp collective pitch input
+      rotor_gettheta = min(psi/this%Omega*this%dpitch, this%controlPitch(1))
+    end select
   end function rotor_gettheta
 
   function rotor_getthetadot(this, psi, ib)
@@ -3222,7 +3338,7 @@ class(blade_class), intent(inout) :: this
     ! Map gam from vector to matrix format
   class(rotor_class), intent(inout) :: this
     integer :: ib
-    if (this%imposeAxisymmetry == 0) then
+    if (this%axisymmetrySwitch == 0) then
       do ib = 1, this%nb
         this%blade(ib)%wiP%vr%gam &
           = reshape(this%gamVec(1+this%nc*this%ns*(ib-1):this%nc*this%ns*ib), &
@@ -3290,8 +3406,19 @@ class(blade_class), intent(inout) :: this
 
   end subroutine rotor_rot_pts
 
+  subroutine rotor_rot_flap(this)
+    ! Rotate blades by flap angle
+  class(rotor_class), intent(inout) :: this
+    integer :: ib
+
+    do ib = 1, this%nb
+      call this%blade(ib)%rot_flap( &
+        & this%blade(ib)%flap-this%blade(ib)%flapPrev)
+    enddo
+  end subroutine rotor_rot_flap
+
   subroutine rotor_rot_advance(this, dpsi, nopitch)
-    ! Rotate rotos by dpsi angle about axis
+    ! Rotate rotor by dpsi angle about axis
   class(rotor_class), intent(inout) :: this
     real(dp), intent(in) :: dpsi
     logical, optional ::  nopitch
@@ -3665,7 +3792,7 @@ class(blade_class), intent(inout) :: this
     integer :: ib
     real(dp) :: bladeOffset
 
-    if (this%imposeAxisymmetry == 0) then
+    if (this%axisymmetrySwitch == 0) then
       do ib = 1, this%nb
         call this%blade(ib)%convectwake(this%rowNear, this%rowFar, dt, wakeType)
       enddo
@@ -3700,6 +3827,25 @@ class(blade_class), intent(inout) :: this
     endif
 
   end subroutine rotor_convectwake
+
+  subroutine rotor_computeBladeDynamics(this, dt)
+  class(rotor_class), intent(inout) :: this
+    real(dp), intent(in) :: dt
+    integer :: ib
+    do ib = 1, this%nbConvect
+      call this%blade(ib)%computeBladeDynamics(dt, this%omegaSlow)
+    enddo
+
+    if (this%axisymmetrySwitch == 1) then
+      do ib = 2, this%nb
+        this%blade(ib)%flap = this%blade(1)%flap
+        this%blade(ib)%dflap = this%blade(1)%dflap
+
+        this%blade(ib)%flapPrev = this%blade(1)%flapPrev
+        this%blade(ib)%dflapPrev = this%blade(1)%dflapPrev
+      enddo
+    endif
+  end subroutine rotor_computeBladeDynamics
 
   subroutine rotor_burst_wake(this)
   class(rotor_class), intent(inout) :: this
@@ -3980,7 +4126,7 @@ class(blade_class), intent(inout) :: this
       enddo
     end select
 
-    if (this%imposeAxisymmetry == 1) then
+    if (this%axisymmetrySwitch == 1) then
       do ib = 2, this%nb
         bladeOffset = twoPi/this%nb*(ib - 1)
         select case (wakeType)

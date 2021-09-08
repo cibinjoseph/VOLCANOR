@@ -7,8 +7,9 @@ contains
   subroutine init_plots(numOfRotors)
     ! Initialise headers for plot files
     integer, intent(in) :: numOfRotors
-    character(len=24) :: forceDimFilename
-    character(len=27) :: forceNonDimFilename
+    character(len=30) :: forceDimFilename
+    character(len=30) :: forceNonDimFilename
+    character(len=30) :: dynamicsFilename
     integer :: rotorNumber
     character(len=2) :: rotorNumberChar
 
@@ -16,39 +17,45 @@ contains
       write (rotorNumberChar, '(I0.2)') rotorNumber
       forceDimFilename = ResultsDir//'r'//rotorNumberChar//'ForceDim.csv'
       forceNonDimFilename = ResultsDir//'r'//rotorNumberChar//'ForceNonDim.csv'
+      dynamicsFilename = ResultsDir//'r'//rotorNumberChar//'bladedynamics.csv'
 
       ! Add data headers
-      open (unit=11, file=forceDimFilename, &
+      open (unit=10, file=forceDimFilename, &
         & status='replace', action='write')
-      write (11, 100) 'iter','LiftMag','DragMag', &
+      write (10, 100) 'iter','LiftMag','DragMag', &
         & 'Lx','Ly','Lz', &
         & 'Dx','Dy','Dz', &
         & 'FInertx','FInerty','FInertz'
+      close (10)
+
+      open (unit=11, file=forceNonDimFilename, &
+        & status='replace', action='write')
+      write (11, 101) 'iter','CL/CT','CD/CQ', 'CLu','CDi','CD0','CDu', &
+        & 'CFx','CFy','CFz'
       close (11)
 
-      open (unit=12, file=forceNonDimFilename, &
+      open(unit=12, file=dynamicsFilename, &
         & status='replace', action='write')
-      write (12, 101) 'iter','CL/CT','CD/CQ', 'CLu','CDi','CD0','CDu', &
-        & 'CFx','CFy','CFz'
-      close (12)
+      write(12, 102) 'iter', 'pitch','flap', 'dflap'
+      close(12)
     enddo
-    100 format (A5,11(A15))
-    101 format (A5,9(A15))
+
+    100 format (A5, 11(A15))
+    101 format (A5, 9(A15))
+    102 format (A5, 3(A15))
   end subroutine init_plots
 
-  subroutine params2file(rotor, rotorNumber, nt, dt, nr, &
+  subroutine params2file(rotor, nt, dt, nr, &
       & density, velSound, switches)
     ! Write rotor parameters to json file
     use classdef, only: rotor_class, switches_class
     type(rotor_class), intent(in) :: rotor
     type(switches_class), intent(in) :: switches
-    integer, intent(in) :: rotorNumber, nt, nr
+    integer, intent(in) :: nt, nr
     real(dp), intent(in) :: dt, density, velSound
-    character(len=2) :: rotorNumberChar
     character(len=22) :: paramsFilename
 
-    write (rotorNumberChar, '(I0.2)') rotorNumber
-    paramsFilename = ResultsDir//'r'//rotorNumberChar//'Params.json'
+    paramsFilename = ResultsDir//'r'//rotor%id//'Params.json'
     open(unit=10, file=paramsFilename, status='replace', action='write')
     write(10, *) '{'
     ! Config file 
@@ -87,7 +94,7 @@ contains
     write(10, *) '"radius": ', rotor%radius, ','
     write(10, *) '"root_cut": ', rotor%root_cut, ','
     write(10, *) '"chord": ', rotor%chord, ','
-    write(10, *) '"coningAngle": ', rotor%coningAngle*radToDeg, ','
+    write(10, *) '"preconeAngle": ', rotor%preconeAngle*radToDeg, ','
     write(10, *) '"Omega": ', rotor%Omega, ','
     write(10, *) '"phi": ', rotor%pts(1), ','
     write(10, *) '"theta": ', rotor%pts(2), ','
@@ -111,29 +118,35 @@ contains
     write(10, *) '"psiStart": ', rotor%psiStart*radToDeg, ','
     write(10, *) '"forceCalcSwitch": ', rotor%forceCalcSwitch*radToDeg, ','
     write(10, *) '"apparentViscCoeff": ', rotor%apparentViscCoeff, ','
-    write(10, *) '"decayCoeff": ', rotor%decayCoeff
+    write(10, *) '"decayCoeff": ', rotor%decayCoeff, ','
+    write(10, *) '"axisymmetrySwitch": ', rotor%axisymmetrySwitch, ','
+    write(10, *) '"bladeDynamicsSwitch": ', rotor%bladeDynamicsSwitch, ','
+    write(10, *) '"flapInitial": ', rotor%flapInitial, ','
+    write(10, *) '"dFlapInitial": ', rotor%dflapInitial, ','
+    write(10, *) '"Iflap": ', rotor%Iflap, ','
+    write(10, *) '"cflap": ', rotor%cflap, ','
+    write(10, *) '"kflap": ', rotor%kflap, ','
+    write(10, *) '"MflapConstant": ', rotor%MflapConstant, ','
+    write(10, *) '"pitchDynamicsSwitch": ', rotor%pitchDynamicsSwitch, ','
+    write(10, *) '"dpitch": ', rotor%dpitch
     write(10, *) '}'
     close(10)
   end subroutine params2file
 
-  subroutine geom2file(timestamp, rotor, rotorNumber)
+  subroutine geom2file(timestamp, rotor)
     ! Plot rotor geometry and wake to file
     use classdef, only: rotor_class
     type(rotor_class), intent(in) :: rotor
     character(len=*), intent(in) :: timestamp
-    integer, intent(in) :: rotorNumber
     character(len=5) :: nxChar, nyChar
-    character(len=2) :: rotorNumberChar, bladeNumberChar
     real(dp), dimension(3, rotor%nc + 1, rotor%ns + 1) :: wingMesh
     real(dp), dimension(3, rotor%nNwake + 1, rotor%ns + 1) :: wakeMesh
     real(dp), dimension(3, rotor%nFwake + 1) :: wakeTip   ! Optimise this by only initialising reqd size
     real(dp), dimension(3, size(rotor%blade(1)%wapF%waF) + 1) :: wakeTipPresc
     integer :: i, j, nx, ny, ib
 
-    write (rotorNumberChar, '(I0.2)') rotorNumber
-
     open (unit=10, file=ResultsDir// &
-      & 'r'//rotorNumberChar//'wingNwake'//timestamp//'.plt', position='append')
+      & 'r'//rotor%id//'wingNwake'//timestamp//'.plt', position='append')
 
     if (abs(rotor%surfaceType) == 1) then
       ! Lifting surface
@@ -141,7 +154,6 @@ contains
       write (10, *) 'VARIABLES = "X" "Y" "Z" "GAM" "skew"' ! "Var6"'
 
       do ib = 1, rotor%nb
-        write (bladeNumberChar, '(I0.2)') ib
         ! Wing
         nx = rotor%nc
         ny = rotor%ns
@@ -161,7 +173,8 @@ contains
         enddo
         wingMesh(:, nx + 1, ny + 1) = rotor%blade(ib)%wiP(nx, ny)%pc(:, 3)
 
-        write (10, *) 'Zone I='//trim(nxChar)//' J='//trim(nyChar)//' K=1  T="Blade '//trim(bladeNumberChar)//'"'
+        write (10, *) 'Zone I='//trim(nxChar)//' J='//trim(nyChar)// &
+          & ' K=1  T="Blade '//rotor%blade(ib)%id//'"'
         write (10, *) 'DATAPACKING=BLOCK'
         write (10, *) 'VARLOCATION=([4]=CELLCENTERED,[5]=CELLCENTERED)' !,[6]=CELLCENTERED)'
         write (10, *) ((wingMesh(1, i, j), i=1, nx + 1), j=1, ny + 1)
@@ -284,8 +297,6 @@ contains
       write (10, *) 'VARIABLES = "X" "Y" "Z" "GAM"' ! "skew" "Var6"'
 
       do ib = 1, rotor%nb
-        write (bladeNumberChar, '(I0.2)') ib
-
         ! Compute common nodes of non-lifting surface
         nx = rotor%blade(ib)%stlNodesCols
         ny = rotor%nc ! No. of triangular elements
@@ -294,7 +305,7 @@ contains
 
         write(10, *) 'Zone NODES='//trim(nxChar)// &
           & ' ELEMENTS='//nyChar// &
-          & ' T="Blade '//trim(bladeNumberChar)//'"'
+          & ' T="Blade '//rotor%blade(ib)%id//'"'
         write(10, *) 'ZONETYPE=FETRIANGLE, DATAPACKING=BLOCK'
         write(10, *) 'VARLOCATION=(4=CELLCENTERED)'
         write(10, *) rotor%blade(ib)%stlNodes(1, 1:nx)
@@ -522,25 +533,21 @@ contains
     close (10)
   end subroutine mesh2file
 
-  subroutine geomSurface2file(rotor, rotorNumber)
+  subroutine geomSurface2file(rotor)
     ! Plot surface geometry to file
     use classdef, only: rotor_class
     type(rotor_class), intent(in) :: rotor
-    integer, intent(in) :: rotorNumber
 
     character(len=5) :: nxChar, nyChar
-    character(len=2) :: rotorNumberChar, bladeNumberChar
     real(dp), dimension(3, rotor%nc+1, rotor%ns+1) :: mesh
     integer :: i, j, nx, ny, ib
 
-    write (rotorNumberChar, '(I0.2)') rotorNumber
     do ib = 1, rotor%nb
-      write (bladeNumberChar, '(I0.2)') ib
       open (unit=10, file=ResultsDir// &
-        & 'r'//rotorNumberChar//'b'//bladeNumberChar//'Surface.plt', &
+        & 'r'//rotor%id//'b'//rotor%blade(ib)%id//'Surface.plt', &
         & action='write', position='append')
 
-      write (10, *) 'Title="r'//rotorNumberChar//'b'//bladeNumberChar//'"'
+      write (10, *) 'Title="r'//rotor%id//'b'//rotor%blade(ib)%id//'"'
       write (10, *) 'VARIABLES = "X" "Y" "Z" "nx" "ny" "nz"' 
       ! nx , ny, nz can be used for vectors at nodes
 
@@ -668,13 +675,11 @@ contains
 
   end subroutine geomSurface2file
 
-  subroutine tip2file(timestamp, rotor, rotorNumber)
+  subroutine tip2file(timestamp, rotor)
     use classdef, only: rotor_class
     type(rotor_class), intent(in) :: rotor
     character(len=*), intent(in) :: timestamp
-    integer, intent(in) :: rotorNumber
     character(len=5) :: nxChar, nyChar
-    character(len=2) :: rotorNumberChar
     real(dp), dimension(3, rotor%nc + 1, rotor%ns + 1) :: wingMesh
     real(dp), dimension(3, rotor%nNwake + 1) :: nWakeTip
     real(dp), dimension(rotor%nNwake) :: gamRollup
@@ -682,10 +687,8 @@ contains
     real(dp) :: gamSum
     integer :: ib, i, j, nx, ny
 
-    write (rotorNumberChar, '(I0.2)') rotorNumber
-
     open (unit=10, file=ResultsDir// &
-      & 'r'//rotorNumberChar//'tip'//timestamp//'.plt', &
+      & 'r'//rotor%id//'tip'//timestamp//'.plt', &
       & action='write', position='append')
 
     write (10, *) 'Title = "Wing and Tip"'
@@ -826,23 +829,18 @@ contains
 
   end subroutine tip2file
 
-  subroutine skew2file(timestamp, rotor, rotorNumber)
+  subroutine skew2file(timestamp, rotor)
     use classdef, only: rotor_class
     type(rotor_class), intent(in) :: rotor
     character(len=*), intent(in) :: timestamp
-    integer, intent(in) :: rotorNumber
-    character(len=2) :: rotorNumberChar, bladeNumberChar
     integer :: ib, irow, nrow, ncol
-
-    write (rotorNumberChar, '(I0.2)') rotorNumber
 
     nrow = size(rotor%blade(1)%waN, 1)
     ncol = size(rotor%blade(1)%waN, 2)
 
     do ib = 1, rotor%nb
-      write (bladeNumberChar, '(I0.2)') ib
       open (unit=12, file=ResultsDir// &
-        & 'r'//rotorNumberChar// 'b'//bladeNumberChar// &
+        & 'r'//rotor%id// 'b'//rotor%blade(ib)%id// &
         & 'skew'//timestamp//'.csv', & 
         & action='write')
 
@@ -858,20 +856,16 @@ contains
     enddo
   end subroutine skew2file
 
-  subroutine force2file(timestamp, rotor, rotorNumber)
+  subroutine force2file(timestamp, rotor)
     ! Write sec and net force to file
     use classdef, only: rotor_class
     type(rotor_class), intent(in) :: rotor
     character(len=*), intent(in) :: timestamp
-    integer, intent(in) :: rotorNumber
-    character(len=2) :: rotorNumberChar, bladeNumberChar
-    integer :: ib, ispan, iter
+    integer :: ib, ispan
     character(len=24) :: forceDimFilename
     character(len=27) :: forceNonDimFilename
 
-    write (rotorNumberChar, '(I0.2)') rotorNumber
-
-    forceNonDimFilename = ResultsDir//'r'//rotorNumberChar//'ForceNonDim.csv'
+    forceNonDimFilename = ResultsDir//'r'//rotor%id//'ForceNonDim.csv'
     open (unit=11, file=forceNonDimFilename, action='write', position='append')
     write (11, 100) timestamp, &
       norm2(rotor%lift) / rotor%nonDimforceDenominator, &          ! CL
@@ -886,7 +880,7 @@ contains
     close (11)
     100 format(A, 9(E15.7))
 
-    forceDimFilename = ResultsDir//'r'//rotorNumberChar//'ForceDim.csv'
+    forceDimFilename = ResultsDir//'r'//rotor%id//'ForceDim.csv'
     open (unit=12, file=forceDimFilename, action='write', position='append')
     write (12, 101) timestamp, norm2(rotor%lift), norm2(rotor%drag), &
       rotor%lift(1), rotor%lift(2), rotor%lift(3), &     ! Lift
@@ -895,11 +889,9 @@ contains
     close (12)
     101 format(A, 11(E15.7))
 
-    read(timestamp, *) iter
     do ib = 1, rotor%nb
-      write (bladeNumberChar, '(I0.2)') ib
       open (unit=12, file=ResultsDir// &
-        & 'r'//rotorNumberChar// 'b'//bladeNumberChar// &
+        & 'r'//rotor%id// 'b'//rotor%blade(ib)%id// &
         & 'ForceDist'//timestamp//'.csv', & 
         & action='write', position='append')
       write (12, 202) 'secSpan', 'secCL', 'secCD', 'secCLu', &
@@ -926,9 +918,24 @@ contains
     102 format(11(E15.7))
   end subroutine force2file
 
+  subroutine dynamics2file(timestamp, rotor)
+    use classdef, only: rotor_class
+    character(len=*), intent(in) :: timestamp
+    type(rotor_class), intent(in) :: rotor
+    character(len=30) :: dynamicsFilename
+
+    dynamicsFilename = ResultsDir//'r'//rotor%id//'bladedynamics.csv'
+    open(unit=10, file=dynamicsFilename, action='write', position='append')
+    write(10, 100) timestamp, rotor%blade(1)%theta*radToDeg, rotor%blade(1)%flap*radToDeg, &
+      & rotor%blade(1)%dflap*radToDeg
+    close(10)
+
+    100 format (A5, 3(E15.7))
+  end subroutine dynamics2file
+
   subroutine inflow2file(timestamp, rotorArray, rotorNumber, directionVector)
-    ! Calculate inflow velocity along directionVector on the blades of rotor(rotorNumber)
-    ! at rotor(rotorNumber)%secCP
+    ! Calculate inflow velocity along directionVector 
+    ! on the blades of rotor(rotorNumber) at rotor(rotorNumber)%secCP
     use classdef, only: rotor_class
     character(len=*), intent(in) :: timestamp
     type(rotor_class), intent(inout), dimension(:) :: rotorArray
@@ -974,23 +981,20 @@ contains
 
   end subroutine inflow2file
 
-  subroutine gamma2file(timestamp, rotor, rotorNumber)
+  subroutine gamma2file(timestamp, rotor)
     ! Calculate inflow velocity along directionVector on the blades of rotor(rotorNumber)
     ! at rotor(rotorNumber)%secCP
     use classdef, only: rotor_class
     character(len=*), intent(in) :: timestamp
     type(rotor_class), intent(in) :: rotor
-    integer, intent(in) :: rotorNumber
     integer :: ib, ic, is
-    character(len=2) :: rotorNumberChar, bladeNumberChar, rowNumberChar
+    character(len=2) :: rowNumberChar
 
     ! Write to file
-    write (rotorNumberChar, '(I0.2)') rotorNumber
     do ib = 1, rotor%nb
-      write (bladeNumberChar, '(I0.2)') ib
       open (unit=12, &
         & file=ResultsDir// &
-        & 'r'//rotorNumberChar//'b'//bladeNumberChar// &
+        & 'r'//rotor%id//'b'//rotor%blade(ib)%id// &
         & 'gammaDist'//timestamp//'.curve', & 
         & action='write', position='append')
       ic = 1
