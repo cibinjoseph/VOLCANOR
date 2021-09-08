@@ -119,6 +119,7 @@ contains
     write(10, *) '"forceCalcSwitch": ', rotor%forceCalcSwitch*radToDeg, ','
     write(10, *) '"apparentViscCoeff": ', rotor%apparentViscCoeff, ','
     write(10, *) '"decayCoeff": ', rotor%decayCoeff, ','
+    write(10, *) '"axisymmetrySwitch": ', rotor%axisymmetrySwitch, ','
     write(10, *) '"bladeDynamicsSwitch": ', rotor%bladeDynamicsSwitch, ','
     write(10, *) '"flapInitial": ', rotor%flapInitial, ','
     write(10, *) '"dFlapInitial": ', rotor%dflapInitial, ','

@@ -27,7 +27,7 @@ contains
     rotor%ns = 2
     rotor%nNwake = 2
     rotor%surfaceType = 1
-    rotor%imposeAxisymmetry = 0
+    rotor%axisymmetrySwitch = 0
 
     rotor%hubCoords = (/0._dp, 0._dp, 0._dp/)
     rotor%cgCoords = (/0._dp, 0._dp, 0._dp/)
@@ -37,7 +37,9 @@ contains
     rotor%radius = 2._dp
     rotor%root_cut = 0._dp
     rotor%chord = 1._dp
-    rotor%coningAngle = 0._dp
+    rotor%preconeAngle = 0._dp
+    rotor%bladeDynamicsSwitch = 0
+    rotor%pitchDynamicsSwitch = 0
 
     rotor%Omega = 0._dp
     rotor%shaftAxis = (/0._dp, 0._dp, 0._dp/)

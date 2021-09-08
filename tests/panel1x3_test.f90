@@ -23,7 +23,7 @@ contains
     rotor%nb = 1
     rotor%geometryFile = '0'
     rotor%surfaceType = 1
-    rotor%imposeAxisymmetry = 0
+    rotor%axisymmetrySwitch = 0
 
     rotor%nc = 1
     rotor%ns = 3
@@ -37,7 +37,9 @@ contains
     rotor%radius = 2._dp
     rotor%root_cut = 0._dp
     rotor%chord = 0.3_dp
-    rotor%coningAngle = 0._dp
+    rotor%preconeAngle = 0._dp
+    rotor%bladeDynamicsSwitch = 0
+    rotor%pitchDynamicsSwitch = 0
 
     rotor%Omega = 0._dp
     rotor%shaftAxis = (/0._dp, 0._dp, 0._dp/)

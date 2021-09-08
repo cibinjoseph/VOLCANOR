@@ -297,7 +297,7 @@ module classdef
     integer :: nCamberFiles, nAirfoils
     integer :: imagePlane, imageRotorNum
     integer :: surfaceType  
-    integer :: imposeAxisymmetry
+    integer :: axisymmetrySwitch
     character(len=30), allocatable, dimension(:) :: camberFile, airfoilFile
     character(len=30) :: geometryFile
     real(dp) :: nonDimforceDenominator
@@ -2241,7 +2241,7 @@ class(blade_class), intent(inout) :: this
     call skip_comments(12)
     read (12, *) this%controlPitch(1), this%controlPitch(2), this%controlPitch(3), this%thetaTwist
     call skip_comments(12)
-    read(12, *) this%customTrajectorySwitch, this%imposeAxisymmetry
+    read(12, *) this%customTrajectorySwitch, this%axisymmetrySwitch
     call skip_comments(12)
     read (12, *) this%velBody(1), this%velBody(2), this%velBody(3) &
       , this%omegaBody(1), this%omegaBody(2), this%omegaBody(3)
@@ -2414,7 +2414,7 @@ class(blade_class), intent(inout) :: this
 
     ! Define limits for use in wake convection
     this%nbConvect = this%nb
-    if (this%imposeAxisymmetry == 1) this%nbConvect = 1
+    if (this%axisymmetrySwitch == 1) this%nbConvect = 1
     this%nNwakeEnd = this%nNwake
     this%nFwakeEnd = this%nFwake
 
@@ -3338,7 +3338,7 @@ class(blade_class), intent(inout) :: this
     ! Map gam from vector to matrix format
   class(rotor_class), intent(inout) :: this
     integer :: ib
-    if (this%imposeAxisymmetry == 0) then
+    if (this%axisymmetrySwitch == 0) then
       do ib = 1, this%nb
         this%blade(ib)%wiP%vr%gam &
           = reshape(this%gamVec(1+this%nc*this%ns*(ib-1):this%nc*this%ns*ib), &
@@ -3792,7 +3792,7 @@ class(blade_class), intent(inout) :: this
     integer :: ib
     real(dp) :: bladeOffset
 
-    if (this%imposeAxisymmetry == 0) then
+    if (this%axisymmetrySwitch == 0) then
       do ib = 1, this%nb
         call this%blade(ib)%convectwake(this%rowNear, this%rowFar, dt, wakeType)
       enddo
@@ -3836,7 +3836,7 @@ class(blade_class), intent(inout) :: this
       call this%blade(ib)%computeBladeDynamics(dt, this%omegaSlow)
     enddo
 
-    if (this%imposeAxisymmetry == 1) then
+    if (this%axisymmetrySwitch == 1) then
       do ib = 2, this%nb
         this%blade(ib)%flap = this%blade(1)%flap
         this%blade(ib)%dflap = this%blade(1)%dflap
@@ -4126,7 +4126,7 @@ class(blade_class), intent(inout) :: this
       enddo
     end select
 
-    if (this%imposeAxisymmetry == 1) then
+    if (this%axisymmetrySwitch == 1) then
       do ib = 2, this%nb
         bladeOffset = twoPi/this%nb*(ib - 1)
         select case (wakeType)
