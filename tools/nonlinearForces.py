@@ -140,7 +140,7 @@ if isRotor:
     CQ = Torque / (denom*params['radius'])
     vi = np.tan(phi)*data['secSpan']*params['Omega']
     viMean = 2*integrate.simps(vi*data['secSpan'], data['secSpan']) \
-            /((1.0-(params['root_cut'])**2)(params['radius'])**2.0)
+            /((1.0-(params['root_cut'])**2)*(params['radius'])**2.0)
 else:
     Drag0 = np.sum(secDrag0_nonLin)
     vi = np.tan(phi)*vRef
