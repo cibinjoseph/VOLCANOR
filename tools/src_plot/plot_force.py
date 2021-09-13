@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from glob import glob
+import json
 
 def getData(filename):
     """ Reads file and returns data """
@@ -8,15 +9,15 @@ def getData(filename):
     return data[:, 0], data[:, 1]
 
 def getIterMax(filename):
+    iterMax = None
     with open(filename) as fh:
-        lines = fh.read().splitlines()
-        last_line = lines[-1]
-        iterMax = last_line.split()[-1]
-        return iterMax
+        params = json.load(fh)
+        iterMax = params["nt"]
+    return iterMax
 
 # Initial plot
 it, CT = getData('Results/r01ForceNonDim.csv')
-itMax = getIterMax('volcanor.log')
+itMax = getIterMax('Results/r01Params.json')
 
 plt.ion()
 plt.plot(it, CT)
