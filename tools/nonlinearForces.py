@@ -86,7 +86,11 @@ else:
 #         phi.append(0)
 
 # induced angle, phi
-phi = data['secPhi']*np.pi/180.0
+# Computing induced angle directly does not give correct results
+# for rotary wings for some reason
+# phi = data['secPhi']*np.pi/180.0
+# phi here includes the climb/descent velocity besides the infow vel component
+phi = (data['secTheta'] - data['secAlpha'])*np.pi/180.0
 
 if args.filealpha:
     alphaLookup = data['secAlpha']
@@ -138,8 +142,7 @@ if isRotor:
     Torque = np.sum(secTorque)
     denom = params['density']*np.pi*params['radius']**2.0*(vRef)**2.0
     CQ = Torque / (denom*params['radius'])
-    vi = np.tan(phi)* \
-            np.linalg.norm([data['secSpan']*params['Omega'], params['w']])
+    vi = np.tan(phi)*data['secSpan']*params['Omega']-params['w']
     viMean = 2*integrate.simps(vi*data['secSpan'], data['secSpan']) \
             /((1.0-(params['root_cut'])**2)*(params['radius'])**2.0)
 else:
