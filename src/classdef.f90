@@ -1862,13 +1862,12 @@ class(blade_class), intent(inout) :: this
 
   end subroutine blade_calc_secChordwiseResVel
 
-  subroutine blade_calc_secAlpha(this, updateSecVel, omega, shaftAxis)
+  subroutine blade_calc_secAlpha(this, updateSecVel, verticalAxis)
     ! Compute sec alpha using sec resultant velocity
     use libMath, only: getAngleTan
   class(blade_class), intent(inout) :: this
     logical, intent(in) :: updateSecVel
-    real(dp), intent(in) :: omega
-    real(dp), intent(in), dimension(3) :: shaftAxis
+    real(dp), intent(in), dimension(3) :: verticalAxis
     integer :: is
 
     if (updateSecVel) call this%calc_secChordwiseResVel()
@@ -1891,13 +1890,11 @@ class(blade_class), intent(inout) :: this
       this%secPhi(is) = getAngleTan(this%secChordwiseResVel(:, is), &
         & this%wiP(1, is)%velCPm)
 
-      if (omega .ne. 0._dp) then
-        this%secTheta(is) = pi*0.5 - getAngleTan( &
-          & -this%secTauCapChord(:, is), shaftAxis)
-      else
-        this%secTheta(is) = getAngleTan( &
-          & -this%secTauCapChord(:, is), this%zAxis)
-      endif
+      ! This computation will be wrong when a trajectory 
+      ! is input or when the vertical axis is not global zAxis
+      ! Introduce a 'noRot' axis for these sort of measurements
+      this%secTheta(is) = pi*0.5 - getAngleTan( &
+        & -1._dp*this%secTauCapChord(:, is), verticalAxis)
     enddo
   end subroutine blade_calc_secAlpha
 
@@ -2475,6 +2472,7 @@ class(blade_class), intent(inout) :: this
       allocate (this%blade(ib)%secDragInduced(3, this%ns))
       allocate (this%blade(ib)%secDragProfile(3, this%ns))
       allocate (this%blade(ib)%secDragUnsteady(3, this%ns))
+      allocate (this%blade(ib)%secTheta(this%ns))
       allocate (this%blade(ib)%secAlpha(this%ns))
       allocate (this%blade(ib)%secPhi(this%ns))
       allocate (this%blade(ib)%airfoilNo(this%ns))
@@ -3786,13 +3784,17 @@ class(blade_class), intent(inout) :: this
   end subroutine rotor_calc_force_alphaGamma
 
   subroutine rotor_calc_secAlpha(this, updateSecVel)
+    use libMath, only: zAxis
   class(rotor_class), intent(inout) :: this
     logical, intent(in) :: updateSecVel
+    real(dp), dimension(3) :: verticalAxis
     integer :: ib
 
+    verticalAxis = zAxis
+    if (abs(this%Omega) .gt. eps) verticalAxis = this%shaftAxis
+
     do ib = 1, this%nb
-      call this%blade(ib)%calc_secAlpha(updateSecVel, &
-        & this%Omega, this%shaftAxis)
+      call this%blade(ib)%calc_secAlpha(updateSecVel, verticalAxis)
     enddo
   end subroutine rotor_calc_secAlpha
 
