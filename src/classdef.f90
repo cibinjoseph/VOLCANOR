@@ -205,9 +205,9 @@ module classdef
     real(dp), allocatable, dimension(:, :) :: secTauCapChord, secTauCapSpan
     real(dp), allocatable, dimension(:, :) :: secNormalVec, secVelFreestream
     real(dp), allocatable, dimension(:, :) :: secChordwiseResVel, secCP
-    real(dp), allocatable, dimension(:) :: secAlpha, secPhi, secCL, secCLu
+    real(dp), allocatable, dimension(:) :: secAlpha, secPhi, secTheta
     real(dp), allocatable, dimension(:) :: secCD, secCM, secMflap, secMflapArm
-    real(dp), allocatable, dimension(:) :: alpha0
+    real(dp), allocatable, dimension(:) :: alpha0, secCL, secCLu
     integer :: spanwiseLiftSwitch
   contains
     procedure :: move => blade_move
@@ -1862,11 +1862,13 @@ class(blade_class), intent(inout) :: this
 
   end subroutine blade_calc_secChordwiseResVel
 
-  subroutine blade_calc_secAlpha(this, updateSecVel)
+  subroutine blade_calc_secAlpha(this, updateSecVel, omega, shaftAxis)
     ! Compute sec alpha using sec resultant velocity
     use libMath, only: getAngleTan
   class(blade_class), intent(inout) :: this
     logical, intent(in) :: updateSecVel
+    real(dp), intent(in) :: omega
+    real(dp), intent(in), dimension(3) :: shaftAxis
     integer :: is
 
     if (updateSecVel) call this%calc_secChordwiseResVel()
@@ -1888,6 +1890,14 @@ class(blade_class), intent(inout) :: this
 
       this%secPhi(is) = getAngleTan(this%secChordwiseResVel(:, is), &
         & this%wiP(1, is)%velCPm)
+
+      if (omega .ne. 0._dp) then
+        this%secTheta(is) = pi*0.5 - getAngleTan( &
+          & -this%secTauCapChord(:, is), shaftAxis)
+      else
+        this%secTheta(is) = getAngleTan( &
+          & -this%secTauCapChord(:, is), this%zAxis)
+      endif
     enddo
   end subroutine blade_calc_secAlpha
 
@@ -2580,6 +2590,7 @@ class(blade_class), intent(inout) :: this
     do ib = 1, this%nb
       ! Initialize blade axes
       ! Can go wrong if importing geometry from OpenVSP
+      ! at a non-standard orientation
       ! and then using these for orientation of lift vectors
       this%blade(ib)%xAxis = xAxis
       this%blade(ib)%yAxis = yAxis
@@ -3780,7 +3791,8 @@ class(blade_class), intent(inout) :: this
     integer :: ib
 
     do ib = 1, this%nb
-      call this%blade(ib)%calc_secAlpha(updateSecVel)
+      call this%blade(ib)%calc_secAlpha(updateSecVel, &
+        & this%Omega, this%shaftAxis)
     enddo
   end subroutine rotor_calc_secAlpha
 
