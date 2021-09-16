@@ -74,7 +74,7 @@ if isRotor:
     vRes = data['secVel']
     vFree = data['secSpan']*params['Omega']
 else:
-    vRef = abs(params['u'])
+    vRef = np.linalg.norm([params['u'], params['v'], params['w']])
     vRes = abs(data['secVel'])
     vFree = abs(np.ones(vRes.shape)*vRef)
 
@@ -138,7 +138,8 @@ if isRotor:
     Torque = np.sum(secTorque)
     denom = params['density']*np.pi*params['radius']**2.0*(vRef)**2.0
     CQ = Torque / (denom*params['radius'])
-    vi = np.tan(phi)*data['secSpan']*params['Omega']
+    vi = np.tan(phi)* \
+            np.linalg.norm([data['secSpan']*params['Omega'], params['w']])
     viMean = 2*integrate.simps(vi*data['secSpan'], data['secSpan']) \
             /((1.0-(params['root_cut'])**2)*(params['radius'])**2.0)
 else:
@@ -172,7 +173,7 @@ else:
 sectDict = {'rbyR': data['secSpan']/params['radius'], \
             'area': data['secArea'], \
             'velRes': vRes, 'dx': dx, 'velFree': vFree, \
-            'alpha': data['secAlpha'], 'phi': phi, \
+            'alpha': data['secAlpha'], 'phi': phi, 'vi': vi, \
             'alphaLookup': alphaLookup, 'CL_lin': data['secCL'], \
             'CL_nonlin': CL_nonlin, 'Lift': secLift_nonLin, \
             'CD0_nonlin': CD0_nonlin, 'Drag0': secDrag0_nonLin, \
