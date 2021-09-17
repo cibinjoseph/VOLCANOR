@@ -4,7 +4,7 @@
 # ===================================================================
 # No. of blades,nb  Prop convention  NcamberFiles  geometry filename
 # -------------------------------------------------------------------
-     4              0                0             venus.xyz
+     4              0                0             0
 #
 # CamberSectionLimit[r/R]  Camber filename
 # -------------------------------------------------------------------
@@ -46,7 +46,7 @@
 # 
 # theta0[deg]    thetaC[deg]    thetaS[deg]    thetaTwist[deg]
 # -------------------------------------------------------------------
-  11.348             0.0              0.0           0.0
+   8.0             0.0              0.0           0.0
 # ===================================================================
 # customTrajectorySwitch    axisymmetrySwitch
 # [0]Off [1]On              [0]Off [1]On
@@ -60,12 +60,12 @@
 # pivot point     flapHinge      spanwiseLiftTerm    invert tauSpan
 # from LE[x/c]  from centre[r/R]    [1]enable     for swept/symmetric
 # -------------------------------------------------------------------
-0.00                0.0               0                 1
+0.00                0.0               0                 0
 # ===================================================================
 # apparentViscCoeff  decayCoeff
 # (1-10000)          (bq/s) 
 # -------------------------------------------------------------------
-     1000                  0
+     1                  0
 # 
 # wakeTruncateNt  prescWakeAfterTruncNt   prescWakeGenNt
 #   [0]Off [n] timesteps [-n] chords/revs
