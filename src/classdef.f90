@@ -72,8 +72,8 @@ module classdef
     type(vr_class) :: vr
     real(dp) :: gamPrev
     real(dp) :: gamTrapz
-    real(dp), dimension(3, 4) :: pc    ! panel coords
-    real(dp), dimension(3) :: cp      ! coll point coords
+    real(dp), dimension(3, 4) :: PC    ! panel coords
+    real(dp), dimension(3) :: CP      ! coll point coords
     real(dp), dimension(3) :: nCap    ! unit normal vector
     real(dp), dimension(3) :: tauCapChord ! unit tangential vector along chord
     real(dp), dimension(3) :: tauCapSpan  ! unit tangential vector along span
@@ -2562,7 +2562,7 @@ class(blade_class), intent(inout) :: this
       this%blade(ib)%ns = this%ns
     enddo
 
-    do ib = 1, this%nb
+    do ib = 1, this%nbConvect
       ! Initialize blade axes
       ! Can go wrong if importing geometry from OpenVSP
       ! at a non-standard orientation 
@@ -2804,11 +2804,92 @@ class(blade_class), intent(inout) :: this
       endif
     enddo
 
-    ! Removing sleep() for preventing ifort warnings
-    ! if (warnUser .eqv. .TRUE.) then
-    !   print *
-    !   call sleep(2)
-    ! endif
+    ! Copy Blade1 variables to other blades if symmetric
+    axisym: if (this%axisymmetrySwitch .eq. 1) then
+      do ib = 2, this%nb
+        this%blade(ib)%xAxis = this%blade(1)%xAxis
+        this%blade(ib)%yAxis = this%blade(1)%yAxis
+        this%blade(ib)%zAxis = this%blade(1)%zAxis
+
+        this%blade(ib)%flapAxis = this%blade(1)%flapAxis
+        this%blade(ib)%flapOrigin = this%blade(1)%flapOrigin
+
+        ! Initialize sec vectors
+        do j = 1, this%ns
+          this%blade(ib)%secTauCapChord(:, j) = &
+            & this%blade(1)%secTauCapChord(:, j)
+
+          this%blade(ib)%secTauCapSpan(:, j) = &
+            & this%blade(1)%secTauCapSpan(:, j)
+
+          this%blade(ib)%secNormalVec(:, j) = &
+            & this%blade(1)%secNormalVec(:, j)
+        enddo
+
+        do j = 1, this%ns
+          do i = 1, this%nc
+            this%blade(ib)%wiP(i, j)%vr = this%blade(1)%wiP(i, j)%vr
+            this%blade(ib)%wiP(i, j)%CP = this%blade(1)%wiP(i, j)%CP
+
+            this%blade(ib)%wiP(i, j)%nCap = this%blade(1)%wiP(i, j)%nCap
+            this%blade(ib)%wiP(i, j)%tauCapChord = &
+              & this%blade(1)%wiP(i, j)%tauCapChord
+
+            this%blade(ib)%wiP(i, j)%rHinge = &
+              & this%blade(1)%wiP(i, j)%rHinge
+            this%blade(ib)%wiP(i, j)%panelArea = &
+              & this%blade(1)%wiP(i, j)%panelArea
+
+            this%blade(ib)%wiP(i, j)%meanChord = &
+              & this%blade(1)%wiP(i, j)%meanChord
+            this%blade(ib)%wiP(i, j)%meanSpan = &
+              & this%blade(1)%wiP(i, j)%meanSpan
+          enddo
+        enddo
+
+        this%blade(ib)%secArea = this%blade(1)%secArea
+        this%blade(ib)%secChord= this%blade(1)%secChord
+
+        this%blade(ib)%spanwiseLiftSwitch = this%blade(1)%spanwiseLiftSwitch
+        this%blade(ib)%secTauCapSpan = this%blade(1)%secTauCapSpan
+
+        do j = 1, this%ns
+          do i = 1, this%nc
+            this%blade(ib)%wiP(i, j)%tauCapSpan = &
+              & this%blade(1)%wiP(i, j)%tauCapSpan
+            this%blade(ib)%wiP(i, j)%tauCapSpan = &
+              & this%blade(1)%wiP(i, j)%tauCapSpan
+          enddo
+        enddo
+
+        this%blade(ib)%secCP = this%blade(1)%secCP
+        this%blade(ib)%secMflapArm = this%blade(1)%secMflapArm
+
+        this%blade(ib)%wiP%vr%gam = this%blade(1)%wiP%vr%gam
+        this%blade(ib)%wiP%vr%skew = this%blade(1)%wiP%vr%skew
+        this%blade(ib)%pivotLE = this%blade(1)%pivotLE
+
+        do i = 1, 4
+          this%blade(ib)%wiP%vr%vf(i)%age = &
+            & this%blade(1)%wiP%vr%vf(i)%age
+          this%blade(ib)%wiP%vr%vf(i)%ageAzimuthal = &
+            & this%blade(1)%wiP%vr%vf(i)%ageAzimuthal
+          this%blade(ib)%waN%vr%vf(i)%age = &
+            & this%blade(1)%waN%vr%vf(i)%age
+          this%blade(ib)%waN%vr%vf(i)%ageAzimuthal = &
+            & this%blade(1)%waN%vr%vf(i)%ageAzimuthal
+
+          this%blade(ib)%wiP%vr%vf(i)%rVc0 = &
+            & this%blade(1)%wiP%vr%vf(i)%rVc0
+
+          this%blade(ib)%wiP%vr%vf(i)%rVc = &
+            & this%blade(1)%wiP%vr%vf(i)%rVc
+        enddo
+
+        this%blade(ib)%waF%vf%age = this%blade(1)%waF%vf%age
+        this%blade(ib)%waF%vf%ageAzimuthal = this%blade(1)%waF%vf%ageAzimuthal
+      enddo
+    endif axisym
 
     ! Move rotor to hub coordinates
     do ib = 1, this%nb
@@ -3159,7 +3240,7 @@ class(blade_class), intent(inout) :: this
     endif
 
     ! Assign to blades
-    do ib = 1, this%nb
+    do ib = 1, this%nbConvect
       do is = 1, this%ns
         do ic = 1, this%nc
           call this%blade(ib)%wiP(ic, is)%assignP(1, grid(:, ic, is))
@@ -3169,6 +3250,16 @@ class(blade_class), intent(inout) :: this
         enddo
       enddo
     enddo
+
+    if (this%axisymmetrySwitch .eq. 1) then
+      do ib = 2, this%nb
+        do is = 1, this%ns
+          do ic = 1, this%nc
+            this%blade(ib)%wiP(ic, is)%PC = this%blade(1)%wiP(ic, is)%PC
+          enddo
+        enddo
+      enddo
+    endif
 
   end subroutine rotor_plot3dtoblade
 
