@@ -204,7 +204,8 @@ module classdef
     real(dp), allocatable, dimension(:, :) :: secLiftUnsteady, secDragUnsteady
     real(dp), allocatable, dimension(:, :) :: secTauCapChord, secTauCapSpan
     real(dp), allocatable, dimension(:, :) :: secNormalVec, secVelFreestream
-    real(dp), allocatable, dimension(:, :) :: secChordwiseResVel, secCP
+    real(dp), allocatable, dimension(:, :) :: secCP
+    real(dp), allocatable, dimension(:, :) :: secResVel, secChordwiseResVel
     real(dp), allocatable, dimension(:) :: secAlpha, secPhi, secTheta
     real(dp), allocatable, dimension(:) :: secCD, secCM, secMflap, secMflapArm
     real(dp), allocatable, dimension(:) :: alpha0, secCL, secCLu
@@ -1741,7 +1742,7 @@ class(blade_class), intent(inout) :: this
     do is = 1, this%ns
       ! Compute sec freestream velocity
       secChordwiseVelFreestream = this%secVelFreestream(:, is) - &
-        dot_product(this%secVelFreestream(:, is), this%yAxis)*this%yAxis
+        projVec(this%secVelFreestream(:, is), this%yAxis)
 
       ! Assuming sec resultant velocity is same as sec freestream vel
       ! for computing corrected alpha later
@@ -1864,20 +1865,13 @@ class(blade_class), intent(inout) :: this
 
   subroutine blade_calc_secAlpha(this, updateSecVel, verticalAxis)
     ! Compute sec alpha using sec resultant velocity
-    use libMath, only: getAngleTan
+    use libMath, only: getAngleTan, projVec
   class(blade_class), intent(inout) :: this
     logical, intent(in) :: updateSecVel
     real(dp), intent(in), dimension(3) :: verticalAxis
     integer :: is
 
     if (updateSecVel) call this%calc_secChordwiseResVel()
-
-    !! Use acos() to find angle
-    !do is=1,size(this%secAlpha)
-    !  this%secAlpha(is)=acos(dot_product(this%secChordwiseResVel(:,is), &
-    !    & this%secTauCapChord(:,is)) &
-    !    & /norm2(this%secChordwiseResVel(:,is)))
-    !enddo
 
     ! Use atan2() to find angle
     do is = 1, size(this%secAlpha)
@@ -1887,8 +1881,11 @@ class(blade_class), intent(inout) :: this
         & dot_product(this%secChordwiseResVel(:, is), &
         & this%secTauCapChord(:, is)))
 
-      this%secPhi(is) = getAngleTan(this%secChordwiseResVel(:, is), &
-        & this%wiP(1, is)%velCPm)
+      ! This assumes no pitching velocity
+      this%secPhi(is) = &
+        & getAngleTan(this%secChordwiseResVel(:, is), &
+        & this%wiP(1, is)%velCPm- &
+        & projVec(this%wiP(1, is)%velCPm, this%secTauCapSpan(:, is)))
 
       ! This computation will be wrong when a trajectory 
       ! is input or when the vertical axis is not global zAxis
