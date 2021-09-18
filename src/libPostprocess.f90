@@ -889,7 +889,7 @@ contains
     close (12)
     101 format(A, 11(E15.7))
 
-    do ib = 1, rotor%nb
+    do ib = 1, rotor%nbConvect
       open (unit=12, file=ResultsDir// &
         & 'r'//rotor%id// 'b'//rotor%blade(ib)%id// &
         & 'ForceDist'//timestamp//'.csv', & 
@@ -1009,35 +1009,6 @@ contains
     enddo
 
   end subroutine gamma2file
-
-  ! subroutine alpha2file(timestamp, rotor, rotorNumber)
-  !   ! Write sec alpha to file
-  !   character(len=*), intent(in) :: timestamp
-  !   type(rotor_class), intent(inout) :: rotor
-  !   integer, intent(in) :: rotorNumber
-  !   integer :: ib, is
-  !   character(len=2) :: rotorNumberChar, bladeNumberChar
-
-  !   ! Write to file
-  !   write (rotorNumberChar, '(I0.2)') rotorNumber
-  !   do ib = 1, rotor%nb
-  !     write (bladeNumberChar, '(I0.2)') ib
-  !     open (unit=12, & 
-  !       & file=ResultsDir// &
-  !       & 'r'//rotorNumberChar//'b'//bladeNumberChar// &
-  !       & 'alphaDist'//timestamp//'.curve', &
-  !       & action='write', position='append')
-  !     write(12, 100) 'secSpan', 'alpha'
-  !     do is = 1, rotor%ns
-  !       write (12, 101) dot_product(rotor%blade(ib)%secCP(:, is) - rotor%hubCoords, &
-  !         & rotor%blade(ib)%yAxis), rotor%blade(ib)%secAlpha(is)*radToDeg
-  !     enddo
-  !     close (12)
-  !   enddo
-  !   100 format (2(A15))
-  !   101 format (2(F15.7))
-
-  ! end subroutine alpha2file
 
 end module libPostprocess
 

@@ -1875,28 +1875,6 @@ class(blade_class), intent(inout) :: this
     enddo
   end subroutine blade_calc_secAlpha
 
-  !subroutine blade_calc_secAlpha(this)
-  !  ! Compute sec alpha by interpolating local panel alpha
-  !class(blade_class), intent(inout) :: this
-  !  integer :: is, ic, this%nc
-  !  real(dp), dimension(size(this%wiP,1)) :: xDist
-
-  !  if (this%nc .ge. 3) then  ! Use least squares fit to get alpha
-  !    do is=1,size(this%secAlpha)
-  !      do ic=1,this%nc
-  !        xDist(ic)=dot_product(this%wiP(ic,is)%CP-this%wiP(1,is)%PC(:,1),  &
-  !          this%secTauCapChord(:,is))
-  !      enddo
-  !      this%secAlpha(is)=lsq2(dot_product(this%secCP(:,is)-  &
-  !        this%wiP(1,is)%PC(:,1),this%secTauCapChord(:,is)),xDist,this%wiP(:,is)%alpha)
-  !    enddo
-  !  else  ! Use average of alpha values
-  !    do is=1,size(this%secAlpha)
-  !      this%secAlpha(is)=sum(this%wiP(:,is)%alpha)/this%nc
-  !    enddo
-  !  endif
-  !end subroutine blade_calc_secAlpha
-
   subroutine blade_calc_secLocations(this, chordwiseFraction, flapHingeRadius)
     ! Computes important locations at each section
     ! coordinates of collocation point located at chord fraction
@@ -3425,20 +3403,17 @@ class(blade_class), intent(inout) :: this
     ! Map gam from vector to matrix format
   class(rotor_class), intent(inout) :: this
     integer :: ib
-    if (this%axisymmetrySwitch == 0) then
-      do ib = 1, this%nb
-        this%blade(ib)%wiP%vr%gam &
-          = reshape(this%gamVec(1+this%nc*this%ns*(ib-1):this%nc*this%ns*ib), &
-          & (/this%nc, this%ns/))
-      enddo
-    else
-      this%blade(1)%wiP%vr%gam &
-        = reshape(this%gamVec(1:this%nc*this%ns), &
+    do ib = 1, this%nbConvect
+      this%blade(ib)%wiP%vr%gam &
+        = reshape(this%gamVec(1+this%nc*this%ns*(ib-1):this%nc*this%ns*ib), &
         & (/this%nc, this%ns/))
+    enddo
+
+    axisym: if (this%axisymmetrySwitch == 0) then
       do ib = 2, this%nb
         this%blade(ib)%wiP%vr%gam = this%blade(1)%wiP%vr%gam
       enddo
-    endif
+    endif axisym
   end subroutine rotor_map_gam
 
   !-----+------------------+-----|
@@ -3820,16 +3795,60 @@ class(blade_class), intent(inout) :: this
     ! Compute force from circulation
   class(rotor_class), intent(inout) :: this
     real(dp), intent(in) :: density, dt
-    integer :: ib
+    integer :: ib, ic, is
 
     this%forceInertial = 0._dp
-    do ib = 1, this%nb
+    do ib = 1, this%nbConvect
       call this%blade(ib)%calc_force_gamma(density, &
         & sign(1._dp, this%Omega) * sign(1._dp, this%controlPitch(1)) * &
         & sign(1._dp, this%shaftAxis(1)) * &
         & sign(1._dp, this%shaftAxis(2)) * &
         & sign(1._dp, this%shaftAxis(3)), dt)
     enddo
+
+    axisym: if (this%axisymmetrySwitch .eq. 1) then
+      do ib = 2, this%nb
+        this%blade(ib)%wiP%delP = this%blade(1)%wiP%delP
+        this%blade(ib)%wiP%delPUnsteady = this%blade(1)%wiP%delPUnsteady
+        this%blade(ib)%wiP%gamPrev = this%blade(1)%wiP%gamPrev
+
+        this%blade(ib)%wiP%delDiConstant = this%blade(1)%wiP%delDiConstant
+        this%blade(ib)%wiP%delDiUnsteady = this%blade(1)%wiP%delDiUnsteady
+
+        do is = 1, this%ns
+          do ic = 1, this%nc
+            this%blade(ib)%wiP(ic, is)%normalForce = &
+              & this%blade(1)%wiP(ic, is)%normalForce
+            this%blade(ib)%wiP(ic, is)%normalForceUnsteady = &
+              & this%blade(1)%wiP(ic, is)%normalForceUnsteady
+          enddo
+        enddo
+
+        this%blade(ib)%secForceInertial = this%blade(1)%secForceInertial
+        this%blade(ib)%secLift = this%blade(1)%secLift
+        this%blade(ib)%secLiftDir = this%blade(1)%secLiftDir
+        this%blade(ib)%secLiftUnsteady = this%blade(1)%secLiftUnsteady
+
+        this%blade(ib)%secDragUnsteady = this%blade(1)%secDragUnsteady
+        this%blade(ib)%secDragProfile = this%blade(1)%secDragProfile
+        this%blade(ib)%secDrag = this%blade(1)%secDrag
+
+        this%blade(ib)%secCL = this%blade(1)%secCL
+        this%blade(ib)%secCD = this%blade(1)%secCD
+        this%blade(ib)%secCLu = this%blade(1)%secCLu
+        this%blade(ib)%secMflap = this%blade(1)%secMflap
+
+        this%blade(ib)%forceInertial = this%blade(1)%forceInertial
+        this%blade(ib)%lift = this%blade(1)%lift
+        this%blade(ib)%drag = this%blade(1)%drag
+        this%blade(ib)%liftUnsteady = this%blade(1)%liftUnsteady
+        this%blade(ib)%dragProfile = this%blade(1)%dragProfile
+        this%blade(ib)%dragInduced = this%blade(1)%dragInduced
+        this%blade(ib)%dragUnsteady = this%blade(1)%dragUnsteady
+        this%blade(ib)%MflapLift = this%blade(1)%MflapLift
+      enddo
+    endif axisym
+
     call this%sumBladeToNetForces()
   end subroutine rotor_calc_force_gamma
 
@@ -3871,9 +3890,16 @@ class(blade_class), intent(inout) :: this
     verticalAxis = zAxis
     if (abs(this%Omega) .gt. eps) verticalAxis = this%shaftAxis
 
-    do ib = 1, this%nb
+    do ib = 1, this%nbConvect
       call this%blade(ib)%calc_secAlpha(updateSecVel, verticalAxis)
     enddo
+    axisym: if (this%axisymmetrySwitch .eq. 1) then
+      do ib = 2, this%nb
+        this%blade(ib)%secAlpha = this%blade(1)%secAlpha
+        this%blade(ib)%secPhi = this%blade(1)%secPhi
+        this%blade(ib)%secTheta = this%blade(1)%secTheta
+      enddo
+    endif axisym
   end subroutine rotor_calc_secAlpha
 
   subroutine rotor_convectwake(this, iter, dt, wakeType)
@@ -3928,7 +3954,7 @@ class(blade_class), intent(inout) :: this
       call this%blade(ib)%computeBladeDynamics(dt, this%omegaSlow)
     enddo
 
-    if (this%axisymmetrySwitch == 1) then
+    axisym: if (this%axisymmetrySwitch .eq. 1) then
       do ib = 2, this%nb
         this%blade(ib)%flap = this%blade(1)%flap
         this%blade(ib)%dflap = this%blade(1)%dflap
@@ -3936,7 +3962,7 @@ class(blade_class), intent(inout) :: this
         this%blade(ib)%flapPrev = this%blade(1)%flapPrev
         this%blade(ib)%dflapPrev = this%blade(1)%dflapPrev
       enddo
-    endif
+    endif axisym
   end subroutine rotor_computeBladeDynamics
 
   subroutine rotor_burst_wake(this)
@@ -3949,42 +3975,69 @@ class(blade_class), intent(inout) :: this
 
   subroutine rotor_calc_skew(this)
   class(rotor_class), intent(inout) :: this
-    integer :: ib
-    do ib = 1, this%nb
+    integer :: ib, icol, irow
+
+    do ib = 1, this%nbConvect
       call this%blade(ib)%calc_skew(this%rowNear)
     enddo
+    axisym: if (this%axisymmetrySwitch .eq. 1) then
+      do ib = 2, this%nb
+        do icol = 1, size(this%blade(ib)%waN,2)
+          do irow = this%rowNear, size(this%blade(ib)%waN, 1)
+            this%blade(ib)%waN(irow, icol)%vr%skew = &
+              & this%blade(1)%waN(irow, icol)%vr%skew
+          enddo
+        enddo
+      enddo
+    endif axisym
   end subroutine rotor_calc_skew
 
   subroutine rotor_dirLiftDrag(this)
   class(rotor_class), intent(inout) :: this
     integer :: ib
 
-    do ib = 1, this%nb
+    do ib = 1, this%nbConvect
       call this%blade(ib)%dirLiftDrag()
     enddo
+    axisym: if (this%axisymmetrySwitch .eq. 1) then
+      do ib = 2, this%nb
+        this%blade(ib)%secDragDir = this%blade(1)%secDragDir
+        this%blade(ib)%secLiftDir = this%blade(1)%secLiftDir
+      enddo
+    endif axisym
   end subroutine rotor_dirLiftDrag
 
   subroutine rotor_sumBladeToNetForces(this)
   class(rotor_class), intent(inout) :: this
     integer :: ib
 
-    this%forceInertial = 0._dp
-    this%lift = 0._dp
-    this%drag = 0._dp
-    this%liftUnsteady = 0._dp
-    this%dragInduced = 0._dp
-    this%dragProfile = 0._dp
-    this%dragUnsteady = 0._dp
+    axisym: if (this%axisymmetrySwitch .eq. 1) then
+      this%forceInertial = this%nb * this%blade(1)%forceInertial
+      this%lift = this%nb * this%blade(1)%lift
+      this%drag = this%nb * this%blade(1)%drag
+      this%liftUnsteady = this%nb * this%blade(1)%liftUnsteady
+      this%dragInduced = this%nb * this%blade(1)%dragInduced
+      this%dragProfile = this%nb * this%blade(1)%dragProfile
+      this%dragUnsteady = this%nb * this%blade(1)%dragUnsteady
+    else
+      this%forceInertial = 0._dp
+      this%lift = 0._dp
+      this%drag = 0._dp
+      this%liftUnsteady = 0._dp
+      this%dragInduced = 0._dp
+      this%dragProfile = 0._dp
+      this%dragUnsteady = 0._dp
 
-    do ib = 1, this%nb
-      this%forceInertial = this%forceInertial + this%blade(ib)%forceInertial
-      this%lift = this%lift + this%blade(ib)%lift
-      this%drag = this%drag + this%blade(ib)%drag
-      this%liftUnsteady = this%liftUnsteady + this%blade(ib)%liftUnsteady
-      this%dragInduced = this%dragInduced + this%blade(ib)%dragInduced
-      this%dragProfile = this%dragProfile + this%blade(ib)%dragProfile
-      this%dragUnsteady = this%dragUnsteady + this%blade(ib)%dragUnsteady
-    enddo
+      do ib = 1, this%nbConvect
+        this%forceInertial = this%forceInertial + this%blade(ib)%forceInertial
+        this%lift = this%lift + this%blade(ib)%lift
+        this%drag = this%drag + this%blade(ib)%drag
+        this%liftUnsteady = this%liftUnsteady + this%blade(ib)%liftUnsteady
+        this%dragInduced = this%dragInduced + this%blade(ib)%dragInduced
+        this%dragProfile = this%dragProfile + this%blade(ib)%dragProfile
+        this%dragUnsteady = this%dragUnsteady + this%blade(ib)%dragUnsteady
+      enddo
+    endif axisym
 
   end subroutine rotor_sumBladeToNetForces
 
@@ -4218,7 +4271,7 @@ class(blade_class), intent(inout) :: this
       enddo
     end select
 
-    if (this%axisymmetrySwitch == 1) then
+    axisym: if (this%axisymmetrySwitch == 1) then
       do ib = 2, this%nb
         bladeOffset = twoPi/this%nb*(ib - 1)
         select case (wakeType)
@@ -4232,7 +4285,7 @@ class(blade_class), intent(inout) :: this
             & this%shaftAxis, this%hubCoords)
         end select
       enddo
-    endif
+    endif axisym
   end subroutine rotor_updatePrescribedWake
 
   subroutine rotor_read(this, unit, iostat, iomsg)
