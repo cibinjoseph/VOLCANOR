@@ -285,7 +285,7 @@ module classdef
     real(dp) :: apparentViscCoeff, decayCoeff
     real(dp) :: rollupStartRadius, rollupEndRadius
     integer :: propConvention
-    integer :: symmetricTau
+    integer :: overrideTauSpan, symmetricTau
     integer :: wakeTruncateNt
     integer :: prescWakeNt, prescWakeAfterTruncNt, prescWakeGenNt
     integer :: rollupStart, rollupEnd
@@ -794,32 +794,12 @@ contains
   end function wingpanel_isCPinsidecore
 
   subroutine wingpanel_calc_chordwiseResVel(this)
-    ! Compute panel resultant velocities using local velocities
+    !! Compute panel resultant velocities using local velocities
+    use libMath, only: projVec
   class(wingpanel_class), intent(inout) :: this
 
-    this%chordwiseResVel = this%velCPTotal - &
-      dot_product(this%velCPTotal, this%tauCapSpan)*this%tauCapSpan
+    this%chordwiseResVel = noProjVec(this%velCPTotal, this%tauCapSpan)
   end subroutine wingpanel_calc_chordwiseResVel
-
-  !subroutine wingpanel_calc_alpha(this)
-  !  ! Compute panel alpha using local velocities
-  !class(wingpanel_class), intent(inout) :: this
-  !  real(dp) :: velCPTotalChordwiseProjectedMagnitude
-  !  real(dp), dimension(3) :: velCPTotalChordwiseProjected
-
-  !  velCPTotalChordwiseProjected=this%velCPTotal- &
-  !    dot_product(this%velCPTotal,this%tauCapSpan)*this%tauCapSpan
-
-  !  velCPTotalChordwiseProjectedMagnitude=norm2(velCPTotalChordwiseProjected)
-
-  !  if (velCPTotalChordwiseProjectedMagnitude .gt. eps) then
-  !    this%alpha=acos(dot_product(velCPTotalChordwiseProjected, &
-  !      & this%tauCapChord) &
-  !      & /velCPTotalChordwiseProjectedMagnitude)
-  !  else
-  !    this%alpha=0._dp
-  !  endif
-  !end subroutine wingpanel_calc_alpha
 
   !------+--
   ! ++++ | Nwake_class Methods
@@ -1729,7 +1709,7 @@ class(blade_class), intent(inout) :: this
   subroutine blade_calc_force_alphaGamma(this, density, &
       & invertGammaSign, velSound, dt)
     ! Compute force using alpha approximated from sec circulation
-    use libMath, only: unitVec, cross_product
+    use libMath, only: unitVec, cross_product, projVec
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: density, invertGammaSign, velSound, dt
     real(dp), dimension(3) :: secChordwiseVelFreestream, liftDir
@@ -2585,8 +2565,9 @@ class(blade_class), intent(inout) :: this
     do ib = 1, this%nb
       ! Initialize blade axes
       ! Can go wrong if importing geometry from OpenVSP
-      ! at a non-standard orientation
+      ! at a non-standard orientation 
       ! and then using these for orientation of lift vectors
+      ! Standard orientation is X: chordwise, Y: spanwise, Z:upwards
       this%blade(ib)%xAxis = xAxis
       this%blade(ib)%yAxis = yAxis
       this%blade(ib)%zAxis = zAxis
@@ -2734,19 +2715,28 @@ class(blade_class), intent(inout) :: this
       ! Assign spanwise lift term switch to blades
       this%blade(ib)%spanwiseLiftSwitch = this%spanwiseLiftSwitch
 
+      ! Internal setting to override panel tauSpan using 
+      ! global spanwise axis. This setting is only relevant in tapered wings
+      ! or swept wings when the panel tauSpan and yAxis do not coincide
+      this%overrideTauSpan = 1
+      if (this%overrideTauSpan .eq. 1) then
+        do j = 1, this%ns
+          this%blade(ib)%secTauCapSpan(:, j) = this%blade(ib)%yAxis
+          do i = 1, this%nc
+            this%blade(ib)%wiP(i, j)%tauCapSpan = this%blade(ib)%yAxis
+            ! this%blade(ib)%wiP(i, j)%tauCapChord = this%blade(ib)%xAxis
+          enddo
+        enddo
+      endif
+
       ! Invert half of tau vectors for symmetric or swept wings
       if (this%symmetricTau .eq. 1) then
         do j = 1, (this%ns/2)
-          this%blade(ib)%secTauCapSpan(:, j) = -1._dp*yAxis
+          this%blade(ib)%secTauCapSpan(:, j) = -1._dp* &
+            & this%blade(ib)%secTauCapSpan(:, j)
           do i = 1, this%nc
-            this%blade(ib)%wiP(i, j)%tauCapSpan = -1._dp*this%blade(ib)%yAxis
-            this%blade(ib)%wiP(i, j)%tauCapChord = this%blade(ib)%xAxis
-          enddo
-        enddo
-        do j = (this%ns/2) + 1, this%ns
-          do i = 1, this%nc
-            this%blade(ib)%wiP(i, j)%tauCapSpan = this%blade(ib)%yAxis
-            this%blade(ib)%wiP(i, j)%tauCapChord = this%blade(ib)%xAxis
+            this%blade(ib)%wiP(i, j)%tauCapSpan = -1._dp* &
+              & this%blade(ib)%wiP(i, j)%tauCapSpan
           enddo
         enddo
       endif
