@@ -236,6 +236,7 @@ contains
   !                projVec
   ! -------------------------------------------------
   function projVec(aVec, dirVec)
+    !! Returns aVec projected along dirVec
     real(dp), intent(in), dimension(3) :: aVec, dirVec
     real(dp), dimension(3) :: projVec
     real(dp) :: normSq
@@ -246,6 +247,23 @@ contains
       projVec = 0._dp
     endif
   end function projVec
+
+  ! -------------------------------------------------
+  !                noProjVec
+  ! -------------------------------------------------
+  function noProjVec(aVec, dirVec)
+    !! Removes component along dirVec from aVec
+    real(dp), intent(in), dimension(3) :: aVec, dirVec
+    real(dp), dimension(3) :: noProjVec
+    real(dp) :: normSq
+
+    normSq = sum(dirVec**2._dp)
+    if (normSq > eps) then
+      noProjVec = aVec-dot_product(aVec, dirVec)*dirVec/normSq
+    else
+      noProjVec = aVec
+    endif
+  end function noProjVec
 
   ! -------------------------------------------------
   !                inv
