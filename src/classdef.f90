@@ -795,7 +795,7 @@ contains
 
   subroutine wingpanel_calc_chordwiseResVel(this)
     !! Compute panel resultant velocities using local velocities
-    use libMath, only: projVec
+    use libMath, only: noProjVec
   class(wingpanel_class), intent(inout) :: this
 
     this%chordwiseResVel = noProjVec(this%velCPTotal, this%tauCapSpan)
@@ -1709,7 +1709,7 @@ class(blade_class), intent(inout) :: this
   subroutine blade_calc_force_alphaGamma(this, density, &
       & invertGammaSign, velSound, dt)
     ! Compute force using alpha approximated from sec circulation
-    use libMath, only: unitVec, cross_product, projVec
+    use libMath, only: unitVec, cross_product, noProjVec
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: density, invertGammaSign, velSound, dt
     real(dp), dimension(3) :: secChordwiseVelFreestream, liftDir
@@ -1721,8 +1721,8 @@ class(blade_class), intent(inout) :: this
 
     do is = 1, this%ns
       ! Compute sec freestream velocity
-      secChordwiseVelFreestream = this%secVelFreestream(:, is) - &
-        projVec(this%secVelFreestream(:, is), this%yAxis)
+      secChordwiseVelFreestream = &
+        & noProjVec(this%secVelFreestream(:, is), this%yAxis)
 
       ! Assuming sec resultant velocity is same as sec freestream vel
       ! for computing corrected alpha later
@@ -1830,6 +1830,7 @@ class(blade_class), intent(inout) :: this
         enddo
       enddo
     else  ! Use average of resultant velocities
+      ! Check if this requires to be area weighted average
       do is = 1, size(this%secChordwiseResVel, 2)
         do ic = 1, this%nc
           call this%wiP(ic, is)%calc_chordwiseResVel()
@@ -1845,7 +1846,7 @@ class(blade_class), intent(inout) :: this
 
   subroutine blade_calc_secAlpha(this, updateSecVel, verticalAxis)
     ! Compute sec alpha using sec resultant velocity
-    use libMath, only: getAngleTan, projVec
+    use libMath, only: getAngleTan, noProjVec
   class(blade_class), intent(inout) :: this
     logical, intent(in) :: updateSecVel
     real(dp), intent(in), dimension(3) :: verticalAxis
@@ -1864,8 +1865,7 @@ class(blade_class), intent(inout) :: this
       ! This assumes no pitching velocity
       this%secPhi(is) = &
         & getAngleTan(this%secChordwiseResVel(:, is), &
-        & this%wiP(1, is)%velCPm- &
-        & projVec(this%wiP(1, is)%velCPm, this%secTauCapSpan(:, is)))
+        & noProjVec(this%wiP(1, is)%velCPm, this%secTauCapSpan(:, is)))
 
       ! This computation will be wrong when a trajectory 
       ! is input or when the vertical axis is not global zAxis
@@ -2715,7 +2715,7 @@ class(blade_class), intent(inout) :: this
       ! Assign spanwise lift term switch to blades
       this%blade(ib)%spanwiseLiftSwitch = this%spanwiseLiftSwitch
 
-      ! Internal setting to override panel tauSpan using 
+      ! Internal setting to override panel tauSpan using
       ! global spanwise axis. This setting is only relevant in tapered wings
       ! or swept wings when the panel tauSpan and yAxis do not coincide
       this%overrideTauSpan = 1
