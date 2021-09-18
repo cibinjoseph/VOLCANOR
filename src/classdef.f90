@@ -1106,6 +1106,7 @@ contains
 
       ! Rotate sec vectors also along with blade
         this%secTauCapChord(:, i) = matmul(TMat, this%secTauCapChord(:, i))
+        this%secTauCapSpan(:, i) = matmul(TMat, this%secTauCapSpan(:, i))
         this%secNormalVec(:, i) = matmul(TMat, this%secNormalVec(:, i))
       enddo
       !$omp end parallel do
