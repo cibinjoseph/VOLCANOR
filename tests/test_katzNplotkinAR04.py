@@ -35,13 +35,7 @@ class TestAR04(unittest.TestCase):
         dataPD = pd.read_table(cls.refResultsDir + \
                           'r01b01ForceDist00160.csv' + '.ref', \
                              delim_whitespace=True)
-        data = dataPD.to_dict(orient='list')
-
-        cls.secSpan_ref = data['secSpan']
-        cls.secCL_ref = data['secCL']
-        cls.secArea_ref = data['secArea']
-        cls.secVel_ref = data['secVel']
-        cls.secAlpha_ref = data['secAlpha']
+        cls.data_ref = dataPD.to_dict(orient='list')
 
     def testProcess(self):
         self.assertEqual(self.returncode, 0, 'Exit code is non-zero')
@@ -84,22 +78,12 @@ class TestAR04(unittest.TestCase):
         """ Check sectional quantities """
         data, filename_ = pr.getForceDist()
 
-        for val, val_ref in zip(data['secSpan'], self.secSpan_ref):
-            self.assertAlmostEqual(val, val_ref, places=6, \
-                                  msg='Sectional span does not match')
-        for val, val_ref in zip(data['secCL'], self.secCL_ref):
-            self.assertAlmostEqual(val, val_ref, places=6, \
-                                  msg='Sectional CL does not match')
-        for val, val_ref in zip(data['secArea'], self.secArea_ref):
-            self.assertAlmostEqual(val, val_ref, places=6, \
-                                  msg='Sectional area does not match')
-        for val, val_ref in zip(data['secVel'], self.secVel_ref):
-            self.assertAlmostEqual(val, val_ref, places=6, \
-                                  msg='Sectional vel does not match')
-        for val, val_ref in zip(data['secAlpha'], self.secAlpha_ref):
-            self.assertAlmostEqual(val, val_ref, places=6, \
-                                  msg='Sectional alpha does not match')
+        checkVars = ['secSpan', 'secCL', 'secArea', 'secVel', 'secAlpha']
 
+        for varname in checkVars:
+            for val, val_ref in zip(data[varname], self.data_ref[varname]):
+                self.assertAlmostEqual(val, val_ref, places=6, \
+                                      msg=varname + ' does not match')
 
 
 if __name__ == "__main__":
