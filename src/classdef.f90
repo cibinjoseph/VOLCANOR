@@ -2377,7 +2377,7 @@ class(blade_class), intent(inout) :: this
 
     ! Define limits for use in wake convection
     this%nbConvect = this%nb
-    if (this%axisymmetrySwitch == 1) this%nbConvect = 1
+    if (this%axisymmetrySwitch .eq. 1) this%nbConvect = 1
     this%nNwakeEnd = this%nNwake
     this%nFwakeEnd = this%nFwake
 
@@ -3230,7 +3230,7 @@ class(blade_class), intent(inout) :: this
       enddo
     enddo
 
-    if (this%axisymmetrySwitch .eq. 1) then
+    axisym: if (this%axisymmetrySwitch .eq. 1) then
       do ib = 2, this%nb
         do is = 1, this%ns
           do ic = 1, this%nc
@@ -3238,7 +3238,7 @@ class(blade_class), intent(inout) :: this
           enddo
         enddo
       enddo
-    endif
+    endif axisym
 
   end subroutine rotor_plot3dtoblade
 
@@ -3410,7 +3410,7 @@ class(blade_class), intent(inout) :: this
         & (/this%nc, this%ns/))
     enddo
 
-    axisym: if (this%axisymmetrySwitch == 0) then
+    axisym: if (this%axisymmetrySwitch .eq. 1) then
       do ib = 2, this%nb
         this%blade(ib)%wiP%vr%gam = this%blade(1)%wiP%vr%gam
       enddo
@@ -3911,7 +3911,7 @@ class(blade_class), intent(inout) :: this
     integer :: ib
     real(dp) :: bladeOffset
 
-    if (this%axisymmetrySwitch == 0) then
+    if (this%axisymmetrySwitch .eq. 0) then
       do ib = 1, this%nb
         call this%blade(ib)%convectwake(this%rowNear, this%rowFar, dt, wakeType)
       enddo
@@ -4272,7 +4272,7 @@ class(blade_class), intent(inout) :: this
       enddo
     end select
 
-    axisym: if (this%axisymmetrySwitch == 1) then
+    axisym: if (this%axisymmetrySwitch .eq. 1) then
       do ib = 2, this%nb
         bladeOffset = twoPi/this%nb*(ib - 1)
         select case (wakeType)
