@@ -193,12 +193,6 @@ contains
     rotor%gamVecPrev = 0._dp
     call rotor%map_gam()
 
-    ! Assign freestream velocity
-    rotor%blade(1)%secVelFreestream = 0._dp
-    do is = 1, rotor%ns
-      rotor%blade(1)%secVelFreestream(:, is) = -1._dp * rotor%velBody
-    enddo
-
     call rotor%dirLiftDrag()
 
     liftDir = (/0._dp, 0._dp, 1._dp/)
