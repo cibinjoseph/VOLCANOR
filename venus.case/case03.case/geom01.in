@@ -18,7 +18,7 @@
 # Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 #                                       [n]timesteps [-n]chords/revs
 # -------------------------------------------------------------------
-      20                       29                   2000
+      20                       29                   -5
 # ===================================================================
 # X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
 # -------------------------------------------------------------------
