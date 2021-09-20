@@ -246,7 +246,7 @@ program main
           enddo
         enddo
 
-        axisym: if (rotor(ir)%axisymmetricSwitch .eq. 1) then
+        axisym00: if (rotor(ir)%axisymmetrySwitch .eq. 1) then
           do ib = 2, rotor(ir)%nb
             do is = 1, rotor(ir)%ns
               do ic = 1, rotor(ir)%nc
@@ -255,7 +255,7 @@ program main
               enddo
             enddo
           enddo
-        endif axisym
+        endif axisym00
 
         call rotor(ir)%calc_secAlpha()
         call rotor(ir)%calc_force_gamma(density, dt)
@@ -292,7 +292,7 @@ program main
           enddo
         enddo
 
-        axisym: if (rotor(ir)%axisymmetricSwitch .eq. 1) then
+        axisym01: if (rotor(ir)%axisymmetrySwitch .eq. 1) then
           do ib = 2, rotor(ir)%nb
             do is = 1, rotor(ir)%ns
               do ic = 1, rotor(ir)%nc
@@ -301,7 +301,7 @@ program main
               enddo
             enddo
           enddo
-        endif axisym
+        endif axisym01
 
         call rotor(ir)%calc_secAlpha()
         call rotor(ir)%calc_force_alpha(density, velSound)
@@ -570,7 +570,7 @@ program main
               enddo
             enddo
 
-            axisym: if (rotor(ir)%axisymmetricSwitch .eq. 1) then
+            axisymx0: if (rotor(ir)%axisymmetrySwitch .eq. 1) then
               do ib = 2, rotor(ir)%nb
                 do is = 1, rotor(ir)%ns
                   do ic = 1, rotor(ir)%nc
@@ -579,7 +579,7 @@ program main
                   enddo
                 enddo
               enddo
-            endif axisym
+            endif axisymx0
 
             call rotor(ir)%calc_secAlpha()
             call rotor(ir)%calc_force_gamma(density, dt)
@@ -610,7 +610,7 @@ program main
               enddo
             enddo
 
-            axisym: if (rotor(ir)%axisymmetricSwitch .eq. 1) then
+            axisymx1: if (rotor(ir)%axisymmetrySwitch .eq. 1) then
               do ib = 2, rotor(ir)%nb
                 do is = 1, rotor(ir)%ns
                   do ic = 1, rotor(ir)%nc
@@ -619,7 +619,7 @@ program main
                   enddo
                 enddo
               enddo
-            endif axisym
+            endif axisymx1
 
             call rotor(ir)%calc_secAlpha()
             call rotor(ir)%calc_force_alpha(density, velSound)
