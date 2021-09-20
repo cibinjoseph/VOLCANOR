@@ -203,8 +203,7 @@ module classdef
     real(dp), allocatable, dimension(:, :) :: secDragInduced, secDragProfile
     real(dp), allocatable, dimension(:, :) :: secLiftUnsteady, secDragUnsteady
     real(dp), allocatable, dimension(:, :) :: secTauCapChord, secTauCapSpan
-    real(dp), allocatable, dimension(:, :) :: secNormalVec, secVelFreestream
-    real(dp), allocatable, dimension(:, :) :: secCP
+    real(dp), allocatable, dimension(:, :) :: secNormalVec, secCP
     real(dp), allocatable, dimension(:, :) :: secResVel, secChordwiseResVel
     real(dp), allocatable, dimension(:) :: secAlpha, secPhi, secTheta
     real(dp), allocatable, dimension(:) :: secCD, secCM, secMflap, secMflapArm
@@ -430,12 +429,10 @@ contains
   class(vr_class) :: this
     real(dp), intent(in), dimension(3) :: P, nCap
     real(dp), dimension(3) :: vind
-    integer :: i
 
-    vind = 0._dp
-
-    ! DEBUG
     ! Add velocity induced by 3d source triangle here
+    ! This dummy code prevents warnings during compilation
+    vind = 0._dp*nCap*this%vf(1)%vind(P)
 
   end function vr_vindSource
 
@@ -1627,11 +1624,6 @@ class(blade_class), intent(inout) :: this
     ! including induced velocities
     call this%calc_secChordwiseResVel()
 
-    ! Alternately assuming sec resultant velocity is same as sec freestream vel
-    ! do is = 1, this%ns
-    !   this%secChordwiseResVel(:, is) = this%secVelFreestream(:, is) - &
-    !     & dot_product(this%secVelFreestream(:, is), this%yAxis)*this%yAxis
-    ! enddo
     secDynamicPressure = this%getSecDynamicPressure(density)
 
     do is = 1, this%ns
@@ -1713,22 +1705,12 @@ class(blade_class), intent(inout) :: this
     use libMath, only: unitVec, cross_product, noProjVec
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: density, invertGammaSign, velSound, dt
-    real(dp), dimension(3) :: secChordwiseVelFreestream, liftDir
+    real(dp), dimension(3) :: liftDir
     real(dp), dimension(this%ns) :: secDynamicPressure
     integer :: is
 
     ! Compute unsteady sec lift from gamma distribution
     call this%calc_force_gamma(density, invertGammaSign, dt)
-
-    do is = 1, this%ns
-      ! Compute sec freestream velocity
-      secChordwiseVelFreestream = &
-        & noProjVec(this%secVelFreestream(:, is), this%yAxis)
-
-      ! Assuming sec resultant velocity is same as sec freestream vel
-      ! for computing corrected alpha later
-      this%secChordwiseResVel(:, is) = secChordwiseVelFreestream
-    enddo
 
     secDynamicPressure = this%getSecDynamicPressure(density)
 
@@ -1845,15 +1827,14 @@ class(blade_class), intent(inout) :: this
 
   end subroutine blade_calc_secChordwiseResVel
 
-  subroutine blade_calc_secAlpha(this, updateSecVel, verticalAxis)
+  subroutine blade_calc_secAlpha(this, verticalAxis)
     ! Compute sec alpha using sec resultant velocity
     use libMath, only: getAngleTan, noProjVec
   class(blade_class), intent(inout) :: this
-    logical, intent(in) :: updateSecVel
     real(dp), intent(in), dimension(3) :: verticalAxis
     integer :: is
 
-    if (updateSecVel) call this%calc_secChordwiseResVel()
+    call this%calc_secChordwiseResVel()
 
     ! Use atan2() to find angle
     do is = 1, size(this%secAlpha)
@@ -2108,7 +2089,7 @@ class(blade_class), intent(inout) :: this
       & this%secDragInduced, this%secDragProfile, &
       & this%secLiftUnsteady, this%secDragUnsteady, &
       & this%secTauCapChord, this%secTauCapSpan, &
-      & this%secNormalVec, this%secVelFreestream, &
+      & this%secNormalVec, &
       & this%secChordwiseResVel, this%secCP, &
       & this%secAlpha, this%secPhi, this%secCL, this%secCD, this%secCM, &
       & this%secCLu, this%alpha0
@@ -2137,7 +2118,7 @@ class(blade_class), intent(inout) :: this
       & this%secDragInduced, this%secDragProfile, &
       & this%secLiftUnsteady, this%secDragUnsteady, &
       & this%secTauCapChord, this%secTauCapSpan, &
-      & this%secNormalVec, this%secVelFreestream, &
+      & this%secNormalVec, &
       & this%secChordwiseResVel, this%secCP, &
       & this%secAlpha, this%secPhi, this%secCL, this%secCD, this%secCM, &
       & this%secCLu, this%alpha0
@@ -2416,7 +2397,6 @@ class(blade_class), intent(inout) :: this
       allocate (this%blade(ib)%secTauCapChord(3, this%ns))
       allocate (this%blade(ib)%secTauCapSpan(3, this%ns))
       allocate (this%blade(ib)%secNormalVec(3, this%ns))
-      allocate (this%blade(ib)%secVelFreestream(3, this%ns))
       allocate (this%blade(ib)%secForceInertial(3, this%ns))
       allocate (this%blade(ib)%secChord(this%ns))
       allocate (this%blade(ib)%secArea(this%ns))
@@ -3881,10 +3861,9 @@ class(blade_class), intent(inout) :: this
     call this%sumBladeToNetForces()
   end subroutine rotor_calc_force_alphaGamma
 
-  subroutine rotor_calc_secAlpha(this, updateSecVel)
+  subroutine rotor_calc_secAlpha(this)
     use libMath, only: zAxis
   class(rotor_class), intent(inout) :: this
-    logical, intent(in) :: updateSecVel
     real(dp), dimension(3) :: verticalAxis
     integer :: ib
 
@@ -3892,7 +3871,7 @@ class(blade_class), intent(inout) :: this
     if (abs(this%Omega) .gt. eps) verticalAxis = this%shaftAxis
 
     do ib = 1, this%nbConvect
-      call this%blade(ib)%calc_secAlpha(updateSecVel, verticalAxis)
+      call this%blade(ib)%calc_secAlpha(verticalAxis)
     enddo
     axisym: if (this%axisymmetrySwitch .eq. 1) then
       do ib = 2, this%nb
