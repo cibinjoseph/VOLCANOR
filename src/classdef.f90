@@ -3890,12 +3890,11 @@ class(blade_class), intent(inout) :: this
     integer :: ib
     real(dp) :: bladeOffset
 
-    if (this%axisymmetrySwitch .eq. 0) then
-      do ib = 1, this%nb
-        call this%blade(ib)%convectwake(this%rowNear, this%rowFar, dt, wakeType)
-      enddo
-    else
-      call this%blade(1)%convectwake(this%rowNear, this%rowFar, dt, wakeType)
+    do ib = 1, this%nbConvect
+      call this%blade(ib)%convectwake(this%rowNear, this%rowFar, dt, wakeType)
+    enddo
+
+    axisym: if (this%axisymmetrySwitch .eq. 1) then
       do ib = 2, this%nb
         bladeOffset = twoPi/this%nb*(ib - 1)
         ! Copy wakes from blade1
@@ -3917,7 +3916,7 @@ class(blade_class), intent(inout) :: this
         call this%blade(ib)%rot_wake_axis(bladeOffset, &
           & this%shaftAxis, this%hubCoords, this%rowNear, this%rowFar, wakeType)
       enddo
-    endif
+    endif axisym
 
     ! Add prescribed wake
     if (this%prescWakeNt > 0 .and. iter > this%prescWakeNt) then

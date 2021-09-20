@@ -222,7 +222,7 @@ program main
       case (0)  ! Compute using wing circulation
         ! Compute and plot alpha if requested
         ! Compute alpha
-        do ib = 1, rotor(ir)%nb
+        do ib = 1, rotor(ir)%nbConvect
           do is = 1, rotor(ir)%ns
             do ic = 1, rotor(ir)%nc
               ! Compute local velocity vector
@@ -245,6 +245,17 @@ program main
             enddo
           enddo
         enddo
+
+        axisym: if (rotor(ir)%axisymmetricSwitch .eq. 1) then
+          do ib = 2, rotor(ir)%nb
+            do is = 1, rotor(ir)%ns
+              do ic = 1, rotor(ir)%nc
+                rotor(ir)%blade(ib)%wiP(ic, is)%velCPTotal = &
+                  & rotor(ir)%blade(1)%wiP(ic, is)%velCPTotal
+              enddo
+            enddo
+          enddo
+        endif axisym
 
         call rotor(ir)%calc_secAlpha()
         call rotor(ir)%calc_force_gamma(density, dt)
@@ -257,7 +268,7 @@ program main
 
       case (1)  ! Compute using alpha
         ! Compute alpha
-        do ib = 1, rotor(ir)%nb
+        do ib = 1, rotor(ir)%nbConvect
           do is = 1, rotor(ir)%ns
             do ic = 1, rotor(ir)%nc
               ! Compute local velocity vector
@@ -280,6 +291,17 @@ program main
             enddo
           enddo
         enddo
+
+        axisym: if (rotor(ir)%axisymmetricSwitch .eq. 1) then
+          do ib = 2, rotor(ir)%nb
+            do is = 1, rotor(ir)%ns
+              do ic = 1, rotor(ir)%nc
+                rotor(ir)%blade(ib)%wiP(ic, is)%velCPTotal = &
+                  & rotor(ir)%blade(1)%wiP(ic, is)%velCPTotal
+              enddo
+            enddo
+          enddo
+        endif axisym
 
         call rotor(ir)%calc_secAlpha()
         call rotor(ir)%calc_force_alpha(density, velSound)
@@ -524,36 +546,47 @@ program main
 
           case (0)  ! Compute using wing circulation
             ! Compute alpha
-            do ib = 1, rotor(ir)%nb
+            do ib = 1, rotor(ir)%nbConvect
               do is = 1, rotor(ir)%ns
                 do ic = 1, rotor(ir)%nc
                   ! Compute local velocity vector
                   ! (excluding induced velocities from wing bound vortices)
                   rotor(ir)%blade(ib)%wiP(ic, is)%velCPTotal = &
-                    rotor(ir)%blade(ib)%wiP(ic, is)%velCP
+                    & rotor(ir)%blade(ib)%wiP(ic, is)%velCP
 
                   ! Neglect velocity due to spanwise vortices for all wings
                   do jr = 1, nr
                     rotor(ir)%blade(ib)%wip(ic, is)%velCPTotal = &
-                      rotor(ir)%blade(ib)%wip(ic, is)%velCPTotal - &
-                      rotor(jr)%vind_bywing_boundVortices( &
-                      rotor(ir)%blade(ib)%wiP(ic, is)%CP)
+                      & rotor(ir)%blade(ib)%wip(ic, is)%velCPTotal - &
+                      & rotor(jr)%vind_bywing_boundVortices( &
+                      & rotor(ir)%blade(ib)%wiP(ic, is)%CP)
                   enddo
 
                   ! Add self induced velocity due to wing vortices
                   rotor(ir)%blade(ib)%wiP(ic, is)%velCPTotal = &
-                    rotor(ir)%blade(ib)%wiP(ic, is)%velCPTotal + &
-                    rotor(ir)%vind_bywing(rotor(ir)%blade(ib)%wiP(ic, is)%CP)
+                    & rotor(ir)%blade(ib)%wiP(ic, is)%velCPTotal + &
+                    & rotor(ir)%vind_bywing(rotor(ir)%blade(ib)%wiP(ic, is)%CP)
                 enddo
               enddo
             enddo
+
+            axisym: if (rotor(ir)%axisymmetricSwitch .eq. 1) then
+              do ib = 2, rotor(ir)%nb
+                do is = 1, rotor(ir)%ns
+                  do ic = 1, rotor(ir)%nc
+                    rotor(ir)%blade(ib)%wiP(ic, is)%velCPTotal = &
+                      & rotor(ir)%blade(1)%wiP(ic, is)%velCPTotal
+                  enddo
+                enddo
+              enddo
+            endif axisym
 
             call rotor(ir)%calc_secAlpha()
             call rotor(ir)%calc_force_gamma(density, dt)
 
           case (1)  ! Compute using alpha
             ! Compute alpha
-            do ib = 1, rotor(ir)%nb
+            do ib = 1, rotor(ir)%nbConvect
               do is = 1, rotor(ir)%ns
                 do ic = 1, rotor(ir)%nc
                   ! Compute local velocity vector
@@ -576,6 +609,17 @@ program main
                 enddo
               enddo
             enddo
+
+            axisym: if (rotor(ir)%axisymmetricSwitch .eq. 1) then
+              do ib = 2, rotor(ir)%nb
+                do is = 1, rotor(ir)%ns
+                  do ic = 1, rotor(ir)%nc
+                    rotor(ir)%blade(ib)%wiP(ic, is)%velCPTotal = &
+                      & rotor(ir)%blade(1)%wiP(ic, is)%velCPTotal
+                  enddo
+                enddo
+              enddo
+            endif axisym
 
             call rotor(ir)%calc_secAlpha()
             call rotor(ir)%calc_force_alpha(density, velSound)
