@@ -216,17 +216,6 @@ program main
   if (switches%rotorForcePlot .ne. 0) then
     call init_plots(nr)    ! Create headers for plot files
     do ir = 1, nr
-      ! Compute sec freestream velocity for secCL
-      do ib = 1, rotor(ir)%nb
-        do is = 1, rotor(ir)%ns
-          rotor(ir)%blade(ib)%secVelFreestream(:, is) = &
-            -1._dp*rotor(ir)%velBody &
-            - cross_product(rotor(ir)%omegaBody, &
-            rotor(ir)%blade(ib)%secCP(:, is) - rotor(ir)%cgCoords) &
-            + cross_product(-rotor(ir)%omegaSlow*rotor(ir)%shaftAxis, &
-            rotor(ir)%blade(ib)%secCP(:, is) - rotor(ir)%hubCoords)
-        enddo
-      enddo
 
       select case (rotor(ir)%forceCalcSwitch)
 
@@ -257,11 +246,8 @@ program main
           enddo
         enddo
 
+        call rotor(ir)%calc_secAlpha()
         call rotor(ir)%calc_force_gamma(density, dt)
-
-        ! Avoid recomputing secAlpha since calc_force_gamma()
-        ! already does it
-        call rotor(ir)%calc_secAlpha(updateSecVel=.False.)
 
         ! For the first iteration, assign the first flap moment to 
         ! prev flap moment for use in flap dynamics equation
@@ -295,7 +281,7 @@ program main
           enddo
         enddo
 
-        call rotor(ir)%calc_secAlpha(updateSecVel=.True.)
+        call rotor(ir)%calc_secAlpha()
         call rotor(ir)%calc_force_alpha(density, velSound)
 
       case (2)  ! Compute lift using alpha approximated from sec circulation
@@ -533,17 +519,6 @@ program main
     if (switches%rotorForcePlot .ne. 0) then
       if (mod(iter, switches%rotorForcePlot) .eq. 0) then
         do ir = 1, nr
-          ! Compute sec freestream velocity for secCL
-          do ib = 1, rotor(ir)%nb
-            do is = 1, rotor(ir)%ns
-              rotor(ir)%blade(ib)%secVelFreestream(:, is) = &
-                -1._dp*rotor(ir)%velBody &
-                - cross_product(rotor(ir)%omegaBody, &
-                rotor(ir)%blade(ib)%secCP(:, is) - rotor(ir)%cgCoords) &
-                + cross_product(-rotor(ir)%omegaSlow*rotor(ir)%shaftAxis, &
-                rotor(ir)%blade(ib)%secCP(:, is) - rotor(ir)%hubCoords)
-            enddo
-          enddo
 
           select case (rotor(ir)%forceCalcSwitch)
 
@@ -573,10 +548,8 @@ program main
               enddo
             enddo
 
+            call rotor(ir)%calc_secAlpha()
             call rotor(ir)%calc_force_gamma(density, dt)
-            ! Avoid recomputing secAlpha since calc_force_gamma()
-            ! already does it
-            call rotor(ir)%calc_secAlpha(updateSecVel=.False.)
 
           case (1)  ! Compute using alpha
             ! Compute alpha
@@ -604,7 +577,7 @@ program main
               enddo
             enddo
 
-            call rotor(ir)%calc_secAlpha(updateSecVel=.True.)
+            call rotor(ir)%calc_secAlpha()
             call rotor(ir)%calc_force_alpha(density, velSound)
 
           case (2)  ! Compute lift using alpha approximated from sec circulation
