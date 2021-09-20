@@ -46,7 +46,7 @@
 # 
 # theta0[deg]    thetaC[deg]    thetaS[deg]    thetaTwist[deg]
 # -------------------------------------------------------------------
-   8.0             0.0              0.0           0.0
+   11.348             0.0              0.0           0.0
 # ===================================================================
 # customTrajectorySwitch    axisymmetrySwitch
 # [0]Off [1]On              [0]Off [1]On
@@ -55,7 +55,7 @@
 # 
 # u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]
 # -------------------------------------------------------------------
-   0.0       0.0          0.0        0.0        0.0         0.0
+   0.0       0.0          5.0        0.0        0.0         0.0
 # ===================================================================
 # pivot point     flapHinge      spanwiseLiftTerm    invert tauSpan
 # from LE[x/c]  from centre[r/R]    [1]enable     for swept/symmetric
