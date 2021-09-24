@@ -1,5 +1,6 @@
 """ Extract parameters from parameter file """
 import numpy as np
+import pandas as pd
 from glob import glob
 import json
 
@@ -16,13 +17,9 @@ def _getHeader(file):
 
 def _getDataDict(file):
     """ Parse File and extract header and dataDict """
-    mat = np.loadtxt(file, skiprows=1)
-    dataDict = {}
-    for col, var in enumerate(_getHeader(file)):
-        try:
-            dataDict[var] = np.array(mat[:, col], dtype='float64')
-        except:
-            dataDict[var] = mat[:, col]
+    dataDict = pd.read_csv(file, delim_whitespace=True).to_dict(orient='list')
+    for col in dataDict.keys():
+        dataDict[col] = np.array(dataDict[col])
     return dataDict
 
 def _getLatestFile(filename):
