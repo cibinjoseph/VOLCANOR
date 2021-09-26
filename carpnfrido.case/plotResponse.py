@@ -6,9 +6,10 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import sys
 import parseResults as pr
+from scipy import integrate
 
 
-def normalized(l):
+def normalize(l):
     return l/(l[-1])
 
 try:
@@ -23,6 +24,7 @@ params = pr.getParams()
 dt = params['dt']
 nt = params['nt']
 nb = params['nb']
+omega = params['Omega']
 dpitch = params['dpitch']
 slopeCorrection = 5.73/(2*np.pi)
 
@@ -35,28 +37,50 @@ flap = pitchData['flap']
 ctdata = pr.getForceNonDim()
 ct = ctdata['CL/CT']
 
+# Mean inlow 
+viMean = []
+for it in range(nt+1):
+    pr.iterNum = f'{it:05d}'
+    data, _ = pr.getForceDist()
+    phi = data['secPhi']*np.pi/180.0
+    vi = data['secSpan']*params['Omega']*np.tan(phi)
+    viMeanVal = 2*integrate.simps(vi*data['secSpan'], data['secSpan']) \
+            /((1.0-(params['root_cut'])**2)*(params['radius'])**2.0)
+    viMean.append(viMeanVal)
+
+pr.iterNum = ''
+
+
 t = np.arange(nt+1)*dt
 
+# Plots
 fig, ax = plt.subplots(3, 1)
-plt.title('Ramp = ' + str(dpitch) + ' deg/s')
+plt.rcParams['axes.grid'] = True
 
-ax[0].plot(t, pitch)
-ax[0].grid()
+ax[0].plot(t, normalize(viMean))
+ax[0].set_ylabel('inflow')
+ax[0].set_title('Ramp = ' + str(dpitch) + ' deg/s')
+try:
+    expt = pr._getDataDict(dirName + 'exptVi.csv')
+    ax[0].plot(expt['t'], normalize(expt['vi']), 'ro')
+except:
+    print('No exptVi.csv data available')
+    pass
 
-ax[1].plot(t, normalized(flap))
-ax[1].grid()
+ax[1].plot(t, normalize(flap))
+ax[1].set_ylabel('flap')
 try:
     expt = pr._getDataDict(dirName + 'exptFlap.csv')
-    ax[1].plot(expt['t'], normalized(expt['flap']), 'ro')
+    ax[1].plot(expt['t'], normalize(expt['flap']), 'ro')
 except:
     print('No exptFlap.csv data available')
     pass
 
-ax[2].plot(t, normalized(ct))
-ax[2].grid()
+ax[2].plot(t, normalize(ct))
+ax[2].set_ylabel('CT')
 try:
     expt = pr._getDataDict(dirName + 'exptCT.csv')
-    ax[2].plot(expt['t'], normalized(expt['CT']), 'ro')
+    ax[2].plot(expt['t'], normalize(expt['CT']), 'ro')
 except:
     print('No exptCT.csv data available')
     pass
@@ -65,8 +89,12 @@ fig.tight_layout()
 plt.show()
 
 # Write to file
-print('t     pitch     flap     CT')
-for ti, pi, fl, cti in zip(t, pitch, flap, ct):
-    print(str(ti) + '\t' + str(pi) +'\t' + str(fl) + '\t' + str(cti))
+dataOut = {}
+dataOut['t'] = t
+dataOut['pitch'] = normalize(pitch)
+dataOut['viMean'] = normalize(viMean)
+dataOut['flap'] = normalize(flap)
+dataOut['CT'] = normalize(ct)
 
-
+dataPd = pd.DataFrame.from_dict(dataOut)
+dataPd.to_csv(sys.stdout, sep='\t', index=False)
