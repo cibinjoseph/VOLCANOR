@@ -111,7 +111,7 @@ program main
     do ir = 1, nr
       if (rotor(ir)%surfaceType .gt. 0) then
         ! Compute velCP and RHS for lifting and non-lifting surfaces
-        do ib = 1, rotor(ir)%nb
+        do ib = 1, rotor(ir)%nbConvect
           do is = 1, rotor(ir)%ns
             do ic = 1, rotor(ir)%nc
               row = ic + rotor(ir)%nc*(is - 1) &
@@ -153,6 +153,15 @@ program main
             enddo
           enddo
         enddo
+
+        axisymRHS0: if (rotor(ir)%axisymmetrySwitch .eq. 1) then
+          do ib = 2, rotor(ir)%nb
+            rotor(ir)%RHS( &
+              & rotor(ir)%nc*rotor(ir)%ns*(ib-1)+1: &
+              & rotor(ir)%nc*rotor(ir)%ns*ib) = &
+              & rotor(ir)%RHS(1:rotor(ir)%nc*rotor(ir)%ns)
+          enddo
+        endif axisymRHS0
 
       else
         ! For image lifting and non-lifting surfaces,
@@ -452,7 +461,7 @@ program main
         rotor(ir)%RHS = 0._dp
         if (rotor(ir)%surfaceType .gt. 0) then
           ! Compute velCP and RHS for lifting and non-lifting surfaces
-          do ib = 1, rotor(ir)%nb
+          do ib = 1, rotor(ir)%nbConvect
             do is = 1, rotor(ir)%ns
               do ic = 1, rotor(ir)%nc
                 row = ic + rotor(ir)%nc*(is - 1) &
@@ -496,6 +505,15 @@ program main
               enddo
             enddo
           enddo
+
+          axisymRHS: if (rotor(ir)%axisymmetrySwitch .eq. 1) then
+            do ib = 2, rotor(ir)%nb
+              rotor(ir)%RHS( &
+                & rotor(ir)%nc*rotor(ir)%ns*(ib-1)+1: &
+                & rotor(ir)%nc*rotor(ir)%ns*ib) = &
+                & rotor(ir)%RHS(1:rotor(ir)%nc*rotor(ir)%ns)
+            enddo
+          endif axisymRHS
 
         else
           ! For image lifting and non-lifting surfaces,
