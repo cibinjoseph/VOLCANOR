@@ -36,6 +36,8 @@ flap = pitchData['flap']
 # Extract Ct data
 ctdata = pr.getForceNonDim()
 ct = ctdata['CL/CT']
+print('CT_max/CT_ss = ', end='')
+print(max(ct)/ct[-1])
 
 # Mean inlow 
 viMean = []
@@ -89,6 +91,7 @@ fig.tight_layout()
 plt.show()
 
 # Write to file
+writeToFile = False
 dataOut = {}
 dataOut['t'] = t
 dataOut['pitch'] = normalize(pitch)
@@ -96,5 +99,6 @@ dataOut['viMean'] = normalize(viMean)
 dataOut['flap'] = normalize(flap)
 dataOut['CT'] = normalize(ct)
 
-dataPd = pd.DataFrame.from_dict(dataOut)
-dataPd.to_csv(sys.stdout, sep='\t', index=False)
+if writeToFile:
+    dataPd = pd.DataFrame.from_dict(dataOut)
+    dataPd.to_csv(sys.stdout, sep='\t', index=False)
