@@ -338,11 +338,15 @@ program main
         if (rotor(ir)%surfaceType == -1) then
           do ib = 1, rotor(ir)%nb
             if (rotor(ir)%imagePlane == 3) then
-              rotor(ir)%dflap = -1._dp*rotor(rotor(ir)%imageRotorNum)%dflap
-              rotor(ir)%flap = -1._dp*rotor(rotor(ir)%imageRotorNum)%flap
+              rotor(ir)%blade(ib)%dflap = &
+                & -1._dp*rotor(rotor(ir)%imageRotorNum)%blade(ib)%dflap
+              rotor(ir)%blade(ib)%flap = &
+                & -1._dp*rotor(rotor(ir)%imageRotorNum)%blade(ib)%flap
             else
-              rotor(ir)%dflap = rotor(rotor(ir)%imageRotorNum)%dflap
-              rotor(ir)%flap = rotor(rotor(ir)%imageRotorNum)%flap
+              rotor(ir)%blade(ib)%dflap = &
+                & rotor(rotor(ir)%imageRotorNum)%blade(ib)%dflap
+              rotor(ir)%blade(ib)%flap = &
+                & rotor(rotor(ir)%imageRotorNum)%blade(ib)%flap
             endif
           enddo
         else
@@ -680,11 +684,15 @@ program main
           if (rotor(ir)%surfaceType == -1) then
             do ib = 1, rotor(ir)%nb
               if (rotor(ir)%imagePlane == 3) then
-                rotor(ir)%dflap = -1._dp*rotor(rotor(ir)%imageRotorNum)%dflap
-                rotor(ir)%flap = -1._dp*rotor(rotor(ir)%imageRotorNum)%flap
+                rotor(ir)%blade(ib)%dflap = &
+                  & -1._dp*rotor(rotor(ir)%imageRotorNum)%blade(ib)%dflap
+                rotor(ir)%blade(ib)%flap = &
+                  & -1._dp*rotor(rotor(ir)%imageRotorNum)%blade(ib)%flap
               else
-                rotor(ir)%dflap = rotor(rotor(ir)%imageRotorNum)%dflap
-                rotor(ir)%flap = rotor(rotor(ir)%imageRotorNum)%flap
+                rotor(ir)%blade(ib)%dflap = &
+                  & rotor(rotor(ir)%imageRotorNum)%blade(ib)%dflap
+                rotor(ir)%blade(ib)%flap = &
+                  & rotor(rotor(ir)%imageRotorNum)%blade(ib)%flap
               endif
             enddo
           else
