@@ -335,7 +335,12 @@ program main
       ! Flap dynamics
       if (rotor(ir)%bladeDynamicsSwitch .ne. 0) then
         call dynamics2file(timestamp, rotor(ir))
-        call rotor(ir)%computeBladeDynamics(dt)
+        if (rotor(ir)%surfaceType == -1) then
+          rotor(ir)%dflap = -1._dp*rotor(rotor(ir)%imageRotorNum)%dflap
+          rotor(ir)%flap = -1._dp*rotor(rotor(ir)%imageRotorNum)%flap
+        else
+          call rotor(ir)%computeBladeDynamics(dt)
+        endif
       endif
     enddo
   endif
@@ -665,7 +670,13 @@ program main
       do ir = 1, nr
         if (rotor(ir)%bladeDynamicsSwitch .ne. 0) then
           call dynamics2file(timestamp, rotor(ir))
-          call rotor(ir)%computeBladeDynamics(dt)
+          call dynamics2file(timestamp, rotor(ir))
+          if (rotor(ir)%surfaceType == -1) then
+            rotor(ir)%dflap = -1._dp*rotor(rotor(ir)%imageRotorNum)%dflap
+            rotor(ir)%flap = -1._dp*rotor(rotor(ir)%imageRotorNum)%flap
+          else
+            call rotor(ir)%computeBladeDynamics(dt)
+          endif
         endif
       enddo
     endif
