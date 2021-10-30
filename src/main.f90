@@ -36,11 +36,20 @@ program main
 
   ! Rotate wing pc, vr, cp and nCap by initial pitch angle
   do ir = 1, nr
-    do ib = 1, rotor(ir)%nb
-      rotor(ir)%blade(ib)%theta = rotor(ir)%gettheta(rotor(ir)%psiStart, ib)
-      call rotor(ir)%blade(ib)%rot_pitch( &
-        sign(1._dp, rotor(ir)%Omega)*rotor(ir)%blade(ib)%theta)
-    enddo
+    if (rotor(ir)%surfaceType == -1) then
+      do ib = 1, rotor(ir)%nb
+        rotor(ir)%blade(ib)%theta = &
+          & rotor(rotor(ir)%imageRotorNum)%blade(ib)%theta
+        call rotor(ir)%blade(ib)%rot_pitch( &
+          sign(1._dp, rotor(ir)%Omega)*rotor(ir)%blade(ib)%theta)
+      enddo
+    else
+      do ib = 1, rotor(ir)%nb
+        rotor(ir)%blade(ib)%theta = rotor(ir)%gettheta(rotor(ir)%psiStart, ib)
+        call rotor(ir)%blade(ib)%rot_pitch( &
+          sign(1._dp, rotor(ir)%Omega)*rotor(ir)%blade(ib)%theta)
+      enddo
+    endif
   enddo
 
   do ir = 1, nr
