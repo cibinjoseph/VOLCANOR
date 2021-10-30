@@ -28,10 +28,14 @@ omega = params['Omega']
 dpitch = params['dpitch']
 slopeCorrection = 5.73/(2*np.pi)
 
+# Set whether flap is present
+flapPresent = True
+
 # Extract pitch input from dynamics file
 pitchData = pr._getDataDict(pr.ResultsDir + 'r01bladedynamics.csv')
-pitch = pitchData['pitch']
-flap = pitchData['flap']
+if flapPresent:
+    pitch = pitchData['pitch']
+    flap = pitchData['flap']
 
 # Extract Ct data
 ctdata = pr.getForceNonDim()
@@ -56,48 +60,51 @@ pr.iterNum = ''
 t = np.arange(nt+1)*dt
 
 # Plots
-fig, ax = plt.subplots(3, 1)
-plt.rcParams['axes.grid'] = True
+generatePlot = True
+if generatePlot == True:
+    fig, ax = plt.subplots(3, 1)
+    plt.rcParams['axes.grid'] = True
 
-ax[0].plot(t, normalize(viMean))
-ax[0].set_ylabel('inflow')
-ax[0].set_title('Ramp = ' + str(dpitch) + ' deg/s')
-try:
-    expt = pr._getDataDict(dirName + 'exptVi.csv')
-    ax[0].plot(expt['t'], normalize(expt['vi']), 'ro')
-except:
-    print('No exptVi.csv data available')
-    pass
+    ax[0].plot(t, normalize(viMean))
+    ax[0].set_ylabel('inflow')
+    ax[0].set_title('Ramp = ' + str(dpitch) + ' deg/s')
+    try:
+        expt = pr._getDataDict(dirName + 'exptVi.csv')
+        ax[0].plot(expt['t'], normalize(expt['vi']), 'ro')
+    except:
+        print('No exptVi.csv data available')
+        pass
 
-ax[1].plot(t, normalize(flap))
-ax[1].set_ylabel('flap')
-try:
-    expt = pr._getDataDict(dirName + 'exptFlap.csv')
-    ax[1].plot(expt['t'], normalize(expt['flap']), 'ro')
-except:
-    print('No exptFlap.csv data available')
-    pass
+    ax[1].plot(t, normalize(flap))
+    ax[1].set_ylabel('flap')
+    try:
+        expt = pr._getDataDict(dirName + 'exptFlap.csv')
+        ax[1].plot(expt['t'], normalize(expt['flap']), 'ro')
+    except:
+        print('No exptFlap.csv data available')
+        pass
 
-ax[2].plot(t, normalize(ct))
-ax[2].set_ylabel('CT')
-try:
-    expt = pr._getDataDict(dirName + 'exptCT.csv')
-    ax[2].plot(expt['t'], normalize(expt['CT']), 'ro')
-except:
-    print('No exptCT.csv data available')
-    pass
+    ax[2].plot(t, normalize(ct))
+    ax[2].set_ylabel('CT')
+    try:
+        expt = pr._getDataDict(dirName + 'exptCT.csv')
+        ax[2].plot(expt['t'], normalize(expt['CT']), 'ro')
+    except:
+        print('No exptCT.csv data available')
+        pass
 
-fig.tight_layout()
-plt.show()
+    fig.tight_layout()
+    plt.show()
 
 # Write to file
 writeToFile = False
 dataOut = {}
 dataOut['t'] = t
-dataOut['pitch'] = normalize(pitch)
 dataOut['viMean'] = normalize(viMean)
-dataOut['flap'] = normalize(flap)
 dataOut['CT'] = normalize(ct)
+if flapPresent:
+    dataOut['pitch'] = normalize(pitch)
+    dataOut['flap'] = normalize(flap)
 
 if writeToFile:
     dataPd = pd.DataFrame.from_dict(dataOut)
