@@ -34,28 +34,28 @@ program main
     call params2file(rotor(ir), nt, dt, nr, density, velSound, switches)
   enddo
 
-  ! Rotate wing pc, vr, cp and nCap by initial pitch angle
-  do ir = 1, nr
-    if (rotor(ir)%surfaceType == -1) then
-      do ib = 1, rotor(ir)%nb
-        rotor(ir)%blade(ib)%theta = &
-          & rotor(rotor(ir)%imageRotorNum)%blade(ib)%theta
-        call rotor(ir)%blade(ib)%rot_pitch( &
-          sign(1._dp, rotor(ir)%Omega)*rotor(ir)%blade(ib)%theta)
-      enddo
-    else
-      do ib = 1, rotor(ir)%nb
-        rotor(ir)%blade(ib)%theta = rotor(ir)%gettheta(rotor(ir)%psiStart, ib)
-        call rotor(ir)%blade(ib)%rot_pitch( &
-          sign(1._dp, rotor(ir)%Omega)*rotor(ir)%blade(ib)%theta)
-      enddo
-    endif
-  enddo
-
   do ir = 1, nr
     if (rotor(ir)%surfaceType == -1) then
       call rotor(ir)%mirrorGeometry(rotor(rotor(ir)%imageRotorNum))
     endif
+  enddo
+
+  ! Rotate wing pc, vr, cp and nCap by initial pitch angle
+  do ir = 1, nr
+    do ib = 1, rotor(ir)%nb
+      if (rotor(ir)%surfaceType == -1) then
+        rotor(ir)%blade(ib)%theta = &
+          & rotor(rotor(ir)%imageRotorNum)%blade(ib)%theta
+        if (rotor(ir)%imagePlane == 3) then
+          rotor(ir)%blade(ib)%theta = -1._dp*rotor(ir)%blade(ib)%theta
+        endif
+      else
+        rotor(ir)%blade(ib)%theta = rotor(ir)%gettheta(rotor(ir)%psiStart, ib)
+      endif
+
+      call rotor(ir)%blade(ib)%rot_pitch( &
+        sign(1._dp, rotor(ir)%Omega)*rotor(ir)%blade(ib)%theta)
+    enddo
   enddo
 
   ! Plot wing surface geometry
@@ -428,6 +428,7 @@ program main
       call rotor(ir)%move(rotor(ir)%velBody*dt)
       call rotor(ir)%rot_pts(rotor(ir)%omegaBody*dt, rotor(ir)%cgCoords, 1)
       call rotor(ir)%rot_advance(rotor(ir)%omegaSlow*dt)
+
       if (rotor(ir)%bladeDynamicsSwitch) then
         call rotor(ir)%rot_flap()
       endif

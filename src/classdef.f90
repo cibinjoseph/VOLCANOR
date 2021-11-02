@@ -1075,11 +1075,12 @@ contains
     ! Rotate about axis at specified origin
     use libMath, only: getTransformAxis
   class(blade_class), intent(inout) :: this
-    real(dp), intent(in) :: theta
-    real(dp), intent(in), dimension(3) :: axisVec
-    real(dp), intent(in), dimension(3) :: origin
+    real(dp), intent(in), value :: theta
+    real(dp), intent(in), value, dimension(3) :: axisVec
+    real(dp), intent(in), value, dimension(3) :: origin
     real(dp), dimension(3, 3) :: Tmat
     integer :: i, j
+
 
     if (abs(theta) > eps) then
       ! Translate to origin
@@ -3196,6 +3197,15 @@ class(blade_class), intent(inout) :: this
         ((grid(2, i, j), i=1, nx), j=1, ny), &
         ((grid(3, i, j), i=1, nx), j=1, ny)
       close (10)
+    endif
+
+    ! Mirror geometry if imagePlane is z-axis
+    if (this%surfaceType < 0 .and. this%imagePlane == 3) then
+      do j = 1, ny
+        do i = 1, nx
+          grid(3, i, j) = -1._dp*grid(3, i, j)
+        enddo
+      enddo
     endif
 
     ! Assign to blades
