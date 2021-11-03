@@ -342,11 +342,15 @@ program main
                 & -1._dp*rotor(rotor(ir)%imageRotorNum)%blade(ib)%dflap
               rotor(ir)%blade(ib)%flap = &
                 & -1._dp*rotor(rotor(ir)%imageRotorNum)%blade(ib)%flap
+              rotor(ir)%blade(ib)%flapPrev = &
+                & -1._dp*rotor(rotor(ir)%imageRotorNum)%blade(ib)%flapPrev
             else
               rotor(ir)%blade(ib)%dflap = &
                 & rotor(rotor(ir)%imageRotorNum)%blade(ib)%dflap
               rotor(ir)%blade(ib)%flap = &
                 & rotor(rotor(ir)%imageRotorNum)%blade(ib)%flap
+              rotor(ir)%blade(ib)%flapPrev = &
+                & rotor(rotor(ir)%imageRotorNum)%blade(ib)%flapPrev
             endif
           enddo
         else
@@ -689,11 +693,15 @@ program main
                   & -1._dp*rotor(rotor(ir)%imageRotorNum)%blade(ib)%dflap
                 rotor(ir)%blade(ib)%flap = &
                   & -1._dp*rotor(rotor(ir)%imageRotorNum)%blade(ib)%flap
+                rotor(ir)%blade(ib)%flapPrev = &
+                  & -1._dp*rotor(rotor(ir)%imageRotorNum)%blade(ib)%flapPrev
               else
                 rotor(ir)%blade(ib)%dflap = &
                   & rotor(rotor(ir)%imageRotorNum)%blade(ib)%dflap
                 rotor(ir)%blade(ib)%flap = &
                   & rotor(rotor(ir)%imageRotorNum)%blade(ib)%flap
+                rotor(ir)%blade(ib)%flapPrev = &
+                  & rotor(rotor(ir)%imageRotorNum)%blade(ib)%flapPrev
               endif
             enddo
           else

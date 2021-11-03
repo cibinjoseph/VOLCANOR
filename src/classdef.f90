@@ -3342,7 +3342,9 @@ class(blade_class), intent(inout) :: this
         + this%controlPitch(3)*sin(psi + bladeOffset)
     case (1)
       ! Ramp collective pitch input
-      rotor_gettheta = min(psi/this%Omega*this%dpitch, this%controlPitch(1))
+      rotor_gettheta = min(psi/abs(this%Omega*this%dpitch), &
+        & abs(this%controlPitch(1)))
+      if (this%controlPitch(1) < 0) rotor_gettheta = -1._dp*rotor_gettheta
     end select
   end function rotor_gettheta
 
