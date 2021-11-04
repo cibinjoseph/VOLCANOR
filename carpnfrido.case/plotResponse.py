@@ -97,7 +97,7 @@ if generatePlot == True:
     plt.show()
 
 # Write to file
-writeToFile = False
+writeToFile = True
 dataOut = {}
 dataOut['t'] = t
 dataOut['viMean'] = normalize(viMean)
