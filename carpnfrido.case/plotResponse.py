@@ -9,8 +9,10 @@ import parseResults as pr
 from scipy import integrate
 
 
-def normalize(l):
-    return l/(l[-1])
+averageOver = 24*4
+
+def normalize(l, npoints=averageOver):
+    return np.array(l)*npoints/np.sum(l[-npoints:])
 
 try:
     dirName = sys.argv[1] + '/'
@@ -40,8 +42,8 @@ if flapPresent:
 # Extract Ct data
 ctdata = pr.getForceNonDim()
 ct = ctdata['CL/CT']
-print('CT_max/CT_ss = ', end='')
-print(max(ct)/ct[-1])
+# print('CT_max/CT_ss = ', end='')
+# print(max(ct)/ct[-1])
 
 # Mean inlow 
 viMean = []
@@ -66,31 +68,34 @@ if generatePlot == True:
     plt.rcParams['axes.grid'] = True
 
     ax[0].plot(t, normalize(viMean))
+    ax[0].plot(t, np.ones(t.shape))
     ax[0].set_ylabel('inflow')
     ax[0].set_title('Ramp = ' + str(dpitch) + ' deg/s')
     try:
         expt = pr._getDataDict(dirName + 'exptVi.csv')
         ax[0].plot(expt['t'], normalize(expt['vi']), 'ro')
     except:
-        print('No exptVi.csv data available')
+        print('No exptVi.csv data available', file=sys.stderr)
         pass
 
     ax[1].plot(t, normalize(flap))
+    ax[1].plot(t, np.ones(t.shape))
     ax[1].set_ylabel('flap')
     try:
         expt = pr._getDataDict(dirName + 'exptFlap.csv')
         ax[1].plot(expt['t'], normalize(expt['flap']), 'ro')
     except:
-        print('No exptFlap.csv data available')
+        print('No exptFlap.csv data available', file=sys.stderr)
         pass
 
     ax[2].plot(t, normalize(ct))
+    ax[2].plot(t, np.ones(t.shape))
     ax[2].set_ylabel('CT')
     try:
         expt = pr._getDataDict(dirName + 'exptCT.csv')
         ax[2].plot(expt['t'], normalize(expt['CT']), 'ro')
     except:
-        print('No exptCT.csv data available')
+        print('No exptCT.csv data available', file=sys.stderr)
         pass
 
     fig.tight_layout()
