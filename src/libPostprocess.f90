@@ -691,6 +691,10 @@ contains
       & 'r'//rotor%id//'tip'//timestamp//'.plt', &
       & action='write', position='append')
 
+    open (unit=11, file=ResultsDir// &
+      & 'r'//rotor%id//'tipXYZ'//timestamp//'.csv', &
+      & action='write', position='append')
+
     write (10, *) 'Title = "Wing and Tip"'
     write (10, *) 'VARIABLES = "X" "Y" "Z" "GAM" "ageAzimuthal"'! "Var6"'
 
@@ -785,6 +789,11 @@ contains
         & vr%vf(4)%ageAzimuthal*radToDeg, i=rotor%rowNear, nx)
       !write(10,*) ((rotor%blade(ib)%waN(i,j)%vr%skew,i=rotor%rowNear,nx),j=1,ny)
 
+      write(11, *) 'X        Y         Z'
+      do i = rotor%rowNear, nx+1
+        write(11, *) nWakeTip(1, i), nWakeTip(2, i), nWakeTip(3, i)
+      enddo
+
       ! Far wake
       nx = rotor%nFwake
       if (rotor%rowFar .le. rotor%nFwake) then
@@ -808,6 +817,10 @@ contains
           & i=rotor%rowFar, nx)
         !write(10,*) (rotor%blade(ib)%waF(i)%vf%age,i=rotor%rowFar,nx)
 
+        do i = rotor%rowFar, nx+1
+          write(11, *) fWakeTip(1, i), fWakeTip(2, i), fWakeTip(3, i)
+        enddo
+
       else  ! No far wake present
 
         write (nxChar, '(I5)') 2  ! Plot mesh as single redundant point
@@ -826,6 +839,7 @@ contains
     enddo
 
     close (10)
+    close (11)
 
   end subroutine tip2file
 
