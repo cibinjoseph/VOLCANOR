@@ -62,7 +62,7 @@ pr.iterNum = ''
 t = np.arange(nt+1)*dt
 
 # Plots
-generatePlot = True
+generatePlot = False
 if generatePlot == True:
     fig, ax = plt.subplots(3, 1)
     plt.rcParams['axes.grid'] = True
