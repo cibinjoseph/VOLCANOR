@@ -32,6 +32,8 @@ slopeCorrection = 5.73/(2*np.pi)
 
 # Set whether flap is present
 flapPresent = True
+if params['bladeDynamicsSwitch'] == 0:
+    flapPresent = False
 
 # Extract pitch input from dynamics file
 pitchData = pr._getDataDict(pr.ResultsDir + 'r01bladedynamics.csv')
