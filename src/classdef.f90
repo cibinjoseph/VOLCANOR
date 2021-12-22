@@ -170,6 +170,7 @@ module classdef
     type(C81_class), allocatable, dimension(:) :: C81
     integer :: nc, ns
     real(dp) :: theta, psi, pivotLE, preconeAngle
+    real(dp) :: velWakeMax
     ! Flap dynamics parameters
     real(dp) :: flapInitial, dflapInitial, flapPrev, dflapPrev
     real(dp) :: flap, dflap, Iflap, kflap, cflap, MflapConstant
@@ -224,6 +225,7 @@ module classdef
     procedure :: vind_boundVortex => blade_vind_boundVortex
     procedure :: vind_bywake => blade_vind_bywake
     procedure :: convectwake => blade_convectwake
+    procedure :: limitWakeVel => blade_limitWakeVel
     procedure :: wake_continuity => blade_wake_continuity
     procedure :: getSecDynamicPressure => blade_getSecDynamicPressure
     procedure :: calc_secArea, calc_secChord
@@ -1410,6 +1412,39 @@ class(blade_class), intent(inout) :: this
     call this%wake_continuity(rowNear, rowFar, wakeType)
 
   end subroutine blade_convectwake
+
+  subroutine blade_limitWakeVel(this, rowNear, rowFar, dt)
+    !! Limits all wake velocity to a set value to prevent blow up
+  class(blade_class), intent(inout) :: this
+    integer, intent(in) :: rowNear, rowFar
+    real(dp), intent(in) :: dt
+    integer :: i, j, di, nNwake, nFwake
+
+    nNwake = size(this%waN, 1)
+    nFwake = size(this%waF, 1)
+
+    !$omp parallel do collapse(2)
+    do j = 1, this%ns
+      do i = rowNear, nNwake
+        do di = 1, 3
+          this%velNwake(di, i, j) = sign( &
+            & min(abs(this%velNwake(di, i, j)), this%velWakeMax), &
+            & this%velNwake(di, i, j))
+        enddo
+      enddo
+    enddo
+    !$omp end parallel do
+
+    !$omp parallel do
+    do i = rowFar, nFwake
+      do di = 1, 3
+        this%velFwake(di, i) = sign( &
+          & min(abs(this%velFwake(di, i)), this%velWakeMax), &
+          & this%velFwake(di, i))
+      enddo
+    enddo
+    !$omp end parallel do
+  end subroutine blade_limitWakeVel
 
   subroutine blade_wake_continuity(this, rowNear, rowFar, wakeType)
     ! Maintain continuity between vortex ring elements after convection
@@ -2612,6 +2647,13 @@ class(blade_class), intent(inout) :: this
             + xshift(4), this%blade(ib)%wiP(i, j)%PC(2, 4), &
             this%blade(ib)%wiP(i, j)%PC(3, 4)/))
         enddo
+      endif
+
+      ! Initialize max wake vel for any point to tip velocity
+      if (abs(this%Omega) > eps) then
+        this%blade(ib)%velWakeMax = this%Radius*abs(this%Omega)
+      else
+        this%blade(ib)%velWakeMax = norm2(this%velBody)
       endif
 
       ! Find dx and dy vectors
@@ -3903,6 +3945,7 @@ class(blade_class), intent(inout) :: this
     real(dp) :: bladeOffset
 
     do ib = 1, this%nbConvect
+      call this%blade(ib)%limitWakeVel(this%rowNear, this%rowFar, dt)
       call this%blade(ib)%convectwake(this%rowNear, this%rowFar, dt, wakeType)
     enddo
 
