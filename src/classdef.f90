@@ -3945,7 +3945,8 @@ class(blade_class), intent(inout) :: this
     real(dp) :: bladeOffset
 
     do ib = 1, this%nbConvect
-      call this%blade(ib)%limitWakeVel(this%rowNear, this%rowFar, dt)
+      ! Wake velocity limiter turned off since it's not tested thoroghly
+      ! call this%blade(ib)%limitWakeVel(this%rowNear, this%rowFar, dt)
       call this%blade(ib)%convectwake(this%rowNear, this%rowFar, dt, wakeType)
     enddo
 
