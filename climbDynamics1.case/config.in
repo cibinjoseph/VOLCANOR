@@ -27,13 +27,13 @@
 # PLOT WAKE: [0]Off [n]Every n'th iteration [-n]chords or revs
 # wakePlotSwitch   wakeTipPlotSwitch   forcePlotSwitch   gridPlotSwitch
 # -----------------------------------------------------------------------
-       5                 0                 1                 0
+       5                 5                 1                 0
 # =======================================================================
 # 
 # WAKE PROPERTY SWITCHES: [0]Off [1]On
 # wakeDissipationSwitch            wakeStrainSwitch   wakeBurstSwitch
 # -----------------------------------------------------------------------
-       0                                0                  0
+       1                                0                  0
 # 
 # SLOW START TO AVOID LARGE STARTING VORTEX:
 # [0]Off [1]linear [2]tanh [3]extended tanh
