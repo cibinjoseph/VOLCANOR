@@ -42,7 +42,7 @@ contains
 
     100 format (A5, 11(A15))
     101 format (A5, 9(A15))
-    102 format (A5, 3(A15))
+    102 format (A5, 4(A15))
   end subroutine init_plots
 
   subroutine params2file(rotor, nt, dt, nr, &
@@ -945,7 +945,7 @@ contains
       & rotor%blade(1)%dflap*radToDeg, rotor%velBody(3)
     close(10)
 
-    100 format (A5, 3(E15.7))
+    100 format (A5, 4(E15.7))
   end subroutine dynamics2file
 
   subroutine inflow2file(timestamp, rotorArray, rotorNumber, directionVector)
