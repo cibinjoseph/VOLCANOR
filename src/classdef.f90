@@ -270,6 +270,7 @@ module classdef
     real(dp) :: pivotLE  ! pivot location from LE [x/c]
     real(dp) :: flapHinge  ! hinge location from centre [x/R]
     real(dp), dimension(3) :: velBody, omegaBody
+    real(dp), dimension(3) :: velBodyPrev, omegaBodyPrev
     real(dp), allocatable, dimension(:, :) :: velBodyHistory
     real(dp), allocatable, dimension(:, :) :: omegaBodyHistory
     real(dp) :: psi
@@ -346,6 +347,7 @@ module classdef
     procedure :: eraseFwake => rotor_eraseFwake
     procedure :: updatePrescribedWake => rotor_updatePrescribedWake
     procedure :: computeBladeDynamics => rotor_computeBladeDynamics
+    procedure :: getdw
     procedure :: computeBodyDynamics => rotor_computeBodyDynamics
     ! I/O subroutines
     procedure :: rotor_write
@@ -2479,6 +2481,8 @@ class(blade_class), intent(inout) :: this
     this%gamVec = 0._dp
     this%gamVecPrev = 0._dp
     this%lift = 0._dp
+    this%velBodyPrev = 0._dp
+    this%omegaBodyPrev = 0._dp
 
     ! Set blade ids
     do ib = 1, this%nb
@@ -4006,21 +4010,43 @@ class(blade_class), intent(inout) :: this
     endif axisym
   end subroutine rotor_computeBladeDynamics
 
+  function getdw(this, w, thrust)
+  class(rotor_class), intent(inout) :: this
+    real(dp), intent(in) :: w, thrust
+    real(dp) :: nrotors, mass, gravity, dragCoeff, dragFactor
+    real(dp) :: getdw
+
+    nrotors = 1._dp
+    mass = 0.88_dp/4._dp*nrotors
+    gravity = 9.81
+    dragCoeff = 1.28
+    dragFactor = 0.5_dp*dragCoeff*1.0*(3.1415*0.065*0.065)*nrotors
+
+    getdw = (thrust)/mass - dragFactor*w*w - mass*gravity
+
+    ! max function to avoid ground penetration with negative dw
+    ! Only axial climb from ground
+    getdw = max(0._dp, getdw)
+  end function getdw
+
   subroutine rotor_computeBodyDynamics(this, dt)
   class(rotor_class), intent(inout) :: this
     real(dp), intent(in) :: dt
-    real(dp) :: mass, gravity
+    real(dp) :: wPred, wNew
 
-    mass = 0.015
-    gravity = 9.81
+    ! AM2 predictor corrector
+    ! Predictor step
+    wPred = this%velBody(3) + 0.5_dp*dt* &
+      & (3._dp*this%getdw(this%velBody(3), norm2(this%lift)) - &
+      & this%getdw(this%velBodyPrev(3), norm2(this%liftPrev)))
 
-    ! Two-step Adams-Bashforth
-    ! max function to avoid ground penetration with negative wdot
-    ! Only axial climb from ground
-    this%velBody(3) = this%velBody(3) + 0.5_dp*dt* &
-      & (3._dp*(max(0._dp,norm2(this%lift)/mass - gravity)) - &
-      & (max(0._dp, norm2(this%liftPrev)/mass - gravity)))
+    ! Corrector step
+    wNew = this%velBody(3) + 0.5_dp*dt* &
+      & (this%getdw(wPred, norm2(this%lift)) + &
+      & this%getdw(this%velBody(3), norm2(this%lift)))
 
+    this%velBodyPrev = this%velBody
+    this%velBody(3) = wNew
   end subroutine rotor_computeBodyDynamics
 
   subroutine rotor_burst_wake(this)
