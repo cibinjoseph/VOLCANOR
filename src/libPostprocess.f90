@@ -36,7 +36,7 @@ contains
 
       open(unit=12, file=dynamicsFilename, &
         & status='replace', action='write')
-      write(12, 102) 'iter', 'pitch','flap', 'dflap'
+      write(12, 102) 'iter', 'pitch','flap', 'dflap', 'w'
       close(12)
     enddo
 
@@ -942,7 +942,7 @@ contains
     dynamicsFilename = ResultsDir//'r'//rotor%id//'bladedynamics.csv'
     open(unit=10, file=dynamicsFilename, action='write', position='append')
     write(10, 100) timestamp, rotor%blade(1)%theta*radToDeg, rotor%blade(1)%flap*radToDeg, &
-      & rotor%blade(1)%dflap*radToDeg
+      & rotor%blade(1)%dflap*radToDeg, rotor%velBody(3)
     close(10)
 
     100 format (A5, 3(E15.7))

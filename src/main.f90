@@ -357,6 +357,19 @@ program main
           call rotor(ir)%computeBladeDynamics(dt)
         endif
       endif
+
+      ! Body dynamics
+      if (rotor(ir)%bodyDynamicsSwitch .ne. 0) then
+        call dynamics2file(timestamp, rotor(ir))
+        if (rotor(ir)%surfaceType == -1) then
+          rotor(ir)%velBody =  rotor(rotor(ir)%imageRotorNum)%velBody
+          rotor(ir)%velBody(rotor(ir)%imagePlane) = &
+            & -1._dp*rotor(ir)%velBody(rotor(ir)%imagePlane)
+        else
+          call rotor(ir)%computeBodyDynamics(dt)
+        endif
+      endif
+
     enddo
   endif
 
@@ -708,6 +721,19 @@ program main
             call rotor(ir)%computeBladeDynamics(dt)
           endif
         endif
+
+        ! Body dynamics
+        if (rotor(ir)%bodyDynamicsSwitch .ne. 0) then
+          call dynamics2file(timestamp, rotor(ir))
+          if (rotor(ir)%surfaceType == -1) then
+            rotor(ir)%velBody =  rotor(rotor(ir)%imageRotorNum)%velBody
+            rotor(ir)%velBody(rotor(ir)%imagePlane) = &
+              & -1._dp*rotor(ir)%velBody(rotor(ir)%imagePlane)
+          else
+            call rotor(ir)%computeBodyDynamics(dt)
+          endif
+        endif
+
       enddo
     endif
 

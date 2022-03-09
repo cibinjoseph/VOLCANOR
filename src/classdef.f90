@@ -261,7 +261,7 @@ module classdef
     real(dp) :: radius, chord, root_cut
     real(dp) :: preconeAngle, dpitch
     real(dp) :: flapInitial, dflapInitial, Iflap, cflap, kflap, MflapConstant
-    real(dp), dimension(3) :: forceInertial, lift, drag
+    real(dp), dimension(3) :: forceInertial, lift, liftPrev, drag
     real(dp), dimension(3) :: dragInduced, dragProfile
     real(dp), dimension(3) :: liftUnsteady, dragUnsteady
     real(dp), dimension(3) :: liftUnitVec, dragUnitVec, sideUnitVec
@@ -293,6 +293,7 @@ module classdef
     integer :: suppressFwakeSwitch
     integer :: forceCalcSwitch, skewPlotSwitch
     integer :: inflowPlotSwitch, bladeDynamicsSwitch, pitchDynamicsSwitch
+    integer :: bodyDynamicsSwitch
     integer :: spanwiseLiftSwitch, customTrajectorySwitch
     integer :: gammaPlotSwitch
     integer :: rowNear, rowFar
@@ -345,6 +346,7 @@ module classdef
     procedure :: eraseFwake => rotor_eraseFwake
     procedure :: updatePrescribedWake => rotor_updatePrescribedWake
     procedure :: computeBladeDynamics => rotor_computeBladeDynamics
+    procedure :: computeBodyDynamics => rotor_computeBodyDynamics
     ! I/O subroutines
     procedure :: rotor_write
     generic :: write(unformatted) => rotor_write
@@ -2284,6 +2286,9 @@ class(blade_class), intent(inout) :: this
       enddo
     endif
     close (12)
+
+    ! DEBUG
+    this%bodyDynamicsSwitch = 1
   end subroutine rotor_read_geom
 
   subroutine rotor_init(this, rotorNumber, density, dt, nt, switches)
@@ -2473,6 +2478,7 @@ class(blade_class), intent(inout) :: this
     ! Rotor initialization
     this%gamVec = 0._dp
     this%gamVecPrev = 0._dp
+    this%lift = 0._dp
 
     ! Set blade ids
     do ib = 1, this%nb
@@ -4000,6 +4006,23 @@ class(blade_class), intent(inout) :: this
     endif axisym
   end subroutine rotor_computeBladeDynamics
 
+  subroutine rotor_computeBodyDynamics(this, dt)
+  class(rotor_class), intent(inout) :: this
+    real(dp), intent(in) :: dt
+    real(dp) :: mass, gravity
+
+    mass = 0.015
+    gravity = 9.81
+
+    ! Two-step Adams-Bashforth
+    ! max function to avoid ground penetration with negative wdot
+    ! Only axial climb from ground
+    this%velBody(3) = this%velBody(3) + 0.5_dp*dt* &
+      & (3._dp*(max(0._dp,norm2(this%lift)/mass - gravity)) - &
+      & (max(0._dp, norm2(this%liftPrev)/mass - gravity)))
+
+  end subroutine rotor_computeBodyDynamics
+
   subroutine rotor_burst_wake(this)
   class(rotor_class), intent(inout) :: this
     integer :: ib
@@ -4048,6 +4071,7 @@ class(blade_class), intent(inout) :: this
 
     axisym: if (this%axisymmetrySwitch .eq. 1) then
       this%forceInertial = this%nb * this%blade(1)%forceInertial
+      this%liftPrev = this%lift
       this%lift = this%nb * this%blade(1)%lift
       this%drag = this%nb * this%blade(1)%drag
       this%liftUnsteady = this%nb * this%blade(1)%liftUnsteady
@@ -4056,6 +4080,7 @@ class(blade_class), intent(inout) :: this
       this%dragUnsteady = this%nb * this%blade(1)%dragUnsteady
     else
       this%forceInertial = 0._dp
+      this%liftPrev = this%lift
       this%lift = 0._dp
       this%drag = 0._dp
       this%liftUnsteady = 0._dp
