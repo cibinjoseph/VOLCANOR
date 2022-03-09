@@ -4022,7 +4022,7 @@ class(blade_class), intent(inout) :: this
     dragCoeff = 1.28
     dragFactor = 0.5_dp*dragCoeff*1.0*(3.1415*0.065*0.065)*nrotors
 
-    getdw = (thrust)/mass - dragFactor*w*w - mass*gravity
+    getdw = (thrust - dragFactor*w*w)/mass - gravity
 
     ! max function to avoid ground penetration with negative dw
     ! Only axial climb from ground
