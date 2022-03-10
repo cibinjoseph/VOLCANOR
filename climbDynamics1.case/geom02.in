@@ -42,11 +42,11 @@
 # ===================================================================
 # Omega[rad/s]   X-shaftAxis     Y-shaftAxis     Z-shaftAxis
 # -------------------------------------------------------------------
-  1747.0             0.0              0.0              1.0
+  2000.0             0.0              0.0              1.0
 # 
 # theta0[deg]    thetaC[deg]    thetaS[deg]    thetaTwist[deg]
 # -------------------------------------------------------------------
-  0.0             0.0              0.0           0.0
+  15.0             0.0              0.0           0.0
 # ===================================================================
 # customTrajectorySwitch    axisymmetrySwitch
 # [0]Off [1]On              [0]Off [1]On
@@ -65,7 +65,7 @@
 # apparentViscCoeff  decayCoeff
 # (1-10000)          (bq/s) 
 # -------------------------------------------------------------------
-     150                  0
+     200                  0
 # 
 # wakeTruncateNt  prescWakeAfterTruncNt   prescWakeGenNt
 #   [0]Off [n] timesteps [-n] chords/revs
