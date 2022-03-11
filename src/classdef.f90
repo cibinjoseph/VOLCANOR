@@ -2933,7 +2933,7 @@ class(blade_class), intent(inout) :: this
     ! Rotate remaining blades to their positions
     ! Rotate blades for multi-bladed rotors
     do ib = 2, this%nb
-      bladeOffset = twoPi/this%nb*(ib - 1)
+      bladeOffset = sign(1._dp, this%Omega)*twoPi/this%nb*(ib - 1)
       call this%blade(ib)%rot_axis(bladeOffset, this%shaftAxis, this%hubCoords)
     enddo
 
