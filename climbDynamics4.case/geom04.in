@@ -4,7 +4,7 @@
 # ===================================================================
 # No. of blades,nb  Prop convention  NcamberFiles  geometry filename
 # -------------------------------------------------------------------
-     3              0                0             ConQuadProp.xyz
+     3              0                0             ConQuadPropRev.xyz
 #
 # CamberSectionLimit[r/R]  Camber filename
 # -------------------------------------------------------------------
