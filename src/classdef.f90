@@ -2529,7 +2529,7 @@ class(blade_class), intent(inout) :: this
         else
           zVec = 0._dp
         endif
-        if (this%surfaceType < 0) then
+        if (this%surfaceType < 0 .and. this%imagePlane == 3) then
           zVec = -1._dp*zVec
         endif
 
