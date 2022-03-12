@@ -18,15 +18,15 @@
 # Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 #                                       [n]timesteps [-n]chords/revs
 # -------------------------------------------------------------------
-      16                       19                   -3
+      16                       19                   10
 # ===================================================================
 # X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
 # -------------------------------------------------------------------
-   0.0             0.0           0.0325
+   0.081             0.081           0.0325
 # 
 # X-cgCoords      Y-cgCoords      Z-cgCoords     [all in m]
 # -------------------------------------------------------------------
-   0.0             0.0           0.0325
+   0.081             0.081           0.0325
 # 
 # X-from          Y-from          Z-from         [all in m]
 # -------------------------------------------------------------------
@@ -51,7 +51,7 @@
 # customTrajectorySwitch    axisymmetrySwitch
 # [0]Off [1]On              [0]Off [1]On
 # ------------------------------------------------------------------
-           0                      1
+           0                      0
 # 
 # u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]
 # -------------------------------------------------------------------
@@ -70,7 +70,7 @@
 # wakeTruncateNt  prescWakeAfterTruncNt   prescWakeGenNt
 #   [0]Off [n] timesteps [-n] chords/revs
 # -------------------------------------------------------------------
-        -8                       0                0
+        -5                       0                0
 # ===================================================================
 # spanwise core radius[x/c]       streamwise core_switch
 # [s]ectional  [i]dentical
@@ -87,7 +87,7 @@
 # 
 # initWakeVel[m/s]     psiStart[deg]      skewLimit
 # -------------------------------------------------------------------
-      0.0                   0.0            0.5
+      0.0                 135.0            0.5
 # ===================================================================
 # BLADE DYNAMICS [Angles in radians]
 # I*ddflap + c*dflap + (I*Om^2 + k)*flap = MflapLift + MflapConst
