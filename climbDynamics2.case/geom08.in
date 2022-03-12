@@ -70,7 +70,7 @@
 # wakeTruncateNt  prescWakeAfterTruncNt   prescWakeGenNt
 #   [0]Off [n] timesteps [-n] chords/revs
 # -------------------------------------------------------------------
-        -3                       0                0
+        -5                       0                0
 # ===================================================================
 # spanwise core radius[x/c]       streamwise core_switch
 # [s]ectional  [i]dentical
