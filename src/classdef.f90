@@ -4013,16 +4013,16 @@ class(blade_class), intent(inout) :: this
   function getdw(this, w, thrust)
   class(rotor_class), intent(inout) :: this
     real(dp), intent(in) :: w, thrust
-    real(dp) :: nrotors, mass, gravity, dragCoeff, dragFactor
+    real(dp) :: mass, planformArea, gravity, dragCoeff, dragFactor
     real(dp) :: getdw
 
-    nrotors = 1._dp
-    mass = 0.88_dp/4._dp*nrotors
+    mass = 0.88_dp/4._dp
+    planformArea = 0.0587_dp/4._dp
     gravity = 9.81
     dragCoeff = 1.28
-    dragFactor = 0.5_dp*dragCoeff*1.0*(3.1415*0.065*0.065)*nrotors
+    dragFactor = 0.5_dp*dragCoeff*1.0*planformArea
 
-    getdw = (thrust - dragFactor*w*w)/mass - gravity
+    getdw = (thrust - dragFactor*abs(w)*w)/mass - gravity
 
     ! max function to avoid ground penetration with negative dw
     ! Only axial climb from ground
