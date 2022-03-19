@@ -2289,8 +2289,8 @@ class(blade_class), intent(inout) :: this
     endif
     close (12)
 
-    ! DEBUG
-    this%bodyDynamicsSwitch = 1
+    ! Body dynamics switch to be included in geom input file
+    this%bodyDynamicsSwitch = 0
   end subroutine rotor_read_geom
 
   subroutine rotor_init(this, rotorNumber, density, dt, nt, switches)
