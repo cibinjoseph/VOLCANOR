@@ -338,7 +338,6 @@ module classdef
     procedure :: calc_skew => rotor_calc_skew
     procedure :: dirLiftDrag => rotor_dirLiftDrag
     procedure :: sumBladeToNetForces => rotor_sumBladeToNetForces
-    procedure :: mirrorGeometry => rotor_mirrorGeometry
     procedure :: mirrorGamma => rotor_mirrorGamma
     procedure :: mirrorVelCP => rotor_mirrorVelCP
     procedure :: mirrorWake => rotor_mirrorWake
@@ -2175,7 +2174,7 @@ class(blade_class), intent(inout) :: this
     integer :: i
     character(len=10) :: fileFormatVersion, currentTemplateVersion
 
-    currentTemplateVersion = '0.11'
+    currentTemplateVersion = '0.12'
 
     open (unit=12, file=filename, status='old', action='read')
     call skip_comments(12)
@@ -2185,107 +2184,113 @@ class(blade_class), intent(inout) :: this
     endif
 
     call skip_comments(12)
-    read (12, *) this%nb, this%propConvention, &
-      & this%nCamberFiles, this%geometryFile
-    call skip_comments(12)
-
-    if (this%nCamberFiles > 0) then
-      allocate(this%camberSectionLimit(this%nCamberFiles))
-      allocate(this%camberFile(this%nCamberFiles))
-      do i = 1, this%nCamberFiles
-        read(12, *) this%camberSectionLimit(i), this%camberFile(i)
-        call skip_comments(12)
-      enddo
-    else
-      allocate(this%camberSectionLimit(1))
-      allocate(this%camberFile(1))
-      ! Default uncambered section
-      this%camberSectionLimit = 1.0
-      this%camberFile = '0'
-      read(12, *)
-      call skip_comments(12)
-    endif
-
     ! [0/1]Lifting [2]Non-lifting [-1]Lifting Image [-2]Non-lifting Image
     read (12, *) this%surfaceType, this%imagePlane, this%imageRotorNum
+
     call skip_comments(12)
-    read (12, *) this%nc, this%ns, this%nNwake
-    call skip_comments(12)
-    read (12, *) this%hubCoords(1), this%hubCoords(2), this%hubCoords(3)
-    call skip_comments(12)
-    read (12, *) this%cgCoords(1), this%cgCoords(2), this%cgCoords(3)
-    call skip_comments(12)
-    read (12, *) this%fromCoords(1), this%fromCoords(2), this%fromCoords(3)
-    call skip_comments(12)
-    read (12, *) this%pts(1), this%pts(2), this%pts(3)
-    call skip_comments(12)
-    read (12, *) this%radius, this%root_cut, this%chord, this%preconeAngle
-    call skip_comments(12)
-    read (12, *) this%Omega, this%shaftAxis(1), this%shaftAxis(2), this%shaftAxis(3)
-    call skip_comments(12)
-    read (12, *) this%controlPitch(1), this%controlPitch(2), this%controlPitch(3), this%thetaTwist
-    call skip_comments(12)
-    read(12, *) this%customTrajectorySwitch, this%axisymmetrySwitch
-    call skip_comments(12)
-    read (12, *) this%velBody(1), this%velBody(2), this%velBody(3) &
-      , this%omegaBody(1), this%omegaBody(2), this%omegaBody(3)
-    call skip_comments(12)
-    read (12, *) this%pivotLE, this%flapHinge, this%spanwiseLiftSwitch, &
-      & this%symmetricTau
-    call skip_comments(12)
-    read (12, *) this%apparentViscCoeff, this%decayCoeff
-    call skip_comments(12)
-    read(12, *) this%wakeTruncateNt, &
-      & this%prescWakeAfterTruncNt, this%prescWakeGenNt
-    call skip_comments(12)
-    read (12, *) this%spanwiseCore, this%streamwiseCoreSwitch
-    call skip_comments(12)
-    allocate (this%streamwiseCoreVec(this%ns + 1))
-    if (this%streamwiseCoreSwitch .eq. 'i') then  ! [i]dentical
-      read (12, *) this%streamwiseCoreVec(1)
-      do i = 2, this%ns + 1
-        this%streamwiseCoreVec(i) = this%streamwiseCoreVec(1)
-      enddo
-    elseif (this%streamwiseCoreSwitch .eq. 's') then  ! [s]ectional
-      read (12, *) (this%streamwiseCoreVec(i), i=1, this%ns + 1)
-    else
-      error stop 'ERROR: Wrong input for streamwiseCoreSwitch in geomXX.in'
-    endif
-    call skip_comments(12)
-    ! Dimensional quantities
-    read (12, *) this%rollupStartRadius, this%rollupEndRadius
-    call skip_comments(12)
-    read (12, *) this%initWakeVel, this%psiStart, this%skewLimit
-    call skip_comments(12)
-    read (12, *) this%bladeDynamicsSwitch
-    call skip_comments(12)
-    read (12, *) this%flapInitial, this%dflapInitial, &
-      & this%Iflap, this%cflap, this%kflap, this%MflapConstant
-    call skip_comments(12)
-    read (12, *) this%pitchDynamicsSwitch, this%dpitch
-    call skip_comments(12)
-    read (12, *) this%dragUnitVec(1), this%dragUnitVec(2), this%dragUnitVec(3)
-    call skip_comments(12)
-    read (12, *) this%sideUnitVec(1), this%sideUnitVec(2), this%sideUnitVec(3)
-    call skip_comments(12)
-    read (12, *) this%liftUnitVec(1), this%liftUnitVec(2), this%liftUnitVec(3)
-    call skip_comments(12)
-    read (12, *) this%inflowPlotSwitch, this%gammaPlotSwitch, &
-      & this%skewPlotSwitch
-    call skip_comments(12)
-    read (12, *) this%forceCalcSwitch, this%nAirfoils
-    ! Ensure airfoil tables are provided when force calculation requires them
-    if (this%forceCalcSwitch .gt. 0 .and. this%nAirfoils .eq. 0) then 
-      error stop 'ERROR: No. of airfoil tables set to 0 in geomXX.in'
-    endif
-    call skip_comments(12)
-    if (this%nAirfoils .gt. 0) then
-      allocate (this%airfoilSectionLimit(this%nAirfoils))
-      allocate (this%airfoilFile(this%nAirfoils))
-      allocate (this%alpha0(this%nAirfoils))
-      do i = 1, this%nAirfoils
-        read (12, *) this%airfoilSectionLimit(i), this%alpha0(i), this%airfoilFile(i)
-      enddo
+    read (12, *) this%nb, this%propConvention, &
+      & this%nCamberFiles, this%geometryFile
+
+    ! Read other parameters only if non-mirrored type geometry
+    ! If mirrored, all parameters are computed from source geometry
+    if (this%surfaceType .ge. 0) then
+
+      call skip_comments(12)
+      if (this%nCamberFiles > 0) then
+        allocate(this%camberSectionLimit(this%nCamberFiles))
+        allocate(this%camberFile(this%nCamberFiles))
+        do i = 1, this%nCamberFiles
+          read(12, *) this%camberSectionLimit(i), this%camberFile(i)
+          call skip_comments(12)
+        enddo
+      else
+        allocate(this%camberSectionLimit(1))
+        allocate(this%camberFile(1))
+        ! Default uncambered section
+        this%camberSectionLimit = 1.0
+        this%camberFile = '0'
+        read(12, *)
+        call skip_comments(12)
+      endif
+
+      read (12, *) this%nc, this%ns, this%nNwake
+      call skip_comments(12)
+      read (12, *) this%hubCoords(1), this%hubCoords(2), this%hubCoords(3)
+      call skip_comments(12)
+      read (12, *) this%cgCoords(1), this%cgCoords(2), this%cgCoords(3)
+      call skip_comments(12)
+      read (12, *) this%fromCoords(1), this%fromCoords(2), this%fromCoords(3)
+      call skip_comments(12)
+      read (12, *) this%pts(1), this%pts(2), this%pts(3)
+      call skip_comments(12)
+      read (12, *) this%radius, this%root_cut, this%chord, this%preconeAngle
+      call skip_comments(12)
+      read (12, *) this%Omega, this%shaftAxis(1), this%shaftAxis(2), this%shaftAxis(3)
+      call skip_comments(12)
+      read (12, *) this%controlPitch(1), this%controlPitch(2), this%controlPitch(3), this%thetaTwist
+      call skip_comments(12)
+      read(12, *) this%customTrajectorySwitch, this%axisymmetrySwitch
+      call skip_comments(12)
+      read (12, *) this%velBody(1), this%velBody(2), this%velBody(3) &
+        , this%omegaBody(1), this%omegaBody(2), this%omegaBody(3)
+      call skip_comments(12)
+      read (12, *) this%pivotLE, this%flapHinge, this%spanwiseLiftSwitch, &
+        & this%symmetricTau
+      call skip_comments(12)
+      read (12, *) this%apparentViscCoeff, this%decayCoeff
+      call skip_comments(12)
+      read(12, *) this%wakeTruncateNt, &
+        & this%prescWakeAfterTruncNt, this%prescWakeGenNt
+      call skip_comments(12)
+      read (12, *) this%spanwiseCore, this%streamwiseCoreSwitch
+      call skip_comments(12)
+      allocate (this%streamwiseCoreVec(this%ns + 1))
+      if (this%streamwiseCoreSwitch .eq. 'i') then  ! [i]dentical
+        read (12, *) this%streamwiseCoreVec(1)
+        do i = 2, this%ns + 1
+          this%streamwiseCoreVec(i) = this%streamwiseCoreVec(1)
+        enddo
+      elseif (this%streamwiseCoreSwitch .eq. 's') then  ! [s]ectional
+        read (12, *) (this%streamwiseCoreVec(i), i=1, this%ns + 1)
+      else
+        error stop 'ERROR: Wrong input for streamwiseCoreSwitch in geomXX.in'
+      endif
+      call skip_comments(12)
+      ! Dimensional quantities
+      read (12, *) this%rollupStartRadius, this%rollupEndRadius
+      call skip_comments(12)
+      read (12, *) this%initWakeVel, this%psiStart, this%skewLimit
+      call skip_comments(12)
+      read (12, *) this%bladeDynamicsSwitch
+      call skip_comments(12)
+      read (12, *) this%flapInitial, this%dflapInitial, &
+        & this%Iflap, this%cflap, this%kflap, this%MflapConstant
+      call skip_comments(12)
+      read (12, *) this%pitchDynamicsSwitch, this%dpitch
+      call skip_comments(12)
+      read (12, *) this%dragUnitVec(1), this%dragUnitVec(2), this%dragUnitVec(3)
+      call skip_comments(12)
+      read (12, *) this%sideUnitVec(1), this%sideUnitVec(2), this%sideUnitVec(3)
+      call skip_comments(12)
+      read (12, *) this%liftUnitVec(1), this%liftUnitVec(2), this%liftUnitVec(3)
+      call skip_comments(12)
+      read (12, *) this%inflowPlotSwitch, this%gammaPlotSwitch, &
+        & this%skewPlotSwitch
+      call skip_comments(12)
+      read (12, *) this%forceCalcSwitch, this%nAirfoils
+      ! Ensure airfoil tables are provided when force calculation requires them
+      if (this%forceCalcSwitch .gt. 0 .and. this%nAirfoils .eq. 0) then 
+        error stop 'ERROR: No. of airfoil tables set to 0 in geomXX.in'
+      endif
+      call skip_comments(12)
+      if (this%nAirfoils .gt. 0) then
+        allocate (this%airfoilSectionLimit(this%nAirfoils))
+        allocate (this%airfoilFile(this%nAirfoils))
+        allocate (this%alpha0(this%nAirfoils))
+        do i = 1, this%nAirfoils
+          read (12, *) this%airfoilSectionLimit(i), this%alpha0(i), this%airfoilFile(i)
+        enddo
+      endif
     endif
     close (12)
 
@@ -2293,7 +2298,8 @@ class(blade_class), intent(inout) :: this
     this%bodyDynamicsSwitch = 0
   end subroutine rotor_read_geom
 
-  subroutine rotor_init(this, rotorNumber, density, dt, nt, switches)
+  subroutine rotor_init(this, rotorNumber, density, dt, nt, &
+      & switches, sourceRotor)
     ! Initialize variables of rotor geometry and wake
     use libMath
   class(rotor_class) :: this
@@ -2302,6 +2308,7 @@ class(blade_class), intent(inout) :: this
     real(dp) , intent(inout) :: dt
     integer, intent(inout) :: nt
     type(switches_class), intent(inout) :: switches
+    type(rotor_class), optional :: sourceRotor
 
     real(dp), dimension(this%nc+1) :: xVec
     real(dp), dimension(this%ns+1) :: yVec
@@ -2317,6 +2324,131 @@ class(blade_class), intent(inout) :: this
 
     ! Set id
     write(this%id, '(I0.2)') rotorNumber
+
+    ! Get parameters from source rotor if mirrored
+    if (this%surfaceType .lt. 0) then
+      this%nb = sourceRotor%nb
+      this%propConvention = sourceRotor%propConvention
+      this%nCamberFiles = sourceRotor%nCamberFiles
+
+      ! Geometry file has to still be manually input
+      ! this%geometryFile = sourceRotor%geometryFile
+
+      if (this%nCamberFiles > 0) then
+        allocate(this%camberSectionLimit(this%nCamberFiles))
+        allocate(this%camberFile(this%nCamberFiles))
+        do i = 1, this%nCamberFiles
+          this%camberSectionLimit(i) = sourceRotor%camberSectionLimit(i)
+          this%camberFile(i) = sourceRotor%camberFile(i)
+        enddo
+      else
+        allocate(this%camberSectionLimit(1))
+        allocate(this%camberFile(1))
+        ! Default uncambered section
+        this%camberSectionLimit = 1.0
+        this%camberFile = '0'
+      endif
+
+      this%nc = sourceRotor%nc
+      this%ns = sourceRotor%ns
+      this%nNwake = sourceRotor%nNwake
+
+      this%hubCoords = sourceRotor%hubCoords
+      this%cgCoords = sourceRotor%cgCoords
+      this%fromCoords = sourceRotor%fromCoords
+
+      this%hubCoords(this%imagePlane) = -1._dp*this%hubCoords(this%imagePlane)
+      this%cgCoords(this%imagePlane) = -1._dp*this%cgCoords(this%imagePlane)
+
+      this%pts = sourceRotor%pts
+      this%radius = sourceRotor%radius
+      this%root_cut = sourceRotor%root_cut
+      this%chord = sourceRotor%chord
+      this%preconeAngle = sourceRotor%preconeAngle
+
+      this%Omega = sourceRotor%Omega
+      this%shaftAxis = sourceRotor%shaftAxis
+      this%controlPitch = sourceRotor%controlPitch
+      this%thetaTwist = sourceRotor%thetaTwist
+
+      this%customTrajectorySwitch = sourceRotor%customTrajectorySwitch
+      this%axisymmetrySwitch = sourceRotor%axisymmetrySwitch
+      this%velBody = sourceRotor%velBody
+      this%omegaBody = sourceRotor%omegaBody
+
+
+      this%pivotLE = sourceRotor%pivotLE
+      this%flapHinge = sourceRotor%flapHinge
+      this%spanwiseLiftSwitch = sourceRotor%spanwiseLiftSwitch
+      this%symmetricTau = sourceRotor%symmetricTau
+
+      this%apparentViscCoeff = sourceRotor%apparentViscCoeff
+      this%decayCoeff = sourceRotor%decayCoeff
+
+      this%wakeTruncateNt = sourceRotor%wakeTruncateNt
+      this%prescWakeNt = sourceRotor%prescWakeNt
+      this%prescWakeGenNt = sourceRotor%prescWakeGenNt
+
+      this%spanwiseCore = sourceRotor%spanwiseCore
+      this%streamwiseCoreSwitch = sourceRotor%streamwiseCoreSwitch
+      allocate(this%streamwiseCoreVec(this%ns+1))
+      this%streamwiseCoreVec = sourceRotor%streamwiseCoreVec
+
+      this%rollupStartRadius = sourceRotor%rollupStartRadius
+      this%rollupEndRadius = sourceRotor%rollupEndRadius
+      this%rollupStart = sourceRotor%rollupStart
+      this%rollupEnd = sourceRotor%rollupEnd
+
+      this%initWakeVel = sourceRotor%initWakeVel
+      this%psiStart = sourceRotor%psiStart
+      this%skewLimit = sourceRotor%skewLimit
+
+      this%bladeDynamicsSwitch = sourceRotor%bladeDynamicsSwitch
+      this%flapInitial = sourceRotor%flapInitial
+      this%dflapInitial = sourceRotor%dflapInitial
+      this%Iflap = sourceRotor%Iflap
+      this%cflap = sourceRotor%cflap
+      this%kflap = sourceRotor%kflap
+      this%MflapConstant = sourceRotor%MflapConstant
+
+      this%pitchDynamicsSwitch = sourceRotor%pitchDynamicsSwitch
+      this%dpitch = sourceRotor%dpitch
+
+      this%dragUnitVec = sourceRotor%dragUnitVec
+      this%sideUnitVec = sourceRotor%sideUnitVec
+      this%liftUnitVec = sourceRotor%liftUnitVec
+
+      this%inflowPlotSwitch = sourceRotor%inflowPlotSwitch
+      this%gammaPlotSwitch = sourceRotor%gammaPlotSwitch
+      this%skewPlotSwitch = sourceRotor%skewPlotSwitch
+
+      this%forceCalcSwitch = sourceRotor%forceCalcSwitch
+      this%nAirfoils = sourceRotor%nAirfoils
+
+      this%bodyDynamicsSwitch = sourceRotor%bodyDynamicsSwitch
+
+      if (this%nAirfoils .gt. 0) then
+        allocate (this%airfoilSectionLimit(this%nAirfoils))
+        allocate (this%airfoilFile(this%nAirfoils))
+        allocate (this%alpha0(this%nAirfoils))
+        this%airfoilSectionLimit = sourceRotor%airfoilSectionLimit
+        this%alpha0 = sourceRotor%alpha0
+        this%airfoilFile = sourceRotor%airfoilFile
+      endif
+
+      select case (this%imagePlane)
+      case (1)
+        this%Omega = -1._dp*this%Omega
+      case (2)
+        this%Omega = -1._dp*this%Omega
+        this%psiStart = this%psiStart + pi
+      case (3)
+        this%controlPitch = -1._dp*this%controlPitch
+        this%velBody(3) = -1._dp*this%velBody(3)
+        this%omegaBody(1) = -1._dp*this%omegaBody(1)
+        this%omegaBody(2) = -1._dp*this%omegaBody(2)
+      end select
+    endif
 
     ! Warn if all velocities zero
     if (abs(this%Omega) < eps) then
@@ -2465,17 +2597,19 @@ class(blade_class), intent(inout) :: this
       allocate (this%blade(ib)%secCP(3, this%ns))
     enddo
 
-    ! Conversions
-    this%controlPitch = this%controlPitch * degToRad
-    this%pts = this%pts * degToRad
-    this%thetaTwist = this%thetaTwist * degToRad
-    this%preconeAngle = this%preconeAngle * degToRad
-    this%psiStart = this%psiStart * degToRad
+    ! Conversions only for actual geom and not for image geoms
+    if (this%surfaceType .ge. 0) then
+      this%controlPitch = this%controlPitch * degToRad
+      this%pts = this%pts * degToRad
+      this%thetaTwist = this%thetaTwist * degToRad
+      this%preconeAngle = this%preconeAngle * degToRad
+      this%psiStart = this%psiStart * degToRad
 
-    this%spanwiseCore = this%spanwiseCore*this%chord
-    this%streamwiseCoreVec = this%streamwiseCoreVec*this%chord
-    this%rollupStart = ceiling(this%rollupStartRadius*this%ns)
-    this%rollupEnd = floor(this%rollupEndRadius*this%ns)
+      this%spanwiseCore = this%spanwiseCore*this%chord
+      this%streamwiseCoreVec = this%streamwiseCoreVec*this%chord
+      this%rollupStart = ceiling(this%rollupStartRadius*this%ns)
+      this%rollupEnd = floor(this%rollupEndRadius*this%ns)
+    endif
 
     ! Rotor initialization
     this%gamVec = 0._dp
@@ -2720,6 +2854,17 @@ class(blade_class), intent(inout) :: this
         enddo
       endif
 
+      if (this%surfaceType .lt. 0) then
+        do j = 1, this%ns
+          do i = 1, this%nc
+            this%blade(ib)%wiP(i, j)%nCap = &
+              & sourceRotor%blade(ib)%wiP(i, j)%nCap
+            this%blade(ib)%wiP(i, j)%nCap(this%imagePlane) = &
+              & -1._dp*this%blade(ib)%wiP(i, j)%nCap(this%imagePlane)
+          enddo
+        enddo
+      endif
+
       ! Compute sectional areas and chords
       call this%blade(ib)%calc_secArea()
       call this%blade(ib)%calc_secChord()
@@ -2941,7 +3086,7 @@ class(blade_class), intent(inout) :: this
     call this%rot_pts(this%pts, this%cgCoords, 1)
 
     ! Rotate rotor by psiStart
-    call this%rot_advance(this%psiStart, nopitch=.true.)
+    call this%rot_advance(sign(1._dp, this%Omega)*this%psiStart, nopitch=.true.)
 
     ! Compute denominators for non-dimensionalisation
     if (abs(this%Omega) .gt. eps) then
@@ -4126,24 +4271,6 @@ class(blade_class), intent(inout) :: this
     endif axisym
 
   end subroutine rotor_sumBladeToNetForces
-
-  subroutine rotor_mirrorGeometry(this, fromRotor)
-    !! Mirrors geometry from another rotor
-  class(rotor_class), intent(inout) :: this
-  class(rotor_class), intent(in) :: fromRotor
-    integer :: ib, ic, is
-
-    do ib = 1, this%nb
-      do is = 1, this%ns
-        do ic = 1, this%nc
-          this%blade(ib)%wiP(ic, is)%nCap = &
-            & fromRotor%blade(ib)%wiP(ic, is)%nCap
-          this%blade(ib)%wiP(ic, is)%nCap(this%imagePlane) = &
-            & -1._dp*this%blade(ib)%wiP(ic, is)%nCap(this%imagePlane)
-        enddo
-      enddo
-    enddo
-  end subroutine rotor_mirrorGeometry
 
   subroutine rotor_mirrorGamma(this, fromRotor)
     !! Mirrors gamma from another rotor

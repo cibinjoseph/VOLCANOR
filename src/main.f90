@@ -30,14 +30,13 @@ program main
 
   ! Rotor and wake initialization
   do ir = 1, nr
-    call rotor(ir)%init(ir, density, dt, nt, switches)
-    call params2file(rotor(ir), nt, dt, nr, density, velSound, switches)
-  enddo
-
-  do ir = 1, nr
-    if (rotor(ir)%surfaceType == -1) then
-      call rotor(ir)%mirrorGeometry(rotor(rotor(ir)%imageRotorNum))
+    if (rotor(ir)%surfaceType .ge. 0) then
+      call rotor(ir)%init(ir, density, dt, nt, switches)
+    else
+      call rotor(ir)%init(ir, density, dt, nt, switches, &
+        & rotor(rotor(ir)%imageRotorNum))
     endif
+    call params2file(rotor(ir), nt, dt, nr, density, velSound, switches)
   enddo
 
   ! Rotate wing pc, vr, cp and nCap by initial pitch angle
