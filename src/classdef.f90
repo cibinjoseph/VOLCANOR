@@ -294,7 +294,7 @@ module classdef
     integer :: suppressFwakeSwitch
     integer :: forceCalcSwitch, skewPlotSwitch
     integer :: inflowPlotSwitch, bladeDynamicsSwitch, pitchDynamicsSwitch
-    integer :: bodyDynamicsSwitch
+    integer :: bodyDynamicsSwitch, bodyDynamicsIOVars
     integer :: spanwiseLiftSwitch, customTrajectorySwitch
     integer :: gammaPlotSwitch
     integer :: rowNear, rowFar
@@ -2268,6 +2268,8 @@ class(blade_class), intent(inout) :: this
       call skip_comments(12)
       read (12, *) this%pitchDynamicsSwitch, this%dpitch
       call skip_comments(12)
+      read (12, *) this%bodyDynamicsSwitch, this%bodyDynamicsIOVars
+      call skip_comments(12)
       read (12, *) this%dragUnitVec(1), this%dragUnitVec(2), this%dragUnitVec(3)
       call skip_comments(12)
       read (12, *) this%sideUnitVec(1), this%sideUnitVec(2), this%sideUnitVec(3)
@@ -2293,9 +2295,6 @@ class(blade_class), intent(inout) :: this
       endif
     endif
     close (12)
-
-    ! Body dynamics switch to be included in geom input file
-    this%bodyDynamicsSwitch = 0
   end subroutine rotor_read_geom
 
   subroutine rotor_init(this, rotorNumber, density, dt, nt, &
@@ -2426,6 +2425,7 @@ class(blade_class), intent(inout) :: this
       this%nAirfoils = sourceRotor%nAirfoils
 
       this%bodyDynamicsSwitch = sourceRotor%bodyDynamicsSwitch
+      this%bodyDynamicsIOVars = sourceRotor%bodyDynamicsIOVars
 
       if (this%nAirfoils .gt. 0) then
         allocate (this%airfoilSectionLimit(this%nAirfoils))
@@ -4178,20 +4178,41 @@ class(blade_class), intent(inout) :: this
   class(rotor_class), intent(inout) :: this
     real(dp), intent(in) :: dt
     real(dp) :: wPred, wNew
+    integer :: exitcode
 
-    ! AM2 predictor corrector
-    ! Predictor step
-    wPred = this%velBody(3) + 0.5_dp*dt* &
-      & (3._dp*this%getdw(this%velBody(3), norm2(this%lift)) - &
-      & this%getdw(this%velBodyPrev(3), norm2(this%liftPrev)))
+    if (this%bodyDynamicsIOVars .ne. 0) then
+      ! AM2 predictor corrector
+      ! Predictor step
+      wPred = this%velBody(3) + 0.5_dp*dt* &
+        & (3._dp*this%getdw(this%velBody(3), norm2(this%lift)) - &
+        & this%getdw(this%velBodyPrev(3), norm2(this%liftPrev)))
 
-    ! Corrector step
-    wNew = this%velBody(3) + 0.5_dp*dt* &
-      & (this%getdw(wPred, norm2(this%lift)) + &
-      & this%getdw(this%velBody(3), norm2(this%lift)))
+      ! Corrector step
+      wNew = this%velBody(3) + 0.5_dp*dt* &
+        & (this%getdw(wPred, norm2(this%lift)) + &
+        & this%getdw(this%velBody(3), norm2(this%lift)))
 
-    this%velBodyPrev = this%velBody
-    this%velBody(3) = wNew
+      this%velBodyPrev = this%velBody
+      this%velBody(3) = wNew
+
+
+    elseif (this%bodyDynamicsIOVars .eq. 1) then
+
+      ! Autorotation
+      open(unit=10, file='dynamics.dat', action='write', status='replace')
+      write(10, '(F12.7)') this%velBodyPrev(3)
+      close(10)
+
+      call execute_command_line('python3 dynamics.py', wait=.True., &
+        & exitstat=exitcode)
+      if (exitcode) then
+        error stop 'ERROR: dynamics.py returned non-zero exit code'
+      endif
+
+      open(unit=10, file='dynamics.dat', action='read', status='old')
+      read(10, *) this%velBody, this%omegaSlow
+      close(10)
+    endif
   end subroutine rotor_computeBodyDynamics
 
   subroutine rotor_burst_wake(this)

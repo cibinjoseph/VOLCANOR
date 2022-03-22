@@ -92,7 +92,7 @@ program main
 
   ! Obtain initial solution without wake
   call print_status('Computing initial solution')
-  if (switches%slowStart .ne. 0) then
+  if (switches%slowStart .le. 0) then
     do ir = 1, nr
       rotor(ir)%omegaSlow = 0._dp
     enddo
@@ -416,6 +416,8 @@ program main
 
     ! In case of slow start, determine RPM
     select case (switches%slowStart)
+    case (-1)   ! Body dynamics governed
+      continue
     case (0)    ! No slow start
       do ir = 1, nr
         rotor(ir)%omegaSlow = rotor(ir)%Omega
