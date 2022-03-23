@@ -20,7 +20,7 @@ mkdir -v "$caseName/Restart"
 
 # Copy template files
 echo "2. Copying template files"
-cp -v tools/template.case/* $caseName/
+cp -v tools/template.case/*.in $caseName/
 
 # Create links
 echo "3. Creating links to executables"
