@@ -1,19 +1,19 @@
 # File format version
-  0.11
+  0.12
 # Fixed-Wing or Rotor
 # ===================================================================
+# Surface type [0/1]Lifting [2]Non-lifting    Mirrored about X/Y/Z
+# [-1]Lifting Image [-2]Non-lifting Image    [1/2/3]plane  from rotor
+# -------------------------------------------------------------------
+     0                                            3             0
+#
 # No. of blades,nb  Prop convention  NcamberFiles  geometry filename
 # -------------------------------------------------------------------
      5                     0             0           elevate.xyz
 #
 # CamberSectionLimit[r/R]  Camber filename
 # -------------------------------------------------------------------
-  1.0                      0
-#
-# Surface type [0/1]Lifting [2]Non-lifting    Mirrored about X/Y/Z
-# [-1]Lifting Image [-2]Non-lifting Image    [1/2/3]plane  from rotor
-# -------------------------------------------------------------------
-     0                                            3             0
+     1.0                      0
 #
 # Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 #                                       [n]timesteps [-n]chords/revs
@@ -102,6 +102,11 @@
 # pitchDynamicsSwitch    dpitch
 # -------------------------------------------------------------------
      0                     0.0
+# ===================================================================
+# BODY DYNAMICS
+# bodyDynamicsSwitch      internal[0]/external[vars]
+# -------------------------------------------------------------------
+     0                     0
 # ===================================================================
 # CUSTOM WIND FRAME FOR FORCE OUTPUT
 #             Drag (x-wind)
