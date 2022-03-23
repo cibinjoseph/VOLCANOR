@@ -4180,7 +4180,7 @@ class(blade_class), intent(inout) :: this
     real(dp) :: wPred, wNew
     integer :: exitcode
 
-    if (this%bodyDynamicsIOVars .ne. 0) then
+    if (this%bodyDynamicsIOVars .eq. 0) then
       ! AM2 predictor corrector
       ! Predictor step
       wPred = this%velBody(3) + 0.5_dp*dt* &
@@ -4200,7 +4200,7 @@ class(blade_class), intent(inout) :: this
 
       ! Autorotation
       open(unit=10, file='dynamics.dat', action='write', status='replace')
-      write(10, '(F12.7)') this%velBodyPrev(3)
+      write(10, '(3F12.7)') this%velBody(3), this%omegaSlow, dt
       close(10)
 
       call execute_command_line('python3 dynamics.py', wait=.True., &
@@ -4210,7 +4210,7 @@ class(blade_class), intent(inout) :: this
       endif
 
       open(unit=10, file='dynamics.dat', action='read', status='old')
-      read(10, *) this%velBody, this%omegaSlow
+      read(10, *) this%velBody(3), this%omegaSlow
       close(10)
     endif
   end subroutine rotor_computeBodyDynamics

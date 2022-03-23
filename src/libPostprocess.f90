@@ -36,13 +36,13 @@ contains
 
       open(unit=12, file=dynamicsFilename, &
         & status='replace', action='write')
-      write(12, 102) 'iter', 'pitch','flap', 'dflap', 'w'
+      write(12, 102) 'iter', 'pitch','flap', 'dflap', 'w', 'omega'
       close(12)
     enddo
 
     100 format (A5, 11(A15))
     101 format (A5, 9(A15))
-    102 format (A5, 4(A15))
+    102 format (A5, 5(A15))
   end subroutine init_plots
 
   subroutine params2file(rotor, nt, dt, nr, &
@@ -942,10 +942,10 @@ contains
     dynamicsFilename = ResultsDir//'r'//rotor%id//'bladedynamics.csv'
     open(unit=10, file=dynamicsFilename, action='write', position='append')
     write(10, 100) timestamp, rotor%blade(1)%theta*radToDeg, rotor%blade(1)%flap*radToDeg, &
-      & rotor%blade(1)%dflap*radToDeg, rotor%velBody(3)
+      & rotor%blade(1)%dflap*radToDeg, rotor%velBody(3), rotor%omegaSlow
     close(10)
 
-    100 format (A5, 4(E15.7))
+    100 format (A5, 5(E15.7))
   end subroutine dynamics2file
 
   subroutine inflow2file(timestamp, rotorArray, rotorNumber, directionVector)
