@@ -9,7 +9,7 @@ data, forceDistFile = pr.getForceDist()
 g = 9.81
 m = 12.4
 nb = 4.0
-rho = 1.2
+rho = 0.448
 Inertia = 0.163
 c = params['chord']
 
@@ -38,6 +38,7 @@ with open('dynamics.dat', 'r') as fh:
     line = fh.readline().split()
     dynDataIn = np.array(line, dtype='float64')
     w, Omega, dt = dynDataIn
+    w = abs(w)
 
 # Get alpha distribution
 dx = data['secArea']/data['secChord']
@@ -54,6 +55,6 @@ wNext = w + dt*getdw(CL, CD, r, w, Omega)
 OmegaNext = Omega + dt*getdOmega(CL, CD, r, w, Omega)
 
 # Write out next omega and w
-print([w, Omega, wNext, OmegaNext])
-dynDataOut = [wNext, OmegaNext]
+print([-1.0*w, Omega, -1.0*wNext, OmegaNext])
+dynDataOut = [-1.0*wNext, OmegaNext]
 np.savetxt('dynamics.dat', dynDataOut, delimiter=' ')

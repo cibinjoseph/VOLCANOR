@@ -4200,7 +4200,7 @@ class(blade_class), intent(inout) :: this
 
       ! Autorotation
       open(unit=10, file='dynamics.dat', action='write', status='replace')
-      write(10, '(3F12.7)') this%velBody(3), this%omegaSlow, dt
+      write(10, '(3F15.7)') this%velBody(3), this%omegaSlow, dt
       close(10)
 
       call execute_command_line('python3 dynamics.py', wait=.True., &

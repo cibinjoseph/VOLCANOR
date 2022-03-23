@@ -92,7 +92,7 @@ program main
 
   ! Obtain initial solution without wake
   call print_status('Computing initial solution')
-  if (switches%slowStart .le. 0) then
+  if (switches%slowStart .gt. 0) then
     do ir = 1, nr
       rotor(ir)%omegaSlow = 0._dp
     enddo
