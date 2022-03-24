@@ -8,7 +8,7 @@ data, forceDistFile = pr.getForceDist()
 
 g = 9.81
 m = 12.4
-nb = params['Nb']
+nb = params['nb']
 rho = params['density']
 Inertia = 0.163
 c = params['chord']
