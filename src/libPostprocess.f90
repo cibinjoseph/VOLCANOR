@@ -910,7 +910,8 @@ contains
         & action='write', position='append')
       write (12, 202) 'secSpan', 'secCL', 'secCD', 'secCLu', &
         & 'secLift', 'secDrag', &
-        & 'secArea', 'secVel', 'secChord', 'secTheta', 'secAlpha', 'secPhi'
+        & 'secArea', 'secVel', 'secChord', 'secTheta', 'secAlpha', 'secPhi', &
+        & 'secViz', 'secVix'
       ! secVel is resultant vel that the airfoil sees
       do ispan = 1, rotor%ns
         write (12, 102) dot_product(rotor%blade(ib)%secCP(:, ispan) - &
@@ -925,12 +926,14 @@ contains
           & rotor%blade(ib)%secChord(ispan), &
           & rotor%blade(ib)%secTheta(ispan)*radToDeg, &
           & rotor%blade(ib)%secAlpha(ispan)*radToDeg, &
-          & rotor%blade(ib)%secPhi(ispan)*radToDeg
+          & rotor%blade(ib)%secPhi(ispan)*radToDeg, &
+          & rotor%blade(ib)%secViz(ispan), &
+          & rotor%blade(ib)%secVix(ispan)
       enddo
       close (12)
     enddo
-    202 format(12(A15))
-    102 format(12(E15.7))
+    202 format(14(A15))
+    102 format(14(E15.7))
   end subroutine force2file
 
   subroutine dynamics2file(timestamp, rotor)

@@ -207,6 +207,7 @@ module classdef
     real(dp), allocatable, dimension(:, :) :: secNormalVec, secCP
     real(dp), allocatable, dimension(:, :) :: secResVel, secChordwiseResVel
     real(dp), allocatable, dimension(:) :: secAlpha, secPhi, secTheta
+    real(dp), allocatable, dimension(:) :: secViz, secVix
     real(dp), allocatable, dimension(:) :: secCD, secCM, secMflap, secMflapArm
     real(dp), allocatable, dimension(:) :: alpha0, secCL, secCLu
     integer :: spanwiseLiftSwitch
@@ -1871,6 +1872,7 @@ class(blade_class), intent(inout) :: this
     use libMath, only: getAngleTan, noProjVec
   class(blade_class), intent(inout) :: this
     real(dp), intent(in), dimension(3) :: verticalAxis
+    real(dp), dimension(3) :: secVi
     integer :: is
 
     call this%calc_secChordwiseResVel()
@@ -1887,6 +1889,11 @@ class(blade_class), intent(inout) :: this
       this%secPhi(is) = &
         & getAngleTan(this%secChordwiseResVel(:, is), &
         & noProjVec(this%wiP(1, is)%velCPm, this%secTauCapSpan(:, is)))
+
+      secVi = this%secChordwiseResVel(:, is)-this%wiP(1, is)%velCPm
+      this%secViz(is) = secVi(3)
+      this%secVix(is) = noProjVec(secVi, this%secTauCapSpan(:, is))- &
+        & (/0._dp, 0._dp, secVi(3)/)
 
       ! This computation will be wrong when a trajectory 
       ! is input or when the vertical axis is not global zAxis
