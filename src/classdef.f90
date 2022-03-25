@@ -2593,6 +2593,8 @@ class(blade_class), intent(inout) :: this
       allocate (this%blade(ib)%secTheta(this%ns))
       allocate (this%blade(ib)%secAlpha(this%ns))
       allocate (this%blade(ib)%secPhi(this%ns))
+      allocate (this%blade(ib)%secViz(this%ns))
+      allocate (this%blade(ib)%secVix(this%ns))
       allocate (this%blade(ib)%airfoilNo(this%ns))
       allocate (this%blade(ib)%secCL(this%ns))
       allocate (this%blade(ib)%secCD(this%ns))
