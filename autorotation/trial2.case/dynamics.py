@@ -2,6 +2,7 @@ import numpy as np
 from scipy import integrate
 import c81utils as c81
 import parseResults as pr
+import naca23012
 
 params = pr.getParams()
 data, forceDistFile = pr.getForceDist()
@@ -12,14 +13,6 @@ nb = params['nb']
 rho = params['density']
 Inertia = 0.163
 c = params['chord']
-
-def getCL(alpha):
-    # alpha in radians
-    return 2*np.pi*alpha+0.141
-
-def getCD(alpha):
-    # alpha in radians
-    return -1.02*np.cos(2.0*alpha-0.05)+1.028
 
 def getdw(CL, CD, r, w, Omega):
     integrand = nb*(CL*Omega*r+CD*w)*rho*0.5*np.sqrt((r*Omega)**2.0+w**2.0)*c
@@ -41,14 +34,12 @@ with open('dynamics.dat', 'r') as fh:
     w = abs(w)
 
 # Get alpha distribution
-dx = data['secArea']/data['secChord']
 vFree = data['secSpan']*params['Omega']
 alpha = data['secAlpha']
 r = data['secSpan']
 
 # Find CL CD distribution
-CL = getCL(alpha*np.pi/180)
-CD = getCD(alpha*np.pi/180)
+CL, CD = naca23012.getCLCD(alpha*np.pi/180)
 
 # Integrate to obtain next omega and w
 wNext = w + dt*getdw(CL, CD, r, w, Omega)
