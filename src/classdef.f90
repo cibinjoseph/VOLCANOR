@@ -1892,8 +1892,8 @@ class(blade_class), intent(inout) :: this
 
       secVi = this%secChordwiseResVel(:, is)-this%wiP(1, is)%velCPm
       this%secViz(is) = secVi(3)
-      this%secVix(is) = noProjVec(secVi, this%secTauCapSpan(:, is))- &
-        & (/0._dp, 0._dp, secVi(3)/)
+      this%secVix(is) = norm2(noProjVec(secVi, this%secTauCapSpan(:, is))- &
+        & (/0._dp, 0._dp, secVi(3)/))
 
       ! This computation will be wrong when a trajectory 
       ! is input or when the vertical axis is not global zAxis
