@@ -7,7 +7,7 @@ import naca23012
 params = pr.getParams()
 data, forceDistFile = pr.getForceDist()
 
-g = 9.81
+g = 8.87
 m = 12.4
 nb = params['nb']
 rho = params['density']
