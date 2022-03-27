@@ -377,6 +377,11 @@ program main
   ! ------- MAIN LOOP START -------
 
   iterStart = 1
+  do ir = 1, nr
+    rotor(ir)%rowNear = rotor(ir)%nNwake + 1
+    rotor(ir)%rowFar = rotor(ir)%nFwake + 1
+  enddo
+
   if (switches%restartFromNt .gt. 0) then
     write (timestamp, '(I0.5)') switches%restartFromNt
     open(unit=23, file='Restart/restart'//timestamp//'.dat', &
@@ -400,10 +405,10 @@ program main
     ! rowNear and rowFar keep track of what row
     ! the current iteration is in for near wake and far wake
     do ir = 1, nr
-      rotor(ir)%rowNear = max(rotor(ir)%nNwake - (iter - 1), 1)
-      rotor(ir)%rowFar = nt - (iter - 1)
-      ! 0 => no roll up
-      if (iter <= rotor(ir)%nNwake) rotor(ir)%rowFar = rotor(ir)%nFwake + 1
+      rotor(ir)%rowNear = max(rotor(ir)%rowNear - 1, 1)
+      if (iter > rotor(ir)%nNwake) then
+        rotor(ir)%rowFar = max(rotor(ir)%rowFar - 1, 1)
+      endif
     enddo
 
     ! Use custom trajectory if specified
