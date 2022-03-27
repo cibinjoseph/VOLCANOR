@@ -772,24 +772,6 @@ program main
       endif
     endif
 
-    ! Wake truncation
-    do ir = 1, nr
-      if (rotor(ir)%wakeTruncateNt > 0 .and. &
-        & iter > rotor(ir)%wakeTruncateNt) then
-        ! If truncation in far wake
-        if (iter > rotor(ir)%nNwake) then
-          rowErase = rotor(ir)%nFwake-(iter-rotor(ir)%wakeTruncateNt)+1
-          rotor(ir)%nFwakeEnd = rowErase-1
-          call rotor(ir)%eraseFwake(rowErase)
-        else  ! truncation in near wake
-          rowErase = rotor(ir)%nNwake-(iter-rotor(ir)%wakeTruncateNt)+1
-          rotor(ir)%nNwakeEnd = rowErase-1
-          rotor(ir)%nFwakeEnd = rotor(ir)%rowFar
-          call rotor(ir)%eraseNwake(rowErase)
-        endif
-      endif
-    enddo
-
     ! Wake convection
     ! Initialise wake velocity matrices
     do ir = 1, nr
@@ -1364,10 +1346,9 @@ program main
     do ir = 1, nr
       if (abs(rotor(ir)%surfaceType) == 1) then
         if (rotor(ir)%surfaceType .gt. 0) then
-          if ((rotor(ir)%rowNear .eq. 1) .and. (rotor(ir)%rowFar /= 1)) then
+          if (rotor(ir)%rowNear .eq. 1) then
             ! Last step of near wake or later steps
             call rotor(ir)%rollup()       ! Rollup wake for next far wake panel
-            call rotor(ir)%shiftwake()    ! Shift wake
             ! Store shed vortex as TE for next near wake panel
             call rotor(ir)%assignshed('TE')
           else

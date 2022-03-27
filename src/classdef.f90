@@ -329,6 +329,7 @@ module classdef
     procedure :: vind_bywing_boundVortices => rotor_vind_bywing_boundVortices
     procedure :: vind_bywake => rotor_vind_bywake
     procedure :: shiftwake => rotor_shiftwake
+    procedure :: shiftFwake => rotor_shiftFwake
     procedure :: rollup => rotor_rollup
     procedure :: calc_force_gamma => rotor_calc_force_gamma
     procedure :: calc_force_alpha => rotor_calc_force_alpha
@@ -1602,8 +1603,7 @@ class(blade_class), intent(inout) :: this
           this%wiP(1, is)%gamTrapz = -0.5_dp*this%wiP(1, is)%vr%gam
         endif
 
-        ! For checking against Katz's fixed wing code
-        ! DEBUG
+        ! For checking against Katz's fixed wing code uncomment this
         ! velTangentialChord(ic,is)=10._dp*cos(5._dp*degToRad)
         ! velTangentialSpan(ic,is)=0._dp
 
@@ -2517,8 +2517,8 @@ class(blade_class), intent(inout) :: this
       this%prescWakeNt = 0
     endif
 
-    if (abs(this%Omega) < eps .and. this%wakeTruncateNt > 0) then
-      this%wakeTruncateNt = 0
+    if (this%wakeTruncateNt > 0) then
+      this%wakeTruncateNt = max(this%wakeTruncateNt, this%nNwake + 1)
     endif
 
     if (this%surfaceType == 0) this%surfaceType = 1
@@ -2532,7 +2532,11 @@ class(blade_class), intent(inout) :: this
     ! Initialize variables for use in allocating
     if (abs(this%surfaceType) == 1) then
       this%nNwake = min(this%nNwake, nt)
-      this%nFwake = nt - this%nNwake
+      if (this%wakeTruncateNt == 0) then
+        this%nFwake = nt - this%nNwake
+      else
+        this%nFwake = this%wakeTruncateNt - this%nNwake
+      endif
     elseif (abs(this%surfaceType) .eq. 2) then
       this%nNwake = 0
       this%nFwake = 0
@@ -3910,6 +3914,21 @@ class(blade_class), intent(inout) :: this
 
   end subroutine rotor_shiftwake
 
+  subroutine rotor_shiftFwake(this)
+    !! Shift wake locations of Fwake for truncation
+  class(rotor_class), intent(inout) :: this
+    integer :: ib, i
+
+    do ib = 1, this%nb
+      do i = this%nFwake, 2, -1
+        this%blade(ib)%waF(i) = this%blade(ib)%waF(i-1)
+      enddo
+
+      ! Wake age of first row has to be set to zero
+      this%blade(ib)%waF(1)%vf%age = 0._dp
+    enddo
+  end subroutine rotor_shiftFwake
+
   subroutine rotor_rollup(this)
     !    2
     !    |    ^ Upstream
@@ -3970,6 +3989,13 @@ class(blade_class), intent(inout) :: this
       ! Suppress Fwake gam if required
       if (this%suppressFwakeSwitch .eq. 1) gamRollup = 0._dp
 
+      if (rowFarNext == 0) then
+        ! If no more far wakes exist to assign rolledup wake to,
+        ! then shift far wakes by one step for truncation
+        call this%shiftFwake()
+        rowFarNext = 1
+      endif
+
       ! Initialize far wake tip
       this%blade(ib)%waF(rowFarNext)%vf%fc(:, 2) = centroidLE
       this%blade(ib)%waF(rowFarNext)%vf%fc(:, 1) = centroidTE
@@ -3988,6 +4014,9 @@ class(blade_class), intent(inout) :: this
         this%blade(ib)%waF(rowFarNext + 1)%vf%fc(:, 2) = centroidTE
       endif
     enddo
+    
+    ! Shift near wake panels after rollup
+    call this%shiftwake()
   end subroutine rotor_rollup
 
   subroutine rotor_calc_force_gamma(this, density, dt)
