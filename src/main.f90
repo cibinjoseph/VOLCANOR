@@ -377,10 +377,6 @@ program main
   ! ------- MAIN LOOP START -------
 
   iterStart = 1
-  do ir = 1, nr
-    rotor(ir)%rowNear = rotor(ir)%nNwake + 1
-    rotor(ir)%rowFar = rotor(ir)%nFwake + 1
-  enddo
 
   if (switches%restartFromNt .gt. 0) then
     write (timestamp, '(I0.5)') switches%restartFromNt
