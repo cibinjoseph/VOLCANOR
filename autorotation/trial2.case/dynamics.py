@@ -13,6 +13,8 @@ nb = params['nb']
 rho = params['density']
 Inertia = 0.163
 c = params['chord']
+dt = params['dt']
+theta0 = params['theta0']
 
 def getdw(CL, CD, r, w, Omega, vi):
     integrand = nb*(CL*Omega*r+CD*(w-vi))*rho*0.5*np.sqrt((r*Omega)**2.0+(w-vi)**2.0)*c
@@ -30,7 +32,7 @@ def getdOmega(CL, CD, r, w, Omega, vi):
 with open('dynamics.dat', 'r') as fh:
     line = fh.readline().split()
     dynDataIn = np.array(line, dtype='float64')
-    w, Omega, dt = dynDataIn
+    w, Omega = dynDataIn
     # Vertical axis convention is opposite
     w = -1.0*w
 
@@ -50,5 +52,5 @@ OmegaNext = Omega + dt*getdOmega(CL, CD, r, w, Omega, vi)
 
 # Write out next omega and w
 print([-1.0*w, Omega, -1.0*wNext, OmegaNext])
-dynDataOut = [-1.0*wNext, OmegaNext]
+dynDataOut = [-1.0*wNext, OmegaNext, theta0]
 np.savetxt('dynamics.dat', dynDataOut, delimiter=' ')

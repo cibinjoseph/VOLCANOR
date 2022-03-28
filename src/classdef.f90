@@ -4236,9 +4236,9 @@ class(blade_class), intent(inout) :: this
 
     elseif (this%bodyDynamicsIOVars .eq. 1) then
 
-      ! Autorotation
+      ! Autorotation / Controlled descent
       open(unit=10, file='dynamics.dat', action='write', status='replace')
-      write(10, '(3F15.7)') this%velBody(3), this%omegaSlow, dt
+      write(10, '(2F15.7)') this%velBody(3), this%omegaSlow
       close(10)
 
       call execute_command_line('python3 dynamics.py', wait=.True., &
@@ -4248,7 +4248,7 @@ class(blade_class), intent(inout) :: this
       endif
 
       open(unit=10, file='dynamics.dat', action='read', status='old')
-      read(10, *) this%velBody(3), this%omegaSlow
+      read(10, *) this%velBody(3), this%omegaSlow, this%controlPitch(1)
       close(10)
     endif
   end subroutine rotor_computeBodyDynamics
