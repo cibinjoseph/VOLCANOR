@@ -9,7 +9,7 @@
 #
 # No. of blades,nb  Prop convention  NcamberFiles  geometry filename
 # -------------------------------------------------------------------
-     4              0                0             blade2.xyz
+     4              0                0             blade3.xyz
 #
 # CamberSectionLimit[r/R]  Camber filename
 # -------------------------------------------------------------------
@@ -42,11 +42,11 @@
 # ===================================================================
 # Omega[rad/s]   X-shaftAxis     Y-shaftAxis     Z-shaftAxis
 # -------------------------------------------------------------------
-  62.0             0.0              0.0              1.0
+  71.701             0.0              0.0              1.0
 # 
 # theta0[deg]    thetaC[deg]    thetaS[deg]    thetaTwist[deg]
 # -------------------------------------------------------------------
-  -16.74             0.0              0.0           0.0
+   112.8             0.0              0.0           0.0
 # ===================================================================
 # customTrajectorySwitch    axisymmetrySwitch
 # [0]Off [1]On              [0]Off [1]On
@@ -55,7 +55,7 @@
 # 
 # u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]
 # -------------------------------------------------------------------
-   0.0       0.0       -6.26        0.0        0.0         0.0
+   0.0       0.0      -177.41        0.0        0.0         0.0
 # ===================================================================
 # pivot point     flapHinge      spanwiseLiftTerm    invert tauSpan
 # from LE[x/c]  from centre[r/R]    [1]enable     for swept/symmetric
