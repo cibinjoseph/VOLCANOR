@@ -42,7 +42,7 @@ def getthetaRad(h):
     ztheta = np.load('ztheta.npy')
     # Piecewise interpolation using -h for increasing order
     thetaval = np.interp(-1*h, -1*ztheta[:, 0], ztheta[:, 1])
-    return thetaval*np.pi/180.0
+    return thetaval
 
 
 def main():
@@ -81,6 +81,9 @@ def main():
     OmegaNext = Omega + dt*getdOmega(CL, CD, r, w, Omega, vi, getrho(h))
     hNext = h - dt*wNext
     thetaNext = getthetaRad(hNext)
+
+# Bounds on variables
+    OmegaNext = min(OmegaNext, 200.0)
 
 # Write out next omega and w
     print([-1.0*wNext, OmegaNext, hNext/1000, thetaNext*180.0/np.pi])
