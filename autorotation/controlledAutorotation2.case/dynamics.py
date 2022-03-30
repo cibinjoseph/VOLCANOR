@@ -2,7 +2,7 @@ import numpy as np
 from scipy import integrate
 import c81utils as c81
 import parseResults as pr
-import naca0012
+import naca0002
 import os
 
 params = pr.getParams()
@@ -74,7 +74,7 @@ def main():
     vi = -1.0*data['secViz']
 
 # Find CL CD distribution
-    CL, CD = naca0012.getCLCD(alpha*np.pi/180)
+    CL, CD = naca0002.getCLCD(alpha*np.pi/180)
 
 # Integrate to obtain next omega and w
     wNext = w + dt*getdw(CL, CD, r, w, Omega, vi, getrho(h))
