@@ -16,7 +16,7 @@ Inertia = 0.163
 c = params['chord']
 dt = params['dt']
 theta0 = params['theta0']
-h0 = 80000  # Initial height (in m)
+h0 = 80473  # Initial height (in m)
 
 def getdw(CL, CD, r, w, Omega, vi, rho):
     integrand = nb*(CL*Omega*r+CD*(w-vi))*rho*0.5*np.sqrt((r*Omega)**2.0+(w-vi)**2.0)*c
