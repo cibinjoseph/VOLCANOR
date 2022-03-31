@@ -18,7 +18,7 @@
 # Chordwise panels,nc   Spanwise panels,ns   Near wake panels,nNwake
 #                                       [n]timesteps [-n]chords/revs
 # -------------------------------------------------------------------
-      12                       26                   -2
+      12                       26                   -1
 # ===================================================================
 # X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
 # -------------------------------------------------------------------
@@ -70,7 +70,7 @@
 # wakeTruncateNt  prescWakeAfterTruncNt   prescWakeGenNt
 #   [0]Off [n] timesteps [-n] chords/revs
 # -------------------------------------------------------------------
-      -4                        0                0
+      -3                        0                0
 # ===================================================================
 # spanwise core radius[x/c]       streamwise core_switch
 # [s]ectional  [i]dentical
