@@ -1,3 +1,4 @@
+* Force computation is a complete mess. Correct the directions.
 Max circulation at non max lift in forward flight?
 Does discretization give rise to instability? cause for Kelvin waves or Crow instability?
 Check if vortex strain is overriding vortex core changes due to dissipation
@@ -17,6 +18,7 @@ force computation using gamma
 * Create output folder with nonlinear data
 
 LOW PRIORITY
+* Use HDF5 for output
 * Use json file for input. Preprocess it using python and convert to 
 template as necessary during make. Advantages include ease of 
 documentation in json file itself, ease of formatting, can be used with 
