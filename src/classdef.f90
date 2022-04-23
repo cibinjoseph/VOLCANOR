@@ -1633,6 +1633,8 @@ class(blade_class), intent(inout) :: this
           & dot_product(this%wiP(ic, is)%nCap, unitVec(this%wiP(ic, is)%velCPm))
 
         ! Invert direction of normalForce according to sign of omega and collective pitch
+        ! This will be incorrect for cambered airfoils in the region 
+        ! where alpha is -ve but lift is +ve
         this%wiP(ic, is)%normalForce = this%wiP(ic, is)%delP* &
           & this%wiP(ic, is)%panelArea*this%wiP(ic, is)%nCap*invertGammaSign
 
@@ -1669,7 +1671,7 @@ class(blade_class), intent(inout) :: this
     do is = 1, this%ns
       if (abs(secDynamicPressure(is)) > eps) then
         ! Use sign of delP to obtain sign of CL
-        signSecCL = sign(1._dp, sum(this%wiP(:, is)%delP))
+        signSecCL = sign(1._dp, sum(this%wiP(:, is)%delP))*invertGammaSign
         this%secCL(is) = norm2(this%secLift(:, is))*signSecCL/ &
           & (secDynamicPressure(is)*this%secArea(is))
         this%secCD(is) = norm2(this%secDrag(:, is))/ &
@@ -1991,13 +1993,17 @@ class(blade_class), intent(inout) :: this
     !$omp end parallel do
   end subroutine blade_calc_skew
 
-  subroutine blade_dirLiftDrag(this)
+  subroutine blade_dirLiftDrag(this, Omega)
     use libMath, only: unitVec, cross_product
   class(blade_class), intent(inout) :: this
+    real(dp), intent(in) :: Omega
     integer :: is
+    ! This has to be changed to be computed using local velocity
+    ! and circulation direction so that it is applicable to generalized
+    ! kinematics
     do is = 1, this%ns
       this%secDragDir(:, is) = unitVec(this%wiP(1, is)%velCPm)
-      this%secLiftDir(:, is) = cross_product(this%secDragDir(:, is), &
+      this%secLiftDir(:, is) = sign(1._dp, Omega)*cross_product(this%secDragDir(:, is), &
         & this%yAxis)
     enddo
   end subroutine blade_dirLiftDrag
@@ -4285,7 +4291,7 @@ class(blade_class), intent(inout) :: this
     integer :: ib
 
     do ib = 1, this%nbConvect
-      call this%blade(ib)%dirLiftDrag()
+      call this%blade(ib)%dirLiftDrag(this%Omega)
     enddo
     axisym: if (this%axisymmetrySwitch .eq. 1) then
       do ib = 2, this%nb
