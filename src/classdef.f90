@@ -267,6 +267,7 @@ module classdef
     type(blade_class), allocatable, dimension(:) :: blade
     real(dp) :: Omega, omegaSlow
     real(dp), dimension(3) :: shaftAxis
+    real(dp), dimension(3) :: xAxisBody, yAxisBody, zAxisBody
     real(dp), dimension(3) :: hubCoords, cgCoords, fromCoords
     real(dp) :: radius, chord, root_cut
     real(dp) :: preconeAngle, dpitch
@@ -2412,6 +2413,9 @@ class(blade_class), intent(inout) :: this
 
       this%Omega = sourceRotor%Omega
       this%shaftAxis = sourceRotor%shaftAxis
+      this%xAxisBody = sourceRotor%xAxisBody
+      this%yAxisBody = sourceRotor%yAxisBody
+      this%zAxisBody = sourceRotor%zAxisBody
       this%controlPitch = sourceRotor%controlPitch
       this%thetaTwist = sourceRotor%thetaTwist
 
@@ -2493,6 +2497,10 @@ class(blade_class), intent(inout) :: this
         this%omegaBody(1) = -1._dp*this%omegaBody(1)
         this%omegaBody(2) = -1._dp*this%omegaBody(2)
       end select
+
+        this%xAxisBody(this%imagePlane) = -1._dp*this%xAxisBody(this%imagePlane)
+        this%yAxisBody(this%imagePlane) = -1._dp*this%yAxisBody(this%imagePlane)
+        this%zAxisBody(this%imagePlane) = -1._dp*this%zAxisBody(this%imagePlane)
     endif
 
     ! Warn if all velocities zero
@@ -2566,6 +2574,11 @@ class(blade_class), intent(inout) :: this
 
     ! Override ns to 1 if non-lifting surface
     if (abs(this%surfaceType) .eq. 2) this%ns = 1
+
+    ! Define body axis
+    this%xAxisBody = xAxis
+    this%yAxisBody = yAxis
+    this%zAxisBody = zAxis
 
     ! Initialize variables for use in allocating
     if (abs(this%surfaceType) == 1) then
@@ -3722,6 +3735,9 @@ class(blade_class), intent(inout) :: this
     enddo
 
     this%shaftAxis = matmul(TMat, this%shaftAxis)
+    this%xAxisBody = matmul(TMat, this%xAxisBody)
+    this%yAxisBody = matmul(TMat, this%yAxisBody)
+    this%zAxisBody = matmul(TMat, this%zAxisBody)
 
     this%hubCoords = matmul(TMat, this%hubCoords-origin)+origin
     this%cgCoords = matmul(TMat, this%cgCoords-origin)+origin
