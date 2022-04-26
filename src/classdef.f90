@@ -1045,6 +1045,13 @@ contains
     this%yAxis = matmul(Tmat, this%yAxis)
     this%zAxis = matmul(Tmat, this%zAxis)
 
+    this%xAxisAzi = matmul(Tmat, this%xAxisAzi)
+    this%yAxisAzi = matmul(Tmat, this%yAxisAzi)
+    this%zAxisAzi = matmul(Tmat, this%zAxisAzi)
+
+    this%xAxisAziFlap = matmul(Tmat, this%xAxisAziFlap)
+    this%yAxisAziFlap = matmul(Tmat, this%yAxisAziFlap)
+    this%zAxisAziFlap = matmul(Tmat, this%zAxisAziFlap)
   end subroutine blade_rot_pts
 
   subroutine blade_rot_pitch(this, theta)
