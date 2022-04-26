@@ -159,6 +159,13 @@ module classdef
   end type pFwake_class
 
   type blade_class
+    !    _________________       Y
+    ! O .-----------------|------>
+    !   |______BLADE______|
+    !   |
+    !   |
+    ! X V
+    !
     character(len=2) :: id
     type(wingpanel_class), allocatable, dimension(:, :) :: wiP  ! Wing panel
     type(Nwake_class), allocatable, dimension(:, :) :: waN  ! Near wake
@@ -175,7 +182,7 @@ module classdef
     real(dp) :: flapInitial, dflapInitial, flapPrev, dflapPrev
     real(dp) :: flap, dflap, Iflap, kflap, cflap, MflapConstant
     real(dp) :: MflapLift, MflapLiftPrev
-    real(dp), dimension(3) :: flapAxis, flapOrigin
+    real(dp), dimension(3) :: flapOrigin
     real(dp), dimension(3) :: forceInertial
     real(dp), dimension(3) :: lift, drag
     real(dp), dimension(3) :: dragInduced, dragProfile
@@ -1036,8 +1043,6 @@ contains
     this%xAxis = matmul(Tmat, this%xAxis)
     this%yAxis = matmul(Tmat, this%yAxis)
     this%zAxis = matmul(Tmat, this%zAxis)
-
-    this%flapAxis = matmul(Tmat, this%flapAxis)
 
   end subroutine blade_rot_pts
 
@@ -2768,7 +2773,6 @@ class(blade_class), intent(inout) :: this
       this%blade(ib)%yAxisAziFlap = yAxis
       this%blade(ib)%zAxisAziFlap = zAxis
 
-      this%blade(ib)%flapAxis = this%blade(ib)%xAxis
       this%blade(ib)%flapOrigin = this%blade(ib)%yAxis* &
         & this%radius*this%flapHinge
 
@@ -3033,7 +3037,6 @@ class(blade_class), intent(inout) :: this
         this%blade(ib)%yAxisAziFlap = this%blade(1)%yAxisAziFlap
         this%blade(ib)%zAxisAziFlap = this%blade(1)%zAxisAziFlap
 
-        this%blade(ib)%flapAxis = this%blade(1)%flapAxis
         this%blade(ib)%flapOrigin = this%blade(1)%flapOrigin
 
         ! Initialize sec vectors
