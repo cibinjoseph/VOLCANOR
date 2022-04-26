@@ -196,6 +196,8 @@ module classdef
     ! 3 Vertices of each element in stlElementNodes
     integer, allocatable, dimension(:, :) :: stlElementNodes
     real(dp), dimension(3) :: xAxis, yAxis, zAxis
+    real(dp), dimension(3) :: xAxisAzi, yAxisAzi, zAxisAzi
+    real(dp), dimension(3) :: xAxisAziFlap, yAxisAziFlap, zAxisAziFlap
     ! Sectional quantities
     real(dp), allocatable, dimension(:) :: secChord, secArea
     real(dp), allocatable, dimension(:, :) :: secForceInertial
@@ -213,8 +215,8 @@ module classdef
     integer :: spanwiseLiftSwitch
   contains
     procedure :: move => blade_move
+    procedure :: rotate => blade_rotate
     procedure :: rot_pitch => blade_rot_pitch
-    procedure :: rot_axis => blade_rot_axis
     procedure :: rot_wake_axis => blade_rot_wake_axis
     procedure :: rot_pts => blade_rot_pts
     procedure :: rot_flap => blade_rot_flap
@@ -1045,28 +1047,13 @@ contains
     ! LE of first panel and TE of last panel
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: theta
-    real(dp), dimension(3) :: axis
-    real(dp), dimension(3) :: axisOrigin!, axisEnd
-    real(dp), dimension(3) :: flapAxisPrev
+    real(dp), dimension(3) :: axisOrigin
 
     if (abs(theta) > eps) then
       axisOrigin = this%wiP(1, 1)%PC(:, 1)*(1._dp - this%pivotLE) &
-        + this%wiP(this%nc, 1)%PC(:, 2)*this%pivotLE
-      !axisEnd=this%wiP(1, this%ns)%PC(:,4)*(1._dp-this%pivotLE) &
-      !  +this%wiP(this%nc, this%ns)%PC(:,3)*this%pivotLE
-      !
-      !! Construct axes of rotation from LE of first panel
-      !axis=axisEnd-axisOrigin
-      !axis=axis/norm2(axis)
+        & + this%wiP(this%nc, 1)%PC(:, 2)*this%pivotLE
 
-      ! Do not rotate flap axis during pitch rotation
-      flapAxisPrev = this%flapAxis
-
-      ! Use blade Y axis for rotation
-      axis = this%yAxis
-      call this%rot_axis(theta, axis, axisOrigin)
-
-      this%flapAxis = flapAxisPrev
+      call this%rotate(theta, this%yAxis, axisOrigin, 'pitch')
     endif
   end subroutine blade_rot_pitch
 
@@ -1075,26 +1062,28 @@ contains
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: beta
 
-    call this%rot_axis(beta, this%flapAxis, this%flapOrigin)
+    call this%rotate(beta, this%xAxisAzi, this%flapOrigin, 'flap')
   end subroutine blade_rot_flap
 
-  subroutine blade_rot_axis(this, theta, axisVec, origin)
-    ! Rotate about axis at specified origin
+  subroutine blade_rotate(this, angleRad, axisVec, origin, rotateType)
+    !! Rotate blade geometry about axis at specified origin
+    !! Rotation angle in radians
     use libMath, only: getTransformAxis
   class(blade_class), intent(inout) :: this
-    real(dp), intent(in), value :: theta
+    real(dp), intent(in), value :: angleRad
     real(dp), intent(in), value, dimension(3) :: axisVec
     real(dp), intent(in), value, dimension(3) :: origin
     real(dp), dimension(3, 3) :: Tmat
+    character(len=*), intent(in) :: rotateType
     integer :: i, j
 
 
-    if (abs(theta) > eps) then
+    if (abs(angleRad) > eps) then
       ! Translate to origin
       call this%move(-origin)
 
       ! Rotate about axisVec
-      Tmat = getTransformAxis(theta, axisVec)
+      Tmat = getTransformAxis(angleRad, axisVec)
       do j = 1, this%ns
         do i = 1, this%nc
           call this%wiP(i, j)%rot(TMat)
@@ -1109,21 +1098,59 @@ contains
       do i = 1, this%ns
         this%secCP(:, i) = matmul(TMat, this%secCP(:, i)-origin)+origin
 
-      ! Rotate sec vectors also along with blade
+        ! Rotate sec vectors also along with blade
         this%secTauCapChord(:, i) = matmul(TMat, this%secTauCapChord(:, i))
         this%secTauCapSpan(:, i) = matmul(TMat, this%secTauCapSpan(:, i))
         this%secNormalVec(:, i) = matmul(TMat, this%secNormalVec(:, i))
       enddo
       !$omp end parallel do
 
-      ! Rotate blade axes
-      this%xAxis = matmul(TMat, this%xAxis)
-      this%yAxis = matmul(TMat, this%yAxis)
-      this%zAxis = matmul(TMat, this%zAxis)
+      ! Rotate reference frames
+      select case (rotateType)
+      case ('azimuth')
+        this%xAxisAziFlap = matmul(TMat, this%xAxisAziFlap)
+        this%yAxisAziFlap = matmul(TMat, this%yAxisAziFlap)
+        this%zAxisAziFlap = matmul(TMat, this%zAxisAziFlap)
 
-      this%flapAxis = matmul(TMat, this%flapAxis)
+        this%xAxisAzi = matmul(TMat, this%xAxisAzi)
+        this%yAxisAzi = matmul(TMat, this%yAxisAzi)
+        this%zAxisAzi = matmul(TMat, this%zAxisAzi)
+
+        this%xAxis = matmul(TMat, this%xAxis)
+        this%yAxis = matmul(TMat, this%yAxis)
+        this%zAxis = matmul(TMat, this%zAxis)
+
+      case ('flap')
+        this%xAxisAziFlap = matmul(TMat, this%xAxisAziFlap)
+        this%yAxisAziFlap = matmul(TMat, this%yAxisAziFlap)
+        this%zAxisAziFlap = matmul(TMat, this%zAxisAziFlap)
+
+        this%xAxis = matmul(TMat, this%xAxis)
+        this%yAxis = matmul(TMat, this%yAxis)
+        this%zAxis = matmul(TMat, this%zAxis)
+
+      case ('pitch')
+        this%xAxis = matmul(TMat, this%xAxis)
+        this%yAxis = matmul(TMat, this%yAxis)
+        this%zAxis = matmul(TMat, this%zAxis)
+
+      case default
+        this%xAxisAziFlap = matmul(TMat, this%xAxisAziFlap)
+        this%yAxisAziFlap = matmul(TMat, this%yAxisAziFlap)
+        this%zAxisAziFlap = matmul(TMat, this%zAxisAziFlap)
+
+        this%xAxisAzi = matmul(TMat, this%xAxisAzi)
+        this%yAxisAzi = matmul(TMat, this%yAxisAzi)
+        this%zAxisAzi = matmul(TMat, this%zAxisAzi)
+
+        this%xAxis = matmul(TMat, this%xAxis)
+        this%yAxis = matmul(TMat, this%yAxis)
+        this%zAxis = matmul(TMat, this%zAxis)
+
+      end select
+
     endif
-  end subroutine blade_rot_axis
+  end subroutine blade_rotate
 
   subroutine blade_rot_wake_axis(this, theta, axisVec, origin, &
       & rowNear, rowFar, wakeType)
@@ -2730,6 +2757,17 @@ class(blade_class), intent(inout) :: this
       this%blade(ib)%yAxis = yAxis
       this%blade(ib)%zAxis = zAxis
 
+      ! These axes do not have pitch or flap rotations
+      this%blade(ib)%xAxisAzi = xAxis
+      this%blade(ib)%yAxisAzi = yAxis
+      this%blade(ib)%zAxisAzi = zAxis
+
+      ! These axes do not have pitch rotation
+      ! They are rotated by the flap angle
+      this%blade(ib)%xAxisAziFlap = xAxis
+      this%blade(ib)%yAxisAziFlap = yAxis
+      this%blade(ib)%zAxisAziFlap = zAxis
+
       this%blade(ib)%flapAxis = this%blade(ib)%xAxis
       this%blade(ib)%flapOrigin = this%blade(ib)%yAxis* &
         & this%radius*this%flapHinge
@@ -2987,6 +3025,14 @@ class(blade_class), intent(inout) :: this
         this%blade(ib)%yAxis = this%blade(1)%yAxis
         this%blade(ib)%zAxis = this%blade(1)%zAxis
 
+        this%blade(ib)%xAxisAzi = this%blade(1)%xAxisAzi
+        this%blade(ib)%yAxisAzi = this%blade(1)%yAxisAzi
+        this%blade(ib)%zAxisAzi = this%blade(1)%zAxisAzi
+
+        this%blade(ib)%xAxisAziFlap = this%blade(1)%xAxisAziFlap
+        this%blade(ib)%yAxisAziFlap = this%blade(1)%yAxisAziFlap
+        this%blade(ib)%zAxisAziFlap = this%blade(1)%zAxisAziFlap
+
         this%blade(ib)%flapAxis = this%blade(1)%flapAxis
         this%blade(ib)%flapOrigin = this%blade(1)%flapOrigin
 
@@ -3098,7 +3144,8 @@ class(blade_class), intent(inout) :: this
     ! Rotate blades for multi-bladed rotors
     do ib = 2, this%nb
       bladeOffset = sign(1._dp, this%Omega)*twoPi/this%nb*(ib - 1)
-      call this%blade(ib)%rot_axis(bladeOffset, this%shaftAxis, this%hubCoords)
+      call this%blade(ib)%rotate(bladeOffset, this%shaftAxis, this%hubCoords, &
+        & 'azimuth')
     enddo
 
     ! Rotate rotor by phi,theta,psi about CG
@@ -3644,7 +3691,8 @@ class(blade_class), intent(inout) :: this
   end subroutine rotor_move
 
   subroutine rotor_rot_pts(this, pts, origin, order)
-    ! Rotate using pts => phi theta psi
+    !! Rotate using pts => phi theta psi
+    !! Warning: This rotation is about the global reference frame
     use libMath, only: Tbg, Tgb
   class(rotor_class), intent(inout) :: this
     real(dp), dimension(3), intent(in) :: pts    ! pts => phi,theta,psi
@@ -3698,7 +3746,8 @@ class(blade_class), intent(inout) :: this
 
     this%psi = this%psi + dpsi
     do ib = 1, this%nb
-      call this%blade(ib)%rot_axis(dpsi, this%shaftAxis, this%hubCoords)
+      call this%blade(ib)%rotate(dpsi, this%shaftAxis, this%hubCoords, &
+        & 'azimuth')
       this%blade(ib)%psi = this%blade(ib)%psi + dpsi
       if (.not. present(nopitch)) then
         thetaNext = this%gettheta(this%psi, ib)
