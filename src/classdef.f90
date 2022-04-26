@@ -1838,8 +1838,6 @@ class(blade_class), intent(inout) :: this
       this%secLiftUnsteady(:, is) = &
         & this%secLiftDir(:, is)*leadingTerm(is)*this%secCLu(is) 
       ! Lift in inertial frame
-      ! Warning: This would give a wrong answer if a considerable dihedral
-      ! is present for the wing since the blade Y-axis is not flapped
       this%secForceInertial(:, is) = cross_product(this%yAxis, &
         this%secChordwiseResVel(:, is))
       this%secForceInertial(:, is) = sign(1._dp, sum(this%wiP(:, is)%vr%gam)) &
@@ -4190,17 +4188,16 @@ class(blade_class), intent(inout) :: this
   end subroutine rotor_calc_force_alphaGamma
 
   subroutine rotor_calc_secAlpha(this)
-    use libMath, only: zAxis
+    use libMath
   class(rotor_class), intent(inout) :: this
     real(dp), dimension(3) :: verticalAxis
     integer :: ib
 
-    verticalAxis = zAxis
-    if (abs(this%Omega) .gt. eps) verticalAxis = this%shaftAxis
-
     do ib = 1, this%nbConvect
+      verticalAxis = this%blade(ib)%zAxisAziFlap
       call this%blade(ib)%calc_secAlpha(verticalAxis)
     enddo
+
     axisym: if (this%axisymmetrySwitch .eq. 1) then
       do ib = 2, this%nb
         this%blade(ib)%secAlpha = this%blade(1)%secAlpha
