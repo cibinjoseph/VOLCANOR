@@ -18,11 +18,7 @@ force computation using gamma
 
 LOW PRIORITY
 * Use HDF5 for output
-* Use json file for input. Preprocess it using python and convert to 
-template as necessary during make. Advantages include ease of 
-documentation in json file itself, ease of formatting, can be used with 
-online viewers and compactness of file. Converting between versions will 
-also be easier as formatting not necessary.
+* Use NAMELISTS for input
 * Avoid adding and then subtracting out in vind_bywing_boundvortices
 * make run_prof and run_prof_dbg targets return run-time errors
 * Check if intermmediate data structure for arrays of wake and far wake would make it easier to handle induced velocities and such.
