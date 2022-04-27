@@ -1,4 +1,4 @@
-module panel1x3_test
+module wing1x3_test
   use naturalfruit
   use classdef
   implicit none
@@ -216,5 +216,4 @@ contains
     call testcase_finalize()
   end subroutine test_force_gamma
 
-
-end module panel1x3_test
+end module wing1x3_test

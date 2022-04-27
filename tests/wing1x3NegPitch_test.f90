@@ -1,4 +1,4 @@
-module panel1x3NegPitch_test
+module wing1x3NegPitch_test
   use naturalfruit
   use classdef
   implicit none
@@ -216,4 +216,4 @@ contains
   end subroutine test_force_gamma
 
 
-end module panel1x3NegPitch_test
+end module wing1x3NegPitch_test

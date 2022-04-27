@@ -1,5 +1,5 @@
-program panel1x2_testrunner
-  use panel1x2_test
+program wing1x2_testrunner
+  use wing1x2_test
   integer :: exit_code
 
   call testsuite_initialize()
@@ -12,4 +12,4 @@ program panel1x2_testrunner
   call testsuite_summary()
   call testsuite_finalize(exit_code)
   call exit(exit_code)
-end program panel1x2_testrunner
+end program wing1x2_testrunner
