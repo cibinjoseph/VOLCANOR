@@ -1,4 +1,4 @@
-module rotor1x2_test
+module rotor1x2NegPitch_test
   use naturalfruit
   use classdef
   implicit none
@@ -49,7 +49,7 @@ contains
 
     rotor%Omega = 100._dp
     rotor%shaftAxis = (/0._dp, 0._dp, 1._dp/)
-    rotor%controlPitch = (/5._dp, 0._dp, 0._dp/)
+    rotor%controlPitch = (/-5._dp, 0._dp, 0._dp/)
     rotor%thetaTwist = 0._dp
     rotor%velBody = (/0._dp, 0._dp, 0._dp/)
     rotor%omegaBody = (/0._dp, 0._dp, 0._dp/)
@@ -92,27 +92,27 @@ contains
     call assert_equal(dtVal, dt, tol, message = 'dt does not match')
 
     ! Panel (1, 1) PC
-    coords(:, 1) = (/-(0.75+0.25*ct), 1._dp, 0.25*st/)
+    coords(:, 1) = (/-(0.75+0.25*ct), 1.0_dp, 0.25*st/)
     coords(:, 2) = (/-(0.75-0.75*ct), 1.0_dp, -0.75*st/)
     coords(:, 3) = (/-(0.75-0.75*ct), 1.5_dp, -0.75*st/)
     coords(:, 4) = (/-(0.75+0.25*ct), 1.5_dp, 0.25*st/)
 
-    call assert_equal(coords, rotor%blade(1)%wiP(1, 1)%pc, &
+    call assert_equal(coords, rotor%blade(1)%wiP(1, 1)%PC, tol, &
       & message = 'Panel 1, 1 PC do not match')
 
     ! Panel (1, 2) PC
-    coords(:, 1) = (/-(0.75+0.25*ct), 1.5_dp, 0.25*st/)
-    coords(:, 2) = (/-(0.75-0.75*ct), 1.5_dp, -0.75*st/)
-    coords(:, 3) = (/-(0.75-0.75*ct), 2._dp, -0.75*st/)
-    coords(:, 4) = (/-(0.75+0.25*ct), 2._dp, 0.25*st/)
+    coords(2, 1) =  1.5_dp
+    coords(2, 2) =  1.5_dp
+    coords(2, 3) =  2.0_dp
+    coords(2, 4) =  2.0_dp
 
-    call assert_equal(coords, rotor%blade(1)%wiP(1, 2)%pc, &
+    call assert_equal(coords, rotor%blade(1)%wiP(1, 2)%PC, tol, &
       & message = 'Panel 1, 2 PC do not match')
 
     ! Panel (1, 1) vf
     coords(:, 1) = (/-0.75_dp, 1._dp, 0._dp/)
-    coords(:, 2) = (/3.71826D-003, 1._dp, -6.59418D-002/)
-    coords(:, 3) = (/3.71826D-003, 1.5_dp, -6.59418D-002/)
+    coords(:, 2) = (/3.71826D-003, 1._dp, 6.59418D-002/)
+    coords(:, 3) = (/3.71826D-003, 1.5_dp, 6.59418D-002/)
     coords(:, 4) = (/-0.75_dp, 1.5_dp, 0._dp/)
 
     call assert_equal(coords(:, 1), &
@@ -133,8 +133,8 @@ contains
 
     ! Panel (1, 2) vf
     coords(:, 1) = (/-0.75_dp, 1.5_dp, 0._dp/)
-    coords(:, 2) = (/3.71826D-003, 1.5_dp, -6.59418D-002/)
-    coords(:, 3) = (/3.71826D-003, 2.0_dp, -6.59418D-002/)
+    coords(:, 2) = (/3.71826D-003, 1.5_dp, 6.59418D-002/)
+    coords(:, 3) = (/3.71826D-003, 2.0_dp, 6.59418D-002/)
     coords(:, 4) = (/-0.75_dp, 2.0_dp, 0._dp/)
 
     call assert_equal(coords(:, 1), &
@@ -229,15 +229,15 @@ contains
 
     call rotor%calc_secAlpha()
 
-    call assert_equal(5._dp*pi/180._dp*[1._dp, 1._dp], &
+    call assert_equal(rotor%controlPitch(1)*[1._dp, 1._dp], &
       & rotor%blade(1)%secTheta, tol, 'secTheta does not match')
 
-    call assert_equal(5._dp*pi/180._dp*[1._dp, 1._dp], &
-      & rotor%blade(1)%secAlpha, tol, 'secTheta does not match')
+    call assert_equal(rotor%controlPitch(1)*[1._dp, 1._dp], &
+      & rotor%blade(1)%secAlpha, tol, 'secAlpha does not match')
 
     call rotor%calc_force_gamma(density, dt)
 
-    delP = [-7278.445742_dp, -9866.306155_dp]
+    delP = [7278.445742_dp, 9866.306155_dp]
     call assert_equal(delP, rotor%blade(1)%wiP(1, :)%delP, tol, &
       & 'delP does not match')
 
@@ -249,7 +249,7 @@ contains
     call assert_equal(delDiUnsteady, rotor%blade(1)%wiP(1, :)%delDiUnsteady, &
       & tol, 'delDiUnsteady does not match')
 
-    normalForce(:, 1) = [-317.179172_dp, 0._dp ,  -3625.374529_dp]
+    normalForce(:, 1) = [317.179172_dp, 0._dp ,  -3625.374529_dp]
     call assert_equal(normalForce(:, 1), rotor%blade(1)%wiP(1, 1)%normalForce, &
       & tol, 'normalForce does not match')
     call assert_equal(normalForce(:, 1), rotor%blade(1)%secForceInertial(:, 1), &
@@ -258,7 +258,7 @@ contains
     call assert_equal(secLift(:, 1), rotor%blade(1)%secLift(:, 1), &
       & tol, 'secLift does not match')
 
-    normalForce(:, 2) = [ -429.952620_dp, 0._dp, -4914.380941_dp]
+    normalForce(:, 2) = [429.952620_dp, 0._dp, -4914.380941_dp]
     call assert_equal(normalForce(:, 2), rotor%blade(1)%wiP(1, 2)%normalForce, &
       & tol, 'normalForce does not match')
     call assert_equal(normalForce(:, 2), rotor%blade(1)%secForceInertial(:, 2), &
@@ -286,7 +286,7 @@ contains
     call assert_equal(secDragUnsteady(:, 2), rotor%blade(1)%secDragUnsteady(:, 2), &
       & tol, 'secDragUnsteady does not match')
 
-    call assert_equal([0.773413_dp, 0.534898_dp], rotor%blade(1)%secCL, &
+    call assert_equal([-0.773413_dp, -0.534898_dp], rotor%blade(1)%secCL, &
       & tol, 'secCL does not match')
     call assert_equal([4.439895D-002, 2.598482D-002], rotor%blade(1)%secCD, &
       & tol, 'secCD does not match')
@@ -316,4 +316,4 @@ contains
   end subroutine test_force_gamma
 
 
-end module rotor1x2_test
+end module rotor1x2NegPitch_test

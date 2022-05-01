@@ -120,4 +120,5 @@ add_custom_target(testrunners
   COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target wing1x2_testrunner
   COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target wing1x3_testrunner
   COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target wing1x3NegPitch_testrunner
-  COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target rotor1x2_testrunner)
+  COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target rotor1x2_testrunner
+  COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target rotor1x2NegPitch_testrunner)

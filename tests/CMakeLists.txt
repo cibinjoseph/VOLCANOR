@@ -23,6 +23,9 @@ target_link_libraries(wing1x2_test classdef naturalfruit)
 add_library(rotor1x2_test STATIC rotor1x2_test.f90)
 target_link_libraries(rotor1x2_test classdef naturalfruit)
 
+add_library(rotor1x2NegPitch_test STATIC rotor1x2NegPitch_test.f90)
+target_link_libraries(rotor1x2NegPitch_test classdef naturalfruit)
+
 add_library(wing1x3_test STATIC wing1x3_test.f90)
 target_link_libraries(wing1x3_test classdef naturalfruit)
 
@@ -39,6 +42,9 @@ target_link_libraries(wing1x2_testrunner wing1x2_test)
 add_executable(rotor1x2_testrunner rotor1x2_testrunner.f90)
 target_link_libraries(rotor1x2_testrunner rotor1x2_test)
 
+add_executable(rotor1x2NegPitch_testrunner rotor1x2NegPitch_testrunner.f90)
+target_link_libraries(rotor1x2NegPitch_testrunner rotor1x2NegPitch_test)
+
 add_executable(wing1x3_testrunner wing1x3_testrunner.f90)
 target_link_libraries(wing1x3_testrunner wing1x3_test)
 
@@ -49,6 +55,7 @@ target_link_libraries(wing1x3NegPitch_testrunner wing1x3NegPitch_test)
 add_test(NAME libMath COMMAND libMath_testrunner)
 add_test(NAME wing1x2 COMMAND wing1x2_testrunner)
 add_test(NAME rotor1x2 COMMAND rotor1x2_testrunner)
+add_test(NAME rotor1x2NegPitch COMMAND rotor1x2NegPitch_testrunner)
 add_test(NAME wing1x3 COMMAND wing1x3_testrunner)
 add_test(NAME wing1x3NegPitch COMMAND wing1x3NegPitch_testrunner)
 
