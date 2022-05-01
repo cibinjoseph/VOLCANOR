@@ -2043,6 +2043,7 @@ class(blade_class), intent(inout) :: this
       this%secDragDir(:, is) = unitVec(this%wiP(1, is)%velCPm)
       this%secLiftDir(:, is) = sign(1._dp, Omega)*cross_product(this%secDragDir(:, is), &
         & this%yAxis)
+      this%secLiftDir(:, is) = unitVec(this%secLiftDir(:, is))
     enddo
   end subroutine blade_dirLiftDrag
 
