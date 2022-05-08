@@ -235,7 +235,13 @@ contains
     call assert_equal(5._dp*pi/180._dp*[1._dp, 1._dp], &
       & rotor%blade(1)%secAlpha, tol, 'secTheta does not match')
 
-    call rotor%calc_force_gamma(density, dt)
+    call rotor%calc_force(density, dt)
+
+    ! DEBUG
+    print*
+    print*, rotor%gamVec
+    print*, rotor%blade(1)%wiP(1, :)%delP
+    print*, rotor%blade(1)%wiP(1, :)%delPUnsteady
 
     delP = [-7278.445742_dp, -9866.306155_dp]
     call assert_equal(delP, rotor%blade(1)%wiP(1, :)%delP, tol, &
