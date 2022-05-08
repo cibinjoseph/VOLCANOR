@@ -275,7 +275,7 @@ program main
         endif axisym00
 
         call rotor(ir)%calc_secAlpha()
-        call rotor(ir)%calc_force_gamma(density, dt)
+        call rotor(ir)%calc_force(density, dt)
 
         ! For the first iteration, assign the first flap moment to 
         ! prev flap moment for use in flap dynamics equation
@@ -645,7 +645,7 @@ program main
             endif axisymx0
 
             call rotor(ir)%calc_secAlpha()
-            call rotor(ir)%calc_force_gamma(density, dt)
+            call rotor(ir)%calc_force(density, dt)
 
           case (1)  ! Compute using alpha
             ! Compute alpha
