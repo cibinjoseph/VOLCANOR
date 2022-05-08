@@ -207,7 +207,15 @@ contains
     call assert_equal(rotor%blade(1)%secDragDir(:, 2), dragDir, tol, &
       & 'secliftDir does not match')
 
-    call rotor%calc_force_gamma(density, dt)
+    call rotor%calc_secAlpha()
+
+    call assert_equal(5._dp*pi/180._dp*[1._dp, 1._dp], &
+      & rotor%blade(1)%secTheta, tol, 'secTheta does not match')
+
+    call assert_equal(5._dp*pi/180._dp*[1._dp, 1._dp], &
+      & rotor%blade(1)%secAlpha, tol, 'secTheta does not match')
+
+    call rotor%calc_force(density, dt)
 
     delP = 91.3763089754279_dp * (/1._dp, 1._dp/)
     call assert_equal(rotor%blade(1)%wiP(1, :)%delP, delP, tol, &
