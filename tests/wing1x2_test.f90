@@ -197,9 +197,9 @@ contains
 
     liftDir = (/0._dp, 0._dp, 1._dp/)
     call assert_equal(rotor%blade(1)%secLiftDir(:, 1), liftDir, tol, &
-      & 'secliftDir does not match')
+      & 'secLiftDir does not match')
     call assert_equal(rotor%blade(1)%secLiftDir(:, 2), liftDir, tol, &
-      & 'secliftDir does not match')
+      & 'secLiftDir does not match')
 
     dragDir = (/1._dp, 0._dp, 0._dp/)
     call assert_equal(rotor%blade(1)%secDragDir(:, 1), dragDir, tol, &
@@ -220,7 +220,7 @@ contains
     delP = 91.3763089754279_dp * (/1._dp, 1._dp/)
     call assert_equal(rotor%blade(1)%wiP(1, :)%delP, delP, tol, &
       & 'delP does not match')
-
+    
     delDiConstant = 0.656192498415084 * (/1._dp, 1._dp/)
     call assert_equal(rotor%blade(1)%wiP(1, :)%delDiConstant, delDiConstant, &
       & tol, 'delDiConstant does not match')

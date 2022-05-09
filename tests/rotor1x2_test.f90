@@ -213,19 +213,19 @@ contains
 
     liftDir = (/0._dp, 0._dp, 1._dp/)
     call assert_equal(liftDir, rotor%blade(1)%secLiftDir(:, 1), tol, &
-      & 'secliftDir does not match')
+      & 'secLiftDir does not match')
     call assert_equal(liftDir, rotor%blade(1)%secLiftDir(:, 2), tol, &
-      & 'secliftDir does not match')
+      & 'secLiftDir does not match')
 
     dragDir = rotor%blade(1)%wiP(1, 1)%velCPm/ &
       & norm2(rotor%blade(1)%wiP(1, 1)%velCPm)
     call assert_equal(dragDir, rotor%blade(1)%secDragDir(:, 1), tol, &
-      & 'secliftDir does not match')
+      & 'secDragDir does not match')
 
     dragDir = rotor%blade(1)%wiP(1, 2)%velCPm/ &
       & norm2(rotor%blade(1)%wiP(1, 2)%velCPm)
     call assert_equal(dragDir, rotor%blade(1)%secDragDir(:, 2), tol, &
-      & 'secliftDir does not match')
+      & 'secDragDir does not match')
 
     call rotor%calc_secAlpha()
 
