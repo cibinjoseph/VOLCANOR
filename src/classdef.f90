@@ -213,6 +213,8 @@ module classdef
     real(dp), allocatable, dimension(:, :) :: secLiftInPlane, secLiftOutPlane
     real(dp), allocatable, dimension(:, :) :: secDragInduced, secDragProfile
     real(dp), allocatable, dimension(:, :) :: secLiftUnsteady, secDragUnsteady
+    real(dp), allocatable, dimension(:, :) :: secLiftInPlaneUnsteady
+    real(dp), allocatable, dimension(:, :) :: secLiftOutPlaneUnsteady
     real(dp), allocatable, dimension(:, :) :: secTauCapChord, secTauCapSpan
     real(dp), allocatable, dimension(:, :) :: secNormalVec, secCP
     real(dp), allocatable, dimension(:, :) :: secResVel, secChordwiseResVel
@@ -1687,7 +1689,8 @@ class(blade_class), intent(inout) :: this
         this%wiP(ic, is)%normalForce = this%wiP(ic, is)%delP* &
           & this%wiP(ic, is)%panelArea*this%wiP(ic, is)%nCap
 
-        this%wiP(ic, is)%normalForceUnsteady = this%wiP(ic, is)%delPUnsteady* &
+        this%wiP(ic, is)%normalForceUnsteady = &
+          & this%wiP(ic, is)%delPUnsteady* &
           & this%wiP(ic, is)%panelArea*this%wiP(ic, is)%nCap
 
         this%secForceInertial(:, is) = this%secForceInertial(:, is) + &
@@ -1697,7 +1700,8 @@ class(blade_class), intent(inout) :: this
           & projVec(this%wiP(ic, is)%normalForce, this%secLiftDir(:, is))
 
         this%secLiftUnsteady(:, is) = this%secLiftUnsteady(:, is) + &
-          & projVec(this%wiP(ic, is)%normalForceUnsteady, this%secLiftDir(:, is))
+          & projVec(this%wiP(ic, is)%normalForceUnsteady, &
+          & this%secLiftDir(:, is))
       enddo
 
       ! Compute in-plane and out of flap plane components of lift
@@ -1706,6 +1710,11 @@ class(blade_class), intent(inout) :: this
         & projVec(this%secLift(:, is), this%xAxisAziFlap)
       this%secLiftOutPlane(:, is) = projVec(this%secLift(:, is), &
         & this%zAxisAziFlap)
+
+      this%secLiftInPlaneUnsteady(:, is) = invertGammaSign* &
+        & projVec(this%secLiftUnsteady(:, is), this%xAxisAziFlap)
+      this%secLiftOutPlaneUnsteady(:, is) = &
+        & projVec(this%secLiftUnsteady(:, is), this%zAxisAziFlap)
 
       ! this%secDragInduced(:, is) = this%secDragDir(:, is)* &
       !   sum(this%wiP(:, is)%delDiConstant + this%wiP(:, is)%delDiUnsteady)
