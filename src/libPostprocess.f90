@@ -909,7 +909,7 @@ contains
         & 'ForceDist'//timestamp//'.csv', & 
         & action='write', position='append')
       write (12, 202) 'secSpan', 'secCL', 'secCD', 'secCLu', &
-        & 'secLift', 'secDrag', &
+        & 'secLift', 'secDrag', 'secLiftInPl', 'secLiftOutPl'&
         & 'secArea', 'secVel', 'secChord', 'secTheta', 'secAlpha', 'secPhi', &
         & 'secViz', 'secVix'
       ! secVel is resultant vel that the airfoil sees
@@ -921,6 +921,8 @@ contains
           & rotor%blade(ib)%secCLu(ispan), &
           & norm2(rotor%blade(ib)%secLift(:, ispan)), &
           & norm2(rotor%blade(ib)%secDrag(:, ispan)), &
+          & norm2(rotor%blade(ib)%secLiftInPlane(:, ispan)), &
+          & norm2(rotor%blade(ib)%secLiftOutPlane(:, ispan)), &
           & rotor%blade(ib)%secArea(ispan), &
           & norm2(rotor%blade(ib)%secChordwiseResVel(:, ispan)), &
           & rotor%blade(ib)%secChord(ispan), &
@@ -932,8 +934,8 @@ contains
       enddo
       close (12)
     enddo
-    202 format(14(A15))
-    102 format(14(E15.7))
+    202 format(16(A15))
+    102 format(16(E15.7))
   end subroutine force2file
 
   subroutine dynamics2file(timestamp, rotor)
