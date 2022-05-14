@@ -94,6 +94,7 @@ contains
     real(dp), dimension(3) :: delP
     real(dp), dimension(3, 3) :: normalForce
     real(dp), dimension(3, 3) :: liftDir, dragDir, secLift
+    real(dp), dimension(3) :: forceInertial
     real(dp), dimension(3) :: secCL
     real(dp), dimension(3) :: lift
 
