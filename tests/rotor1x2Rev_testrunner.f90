@@ -7,7 +7,7 @@ program rotor1x2Rev_testrunner
   call setup()
   call test_coords()
   call test_aic()
-  call test_force_gamma()
+  call test_force()
 
   call testsuite_summary()
   call testsuite_finalize(exit_code)

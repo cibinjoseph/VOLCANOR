@@ -6,7 +6,7 @@ program wing1x3NegPitch_testrunner
 
   call setup()
   call test_aic()
-  call test_force_gamma()
+  call test_force()
 
   call testsuite_summary()
   call testsuite_finalize(exit_code)

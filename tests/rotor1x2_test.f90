@@ -180,17 +180,16 @@ contains
     call testcase_finalize()
   end subroutine test_aic
 
-  subroutine test_force_gamma()
+  subroutine test_force()
     use libMath, only: cross_product
     integer :: is
-    real(dp), dimension(2) :: delP, delDiConstant, delDiUnsteady
+    real(dp), dimension(2) :: delP
     real(dp), dimension(3) :: forceInertial
-    real(dp), dimension(3, 2) :: secDragInduced, secDragUnsteady
     real(dp), dimension(3) :: liftDir, dragDir
-    real(dp), dimension(3) :: lift, drag, dragUnsteady
+    real(dp), dimension(3) :: lift
     real(dp), dimension(3, 2) :: normalForce, secLift
 
-    call testcase_initialize('test_force_gamma')
+    call testcase_initialize('test_force')
 
     do is = 1, rotor%ns
       rotor%blade(1)%wiP(1, is)%velCP = -1._dp * rotor%velBody &
@@ -247,14 +246,6 @@ contains
     call assert_equal(delP, rotor%blade(1)%wiP(1, :)%delP, tol, &
       & 'delP does not match')
 
-    delDiConstant = [46.932722_dp, 86.943570_dp]
-    call assert_equal(delDiConstant, rotor%blade(1)%wiP(1, :)%delDiConstant, &
-      & tol, 'delDiConstant does not match')
-
-    delDiUnsteady = [-255.052811_dp, -325.679104_dp]
-    call assert_equal(delDiUnsteady, rotor%blade(1)%wiP(1, :)%delDiUnsteady, &
-      & tol, 'delDiUnsteady does not match')
-
     normalForce(:, 1) = [-317.179172_dp, 0._dp ,  -3625.374529_dp]
     call assert_equal(normalForce(:, 1), rotor%blade(1)%wiP(1, 1)%normalForce, &
       & tol, 'normalForce does not match')
@@ -273,29 +264,8 @@ contains
     call assert_equal(secLift(:, 2), rotor%blade(1)%secLift(:, 2), &
       & tol, 'secLift does not match')
 
-    secDragInduced(:, 1) = [-204.018599769_dp, -41.114260900_dp, 0.0_dp]
-    call assert_equal(secDragInduced(:, 1), rotor%blade(1)%secDragInduced(:, 1), &
-      & tol, 'secDragInduced does not match')
-    call assert_equal(secDragInduced(:, 1), rotor%blade(1)%secDrag(:, 1), &
-      & tol, 'secDragInduced does not match')
-
-    secDragInduced(:, 2) = [-236.300019874_dp, -34.014057958_dp, 0.0_dp]
-    call assert_equal(secDragInduced(:, 2), rotor%blade(1)%secDragInduced(:, 2), &
-      & tol, 'secDragInduced does not match')
-    call assert_equal(secDragInduced(:, 2), rotor%blade(1)%secDrag(:, 2), &
-      & tol, 'secDragInduced does not match')
-
-    secDragUnsteady(:, 1) = [-250.026404_dp, -50.385851_dp, 0.0_dp]
-    call assert_equal(secDragUnsteady(:, 1), rotor%blade(1)%secDragUnsteady(:, 1), &
-      & tol, 'secDragUnsteady does not match')
-    secDragUnsteady(:, 2) = [-322.356615_dp, -46.401420_dp, 0.0_dp]
-    call assert_equal(secDragUnsteady(:, 2), rotor%blade(1)%secDragUnsteady(:, 2), &
-      & tol, 'secDragUnsteady does not match')
-
     call assert_equal([0.773413_dp, 0.534898_dp], rotor%blade(1)%secCL, &
       & tol, 'secCL does not match')
-    call assert_equal([4.439895D-002, 2.598482D-002], rotor%blade(1)%secCD, &
-      & tol, 'secCD does not match')
 
     ! Net forces
     forceInertial = normalForce(:, 1) + normalForce(:, 2)
@@ -306,20 +276,8 @@ contains
     call assert_equal(rotor%blade(1)%lift, lift, &
       & tol, 'lift does not match')
 
-    drag = secDragInduced(:, 1) + secDragInduced(:, 2)
-    call assert_equal(rotor%blade(1)%drag, drag, &
-      & tol, 'drag does not match')
-    call assert_equal(rotor%blade(1)%dragInduced, drag, &
-      & tol, 'dragInduced does not match')
-    call assert_equal(rotor%blade(1)%dragProfile, [0._dp, 0._dp, 0._dp], &
-      & tol, 'dragProfile does not match')
-
-    dragUnsteady= secDragUnsteady(:, 1) + secDragUnsteady(:, 2)
-    call assert_equal(rotor%blade(1)%dragUnsteady, dragUnsteady, &
-      & tol, 'dragUnsteady does not match')
-
     call testcase_finalize()
-  end subroutine test_force_gamma
+  end subroutine test_force
 
 
 end module rotor1x2_test
