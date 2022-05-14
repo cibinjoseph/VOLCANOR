@@ -1683,7 +1683,7 @@ class(blade_class), intent(inout) :: this
         !   & dot_product(this%wiP(ic, is)%nCap, &
         !   & unitVec(this%wiP(ic, is)%velCPm))
 
-        ! This may be incorrect for cambered airfoils in the region 
+        ! This may be incorrect for cambered airfoils in the region
         ! where alpha is -ve but lift is +ve
         ! delP and delPUnsteady already have inverGammaSign
         this%wiP(ic, is)%normalForce = this%wiP(ic, is)%delP* &
@@ -1704,6 +1704,10 @@ class(blade_class), intent(inout) :: this
           & this%secLiftDir(:, is))
       enddo
 
+      ! Induced drag is difficult to define when the reference freestream 
+      ! velocity direction is not clear. For eg. when u and v are provided.
+      ! Instead the non-pitched axis are used tocompute inplane and
+      ! out of plane components.
       ! Compute in-plane and out of flap plane components of lift
       ! The in-plane component is induced drag
       this%secLiftInPlane(:, is) = invertGammaSign* &
@@ -1718,10 +1722,15 @@ class(blade_class), intent(inout) :: this
 
       ! this%secDragInduced(:, is) = this%secDragDir(:, is)* &
       !   sum(this%wiP(:, is)%delDiConstant + this%wiP(:, is)%delDiUnsteady)
+
       ! Drag unsteady is purely for monitoring purposes if required
       ! and is not used for computations anywhere
       ! this%secDragUnsteady(:, is) = this%secDragDir(:, is)* &
       !   sum(this%wiP(:, is)%delDiUnsteady)
+
+      ! Drag forces are put to zero for now
+      this%secDragInduced(:, is) = 0._dp
+      this%secDragUnsteady(:, is) = 0._dp
     enddo
 
     ! To overwrite unit vectors previously assigned in main.f90
@@ -2829,6 +2838,8 @@ class(blade_class), intent(inout) :: this
       allocate (this%blade(ib)%secLift(3, this%ns))
       allocate (this%blade(ib)%secLiftInPlane(3, this%ns))
       allocate (this%blade(ib)%secLiftOutPlane(3, this%ns))
+      allocate (this%blade(ib)%secLiftInPlaneUnsteady(3, this%ns))
+      allocate (this%blade(ib)%secLiftOutPlaneUnsteady(3, this%ns))
       allocate (this%blade(ib)%secLiftUnsteady(3, this%ns))
       allocate (this%blade(ib)%secDrag(3, this%ns))
       allocate (this%blade(ib)%secLiftDir(3, this%ns))
@@ -4317,6 +4328,13 @@ class(blade_class), intent(inout) :: this
         this%blade(ib)%secLift = this%blade(1)%secLift
         this%blade(ib)%secLiftDir = this%blade(1)%secLiftDir
         this%blade(ib)%secLiftUnsteady = this%blade(1)%secLiftUnsteady
+
+        this%blade(ib)%secLiftInPlane = this%blade(1)%secLiftInPlane
+        this%blade(ib)%secLiftOutPlane = this%blade(1)%secLiftOutPlane
+        this%blade(ib)%secLiftInPlaneUnsteady = &
+          & this%blade(1)%secLiftInPlaneUnsteady
+        this%blade(ib)%secLiftOutPlaneUnsteady = &
+          & this%blade(1)%secLiftOutPlaneUnsteady
 
         this%blade(ib)%secDragUnsteady = this%blade(1)%secDragUnsteady
         this%blade(ib)%secDragProfile = this%blade(1)%secDragProfile
