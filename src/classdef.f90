@@ -2106,11 +2106,12 @@ class(blade_class), intent(inout) :: this
 
   end subroutine blade_calc_secChordwiseResVel
 
-  subroutine blade_calc_secAlpha(this, verticalAxis)
+  subroutine blade_calc_secAlpha(this, verticalAxis, Omega)
     ! Compute sec alpha using sec resultant velocity
     use libMath, only: getAngleTan, noProjVec
   class(blade_class), intent(inout) :: this
     real(dp), intent(in), dimension(3) :: verticalAxis
+    real(dp), intent(in) :: Omega
     real(dp), dimension(3) :: secVi
     integer :: is
 
@@ -2118,6 +2119,12 @@ class(blade_class), intent(inout) :: this
 
     ! Use atan2() to find angle
     do is = 1, size(this%secAlpha)
+      ! DEBUG
+      print*
+      print*, 'v', this%secChordwiseResVel(:, is)
+      print*, 'np', this%wiP(1, is)%nCap
+      print*, 'n', this%secNormalVec(:, is)
+      print*, 't', this%secTauCapChord(:, is)
       this%secAlpha(is) = &
         & atan2(dot_product(this%secChordwiseResVel(:, is), &
         & this%secNormalVec(:, is)), &
@@ -4456,7 +4463,7 @@ class(blade_class), intent(inout) :: this
 
     do ib = 1, this%nbConvect
       verticalAxis = this%blade(ib)%zAxisAziFlap
-      call this%blade(ib)%calc_secAlpha(verticalAxis)
+      call this%blade(ib)%calc_secAlpha(verticalAxis, this%Omega)
     enddo
 
     axisym: if (this%axisymmetrySwitch .eq. 1) then
