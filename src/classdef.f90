@@ -97,6 +97,7 @@ module classdef
     procedure :: assignP => wingpanel_assignP
     procedure :: calcCP => wingpanel_calcCP
     procedure :: calcN => wingpanel_calcN
+    procedure :: invertNcap => wingpanel_invertNcap
     procedure :: calcTau => wingpanel_calcTau
     procedure :: rot => wingpanel_rot
     procedure :: shiftdP => wingpanel_shiftdP
@@ -717,6 +718,12 @@ contains
         this%pc(:, 4) - this%pc(:, 2)))
     endif
   end subroutine wingpanel_calcN
+
+  subroutine wingpanel_invertNcap(this)
+    ! Invert normal vector
+  class(wingpanel_class) :: this
+      this%nCap = -1._dp*this%nCap
+  end subroutine wingpanel_invertNcap
 
   subroutine wingpanel_calcTau(this, isTriangle)
     ! Compute chordwise and spanwise tangential vectors
@@ -2106,12 +2113,11 @@ class(blade_class), intent(inout) :: this
 
   end subroutine blade_calc_secChordwiseResVel
 
-  subroutine blade_calc_secAlpha(this, verticalAxis, Omega)
+  subroutine blade_calc_secAlpha(this, verticalAxis)
     ! Compute sec alpha using sec resultant velocity
     use libMath, only: getAngleTan, noProjVec
   class(blade_class), intent(inout) :: this
     real(dp), intent(in), dimension(3) :: verticalAxis
-    real(dp), intent(in) :: Omega
     real(dp), dimension(3) :: secVi
     integer :: is
 
@@ -2119,12 +2125,6 @@ class(blade_class), intent(inout) :: this
 
     ! Use atan2() to find angle
     do is = 1, size(this%secAlpha)
-      ! DEBUG
-      print*
-      print*, 'v', this%secChordwiseResVel(:, is)
-      print*, 'np', this%wiP(1, is)%nCap
-      print*, 'n', this%secNormalVec(:, is)
-      print*, 't', this%secTauCapChord(:, is)
       this%secAlpha(is) = &
         & atan2(dot_product(this%secChordwiseResVel(:, is), &
         & this%secNormalVec(:, is)), &
@@ -3014,7 +3014,7 @@ class(blade_class), intent(inout) :: this
           ! Normalize
           this%blade(ib)%secTauCapChord(:, j) = unitVec(this%blade(ib)%secTauCapChord(:, j))
 
-          this%blade(ib)%secNormalVec(:, j) = unitVec(this%blade(ib)%secNormalVec(:, j))
+          this%blade(ib)%secNormalVec(:, j) = sign(1._dp, this%Omega)*unitVec(this%blade(ib)%secNormalVec(:, j))
         enddo
 
         ! Initialize vr coords of all panels except last row (to accomodate mismatch of vr coords when using unequal spacing)
@@ -3114,6 +3114,7 @@ class(blade_class), intent(inout) :: this
           do i = 1, this%nc
             call this%blade(ib)%wiP(i, j)%calcCP()
             call this%blade(ib)%wiP(i, j)%calcN()
+            if (this%Omega < eps) call this%blade(ib)%wiP(i, j)%invertNcap()
             call this%blade(ib)%wiP(i, j)%calcTau()
             this%blade(ib)%wiP(i, j)%rHinge = length3d((this%blade(ib)%wiP(1, j)%pc(:, 1) &
               + this%blade(ib)%wiP(1, j)%pc(:, 4))*0.5_dp, this%blade(ib)%wiP(i, j)%CP)
@@ -4463,7 +4464,7 @@ class(blade_class), intent(inout) :: this
 
     do ib = 1, this%nbConvect
       verticalAxis = this%blade(ib)%zAxisAziFlap
-      call this%blade(ib)%calc_secAlpha(verticalAxis, this%Omega)
+      call this%blade(ib)%calc_secAlpha(verticalAxis)
     enddo
 
     axisym: if (this%axisymmetrySwitch .eq. 1) then
