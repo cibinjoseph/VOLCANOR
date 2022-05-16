@@ -163,6 +163,14 @@ contains
       & rotor%blade(1)%wiP(1, 2)%CP, &
       & message = 'Panel 1, 2 CP do not match')
 
+    ! Ncap
+    call assert_equal([st, 0._dp, ct], rotor%blade(1)%wiP(1, 1)%nCap, &
+      & message = 'Panel 1, 1 nCap do not match')
+
+    call assert_equal(rotor%blade(1)%wiP(1, 1)%nCap, &
+      & rotor%blade(1)%wiP(1, 2)%nCap, &
+      & message = 'Panel 1, 2 nCap do not match')
+
     call testcase_finalize()
   end subroutine test_coords
 

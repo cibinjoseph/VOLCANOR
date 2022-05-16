@@ -164,6 +164,14 @@ contains
       & rotor%blade(1)%wiP(1, 2)%CP, &
       & message = 'Panel 1, 2 CP do not match')
 
+    ! Ncap
+    call assert_equal([-1._dp*st, 0._dp, ct], rotor%blade(1)%wiP(1, 1)%nCap, &
+      & message = 'Panel 1, 1 nCap do not match')
+
+    call assert_equal(rotor%blade(1)%wiP(1, 1)%nCap, &
+      & rotor%blade(1)%wiP(1, 2)%nCap, &
+      & message = 'Panel 1, 2 nCap do not match')
+
     call testcase_finalize()
   end subroutine test_coords
 
@@ -205,27 +213,22 @@ contains
     rotor%RHS(2) = dot_product(rotor%blade(1)%wiP(1, 2)%velCP, &
       & rotor%blade(1)%wiP(1, 2)%nCap)
 
+    rotor%RHS = -1._dp*rotor%RHS
     rotor%gamVec = matmul(rotor%AIC_inv, rotor%RHS)
     rotor%gamVecPrev = 0._dp
     call rotor%map_gam()
 
     call rotor%dirLiftDrag()
 
-    liftDir = (/0._dp, 0._dp, 1._dp/)
-    call assert_equal(liftDir, rotor%blade(1)%secLiftDir(:, 1), tol, &
-      & 'secliftDir does not match')
-    call assert_equal(liftDir, rotor%blade(1)%secLiftDir(:, 2), tol, &
-      & 'secliftDir does not match')
+    call assert_equal([0._dp, 0._dp, 1._dp], &
+      & rotor%blade(1)%secLiftDir(:, 1), tol, 'secliftDir does not match')
+    call assert_equal([0._dp, 0._dp, 1._dp], &
+      & rotor%blade(1)%secLiftDir(:, 2), tol, 'secliftDir does not match')
 
-    dragDir = rotor%blade(1)%wiP(1, 1)%velCPm/ &
-      & norm2(rotor%blade(1)%wiP(1, 1)%velCPm)
-    call assert_equal(dragDir, rotor%blade(1)%secDragDir(:, 1), tol, &
-      & 'secliftDir does not match')
-
-    dragDir = rotor%blade(1)%wiP(1, 2)%velCPm/ &
-      & norm2(rotor%blade(1)%wiP(1, 2)%velCPm)
-    call assert_equal(dragDir, rotor%blade(1)%secDragDir(:, 2), tol, &
-      & 'secliftDir does not match')
+    call assert_equal([-1._dp, 0._dp, 0._dp], &
+      & rotor%blade(1)%secDragDir(:, 1), tol, 'secliftDir does not match')
+    call assert_equal([-1._dp, 0._dp, 0._dp], &
+      & rotor%blade(1)%secDragDir(:, 2), tol, 'secliftDir does not match')
 
     call rotor%calc_secAlpha()
 
@@ -233,11 +236,11 @@ contains
       & rotor%blade(1)%secTheta, tol, 'secTheta does not match')
 
     call assert_equal(5._dp*pi/180._dp*[1._dp, 1._dp], &
-      & rotor%blade(1)%secAlpha, tol, 'secTheta does not match')
+      & rotor%blade(1)%secAlpha, tol, 'secAlpha does not match')
 
     call rotor%calc_force(density, dt)
 
-    delP = [-7278.445742_dp, -9866.306155_dp]
+    delP = [7278.445742_dp, 9866.306155_dp]
     call assert_equal(delP, rotor%blade(1)%wiP(1, :)%delP, tol, &
       & 'delP does not match')
 
