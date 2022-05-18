@@ -909,7 +909,7 @@ contains
         & 'ForceDist'//timestamp//'.csv', & 
         & action='write', position='append')
       write (12, 202) 'secSpan', 'secCL', 'secCD', 'secCLu', &
-        & 'secLift', 'secDrag', 'secLiftInPl', 'secLiftOutPl'&
+        & 'secLift', 'secDrag', 'secLiftInPl', 'secLiftOutPl', &
         & 'secArea', 'secVel', 'secChord', 'secTheta', 'secAlpha', 'secPhi', &
         & 'secViz', 'secVix'
       ! secVel is resultant vel that the airfoil sees
