@@ -722,7 +722,7 @@ contains
   subroutine wingpanel_invertNcap(this)
     ! Invert normal vector
   class(wingpanel_class) :: this
-      this%nCap = -1._dp*this%nCap
+    this%nCap = -1._dp*this%nCap
   end subroutine wingpanel_invertNcap
 
   subroutine wingpanel_calcTau(this, isTriangle)
@@ -3114,7 +3114,9 @@ class(blade_class), intent(inout) :: this
           do i = 1, this%nc
             call this%blade(ib)%wiP(i, j)%calcCP()
             call this%blade(ib)%wiP(i, j)%calcN()
-            if (this%Omega < eps) call this%blade(ib)%wiP(i, j)%invertNcap()
+            if (sign(1._dp, this%Omega) < 0._dp) then
+              call this%blade(ib)%wiP(i, j)%invertNcap()
+            endif
             call this%blade(ib)%wiP(i, j)%calcTau()
             this%blade(ib)%wiP(i, j)%rHinge = length3d((this%blade(ib)%wiP(1, j)%pc(:, 1) &
               + this%blade(ib)%wiP(1, j)%pc(:, 4))*0.5_dp, this%blade(ib)%wiP(i, j)%CP)
