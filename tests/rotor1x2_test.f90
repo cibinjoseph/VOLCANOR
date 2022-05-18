@@ -192,9 +192,7 @@ contains
     use libMath, only: cross_product
     integer :: is
     real(dp), dimension(3) :: forceInertial
-    real(dp), dimension(3) :: liftDir, dragDir
     real(dp), dimension(3) :: lift
-    real(dp), dimension(3, 2) :: normalForce, secLift
 
     call testcase_initialize('test_force')
 
@@ -216,6 +214,9 @@ contains
     rotor%gamVec = matmul(rotor%AIC_inv, rotor%RHS)
     rotor%gamVecPrev = 0._dp
     call rotor%map_gam()
+
+    call assert_equal([-8.753162_dp, -11.069649_dp], rotor%gamVec, &
+      & tol, 'gamVec does not match')
 
     call rotor%dirLiftDrag()
 

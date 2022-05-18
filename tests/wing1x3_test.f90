@@ -92,15 +92,32 @@ contains
 
   subroutine test_force()
     integer :: is
-    real(dp), dimension(3) :: delP, forceInertial
+    real(dp), dimension(3) :: forceInertial
     real(dp), dimension(3, 3) :: normalForce
     real(dp), dimension(3, 3) :: liftDir, dragDir, secLift
     real(dp), dimension(3) :: secCL
     real(dp), dimension(3) :: lift
+    real(dp) :: ct, st
 
     call testcase_initialize('test_force')
 
     call rotor%blade(1)%rot_pitch(rotor%controlPitch(1))
+
+    ct = cos(rotor%controlPitch(1))
+    st = sin(rotor%controlPitch(1))
+
+    ! Ncap
+    call assert_equal([st, 0._dp, ct], &
+      & rotor%blade(1)%wiP(1, 1)%nCap, &
+      & message = 'Panel 1, 1 nCap do not match')
+
+    call assert_equal(rotor%blade(1)%wiP(1, 1)%nCap, &
+      & rotor%blade(1)%wiP(1, 2)%nCap, &
+      & message = 'Panel 1, 2 nCap do not match')
+
+    call assert_equal(rotor%blade(1)%wiP(1, 1)%nCap, &
+      & rotor%blade(1)%wiP(1, 3)%nCap, &
+      & message = 'Panel 1, 3 nCap do not match')
 
     do is = 1, rotor%ns
       rotor%blade(1)%wiP(1, is)%velCP = -1._dp * rotor%velBody
@@ -110,6 +127,7 @@ contains
     rotor%RHS = rotor%velBody(1) * &
       & sin(rotor%controlPitch(1))*(/1._dp, 1._dp, 1._dp/)
 
+    rotor%RHS = -1._dp * rotor%RHS
     rotor%gamVec = matmul(rotor%AIC_inv, rotor%RHS)
     rotor%gamVecPrev = 0._dp
     call rotor%map_gam()
@@ -130,9 +148,9 @@ contains
 
     call rotor%calc_force(density, dt)
 
-    delP = (/28.7727659410054_dp, 29.9353746086400_dp, 28.7727659410054_dp/)
-    call assert_equal(rotor%blade(1)%wiP(1, :)%delP, delP, tol, &
-      & 'delP does not match')
+    call assert_equal( &
+      & [28.7727659410054_dp, 29.9353746086400_dp, 28.7727659410054_dp], &
+      & rotor%blade(1)%wiP(1, :)%delP, tol, 'delP does not match')
 
     normalForce(:, 1) = (/0.525977713977048_dp, 0.0_dp, 4.28374471602321_dp/)
     normalForce(:, 2) = (/1.09446133444262_dp, 0.0_dp, 8.91367225972409_dp/)

@@ -180,8 +180,8 @@ contains
 
     call testcase_initialize('test_aic')
 
-    AIC(1, :) = (/ 1.600113_dp, -0.281091_dp/)
-    AIC(2, :) = (/-0.281091_dp,  1.600113_dp/)
+    AIC(1, :) = (/-1.600113_dp,  0.281091_dp/)
+    AIC(2, :) = (/ 0.281091_dp, -1.600113_dp/)
 
     call rotor%calcAIC()
     call assert_equal(AIC, rotor%AIC, tol, 'AICs do not match')
@@ -194,7 +194,6 @@ contains
     integer :: is
     real(dp), dimension(2) :: delP
     real(dp), dimension(3) :: forceInertial
-    real(dp), dimension(3) :: liftDir, dragDir
     real(dp), dimension(3) :: lift
     real(dp), dimension(3, 2) :: normalForce, secLift
 
@@ -217,6 +216,9 @@ contains
     rotor%gamVec = matmul(rotor%AIC_inv, rotor%RHS)
     rotor%gamVecPrev = 0._dp
     call rotor%map_gam()
+
+    call assert_equal([8.753162_dp, 11.069649_dp], rotor%gamVec, &
+      & tol, 'gamVec does not match')
 
     call rotor%dirLiftDrag()
 

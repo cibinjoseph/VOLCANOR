@@ -102,6 +102,15 @@ contains
 
     call rotor%blade(1)%rot_pitch(rotor%controlPitch(1))
 
+    ! Ncap
+    call assert_equal([-sin(7._dp*pi/180._dp), 0._dp, cos(7._dp*pi/180._dp)], &
+      & rotor%blade(1)%wiP(1, 1)%nCap, &
+      & message = 'Panel 1, 1 nCap do not match')
+
+    call assert_equal(rotor%blade(1)%wiP(1, 1)%nCap, &
+      & rotor%blade(1)%wiP(1, 2)%nCap, &
+      & message = 'Panel 1, 2 nCap do not match')
+
     do is = 1, rotor%ns
       rotor%blade(1)%wiP(1, is)%velCP = -1._dp * rotor%velBody
       rotor%blade(1)%wiP(1, is)%velCPm = rotor%blade(1)%wiP(1, is)%velCP
