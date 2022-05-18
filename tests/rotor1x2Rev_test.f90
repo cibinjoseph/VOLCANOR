@@ -205,12 +205,9 @@ contains
         & rotor%blade(1)%wiP(1, is)%CP-rotor%hubCoords)
       rotor%blade(1)%wiP(1, is)%velCPm = rotor%blade(1)%wiP(1, is)%velCP
       rotor%blade(1)%wiP(1, is)%velCPTotal = rotor%blade(1)%wiP(1, is)%velCP
+      rotor%RHS(is) = dot_product(rotor%blade(1)%wiP(1, is)%velCP, &
+        & rotor%blade(1)%wiP(1, is)%nCap)
     enddo
-
-    rotor%RHS(1) = dot_product(rotor%blade(1)%wiP(1, 1)%velCP, &
-      & rotor%blade(1)%wiP(1, 1)%nCap)
-    rotor%RHS(2) = dot_product(rotor%blade(1)%wiP(1, 2)%velCP, &
-      & rotor%blade(1)%wiP(1, 2)%nCap)
 
     rotor%RHS = -1._dp*rotor%RHS
     rotor%gamVec = matmul(rotor%AIC_inv, rotor%RHS)

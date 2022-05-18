@@ -163,6 +163,12 @@ contains
       & rotor%blade(1)%wiP(1, 2)%CP, &
       & message = 'Panel 1, 2 CP do not match')
 
+    call assert_equal([st, 0._dp, ct], rotor%blade(1)%wiP(1, 1)%nCap, &
+      tol, 'Panel 1, 1 nCap mismatch')
+
+    call assert_equal([st, 0._dp, ct], rotor%blade(1)%wiP(1, 2)%nCap, &
+      tol, 'Panel 1, 2 nCap mismatch')
+
     call testcase_finalize()
   end subroutine test_coords
 
@@ -204,27 +210,29 @@ contains
     rotor%RHS(2) = dot_product(rotor%blade(1)%wiP(1, 2)%velCP, &
       & rotor%blade(1)%wiP(1, 2)%nCap)
 
+    rotor%RHS = -1._dp * rotor%RHS
     rotor%gamVec = matmul(rotor%AIC_inv, rotor%RHS)
     rotor%gamVecPrev = 0._dp
     call rotor%map_gam()
+
+    call assert_equal([8.753162_dp, 11.069649_dp], rotor%gamVec, tol, &
+      & 'gamVec does not match')
 
     call rotor%dirLiftDrag()
 
     liftDir = (/0._dp, 0._dp, 1._dp/)
     call assert_equal(liftDir, rotor%blade(1)%secLiftDir(:, 1), tol, &
-      & 'secliftDir does not match')
+      & 'secLiftDir does not match')
     call assert_equal(liftDir, rotor%blade(1)%secLiftDir(:, 2), tol, &
-      & 'secliftDir does not match')
+      & 'secLiftDir does not match')
 
-    dragDir = rotor%blade(1)%wiP(1, 1)%velCPm/ &
-      & norm2(rotor%blade(1)%wiP(1, 1)%velCPm)
+    dragDir = [1._dp, 0._dp, 0._dp]
     call assert_equal(dragDir, rotor%blade(1)%secDragDir(:, 1), tol, &
-      & 'secliftDir does not match')
+      & 'secDragDir does not match')
 
-    dragDir = rotor%blade(1)%wiP(1, 2)%velCPm/ &
-      & norm2(rotor%blade(1)%wiP(1, 2)%velCPm)
+    dragDir = [1._dp, 0._dp, 0._dp]
     call assert_equal(dragDir, rotor%blade(1)%secDragDir(:, 2), tol, &
-      & 'secliftDir does not match')
+      & 'secDragDir does not match')
 
     call rotor%calc_secAlpha()
 
@@ -236,7 +244,7 @@ contains
 
     call rotor%calc_force(density, dt)
 
-    delP = [7278.445742_dp, 9866.306155_dp]
+    delP = -1._dp * [7278.445742_dp, 9866.306155_dp]
     call assert_equal(delP, rotor%blade(1)%wiP(1, :)%delP, tol, &
       & 'delP does not match')
 

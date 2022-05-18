@@ -111,17 +111,25 @@ contains
       & rotor%blade(1)%wiP(1, 2)%nCap, &
       & message = 'Panel 1, 2 nCap do not match')
 
+    call assert_equal(rotor%blade(1)%wiP(1, 1)%nCap, &
+      & rotor%blade(1)%wiP(1, 3)%nCap, &
+      & message = 'Panel 1, 3 nCap do not match')
+
     do is = 1, rotor%ns
       rotor%blade(1)%wiP(1, is)%velCP = -1._dp * rotor%velBody
       rotor%blade(1)%wiP(1, is)%velCPm = rotor%blade(1)%wiP(1, is)%velCP
       rotor%blade(1)%wiP(1, is)%velCPTotal = rotor%blade(1)%wiP(1, is)%velCP
+      rotor%RHS(is) = dot_product(rotor%blade(1)%wiP(1, is)%velCP, &
+        & rotor%blade(1)%wiP(1, is)%nCap)
     enddo
-    rotor%RHS = rotor%velBody(1) * &
-      & sin(rotor%controlPitch(1))*(/1._dp, 1._dp, 1._dp/)
 
+    rotor%RHS = -1._dp * rotor%RHS
     rotor%gamVec = matmul(rotor%AIC_inv, rotor%RHS)
     rotor%gamVecPrev = 0._dp
     call rotor%map_gam()
+
+    call assert_equal([0.240131_dp, 0.249833_dp, 0.240131_dp], &
+      & rotor%gamVec, tol, 'gamVec mismatch')
 
     call rotor%dirLiftDrag()
 
@@ -143,22 +151,22 @@ contains
     call assert_equal(rotor%blade(1)%wiP(1, :)%delP, delP, tol, &
       & 'delP does not match')
 
-    normalForce(:, 1) = (/-0.525977713977048_dp, 0.0_dp, 4.28374471602321_dp/)
-    normalForce(:, 2) = (/-1.09446133444262_dp, 0.0_dp, 8.91367225972409_dp/)
-    normalForce(:, 3) = (/-0.525977713977048_dp, 0.0_dp, 4.28374471602321_dp/)
-    call assert_equal(rotor%blade(1)%wiP(1, 1)%normalForce, normalForce(:, 1), &
-      & tol, 'normalForce does not match')
-    call assert_equal(rotor%blade(1)%wiP(1, 2)%normalForce, normalForce(:, 2), &
-      & tol, 'normalForce does not match')
-    call assert_equal(rotor%blade(1)%wiP(1, 3)%normalForce, normalForce(:, 3), &
-      & tol, 'normalForce does not match')
+    normalForce(:, 1) = (/0.525977_dp, 0.0_dp, -4.283744_dp/)
+    normalForce(:, 2) = (/1.094461_dp, 0.0_dp, -8.913672_dp/)
+    normalForce(:, 3) = (/0.525977_dp, 0.0_dp, -4.283744_dp/)
+    call assert_equal(normalForce(:, 1), &
+      & rotor%blade(1)%wiP(1, 1)%normalForce, tol, 'normalForce mismatch')
+    call assert_equal(normalForce(:, 2), &
+      & rotor%blade(1)%wiP(1, 2)%normalForce, tol, 'normalForce mismatch')
+    call assert_equal(normalForce(:, 3), &
+      & rotor%blade(1)%wiP(1, 3)%normalForce, tol, 'normalForce mismatch')
 
-    call assert_equal(rotor%blade(1)%secForceInertial(:, 1), normalForce(:, 1), &
-      & tol, 'secForceInertial does not match')
-    call assert_equal(rotor%blade(1)%secForceInertial(:, 2), normalForce(:, 2), &
-      & tol, 'secForceInertial does not match')
-    call assert_equal(rotor%blade(1)%secForceInertial(:, 3), normalForce(:, 3), &
-      & tol, 'secForceInertial does not match')
+    call assert_equal(normalForce(:, 1), &
+      & rotor%blade(1)%secForceInertial(:, 1), tol, 'secForceInertial mismatch')
+    call assert_equal(normalForce(:, 2), &
+      & rotor%blade(1)%secForceInertial(:, 2), tol, 'secForceInertial mismatch')
+    call assert_equal(normalForce(:, 3), &
+      & rotor%blade(1)%secForceInertial(:, 3), tol, 'secForceInertial mismatch')
 
 
     secLift(:, 1) = (/0._dp, 0._dp, normalForce(3, 1)/)
@@ -167,16 +175,16 @@ contains
     call assert_equal(rotor%blade(1)%secLift, secLift, &
       & tol, 'secLift does not match')
 
-    secCL = (/-1.32214343087136_dp, -1.37556670674755_dp, -1.32214343087136_dp/)
+    secCL = (/-1.322143_dp, -1.375566_dp, -1.322143_dp/)
 
     call assert_equal(rotor%blade(1)%secCL, secCL, tol, 'secCL does not match')
 
     ! Net forces
-    forceInertial = (/-2.14641676239672_dp, 0.0_dp, 17.4811616917705_dp/)
+    forceInertial = (/2.146416_dp, 0.0_dp, -17.481161_dp/)
     call assert_equal(rotor%blade(1)%forceInertial, forceInertial, &
       & tol, 'forceInertial does not match')
 
-    lift = (/0._dp, 0._dp, 17.4811616917705_dp/)
+    lift = (/0._dp, 0._dp, -17.481161_dp/)
     call assert_equal(rotor%blade(1)%lift, lift, &
       & tol, 'lift does not match')
 
