@@ -193,10 +193,11 @@ contains
       rotor%blade(1)%wiP(1, is)%velCP = -1._dp * rotor%velBody
       rotor%blade(1)%wiP(1, is)%velCPm = rotor%blade(1)%wiP(1, is)%velCP
       rotor%blade(1)%wiP(1, is)%velCPTotal = rotor%blade(1)%wiP(1, is)%velCP
+      rotor%RHS(is) = dot_product(rotor%blade(1)%wiP(1, is)%velCP, &
+        & rotor%blade(1)%wiP(1, is)%nCap)
     enddo
-    rotor%RHS = rotor%velBody(1) * &
-      & sin(rotor%controlPitch(1))*(/1._dp, 1._dp/)
 
+    rotor%RHS = -1._dp*rotor%RHS
     rotor%gamVec = matmul(rotor%AIC_inv, rotor%RHS)
     rotor%gamVecPrev = 0._dp
     call rotor%map_gam()
