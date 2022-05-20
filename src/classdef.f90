@@ -4318,6 +4318,8 @@ class(blade_class), intent(inout) :: this
     integer :: ib, ic, is
 
     this%forceInertial = 0._dp
+
+    call this%dirLiftDrag()
     do ib = 1, this%nbConvect
       call this%blade(ib)%calc_force(density, this%Omega, dt)
     enddo
