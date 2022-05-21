@@ -218,7 +218,7 @@ module classdef
     real(dp), allocatable, dimension(:, :) :: secLiftOutPlaneUnsteady
     real(dp), allocatable, dimension(:, :) :: secTauCapChord, secTauCapSpan
     real(dp), allocatable, dimension(:, :) :: secNormalVec, secCP
-    real(dp), allocatable, dimension(:, :) :: secResVel, secChordwiseResVel
+    real(dp), allocatable, dimension(:, :) :: secChordwiseResVel
     real(dp), allocatable, dimension(:) :: secAlpha, secPhi, secTheta
     real(dp), allocatable, dimension(:) :: secViz, secVix
     real(dp), allocatable, dimension(:) :: secCD, secCM, secMflap, secMflapArm
