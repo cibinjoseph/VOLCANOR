@@ -1,7 +1,3 @@
-Force computation is a complete mess. Correct the directions.
-Check if lift and drag dirs are really necessary
-Change secChordwiseVelResCP to secChordwiseVelCP
-Phase out invertGammaSign since it works incorrectly for cambered sections
 Max circulation at non max lift in forward flight?
 Does discretization give rise to instability? cause for Kelvin waves or Crow instability?
 Check if vortex strain is overriding vortex core changes due to dissipation
