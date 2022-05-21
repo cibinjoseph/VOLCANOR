@@ -29,10 +29,10 @@ contains
     rotor%ns = 3
     rotor%nNwake = 2
 
-    rotor%hubCoords = (/0._dp, 0._dp, 0._dp/)
-    rotor%cgCoords = (/0._dp, 0._dp, 0._dp/)
-    rotor%fromCoords = (/0._dp, 0._dp, 0._dp/)
-    rotor%pts = (/0._dp, 0._dp, 0._dp/)
+    rotor%hubCoords = [0._dp, 0._dp, 0._dp]
+    rotor%cgCoords = [0._dp, 0._dp, 0._dp]
+    rotor%fromCoords = [0._dp, 0._dp, 0._dp]
+    rotor%pts = [0._dp, 0._dp, 0._dp]
 
     rotor%radius = 2._dp
     rotor%root_cut = 0._dp
@@ -42,11 +42,11 @@ contains
     rotor%pitchDynamicsSwitch = 0
 
     rotor%Omega = 0._dp
-    rotor%shaftAxis = (/0._dp, 0._dp, 0._dp/)
-    rotor%controlPitch = (/-7._dp, 0._dp, 0._dp/)
+    rotor%shaftAxis = [0._dp, 0._dp, 0._dp]
+    rotor%controlPitch = [-7._dp, 0._dp, 0._dp]
     rotor%thetaTwist = 0._dp
-    rotor%velBody = (/-6._dp, 0._dp, 0._dp/)
-    rotor%omegaBody = (/0._dp, 0._dp, 0._dp/)
+    rotor%velBody = [-6._dp, 0._dp, 0._dp]
+    rotor%omegaBody = [0._dp, 0._dp, 0._dp]
     rotor%pivotLE = 0.25_dp
     rotor%flapHinge = 0._dp
     rotor%symmetricTau = 1._dp
@@ -79,9 +79,9 @@ contains
 
     call testcase_initialize('test_aic')
 
-    AIC(1, :) = (/ 3.18902463326559_dp    , -0.135541879282409_dp, -0.002934863377599825_dp/)
-    AIC(2, :) = (/-0.02762714554230721_dp ,  2.97991717943654_dp , -0.02762714554230732_dp/)
-    AIC(3, :) = (/-0.002934863377599823_dp, -0.135541879282409_dp,  3.18902463326559_dp/)
+    AIC(1, :) = [ 3.18902463326559_dp    , -0.135541879282409_dp, -0.002934863377599825_dp]
+    AIC(2, :) = [-0.02762714554230721_dp ,  2.97991717943654_dp , -0.02762714554230732_dp]
+    AIC(3, :) = [-0.002934863377599823_dp, -0.135541879282409_dp,  3.18902463326559_dp]
 
     call rotor%calcAIC()
     call assert_equal(AIC, rotor%AIC, tol, 'AICs do not match')
@@ -133,13 +133,13 @@ contains
 
     call rotor%dirLiftDrag()
 
-    liftDir(:, 1) = (/0._dp, 0._dp, 1._dp/)
+    liftDir(:, 1) = [0._dp, 0._dp, 1._dp]
     liftDir(:, 2) = liftDir(:, 1)
     liftDir(:, 3) = liftDir(:, 1)
     call assert_equal(rotor%blade(1)%secLiftDir, liftDir, tol, &
       & 'secLiftDir does not match')
 
-    dragDir(:, 1) = (/1._dp, 0._dp, 0._dp/)
+    dragDir(:, 1) = [1._dp, 0._dp, 0._dp]
     dragDir(:, 2) = dragDir(:, 1)
     dragDir(:, 3) = dragDir(:, 1)
     call assert_equal(rotor%blade(1)%secDragDir, dragDir, tol, &
@@ -147,13 +147,13 @@ contains
 
     call rotor%calc_force(density, dt)
 
-    delP = (/-28.7727659410054_dp, -29.9353746086400_dp, -28.7727659410054_dp/)
+    delP = [-28.7727659410054_dp, -29.9353746086400_dp, -28.7727659410054_dp]
     call assert_equal(rotor%blade(1)%wiP(1, :)%delP, delP, tol, &
       & 'delP does not match')
 
-    normalForce(:, 1) = (/0.525977_dp, 0.0_dp, -4.283744_dp/)
-    normalForce(:, 2) = (/1.094461_dp, 0.0_dp, -8.913672_dp/)
-    normalForce(:, 3) = (/0.525977_dp, 0.0_dp, -4.283744_dp/)
+    normalForce(:, 1) = [0.525977_dp, 0.0_dp, -4.283744_dp]
+    normalForce(:, 2) = [1.094461_dp, 0.0_dp, -8.913672_dp]
+    normalForce(:, 3) = [0.525977_dp, 0.0_dp, -4.283744_dp]
     call assert_equal(normalForce(:, 1), &
       & rotor%blade(1)%wiP(1, 1)%normalForce, tol, 'normalForce mismatch')
     call assert_equal(normalForce(:, 2), &
@@ -169,22 +169,22 @@ contains
       & rotor%blade(1)%secForceInertial(:, 3), tol, 'secForceInertial mismatch')
 
 
-    secLift(:, 1) = (/0._dp, 0._dp, normalForce(3, 1)/)
-    secLift(:, 2) = (/0._dp, 0._dp, normalForce(3, 2)/)
-    secLift(:, 3) = (/0._dp, 0._dp, normalForce(3, 1)/)
+    secLift(:, 1) = [0._dp, 0._dp, normalForce(3, 1)]
+    secLift(:, 2) = [0._dp, 0._dp, normalForce(3, 2)]
+    secLift(:, 3) = [0._dp, 0._dp, normalForce(3, 1)]
     call assert_equal(rotor%blade(1)%secLift, secLift, &
       & tol, 'secLift does not match')
 
-    secCL = (/-1.322143_dp, -1.375566_dp, -1.322143_dp/)
+    secCL = [-1.322143_dp, -1.375566_dp, -1.322143_dp]
 
     call assert_equal(rotor%blade(1)%secCL, secCL, tol, 'secCL does not match')
 
     ! Net forces
-    forceInertial = (/2.146416_dp, 0.0_dp, -17.481161_dp/)
+    forceInertial = [2.146416_dp, 0.0_dp, -17.481161_dp]
     call assert_equal(rotor%blade(1)%forceInertial, forceInertial, &
       & tol, 'forceInertial does not match')
 
-    lift = (/0._dp, 0._dp, -17.481161_dp/)
+    lift = [0._dp, 0._dp, -17.481161_dp]
     call assert_equal(rotor%blade(1)%lift, lift, &
       & tol, 'lift does not match')
 

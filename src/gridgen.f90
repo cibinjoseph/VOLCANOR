@@ -60,7 +60,7 @@ program gridgen
   do iz = 1, nz
     do iy = 1, ny
       do ix = 1, nx
-        grid(:, ix, iy, iz) = (/xVec(ix), yVec(iy), zVec(iz)/)
+        grid(:, ix, iy, iz) = [xVec(ix), yVec(iy), zVec(iz)]
       enddo
     enddo
   enddo

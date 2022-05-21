@@ -7,9 +7,9 @@ module libMath
   real(dp), parameter :: degToRad = pi/180._dp
   real(dp), parameter :: radToDeg = 180._dp/pi
 
-  real(dp), parameter, dimension(3) :: xAxis = (/1._dp, 0._dp, 0._dp/)
-  real(dp), parameter, dimension(3) :: yAxis = (/0._dp, 1._dp, 0._dp/)
-  real(dp), parameter, dimension(3) :: zAxis = (/0._dp, 0._dp, 1._dp/)
+  real(dp), parameter, dimension(3) :: xAxis = [1._dp, 0._dp, 0._dp]
+  real(dp), parameter, dimension(3) :: yAxis = [0._dp, 1._dp, 0._dp]
+  real(dp), parameter, dimension(3) :: zAxis = [0._dp, 0._dp, 1._dp]
 
   character(len=1), parameter :: commentChar = '#'
 
@@ -131,7 +131,7 @@ contains
 
     dx = (xend - xstart)/(nx - 1)
 
-    xout = (/((i*dx), i=0, nx - 1)/)
+    xout = [((i*dx), i=0, nx - 1)]
     xout = xout + xstart
 
   end function linspace
@@ -184,9 +184,9 @@ contains
   function outer_product(aVec, bVec)
     real(dp), intent(in), dimension(3) :: aVec, bVec
     real(dp), dimension(3, 3) :: outer_product
-    outer_product(:, 1) = (/aVec(1)*bVec(1), aVec(2)*bVec(1), aVec(3)*bVec(1)/)
-    outer_product(:, 2) = (/aVec(1)*bVec(2), aVec(2)*bVec(2), aVec(3)*bVec(2)/)
-    outer_product(:, 3) = (/aVec(1)*bVec(2), aVec(2)*bVec(3), aVec(3)*bVec(3)/)
+    outer_product(:, 1) = [aVec(1)*bVec(1), aVec(2)*bVec(1), aVec(3)*bVec(1)]
+    outer_product(:, 2) = [aVec(1)*bVec(2), aVec(2)*bVec(2), aVec(3)*bVec(2)]
+    outer_product(:, 3) = [aVec(1)*bVec(2), aVec(2)*bVec(3), aVec(3)*bVec(3)]
   end function outer_product
 
   ! -------------------------------------------------
@@ -634,7 +634,7 @@ contains
   function Tbg(cs_phi, cs_theta, cs_psi)
     real(dp), dimension(2), intent(in) :: cs_phi, cs_theta, cs_psi  ! cos and sin
     real(dp), dimension(3, 3) :: Tbg
-    Tbg(1, :) = (/cs_psi(1)*cs_theta(1), cs_theta(1)*cs_psi(2), -1._dp*cs_theta(2)/)
+    Tbg(1, :) = [cs_psi(1)*cs_theta(1), cs_theta(1)*cs_psi(2), -1._dp*cs_theta(2)]
     Tbg(2, 1) = cs_psi(1)*cs_phi(2)*cs_theta(2) - cs_phi(1)*cs_psi(2)
     Tbg(2, 2) = cs_phi(1)*cs_psi(1) + cs_phi(2)*cs_psi(2)*cs_theta(2)
     Tbg(2, 3) = cs_theta(1)*cs_phi(2)
@@ -675,17 +675,17 @@ contains
     st = sin(theta)
     omct = 1._dp - ct
 
-    Tmat(:, 1) = (/ct + axis(1)*axis(1)*omct, &
+    Tmat(:, 1) = [ct + axis(1)*axis(1)*omct, &
       & axis(3)*st + axis(2)*axis(1)*omct, &
-      & -axis(2)*st + axis(3)*axis(1)*omct/)
+      & -axis(2)*st + axis(3)*axis(1)*omct]
 
-    Tmat(:, 2) = (/-axis(3)*st + axis(1)*axis(2)*omct, &
+    Tmat(:, 2) = [-axis(3)*st + axis(1)*axis(2)*omct, &
       & ct + axis(2)*axis(2)*omct, &
-      & axis(1)*st + axis(3)*axis(2)*omct/)
+      & axis(1)*st + axis(3)*axis(2)*omct]
 
-    Tmat(:, 3) = (/axis(2)*st + axis(1)*axis(3)*omct, &
+    Tmat(:, 3) = [axis(2)*st + axis(1)*axis(3)*omct, &
       & -axis(1)*st + axis(2)*axis(3)*omct, &
-      & ct + axis(3)*axis(3)*omct/)
+      & ct + axis(3)*axis(3)*omct]
   end function getTransformAxis
 
   function trapz(y, x)

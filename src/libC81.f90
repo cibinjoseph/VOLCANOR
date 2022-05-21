@@ -187,8 +187,8 @@ contains
         (this%AL(alphaIndx(2))-this%AL(alphaIndx(1)))
     else
       getCL = getBilinearInterp(alphaQuery,machQuery, &
-        (/this%AL(alphaIndx(1)),this%AL(alphaIndx(2))/), &
-        (/this%MaL(machIndx(1)),this%MaL(machIndx(2))/), &
+        [this%AL(alphaIndx(1)),this%AL(alphaIndx(2))], &
+        [this%MaL(machIndx(1)),this%MaL(machIndx(2))], &
         this%CL(alphaIndx(1),machIndx(1)), &
         this%CL(alphaIndx(1),machIndx(2)), &
         this%CL(alphaIndx(2),machIndx(1)), &
@@ -225,8 +225,8 @@ contains
         (this%AD(alphaIndx(2))-this%AD(alphaIndx(1)))
     else
       getCD = getBilinearInterp(alphaQuery,machQuery, &
-        (/this%AD(alphaIndx(1)),this%AD(alphaIndx(2))/), &
-        (/this%MaD(machIndx(1)),this%MaD(machIndx(2))/), &
+        [this%AD(alphaIndx(1)),this%AD(alphaIndx(2))], &
+        [this%MaD(machIndx(1)),this%MaD(machIndx(2))], &
         this%CD(alphaIndx(1),machIndx(1)), &
         this%CD(alphaIndx(1),machIndx(2)), &
         this%CD(alphaIndx(2),machIndx(1)), &
@@ -263,8 +263,8 @@ contains
         (this%AM(alphaIndx(2))-this%AM(alphaIndx(1)))
     else
       getCM = getBilinearInterp(alphaQuery,machQuery, &
-        (/this%AM(alphaIndx(1)),this%AM(alphaIndx(2))/), &
-        (/this%MaM(machIndx(1)),this%MaM(machIndx(2))/), &
+        [this%AM(alphaIndx(1)),this%AM(alphaIndx(2))], &
+        [this%MaM(machIndx(1)),this%MaM(machIndx(2))], &
         this%CM(alphaIndx(1),machIndx(1)), &
         this%CM(alphaIndx(1),machIndx(2)), &
         this%CM(alphaIndx(2),machIndx(1)), &
@@ -313,10 +313,10 @@ contains
     real(dp) :: getBilinearInterp
     real(dp), dimension(2,2) :: fMat
 
-    fMat(1,:) = (/f11,f12/)
-    fMat(2,:) = (/f21,f22/)
+    fMat(1,:) = [f11,f12]
+    fMat(2,:) = [f21,f22]
 
-    getBilinearInterp = dot_product((/xvec(2)-x,x-xvec(1)/),matmul(fMat,(/yvec(2)-y,y-yvec(1)/)))
+    getBilinearInterp = dot_product([xvec(2)-x,x-xvec(1)],matmul(fMat,(/yvec(2)-y,y-yvec(1)/)))
     getBilinearInterp = getBilinearInterp/(xvec(2)-xvec(1))/(yvec(2)-yvec(1))
 
   end function getBilinearInterp

@@ -35,10 +35,10 @@ contains
     rotor%surfaceType = 1
     rotor%axisymmetrySwitch = 0
 
-    rotor%hubCoords = (/0._dp, 0._dp, 0._dp/)
-    rotor%cgCoords = (/0._dp, 0._dp, 0._dp/)
-    rotor%fromCoords = (/0._dp, 0._dp, 0._dp/)
-    rotor%pts = (/0._dp, 0._dp, 0._dp/)
+    rotor%hubCoords = [0._dp, 0._dp, 0._dp]
+    rotor%cgCoords = [0._dp, 0._dp, 0._dp]
+    rotor%fromCoords = [0._dp, 0._dp, 0._dp]
+    rotor%pts = [0._dp, 0._dp, 0._dp]
 
     rotor%radius = 2._dp
     rotor%root_cut = 0.5_dp
@@ -48,11 +48,11 @@ contains
     rotor%pitchDynamicsSwitch = 0
 
     rotor%Omega = 100._dp
-    rotor%shaftAxis = (/0._dp, 0._dp, 1._dp/)
-    rotor%controlPitch = (/-5._dp, 0._dp, 0._dp/)
+    rotor%shaftAxis = [0._dp, 0._dp, 1._dp]
+    rotor%controlPitch = [-5._dp, 0._dp, 0._dp]
     rotor%thetaTwist = 0._dp
-    rotor%velBody = (/0._dp, 0._dp, 0._dp/)
-    rotor%omegaBody = (/0._dp, 0._dp, 0._dp/)
+    rotor%velBody = [0._dp, 0._dp, 0._dp]
+    rotor%omegaBody = [0._dp, 0._dp, 0._dp]
     rotor%pivotLE = 0.25_dp
     rotor%flapHinge = 0._dp
     rotor%symmetricTau = 0._dp
@@ -92,10 +92,10 @@ contains
     call assert_equal(dtVal, dt, tol, message = 'dt does not match')
 
     ! Panel (1, 1) PC
-    coords(:, 1) = (/-(0.75+0.25*ct), 1.0_dp, 0.25*st/)
-    coords(:, 2) = (/-(0.75-0.75*ct), 1.0_dp, -0.75*st/)
-    coords(:, 3) = (/-(0.75-0.75*ct), 1.5_dp, -0.75*st/)
-    coords(:, 4) = (/-(0.75+0.25*ct), 1.5_dp, 0.25*st/)
+    coords(:, 1) = [-(0.75+0.25*ct), 1.0_dp, 0.25*st]
+    coords(:, 2) = [-(0.75-0.75*ct), 1.0_dp, -0.75*st]
+    coords(:, 3) = [-(0.75-0.75*ct), 1.5_dp, -0.75*st]
+    coords(:, 4) = [-(0.75+0.25*ct), 1.5_dp, 0.25*st]
 
     call assert_equal(coords, rotor%blade(1)%wiP(1, 1)%PC, tol, &
       & message = 'Panel 1, 1 PC do not match')
@@ -110,10 +110,10 @@ contains
       & message = 'Panel 1, 2 PC do not match')
 
     ! Panel (1, 1) vf
-    coords(:, 1) = (/-0.75_dp, 1._dp, 0._dp/)
-    coords(:, 2) = (/3.71826D-003, 1._dp, 6.59418D-002/)
-    coords(:, 3) = (/3.71826D-003, 1.5_dp, 6.59418D-002/)
-    coords(:, 4) = (/-0.75_dp, 1.5_dp, 0._dp/)
+    coords(:, 1) = [-0.75_dp, 1._dp, 0._dp]
+    coords(:, 2) = [3.71826D-003, 1._dp, 6.59418D-002]
+    coords(:, 3) = [3.71826D-003, 1.5_dp, 6.59418D-002]
+    coords(:, 4) = [-0.75_dp, 1.5_dp, 0._dp]
 
     call assert_equal(coords(:, 1), &
       & rotor%blade(1)%wiP(1, 1)%vr%vf(1)%fc(:, 1), tol, &
@@ -132,10 +132,10 @@ contains
       & message = 'Panel 1, 1 vf4 do not match')
 
     ! Panel (1, 2) vf
-    coords(:, 1) = (/-0.75_dp, 1.5_dp, 0._dp/)
-    coords(:, 2) = (/3.71826D-003, 1.5_dp, 6.59418D-002/)
-    coords(:, 3) = (/3.71826D-003, 2.0_dp, 6.59418D-002/)
-    coords(:, 4) = (/-0.75_dp, 2.0_dp, 0._dp/)
+    coords(:, 1) = [-0.75_dp, 1.5_dp, 0._dp]
+    coords(:, 2) = [3.71826D-003, 1.5_dp, 6.59418D-002]
+    coords(:, 3) = [3.71826D-003, 2.0_dp, 6.59418D-002]
+    coords(:, 4) = [-0.75_dp, 2.0_dp, 0._dp]
 
     call assert_equal(coords(:, 1), &
       & rotor%blade(1)%wiP(1, 2)%vr%vf(1)%fc(:, 1), tol, &
@@ -154,12 +154,12 @@ contains
       & message = 'Panel 1, 2 vf4 do not match')
     
     ! Panel (1, 1) CP
-    call assert_equal((/0.5*ct-0.75, 1.25_dp, -0.5*st/), &
+    call assert_equal([0.5*ct-0.75, 1.25_dp, -0.5*st], &
       & rotor%blade(1)%wiP(1, 1)%CP, &
       & message = 'Panel 1, 1 CP do not match')
 
     ! Panel (1, 2) CP
-    call assert_equal((/0.5*ct-0.75, 1.75_dp, -0.5*st/), &
+    call assert_equal([0.5*ct-0.75, 1.75_dp, -0.5*st], &
       & rotor%blade(1)%wiP(1, 2)%CP, &
       & message = 'Panel 1, 2 CP do not match')
 
@@ -177,8 +177,8 @@ contains
 
     call testcase_initialize('test_aic')
 
-    AIC(1, :) = (/ 1.600113_dp, -0.281091_dp/)
-    AIC(2, :) = (/-0.281091_dp,  1.600113_dp/)
+    AIC(1, :) = [ 1.600113_dp, -0.281091_dp]
+    AIC(2, :) = [-0.281091_dp,  1.600113_dp]
 
     call rotor%calcAIC()
     call assert_equal(AIC, rotor%AIC, tol, 'AICs do not match')
@@ -220,7 +220,7 @@ contains
 
     call rotor%dirLiftDrag()
 
-    liftDir = (/0._dp, 0._dp, 1._dp/)
+    liftDir = [0._dp, 0._dp, 1._dp]
     call assert_equal(liftDir, rotor%blade(1)%secLiftDir(:, 1), tol, &
       & 'secLiftDir does not match')
     call assert_equal(liftDir, rotor%blade(1)%secLiftDir(:, 2), tol, &
@@ -253,7 +253,7 @@ contains
       & tol, 'normalForce does not match')
     call assert_equal(normalForce(:, 1), rotor%blade(1)%secForceInertial(:, 1), &
       & tol, 'secForceInertial does not match')
-    secLift(:, 1) = (/0._dp, 0._dp, normalForce(3, 1)/)
+    secLift(:, 1) = [0._dp, 0._dp, normalForce(3, 1)]
     call assert_equal(secLift(:, 1), rotor%blade(1)%secLift(:, 1), &
       & tol, 'secLift does not match')
 
@@ -262,7 +262,7 @@ contains
       & tol, 'normalForce does not match')
     call assert_equal(normalForce(:, 2), rotor%blade(1)%secForceInertial(:, 2), &
       & tol, 'secForceInertial does not match')
-    secLift(:, 2) = (/0._dp, 0._dp, normalForce(3, 2)/)
+    secLift(:, 2) = [0._dp, 0._dp, normalForce(3, 2)]
     call assert_equal(secLift(:, 2), rotor%blade(1)%secLift(:, 2), &
       & tol, 'secLift does not match')
 

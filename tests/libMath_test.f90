@@ -13,7 +13,7 @@ contains
 
     call testcase_initialize('test_linspace')
     res = linspace(0._dp, 1._dp, 5)
-    correct = (/0._dp, 0.25_dp, 0.5_dp, 0.75_dp, 1._dp/)
+    correct = [0._dp, 0.25_dp, 0.5_dp, 0.75_dp, 1._dp]
     call assert_equal(res, correct)
     call testcase_finalize()
   end subroutine test_linspace
@@ -40,19 +40,19 @@ contains
     real(dp), dimension(5) :: x
     real(dp), dimension(5) :: y, ya
 
-    x = (/1._dp, 2._dp, 3._dp, 4._dp, 5._dp/)
+    x = [1._dp, 2._dp, 3._dp, 4._dp, 5._dp]
     y = x*10._dp
     ya = y
     ya(3) = 35._dp
 
     call assert_equal(interp1d(0.5_dp, &
-      & (/0._dp, 1._dp/), (/0._dp, 0._dp/), 1), 0.0_dp, delta=1.0D-6)
+      & [0._dp, 1._dp], (/0._dp, 0._dp/), 1), 0.0_dp, delta=1.0D-6)
     call assert_equal(interp1d(1.0_dp, x, y, 1), 10._dp, delta=1.0D-6)
     call assert_equal(interp1d(2.9_dp, x, y, 1), 29._dp, delta=1.0D-6)
     call assert_equal(interp1d(5.0_dp, x, y, 1), 50._dp, delta=1.0D-6)
 
     call assert_equal(interp1d(0.5_dp, &
-      & (/0._dp, 1._dp/), (/0._dp, 0._dp/), 2), 0.0_dp, delta=1.0D-6)
+      & [0._dp, 1._dp], (/0._dp, 0._dp/), 2), 0.0_dp, delta=1.0D-6)
     call assert_equal(interp1d(1.0_dp, x, y, 2), 10._dp, delta=1.0D-6)
     call assert_equal(interp1d(1.2_dp, x, ya, 2), 11.6_dp, delta=1.0D-6)
     call assert_equal(interp1d(2.9_dp, x, y, 2), 29._dp, delta=1.0D-6)

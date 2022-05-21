@@ -927,7 +927,7 @@ contains
     helixRadiusCurrent = 0._dp
     do i = 1, nFwake
       helixRadiusCurrent = helixRadiusCurrent + &
-        & norm2((/waF(i)%vf%fc(2, 1), waF(i)%vf%fc(1, 1)/))
+        & norm2([waF(i)%vf%fc(2, 1), waF(i)%vf%fc(1, 1)])
       if (i < size(waF)) then
         helixPitchCurrent = helixPitchCurrent + &
           & waF(i)%vf%fc(3, 1) - waF(i+1)%vf%fc(3, 1)
@@ -1028,13 +1028,13 @@ contains
 
     select case (order)
     case (2)
-      TMat = Tbg((/cos(pts(1)), sin(pts(1))/), &
-        (/cos(pts(2)), sin(pts(2))/), &
-        (/cos(pts(3)), sin(pts(3))/))
+      TMat = Tbg([cos(pts(1)), sin(pts(1))], &
+        [cos(pts(2)), sin(pts(2))], &
+        [cos(pts(3)), sin(pts(3))])
     case (1)
-      TMat = Tgb((/cos(pts(1)), sin(pts(1))/), &
-        (/cos(pts(2)), sin(pts(2))/), &
-        (/cos(pts(3)), sin(pts(3))/))
+      TMat = Tgb([cos(pts(1)), sin(pts(1))], &
+        [cos(pts(2)), sin(pts(2))], &
+        [cos(pts(3)), sin(pts(3))])
     case default
       error stop 'ERROR: Wrong option for order'
     end select
@@ -2139,7 +2139,7 @@ class(blade_class), intent(inout) :: this
       secVi = this%secChordwiseResVel(:, is)-this%wiP(1, is)%velCPm
       this%secViz(is) = secVi(3)
       this%secVix(is) = norm2(noProjVec(secVi, this%secTauCapSpan(:, is))- &
-        & (/0._dp, 0._dp, secVi(3)/))
+        & [0._dp, 0._dp, secVi(3)])
 
       this%secTheta(is) = pi*0.5 - getAngleTan( &
         & -1._dp*this%secTauCapChord(:, is), verticalAxis)
@@ -2944,13 +2944,13 @@ class(blade_class), intent(inout) :: this
         do j = 1, this%ns
           do i = 1, this%nc
             call this%blade(ib)%wiP(i, j)%assignP(1, &
-              & (/xVec(i), yVec(j), zVec(i, j)/))
+              & [xVec(i), yVec(j), zVec(i, j)])
             call this%blade(ib)%wiP(i, j)%assignP(2, &
-              & (/xVec(i+1), yVec(j), zVec(i+1, j)/))
+              & [xVec(i+1), yVec(j), zVec(i+1, j)])
             call this%blade(ib)%wiP(i, j)%assignP(3, &
-              & (/xVec(i+1), yVec(j+1), zVec(i+1, j+1)/))
+              & [xVec(i+1), yVec(j+1), zVec(i+1, j+1)])
             call this%blade(ib)%wiP(i, j)%assignP(4, &
-              & (/xVec(i), yVec(j+1), zVec(i, j+1)/))
+              & [xVec(i), yVec(j+1), zVec(i, j+1)])
           enddo
         enddo
       enddo
@@ -3030,21 +3030,21 @@ class(blade_class), intent(inout) :: this
               - this%blade(ib)%wiP(i, j)%PC(1, 4))*0.25_dp
 
             call this%blade(ib)%wiP(i, j)%vr%assignP(1, &
-              (/this%blade(ib)%wiP(i, j)%PC(1, 1) &
+              [this%blade(ib)%wiP(i, j)%PC(1, 1) &
               + xshift(1), this%blade(ib)%wiP(i, j)%PC(2, 1), &
-              this%blade(ib)%wiP(i, j)%PC(3, 1)/))
+              this%blade(ib)%wiP(i, j)%PC(3, 1)])
             call this%blade(ib)%wiP(i, j)%vr%assignP(2, &
-              (/this%blade(ib)%wiP(i, j)%PC(1, 2) &
+              [this%blade(ib)%wiP(i, j)%PC(1, 2) &
               + xshift(2), this%blade(ib)%wiP(i, j)%PC(2, 2), &
-              this%blade(ib)%wiP(i, j)%PC(3, 2)/))
+              this%blade(ib)%wiP(i, j)%PC(3, 2)])
             call this%blade(ib)%wiP(i, j)%vr%assignP(3, &
-              (/this%blade(ib)%wiP(i, j)%PC(1, 3) &
+              [this%blade(ib)%wiP(i, j)%PC(1, 3) &
               + xshift(3), this%blade(ib)%wiP(i, j)%PC(2, 3), &
-              this%blade(ib)%wiP(i, j)%PC(3, 3)/))
+              this%blade(ib)%wiP(i, j)%PC(3, 3)])
             call this%blade(ib)%wiP(i, j)%vr%assignP(4, &
-              (/this%blade(ib)%wiP(i, j)%PC(1, 4) &
+              [this%blade(ib)%wiP(i, j)%PC(1, 4) &
               + xshift(4), this%blade(ib)%wiP(i, j)%PC(2, 4), &
-              this%blade(ib)%wiP(i, j)%PC(3, 4)/))
+              this%blade(ib)%wiP(i, j)%PC(3, 4)])
           enddo
         enddo
 
@@ -3058,21 +3058,21 @@ class(blade_class), intent(inout) :: this
             - this%blade(ib)%wiP(this%nc, j)%PC(1, 4))*0.25_dp  ! Shift x coord by dx/4
 
           call this%blade(ib)%wiP(this%nc, j)%vr%assignP(1, &
-            (/this%blade(ib)%wiP(i, j)%PC(1, 1) &
+            [this%blade(ib)%wiP(i, j)%PC(1, 1) &
             + xshift(1), this%blade(ib)%wiP(i, j)%PC(2, 1), &
-            this%blade(ib)%wiP(i, j)%PC(3, 1)/))
+            this%blade(ib)%wiP(i, j)%PC(3, 1)])
           call this%blade(ib)%wiP(this%nc, j)%vr%assignP(2, &
-            (/this%blade(ib)%wiP(i, j)%PC(1, 2) &
+            [this%blade(ib)%wiP(i, j)%PC(1, 2) &
             + xshift(2), this%blade(ib)%wiP(i, j)%PC(2, 2), &
-            this%blade(ib)%wiP(i, j)%PC(3, 2)/))
+            this%blade(ib)%wiP(i, j)%PC(3, 2)])
           call this%blade(ib)%wiP(this%nc, j)%vr%assignP(3, &
-            (/this%blade(ib)%wiP(i, j)%PC(1, 3) &
+            [this%blade(ib)%wiP(i, j)%PC(1, 3) &
             + xshift(3), this%blade(ib)%wiP(i, j)%PC(2, 3), &
-            this%blade(ib)%wiP(i, j)%PC(3, 3)/))
+            this%blade(ib)%wiP(i, j)%PC(3, 3)])
           call this%blade(ib)%wiP(this%nc, j)%vr%assignP(4, &
-            (/this%blade(ib)%wiP(i, j)%PC(1, 4) &
+            [this%blade(ib)%wiP(i, j)%PC(1, 4) &
             + xshift(4), this%blade(ib)%wiP(i, j)%PC(2, 4), &
-            this%blade(ib)%wiP(i, j)%PC(3, 4)/))
+            this%blade(ib)%wiP(i, j)%PC(3, 4)])
         enddo
       endif
 
@@ -3103,8 +3103,8 @@ class(blade_class), intent(inout) :: this
           velShed = 0.3_dp*norm2(-1._dp*this%velBody)
         endif
         do j = 1, this%ns
-          call this%blade(ib)%wiP(this%nc, j)%vr%shiftdP(2, (/sign(1._dp,this%Omega)*velShed*dt, 0._dp, 0._dp/))
-          call this%blade(ib)%wiP(this%nc, j)%vr%shiftdP(3, (/sign(1._dp,this%Omega)*velShed*dt, 0._dp, 0._dp/))
+          call this%blade(ib)%wiP(this%nc, j)%vr%shiftdP(2, [sign(1._dp,this%Omega)*velShed*dt, 0._dp, 0._dp])
+          call this%blade(ib)%wiP(this%nc, j)%vr%shiftdP(3, [sign(1._dp,this%Omega)*velShed*dt, 0._dp, 0._dp])
         enddo
       endif
 
@@ -3571,20 +3571,20 @@ class(blade_class), intent(inout) :: this
       .and. (norm2(this%liftUnitVec) .le. eps)) then
       if (abs(this%Omega) .le. eps) then
         if (abs(this%velBody(1)) .gt. eps) then  ! v is assumed zero
-          this%dragUnitVec = -1._dp*unitVec((/this%velBody(1), 0._dp, this%velBody(3)/))
+          this%dragUnitVec = -1._dp*unitVec([this%velBody(1), 0._dp, this%velBody(3)])
           this%sideUnitVec = yAxis
         else  ! u is assumed zero
-          this%dragUnitVec = -1._dp*unitVec((/0._dp, this%velBody(2), this%velBody(3)/))
+          this%dragUnitVec = -1._dp*unitVec([0._dp, this%velBody(2), this%velBody(3)])
           this%sideUnitVec = xAxis
         endif
         this%liftUnitVec = cross_product(this%dragUnitVec, this%sideUnitVec)
       else
         ! Drag along forward velocity direction
         if (abs(this%velBody(1)) .gt. eps) then
-          this%dragUnitVec = -1._dp*unitVec((/this%velBody(1), 0._dp, this%velBody(3)/))
+          this%dragUnitVec = -1._dp*unitVec([this%velBody(1), 0._dp, this%velBody(3)])
           this%sideUnitVec = yAxis
         elseif (abs(this%velBody(2)) .gt. eps) then
-          this%dragUnitVec = -1._dp*unitVec((/this%velBody(1), 0._dp, this%velBody(3)/))
+          this%dragUnitVec = -1._dp*unitVec([this%velBody(1), 0._dp, this%velBody(3)])
           this%sideUnitVec = xAxis
         else
           this%sideUnitVec = yAxis
@@ -3784,7 +3784,7 @@ class(blade_class), intent(inout) :: this
     do j = 1, this%nCamberFiles
       if (this%camberFile(j)(1:1) == '0') then
         nPts(j) = 2
-        xCamber(1:2, j) = (/0._dp, 1._dp/)
+        xCamber(1:2, j) = [0._dp, 1._dp]
         zCamber(1:2, j) = 0._dp
       else
         open(unit=15, file=this%camberFile(j))
@@ -3890,7 +3890,7 @@ class(blade_class), intent(inout) :: this
     do ib = 1, this%nbConvect
       this%blade(ib)%wiP%vr%gam &
         = reshape(this%gamVec(1+this%nc*this%ns*(ib-1):this%nc*this%ns*ib), &
-        & (/this%nc, this%ns/))
+        & [this%nc, this%ns])
     enddo
 
     axisym: if (this%axisymmetrySwitch .eq. 1) then
@@ -3931,13 +3931,13 @@ class(blade_class), intent(inout) :: this
 
     select case (order)
     case (2)
-      TMat = Tbg((/cos(pts(1)), sin(pts(1))/), &
-        (/cos(pts(2)), sin(pts(2))/), &
-        (/cos(pts(3)), sin(pts(3))/))
+      TMat = Tbg([cos(pts(1)), sin(pts(1))], &
+        [cos(pts(2)), sin(pts(2))], &
+        [cos(pts(3)), sin(pts(3))])
     case (1)
-      TMat = Tgb((/cos(pts(1)), sin(pts(1))/), &
-        (/cos(pts(2)), sin(pts(2))/), &
-        (/cos(pts(3)), sin(pts(3))/))
+      TMat = Tgb([cos(pts(1)), sin(pts(1))], &
+        [cos(pts(2)), sin(pts(2))], &
+        [cos(pts(3)), sin(pts(3))])
     case default
       error stop 'ERROR: wrong option for order'
     end select

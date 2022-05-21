@@ -2560,11 +2560,11 @@ contains
     integer :: i
     do i = 1, size(logical_array, 1)
       if (logical_array(i) .eqv. .false.) then
-        findfalse_1d_ = (/i/)
+        findfalse_1d_ = [i]
         return
       endif
     enddo
-    findfalse_1d_ = (/0/)
+    findfalse_1d_ = [0]
   end function findfalse_1d_
 
   function findfalse_2d_(logical_array)
@@ -2575,11 +2575,11 @@ contains
     do j = 1, size(logical_array, 2)
       do i = 1, size(logical_array, 1)
         if (logical_array(i, j) .eqv. .false.) then
-          findfalse_2d_= (/i, j/)
+          findfalse_2d_= [i, j]
           return
         endif
       enddo
     enddo
-    findfalse_2d_ = (/0, 0/)
+    findfalse_2d_ = [0, 0]
   end function findfalse_2d_
 end module naturalfruit
