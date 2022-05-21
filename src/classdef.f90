@@ -4445,6 +4445,8 @@ class(blade_class), intent(inout) :: this
     integer :: ib
 
     this%forceInertial = 0._dp
+
+    call this%dirLiftDrag()
     do ib = 1, this%nb
       call this%blade(ib)%calc_force_alpha(density, velSound)
     enddo
@@ -4458,6 +4460,8 @@ class(blade_class), intent(inout) :: this
     integer :: ib
 
     this%forceInertial = 0._dp
+
+    call this%dirLiftDrag()
     do ib = 1, this%nb
       call this%blade(ib)%calc_force_alphaGamma(density, &
         & sign(1._dp, this%Omega*this%controlPitch(1)), &

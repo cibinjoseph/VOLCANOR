@@ -177,7 +177,6 @@ program main
         call rotor(ir)%mirrorVelCP(rotor(rotor(ir)%imageRotorNum))
       endif
 
-      call rotor(ir)%dirLiftDrag()
       rotor(ir)%RHS = -1._dp*rotor(ir)%RHS
     enddo
 
@@ -566,7 +565,6 @@ program main
           call rotor(ir)%mirrorVelCP(rotor(rotor(ir)%imageRotorNum))
         endif
 
-        call rotor(ir)%dirLiftDrag()
         rotor(ir)%RHS = -1._dp*rotor(ir)%RHS
       enddo
 
