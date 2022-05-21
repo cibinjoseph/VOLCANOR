@@ -1705,8 +1705,6 @@ class(blade_class), intent(inout) :: this
 
         this%secLift(:, is) = this%secLift(:, is) + &
           & projVec(this%wiP(ic, is)%normalForce, this%secLiftDir(:, is))
-        ! DEBUG
-        print*, 'sL', this%secLiftDir(:, is)
 
         this%secLiftUnsteady(:, is) = this%secLiftUnsteady(:, is) + &
           & projVec(this%wiP(ic, is)%normalForceUnsteady, &
@@ -1776,8 +1774,6 @@ class(blade_class), intent(inout) :: this
       endif
     enddo
 
-    ! DEBUG
-    print*, 'b', this%secLift(:, 1)
     call this%sumSecToNetForces()
 
   end subroutine blade_calc_force
@@ -2255,8 +2251,6 @@ class(blade_class), intent(inout) :: this
 
     this%forceInertial = sum(this%secForceInertial, 2)
     this%lift = sum(this%secLift, 2)
-    ! DEBUG
-    print*, 's', this%lift
     this%drag = sum(this%secDrag, 2)
     this%liftUnsteady = sum(this%secLiftUnsteady, 2)
     this%dragProfile = sum(this%secDragProfile, 2)
@@ -4683,7 +4677,6 @@ class(blade_class), intent(inout) :: this
       do ib = 1, this%nbConvect
         this%forceInertial = this%forceInertial + this%blade(ib)%forceInertial
         this%lift = this%lift + this%blade(ib)%lift
-        print*, 'r', this%lift
         this%drag = this%drag + this%blade(ib)%drag
         this%liftUnsteady = this%liftUnsteady + this%blade(ib)%liftUnsteady
         this%dragInduced = this%dragInduced + this%blade(ib)%dragInduced
