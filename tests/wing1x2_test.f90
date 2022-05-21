@@ -1,4 +1,4 @@
-module panel1x2_test
+module wing1x2_test
   use naturalfruit
   use classdef
   implicit none
@@ -80,25 +80,25 @@ contains
 
     call testcase_initialize('test_coords')
 
-    ! Panel (1, 1) PC
+    ! wing (1, 1) PC
     coords(:, 1) = (/-1._dp, 0._dp, 0._dp/)
     coords(:, 2) = (/ 0._dp, 0._dp, 0._dp/)
     coords(:, 3) = (/ 0._dp, 1._dp, 0._dp/)
     coords(:, 4) = (/-1._dp, 1._dp, 0._dp/)
 
     call assert_equal(coords, rotor%blade(1)%wiP(1, 1)%pc, &
-      & message = 'Panel 1, 1 PC do not match')
+      & message = 'wing 1, 1 PC do not match')
 
-    ! Panel (1, 2) PC
+    ! wing (1, 2) PC
     coords(:, 1) = (/-1._dp, 1._dp, 0._dp/)
     coords(:, 2) = (/ 0._dp, 1._dp, 0._dp/)
     coords(:, 3) = (/ 0._dp, 2._dp, 0._dp/)
     coords(:, 4) = (/-1._dp, 2._dp, 0._dp/)
 
     call assert_equal(coords, rotor%blade(1)%wiP(1, 2)%pc, &
-      & message = 'Panel 1, 2 PC do not match')
+      & message = 'wing 1, 2 PC do not match')
 
-    ! Panel (1, 1) vf
+    ! wing (1, 1) vf
     coords(:, 1) = (/-0.75_dp, 0._dp, 0._dp/)
     coords(:, 2) = (/ 0.01875_dp, 0._dp, 0._dp/)
     coords(:, 3) = (/ 0.01875_dp, 1._dp, 0._dp/)
@@ -106,21 +106,21 @@ contains
 
     call assert_equal(coords(:, 1), &
       & rotor%blade(1)%wiP(1, 1)%vr%vf(1)%fc(:, 1), &
-      & message = 'Panel 1, 1 vf1 do not match')
+      & message = 'wing 1, 1 vf1 do not match')
 
     call assert_equal(coords(:, 2), &
       & rotor%blade(1)%wiP(1, 1)%vr%vf(2)%fc(:, 1), &
-      & message = 'Panel 1, 1 vf2 do not match')
+      & message = 'wing 1, 1 vf2 do not match')
 
     call assert_equal(coords(:, 3), &
       & rotor%blade(1)%wiP(1, 1)%vr%vf(3)%fc(:, 1), &
-      & message = 'Panel 1, 1 vf3 do not match')
+      & message = 'wing 1, 1 vf3 do not match')
 
     call assert_equal(coords(:, 4), &
       & rotor%blade(1)%wiP(1, 1)%vr%vf(4)%fc(:, 1), &
-      & message = 'Panel 1, 1 vf4 do not match')
+      & message = 'wing 1, 1 vf4 do not match')
 
-    ! Panel (1, 2) vf
+    ! wing (1, 2) vf
     coords(:, 1) = (/-0.75_dp, 1._dp, 0._dp/)
     coords(:, 2) = (/ 0.01875_dp, 1._dp, 0._dp/)
     coords(:, 3) = (/ 0.01875_dp, 2._dp, 0._dp/)
@@ -128,29 +128,29 @@ contains
 
     call assert_equal(coords(:, 1), &
       & rotor%blade(1)%wiP(1, 2)%vr%vf(1)%fc(:, 1), &
-      & message = 'Panel 1, 2 vf1 do not match')
+      & message = 'wing 1, 2 vf1 do not match')
 
     call assert_equal(coords(:, 2), &
       & rotor%blade(1)%wiP(1, 2)%vr%vf(2)%fc(:, 1), &
-      & message = 'Panel 1, 2 vf2 do not match')
+      & message = 'wing 1, 2 vf2 do not match')
 
     call assert_equal(coords(:, 3), &
       & rotor%blade(1)%wiP(1, 2)%vr%vf(3)%fc(:, 1), &
-      & message = 'Panel 1, 2 vf3 do not match')
+      & message = 'wing 1, 2 vf3 do not match')
 
     call assert_equal(coords(:, 4), &
       & rotor%blade(1)%wiP(1, 2)%vr%vf(4)%fc(:, 1), &
-      & message = 'Panel 1, 2 vf4 do not match')
+      & message = 'wing 1, 2 vf4 do not match')
 
-    ! Panel (1, 1) CP
+    ! wing (1, 1) CP
     call assert_equal((/-0.25_dp, 0.5_dp, 0._dp/), &
       & rotor%blade(1)%wiP(1, 1)%CP, &
-      & message = 'Panel 1, 1 CP do not match')
+      & message = 'wing 1, 1 CP do not match')
 
-    ! Panel (1, 2) CP
+    ! wing (1, 2) CP
     call assert_equal((/-0.25_dp, 1.5_dp, 0._dp/), &
       & rotor%blade(1)%wiP(1, 2)%CP, &
-      & message = 'Panel 1, 2 vf4 do not match')
+      & message = 'wing 1, 2 vf4 do not match')
 
     call testcase_finalize()
   end subroutine test_coords
@@ -169,26 +169,35 @@ contains
     call testcase_finalize()
   end subroutine test_aic
 
-  subroutine test_force_gamma()
+  subroutine test_force()
     integer :: is
-    real(dp), dimension(2) :: delP, delDiConstant, delDiUnsteady
+    real(dp), dimension(2) :: delP
     real(dp), dimension(3) :: normalForce, forceInertial, secLift
-    real(dp), dimension(3) :: secDragInduced, secDragUnsteady
     real(dp), dimension(3) :: liftDir, dragDir
-    real(dp), dimension(3) :: lift, drag, dragUnsteady
+    real(dp), dimension(3) :: lift
 
-    call testcase_initialize('test_force_gamma')
+    call testcase_initialize('test_force')
 
     call rotor%blade(1)%rot_pitch(rotor%controlPitch(1))
+
+    ! Ncap
+    call assert_equal([sin(5._dp*pi/180._dp), 0._dp, cos(5._dp*pi/180._dp)], &
+      & rotor%blade(1)%wiP(1, 1)%nCap, &
+      & message = 'Panel 1, 1 nCap do not match')
+
+    call assert_equal(rotor%blade(1)%wiP(1, 1)%nCap, &
+      & rotor%blade(1)%wiP(1, 2)%nCap, &
+      & message = 'Panel 1, 2 nCap do not match')
 
     do is = 1, rotor%ns
       rotor%blade(1)%wiP(1, is)%velCP = -1._dp * rotor%velBody
       rotor%blade(1)%wiP(1, is)%velCPm = rotor%blade(1)%wiP(1, is)%velCP
       rotor%blade(1)%wiP(1, is)%velCPTotal = rotor%blade(1)%wiP(1, is)%velCP
+      rotor%RHS(is) = dot_product(rotor%blade(1)%wiP(1, is)%velCP, &
+        & rotor%blade(1)%wiP(1, is)%nCap)
     enddo
-    rotor%RHS = rotor%velBody(1) * &
-      & sin(rotor%controlPitch(1))*(/1._dp, 1._dp/)
 
+    rotor%RHS = -1._dp*rotor%RHS
     rotor%gamVec = matmul(rotor%AIC_inv, rotor%RHS)
     rotor%gamVecPrev = 0._dp
     call rotor%map_gam()
@@ -197,9 +206,9 @@ contains
 
     liftDir = (/0._dp, 0._dp, 1._dp/)
     call assert_equal(rotor%blade(1)%secLiftDir(:, 1), liftDir, tol, &
-      & 'secliftDir does not match')
+      & 'secLiftDir does not match')
     call assert_equal(rotor%blade(1)%secLiftDir(:, 2), liftDir, tol, &
-      & 'secliftDir does not match')
+      & 'secLiftDir does not match')
 
     dragDir = (/1._dp, 0._dp, 0._dp/)
     call assert_equal(rotor%blade(1)%secDragDir(:, 1), dragDir, tol, &
@@ -207,20 +216,20 @@ contains
     call assert_equal(rotor%blade(1)%secDragDir(:, 2), dragDir, tol, &
       & 'secliftDir does not match')
 
-    call rotor%calc_force_gamma(density, dt)
+    call rotor%calc_secAlpha()
+
+    call assert_equal(5._dp*pi/180._dp*[1._dp, 1._dp], &
+      & rotor%blade(1)%secTheta, tol, 'secTheta does not match')
+
+    call assert_equal(5._dp*pi/180._dp*[1._dp, 1._dp], &
+      & rotor%blade(1)%secAlpha, tol, 'secTheta does not match')
+
+    call rotor%calc_force(density, dt)
 
     delP = 91.3763089754279_dp * (/1._dp, 1._dp/)
     call assert_equal(rotor%blade(1)%wiP(1, :)%delP, delP, tol, &
       & 'delP does not match')
-
-    delDiConstant = 0.656192498415084 * (/1._dp, 1._dp/)
-    call assert_equal(rotor%blade(1)%wiP(1, :)%delDiConstant, delDiConstant, &
-      & tol, 'delDiConstant does not match')
-
-    delDiUnsteady = 7.08207889718725 * (/1._dp, 1._dp/)
-    call assert_equal(rotor%blade(1)%wiP(1, :)%delDiUnsteady, delDiUnsteady, &
-      & tol, 'delDiUnsteady does not match')
-
+    
     normalForce = (/7.96397007829292_dp, 0._dp, 91.0285945325144_dp/)
     call assert_equal(rotor%blade(1)%wiP(1, 1)%normalForce, normalForce, &
       & tol, 'normalForce does not match')
@@ -237,27 +246,20 @@ contains
     call assert_equal(rotor%blade(1)%secLift(:, 2), secLift, &
       & tol, 'secLift does not match')
 
-    secDragInduced = (/7.73827139560233_dp, 0._dp, 0._dp/)
-    call assert_equal(rotor%blade(1)%secDragInduced(:, 1), secDragInduced, &
-      & tol, 'secDragInduced does not match')
-    call assert_equal(rotor%blade(1)%secDragInduced(:, 2), secDragInduced, &
-      & tol, 'secDragInduced does not match')
+    call assert_equal(secLift, rotor%blade(1)%secLiftOutPlane(:, 1), &
+      & tol, 'secLiftOutPlane does not match')
+    call assert_equal(secLift, rotor%blade(1)%secLiftOutPlane(:, 2), &
+      & tol, 'secLiftOutPlane does not match')
 
-    secDragUnsteady = (/7.08207889718725_dp, 0._dp, 0._dp/)
-    call assert_equal(rotor%blade(1)%secDragUnsteady(:, 1), secDragUnsteady, &
-      & tol, 'secDragUnsteady does not match')
-    call assert_equal(rotor%blade(1)%secDragUnsteady(:, 2), secDragUnsteady, &
-      & tol, 'secDragUnsteady does not match')
-
-    call assert_equal(rotor%blade(1)%secDrag(:, 1), secDragInduced, &
-      & tol, 'secDragInduced does not match')
-    call assert_equal(rotor%blade(1)%secDrag(:, 2), secDragInduced, &
-      & tol, 'secDragInduced does not match')
+    call assert_equal([0._dp, 0._dp, 0._dp], &
+      & rotor%blade(1)%secLiftInPlane(:, 1), &
+      & tol, 'secLiftInPlane does not match')
+    call assert_equal([0._dp, 0._dp, 0._dp], &
+      & rotor%blade(1)%secLiftInPlane(:, 2), &
+      & tol, 'secLiftInPlane does not match')
 
     call assert_equal(rotor%blade(1)%secCL, &
       & 1.51714324220857_dp * (/1._dp, 1._dp/), tol, 'secCL does not match')
-    call assert_equal(rotor%blade(1)%secCD, &
-      & 0.128971189926706_dp * (/1._dp, 1._dp/), tol, 'secCD does not match')
 
     ! Net forces
     forceInertial = (/15.9279401565858_dp, 0._dp, 182.057189065029_dp/)
@@ -268,20 +270,8 @@ contains
     call assert_equal(rotor%blade(1)%lift, lift, &
       & tol, 'lift does not match')
 
-    drag = (/15.4765427912047_dp, 0._dp, 0._dp/)
-    call assert_equal(rotor%blade(1)%drag, drag, &
-      & tol, 'drag does not match')
-    call assert_equal(rotor%blade(1)%dragInduced, drag, &
-      & tol, 'dragInduced does not match')
-    call assert_equal(rotor%blade(1)%dragProfile, (/0._dp, 0._dp, 0._dp/), &
-      & tol, 'dragProfile does not match')
-
-    dragUnsteady= (/14.1641577943745_dp, 0._dp, 0._dp/)
-    call assert_equal(rotor%blade(1)%dragUnsteady, dragUnsteady, &
-      & tol, 'dragUnsteady does not match')
-
     call testcase_finalize()
-  end subroutine test_force_gamma
+  end subroutine test_force
 
 
-end module panel1x2_test
+end module wing1x2_test

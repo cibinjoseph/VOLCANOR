@@ -97,6 +97,7 @@ module classdef
     procedure :: assignP => wingpanel_assignP
     procedure :: calcCP => wingpanel_calcCP
     procedure :: calcN => wingpanel_calcN
+    procedure :: invertNcap => wingpanel_invertNcap
     procedure :: calcTau => wingpanel_calcTau
     procedure :: rot => wingpanel_rot
     procedure :: shiftdP => wingpanel_shiftdP
@@ -159,6 +160,13 @@ module classdef
   end type pFwake_class
 
   type blade_class
+    !    _____________________       Y
+    ! O o---------------------|------>
+    !   |________BLADE________|
+    !   |
+    !   |
+    ! X V
+    !
     character(len=2) :: id
     type(wingpanel_class), allocatable, dimension(:, :) :: wiP  ! Wing panel
     type(Nwake_class), allocatable, dimension(:, :) :: waN  ! Near wake
@@ -175,7 +183,7 @@ module classdef
     real(dp) :: flapInitial, dflapInitial, flapPrev, dflapPrev
     real(dp) :: flap, dflap, Iflap, kflap, cflap, MflapConstant
     real(dp) :: MflapLift, MflapLiftPrev
-    real(dp), dimension(3) :: flapAxis, flapOrigin
+    real(dp), dimension(3) :: flapOrigin
     real(dp), dimension(3) :: forceInertial
     real(dp), dimension(3) :: lift, drag
     real(dp), dimension(3) :: dragInduced, dragProfile
@@ -196,13 +204,18 @@ module classdef
     ! 3 Vertices of each element in stlElementNodes
     integer, allocatable, dimension(:, :) :: stlElementNodes
     real(dp), dimension(3) :: xAxis, yAxis, zAxis
+    real(dp), dimension(3) :: xAxisAzi, yAxisAzi, zAxisAzi
+    real(dp), dimension(3) :: xAxisAziFlap, yAxisAziFlap, zAxisAziFlap
     ! Sectional quantities
     real(dp), allocatable, dimension(:) :: secChord, secArea
     real(dp), allocatable, dimension(:, :) :: secForceInertial
     real(dp), allocatable, dimension(:, :) :: secLift, secDrag
     real(dp), allocatable, dimension(:, :) :: secLiftDir, secDragDir
+    real(dp), allocatable, dimension(:, :) :: secLiftInPlane, secLiftOutPlane
     real(dp), allocatable, dimension(:, :) :: secDragInduced, secDragProfile
     real(dp), allocatable, dimension(:, :) :: secLiftUnsteady, secDragUnsteady
+    real(dp), allocatable, dimension(:, :) :: secLiftInPlaneUnsteady
+    real(dp), allocatable, dimension(:, :) :: secLiftOutPlaneUnsteady
     real(dp), allocatable, dimension(:, :) :: secTauCapChord, secTauCapSpan
     real(dp), allocatable, dimension(:, :) :: secNormalVec, secCP
     real(dp), allocatable, dimension(:, :) :: secResVel, secChordwiseResVel
@@ -213,8 +226,8 @@ module classdef
     integer :: spanwiseLiftSwitch
   contains
     procedure :: move => blade_move
+    procedure :: rotate => blade_rotate
     procedure :: rot_pitch => blade_rot_pitch
-    procedure :: rot_axis => blade_rot_axis
     procedure :: rot_wake_axis => blade_rot_wake_axis
     procedure :: rot_pts => blade_rot_pts
     procedure :: rot_flap => blade_rot_flap
@@ -230,7 +243,8 @@ module classdef
     procedure :: wake_continuity => blade_wake_continuity
     procedure :: getSecDynamicPressure => blade_getSecDynamicPressure
     procedure :: calc_secArea, calc_secChord
-    procedure :: calc_force_gamma => blade_calc_force_gamma
+    procedure :: calc_force => blade_calc_force
+    ! procedure :: calc_force_gamma => blade_calc_force_gamma
     procedure :: calc_force_alpha => blade_calc_force_alpha
     procedure :: calc_force_alphaGamma => blade_calc_force_alphaGamma
     procedure :: calc_secAlpha => blade_calc_secAlpha
@@ -258,6 +272,7 @@ module classdef
     type(blade_class), allocatable, dimension(:) :: blade
     real(dp) :: Omega, omegaSlow
     real(dp), dimension(3) :: shaftAxis
+    real(dp), dimension(3) :: xAxisBody, yAxisBody, zAxisBody
     real(dp), dimension(3) :: hubCoords, cgCoords, fromCoords
     real(dp) :: radius, chord, root_cut
     real(dp) :: preconeAngle, dpitch
@@ -331,7 +346,8 @@ module classdef
     procedure :: shiftwake => rotor_shiftwake
     procedure :: shiftFwake => rotor_shiftFwake
     procedure :: rollup => rotor_rollup
-    procedure :: calc_force_gamma => rotor_calc_force_gamma
+    procedure :: calc_force => rotor_calc_force
+    ! procedure :: calc_force_gamma => rotor_calc_force_gamma
     procedure :: calc_force_alpha => rotor_calc_force_alpha
     procedure :: calc_force_alphaGamma => rotor_calc_force_alphaGamma
     procedure :: calc_secAlpha => rotor_calc_secAlpha
@@ -703,6 +719,12 @@ contains
     endif
   end subroutine wingpanel_calcN
 
+  subroutine wingpanel_invertNcap(this)
+    ! Invert normal vector
+  class(wingpanel_class) :: this
+    this%nCap = -1._dp*this%nCap
+  end subroutine wingpanel_invertNcap
+
   subroutine wingpanel_calcTau(this, isTriangle)
     ! Compute chordwise and spanwise tangential vectors
     use libMath, only: unitVec
@@ -1035,8 +1057,13 @@ contains
     this%yAxis = matmul(Tmat, this%yAxis)
     this%zAxis = matmul(Tmat, this%zAxis)
 
-    this%flapAxis = matmul(Tmat, this%flapAxis)
+    this%xAxisAzi = matmul(Tmat, this%xAxisAzi)
+    this%yAxisAzi = matmul(Tmat, this%yAxisAzi)
+    this%zAxisAzi = matmul(Tmat, this%zAxisAzi)
 
+    this%xAxisAziFlap = matmul(Tmat, this%xAxisAziFlap)
+    this%yAxisAziFlap = matmul(Tmat, this%yAxisAziFlap)
+    this%zAxisAziFlap = matmul(Tmat, this%zAxisAziFlap)
   end subroutine blade_rot_pts
 
   subroutine blade_rot_pitch(this, theta)
@@ -1045,28 +1072,13 @@ contains
     ! LE of first panel and TE of last panel
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: theta
-    real(dp), dimension(3) :: axis
-    real(dp), dimension(3) :: axisOrigin!, axisEnd
-    real(dp), dimension(3) :: flapAxisPrev
+    real(dp), dimension(3) :: axisOrigin
 
     if (abs(theta) > eps) then
       axisOrigin = this%wiP(1, 1)%PC(:, 1)*(1._dp - this%pivotLE) &
-        + this%wiP(this%nc, 1)%PC(:, 2)*this%pivotLE
-      !axisEnd=this%wiP(1, this%ns)%PC(:,4)*(1._dp-this%pivotLE) &
-      !  +this%wiP(this%nc, this%ns)%PC(:,3)*this%pivotLE
-      !
-      !! Construct axes of rotation from LE of first panel
-      !axis=axisEnd-axisOrigin
-      !axis=axis/norm2(axis)
+        & + this%wiP(this%nc, 1)%PC(:, 2)*this%pivotLE
 
-      ! Do not rotate flap axis during pitch rotation
-      flapAxisPrev = this%flapAxis
-
-      ! Use blade Y axis for rotation
-      axis = this%yAxis
-      call this%rot_axis(theta, axis, axisOrigin)
-
-      this%flapAxis = flapAxisPrev
+      call this%rotate(theta, this%yAxis, axisOrigin, 'pitch')
     endif
   end subroutine blade_rot_pitch
 
@@ -1075,26 +1087,28 @@ contains
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: beta
 
-    call this%rot_axis(beta, this%flapAxis, this%flapOrigin)
+    call this%rotate(beta, this%xAxisAzi, this%flapOrigin, 'flap')
   end subroutine blade_rot_flap
 
-  subroutine blade_rot_axis(this, theta, axisVec, origin)
-    ! Rotate about axis at specified origin
+  subroutine blade_rotate(this, angleRad, axisVec, origin, rotateType)
+    !! Rotate blade geometry about axis at specified origin
+    !! Rotation angle in radians
     use libMath, only: getTransformAxis
   class(blade_class), intent(inout) :: this
-    real(dp), intent(in), value :: theta
+    real(dp), intent(in), value :: angleRad
     real(dp), intent(in), value, dimension(3) :: axisVec
     real(dp), intent(in), value, dimension(3) :: origin
     real(dp), dimension(3, 3) :: Tmat
+    character(len=*), intent(in) :: rotateType
     integer :: i, j
 
 
-    if (abs(theta) > eps) then
+    if (abs(angleRad) > eps) then
       ! Translate to origin
       call this%move(-origin)
 
       ! Rotate about axisVec
-      Tmat = getTransformAxis(theta, axisVec)
+      Tmat = getTransformAxis(angleRad, axisVec)
       do j = 1, this%ns
         do i = 1, this%nc
           call this%wiP(i, j)%rot(TMat)
@@ -1109,21 +1123,59 @@ contains
       do i = 1, this%ns
         this%secCP(:, i) = matmul(TMat, this%secCP(:, i)-origin)+origin
 
-      ! Rotate sec vectors also along with blade
+        ! Rotate sec vectors also along with blade
         this%secTauCapChord(:, i) = matmul(TMat, this%secTauCapChord(:, i))
         this%secTauCapSpan(:, i) = matmul(TMat, this%secTauCapSpan(:, i))
         this%secNormalVec(:, i) = matmul(TMat, this%secNormalVec(:, i))
       enddo
       !$omp end parallel do
 
-      ! Rotate blade axes
-      this%xAxis = matmul(TMat, this%xAxis)
-      this%yAxis = matmul(TMat, this%yAxis)
-      this%zAxis = matmul(TMat, this%zAxis)
+      ! Rotate reference frames
+      select case (rotateType)
+      case ('azimuth')
+        this%xAxisAziFlap = matmul(TMat, this%xAxisAziFlap)
+        this%yAxisAziFlap = matmul(TMat, this%yAxisAziFlap)
+        this%zAxisAziFlap = matmul(TMat, this%zAxisAziFlap)
 
-      this%flapAxis = matmul(TMat, this%flapAxis)
+        this%xAxisAzi = matmul(TMat, this%xAxisAzi)
+        this%yAxisAzi = matmul(TMat, this%yAxisAzi)
+        this%zAxisAzi = matmul(TMat, this%zAxisAzi)
+
+        this%xAxis = matmul(TMat, this%xAxis)
+        this%yAxis = matmul(TMat, this%yAxis)
+        this%zAxis = matmul(TMat, this%zAxis)
+
+      case ('flap')
+        this%xAxisAziFlap = matmul(TMat, this%xAxisAziFlap)
+        this%yAxisAziFlap = matmul(TMat, this%yAxisAziFlap)
+        this%zAxisAziFlap = matmul(TMat, this%zAxisAziFlap)
+
+        this%xAxis = matmul(TMat, this%xAxis)
+        this%yAxis = matmul(TMat, this%yAxis)
+        this%zAxis = matmul(TMat, this%zAxis)
+
+      case ('pitch')
+        this%xAxis = matmul(TMat, this%xAxis)
+        this%yAxis = matmul(TMat, this%yAxis)
+        this%zAxis = matmul(TMat, this%zAxis)
+
+      case default
+        this%xAxisAziFlap = matmul(TMat, this%xAxisAziFlap)
+        this%yAxisAziFlap = matmul(TMat, this%yAxisAziFlap)
+        this%zAxisAziFlap = matmul(TMat, this%zAxisAziFlap)
+
+        this%xAxisAzi = matmul(TMat, this%xAxisAzi)
+        this%yAxisAzi = matmul(TMat, this%yAxisAzi)
+        this%zAxisAzi = matmul(TMat, this%zAxisAzi)
+
+        this%xAxis = matmul(TMat, this%xAxis)
+        this%yAxis = matmul(TMat, this%yAxis)
+        this%zAxis = matmul(TMat, this%zAxis)
+
+      end select
+
     endif
-  end subroutine blade_rot_axis
+  end subroutine blade_rotate
 
   subroutine blade_rot_wake_axis(this, theta, axisVec, origin, &
       & rowNear, rowFar, wakeType)
@@ -1532,24 +1584,29 @@ class(blade_class), intent(inout) :: this
 
   end subroutine blade_wake_continuity
 
-  subroutine blade_calc_force_gamma(this, density, invertGammaSign, dt)
+  subroutine blade_calc_force(this, density, Omega, dt)
     ! Compute force using blade circulation
     use libMath, only: unitVec, cross_product, projVec
   class(blade_class), intent(inout) :: this
-    real(dp), intent(in) :: density, invertGammaSign, dt
+    real(dp), intent(in) :: density, Omega, dt
     integer :: is, ic
     real(dp), dimension(this%nc, this%ns) :: velTangentialChord
     real(dp), dimension(this%nc, this%ns) :: velTangentialSpan
     real(dp), dimension(this%nc, this%ns) :: velInduced
     real(dp), dimension(this%nc, this%ns) :: gamElementChord, gamElementSpan
     real(dp), dimension(this%ns) :: secDynamicPressure
-    real(dp) :: signSecCL
+    real(dp) :: signSecCL, invertGammaSign
 
     this%forceInertial = 0._dp
     this%secForceInertial = 0._dp
     this%secLift = 0._dp
     this%secDrag = 0._dp
+    this%secLiftInPlane = 0._dp
+    this%secLiftOutPlane = 0._dp
     this%secLiftUnsteady = 0._dp
+
+    ! invert sign of gamma only if Omega is positive
+    invertGammaSign = -1._dp*sign(1._dp, Omega)
 
     ! Compute tangential velocity
     do is = 1, this%ns
@@ -1589,8 +1646,8 @@ class(blade_class), intent(inout) :: this
     enddo
 
     ! Invert gamma sign for correct computation
-    gamElementSpan = -1._dp*gamElementSpan
-    gamElementChord = -1._dp*gamElementChord
+    gamElementSpan = invertGammaSign*gamElementSpan
+    gamElementChord = invertGammaSign*gamElementChord
 
     ! Compute delP
     do is = 1, this%ns
@@ -1598,16 +1655,17 @@ class(blade_class), intent(inout) :: this
         ! Use trapezoidal rule on two points to get current gam
         ! for computing unsteady lift part
         if (ic > 1) then
-          this%wiP(ic, is)%gamTrapz = -0.5_dp*(this%wiP(ic, is)%vr%gam + this%wiP(ic - 1, is)%vr%gam)
+          this%wiP(ic, is)%gamTrapz = invertGammaSign*0.5_dp* &
+            & (this%wiP(ic, is)%vr%gam + this%wiP(ic-1, is)%vr%gam)
         else
-          this%wiP(1, is)%gamTrapz = -0.5_dp*this%wiP(1, is)%vr%gam
+          this%wiP(1, is)%gamTrapz = invertGammaSign*0.5_dp* &
+            & this%wiP(1, is)%vr%gam
         endif
 
         ! For checking against Katz's fixed wing code uncomment this
         ! velTangentialChord(ic,is)=10._dp*cos(5._dp*degToRad)
         ! velTangentialSpan(ic,is)=0._dp
 
-        ! -1.0 multiplied to invert sign of gamma
         this%wiP(ic, is)%delPUnsteady = density * &
           & (this%wiP(ic, is)%gamTrapz - this%wiP(ic, is)%gamPrev)/dt
 
@@ -1621,39 +1679,65 @@ class(blade_class), intent(inout) :: this
             & gamElementSpan(ic, is) / this%wiP(ic, is)%meanSpan
         endif
 
-        ! -1.0 multiplied to invert sign of gamma
         this%wiP(ic, is)%gamPrev = this%wiP(ic, is)%gamTrapz
 
         ! Compute induced drag
         ! velInduced in either direction doesnt change drag direction
-        this%wiP(ic, is)%delDiConstant = density*abs(velInduced(ic, is))* &
-          & abs(gamElementChord(ic, is))*this%wiP(ic, is)%meanSpan
-        this%wiP(ic, is)%delDiUnsteady = this%wiP(ic, is)%delPUnsteady* &
-          & this%wiP(ic, is)%panelArea * &
-          & dot_product(this%wiP(ic, is)%nCap, unitVec(this%wiP(ic, is)%velCPm))
+        ! this%wiP(ic, is)%delDiConstant = density*abs(velInduced(ic, is))* &
+        !   & abs(gamElementChord(ic, is))*this%wiP(ic, is)%meanSpan
+        ! this%wiP(ic, is)%delDiUnsteady = this%wiP(ic, is)%delPUnsteady* &
+        !   & this%wiP(ic, is)%panelArea * &
+        !   & dot_product(this%wiP(ic, is)%nCap, &
+        !   & unitVec(this%wiP(ic, is)%velCPm))
 
-        ! Invert direction of normalForce according to sign of omega and collective pitch
-        ! This will be incorrect for cambered airfoils in the region 
+        ! This may be incorrect for cambered airfoils in the region
         ! where alpha is -ve but lift is +ve
+        ! delP and delPUnsteady already have inverGammaSign
         this%wiP(ic, is)%normalForce = this%wiP(ic, is)%delP* &
-          & this%wiP(ic, is)%panelArea*this%wiP(ic, is)%nCap*invertGammaSign
+          & this%wiP(ic, is)%panelArea*this%wiP(ic, is)%nCap
 
-        this%wiP(ic, is)%normalForceUnsteady = this%wiP(ic, is)%delPUnsteady* &
-          & this%wiP(ic, is)%panelArea*this%wiP(ic, is)%nCap*invertGammaSign
+        this%wiP(ic, is)%normalForceUnsteady = &
+          & this%wiP(ic, is)%delPUnsteady* &
+          & this%wiP(ic, is)%panelArea*this%wiP(ic, is)%nCap
 
-        this%secForceInertial(:, is) = this%secForceInertial(:, is) + this%wiP(ic, is)%normalForce
+        this%secForceInertial(:, is) = this%secForceInertial(:, is) + &
+          & this%wiP(ic, is)%normalForce
 
-        this%secLift(:, is) = this%secLift(:, is) + projVec(this%wiP(ic, is)%normalForce, &
-          this%secLiftDir(:, is))
+        this%secLift(:, is) = this%secLift(:, is) + &
+          & projVec(this%wiP(ic, is)%normalForce, this%secLiftDir(:, is))
+
         this%secLiftUnsteady(:, is) = this%secLiftUnsteady(:, is) + &
-          & projVec(this%wiP(ic, is)%normalForceUnsteady, this%secLiftDir(:, is))
+          & projVec(this%wiP(ic, is)%normalForceUnsteady, &
+          & this%secLiftDir(:, is))
       enddo
-      this%secDragInduced(:, is) = this%secDragDir(:, is)* &
-        sum(this%wiP(:, is)%delDiConstant + this%wiP(:, is)%delDiUnsteady)
+
+      ! Induced drag is difficult to define when the reference freestream 
+      ! velocity direction is not clear. For eg. when u and v are provided.
+      ! Instead the non-pitched axis are used tocompute inplane and
+      ! out of plane components.
+      ! Compute in-plane and out of flap plane components of lift
+      ! The in-plane component is induced drag
+      this%secLiftInPlane(:, is) = invertGammaSign* &
+        & projVec(this%secLift(:, is), this%xAxisAziFlap)
+      this%secLiftOutPlane(:, is) = projVec(this%secLift(:, is), &
+        & this%zAxisAziFlap)
+
+      this%secLiftInPlaneUnsteady(:, is) = invertGammaSign* &
+        & projVec(this%secLiftUnsteady(:, is), this%xAxisAziFlap)
+      this%secLiftOutPlaneUnsteady(:, is) = &
+        & projVec(this%secLiftUnsteady(:, is), this%zAxisAziFlap)
+
+      ! this%secDragInduced(:, is) = this%secDragDir(:, is)* &
+      !   sum(this%wiP(:, is)%delDiConstant + this%wiP(:, is)%delDiUnsteady)
+
       ! Drag unsteady is purely for monitoring purposes if required
       ! and is not used for computations anywhere
-      this%secDragUnsteady(:, is) = this%secDragDir(:, is)* &
-        sum(this%wiP(:, is)%delDiUnsteady)
+      ! this%secDragUnsteady(:, is) = this%secDragDir(:, is)* &
+      !   sum(this%wiP(:, is)%delDiUnsteady)
+
+      ! Drag forces are put to zero for now
+      this%secDragInduced(:, is) = 0._dp
+      this%secDragUnsteady(:, is) = 0._dp
     enddo
 
     ! To overwrite unit vectors previously assigned in main.f90
@@ -1664,14 +1748,16 @@ class(blade_class), intent(inout) :: this
     ! Compute sectional coefficients
     ! Compute secChordwiseResVel for calculating secDynamicPressure
     ! including induced velocities
-    call this%calc_secChordwiseResVel()
+    ! This is already called when computing dirLiftDrag
+    ! call this%calc_secChordwiseResVel()
 
     secDynamicPressure = this%getSecDynamicPressure(density)
 
     do is = 1, this%ns
       if (abs(secDynamicPressure(is)) > eps) then
         ! Use sign of delP to obtain sign of CL
-        signSecCL = sign(1._dp, sum(this%wiP(:, is)%delP))*invertGammaSign
+        signSecCL = sign(1._dp, &
+          & dot_product(this%secLift(:, is), this%zAxisAziFlap))
         this%secCL(is) = norm2(this%secLift(:, is))*signSecCL/ &
           & (secDynamicPressure(is)*this%secArea(is))
         this%secCD(is) = norm2(this%secDrag(:, is))/ &
@@ -1690,7 +1776,167 @@ class(blade_class), intent(inout) :: this
 
     call this%sumSecToNetForces()
 
-  end subroutine blade_calc_force_gamma
+  end subroutine blade_calc_force
+
+  ! subroutine blade_calc_force_gamma(this, density, invertGammaSign, dt)
+  !   ! Compute force using blade circulation
+  !   use libMath, only: unitVec, cross_product, projVec
+  ! class(blade_class), intent(inout) :: this
+  !   real(dp), intent(in) :: density, invertGammaSign, dt
+  !   integer :: is, ic
+  !   real(dp), dimension(this%nc, this%ns) :: velTangentialChord
+  !   real(dp), dimension(this%nc, this%ns) :: velTangentialSpan
+  !   real(dp), dimension(this%nc, this%ns) :: velInduced
+  !   real(dp), dimension(this%nc, this%ns) :: gamElementChord, gamElementSpan
+  !   real(dp), dimension(this%ns) :: secDynamicPressure
+  !   real(dp) :: signSecCL
+  !
+  !   this%forceInertial = 0._dp
+  !   this%secForceInertial = 0._dp
+  !   this%secLift = 0._dp
+  !   this%secDrag = 0._dp
+  !   this%secLiftUnsteady = 0._dp
+  !
+  !   ! Compute tangential velocity
+  !   do is = 1, this%ns
+  !     do ic = 1, this%nc
+  !       velTangentialChord(ic, is) = dot_product(this%wiP(ic, is)%velCP, this%wiP(ic, is)%tauCapChord)
+  !       velTangentialSpan(ic, is) = dot_product(this%wiP(ic, is)%velCP, this%wiP(ic, is)%tauCapSpan)
+  !       velInduced(ic, is) = dot_product(this%wiP(ic, is)%velCP + &
+  !         this%vind_bywing_chordwiseVortices(this%wiP(ic, is)%CP), &
+  !         unitVec(cross_product(this%wiP(ic, is)%velCPm,this%yAxis)))
+  !     enddo
+  !   enddo
+  !
+  !   ! Compute chordwise elemental circulation of edge panels
+  !   do is = 1, this%ns
+  !     gamElementChord(1, is) = this%wiP(1, is)%vr%gam
+  !   enddo
+  !   do ic = 2, this%nc
+  !     gamElementChord(ic, 1) = this%wiP(ic, 1)%vr%gam &
+  !       & -this%wiP(ic - 1, 1)%vr%gam
+  !   enddo
+  !
+  !   ! Compute spanwise elemental circulation of edge panels
+  !   do ic = 1, this%nc
+  !     gamElementSpan(ic, 1) = this%wiP(ic, 1)%vr%gam
+  !   enddo
+  !   do is = 2, this%ns
+  !     gamElementSpan(1, is) = this%wiP(1, is)%vr%gam &
+  !       & -this%wiP(1, is - 1)%vr%gam
+  !   enddo
+  !
+  !   ! Compute chordwise and spanwise elemental circulations of inner panels
+  !   do is = 2, this%ns
+  !     do ic = 2, this%nc
+  !       gamElementChord(ic, is) = this%wiP(ic, is)%vr%gam - this%wiP(ic - 1, is)%vr%gam
+  !       gamElementSpan(ic, is) = this%wiP(ic, is)%vr%gam - this%wiP(ic, is - 1)%vr%gam
+  !     enddo
+  !   enddo
+  !
+  !   ! Invert gamma sign for correct computation
+  !   gamElementSpan = -1._dp*gamElementSpan
+  !   gamElementChord = -1._dp*gamElementChord
+  !
+  !   ! Compute delP
+  !   do is = 1, this%ns
+  !     do ic = 1, this%nc
+  !       ! Use trapezoidal rule on two points to get current gam
+  !       ! for computing unsteady lift part
+  !       if (ic > 1) then
+  !         this%wiP(ic, is)%gamTrapz = -0.5_dp*(this%wiP(ic, is)%vr%gam + this%wiP(ic - 1, is)%vr%gam)
+  !       else
+  !         this%wiP(1, is)%gamTrapz = -0.5_dp*this%wiP(1, is)%vr%gam
+  !       endif
+  !
+  !       ! For checking against Katz's fixed wing code uncomment this
+  !       ! velTangentialChord(ic,is)=10._dp*cos(5._dp*degToRad)
+  !       ! velTangentialSpan(ic,is)=0._dp
+  !
+  !       ! -1.0 multiplied to invert sign of gamma
+  !       this%wiP(ic, is)%delPUnsteady = density * &
+  !         & (this%wiP(ic, is)%gamTrapz - this%wiP(ic, is)%gamPrev)/dt
+  !
+  !       this%wiP(ic, is)%delP = this%wiP(ic, is)%delPUnsteady + &
+  !         & density*velTangentialChord(ic, is)* &
+  !         & gamElementChord(ic, is) / this%wiP(ic, is)%meanChord
+  !         
+  !       if (this%spanwiseLiftSwitch .ne. 0) then
+  !         this%wiP(ic, is)%delP = this%wiP(ic, is)%delP + density * &
+  !           & velTangentialSpan(ic, is)* &
+  !           & gamElementSpan(ic, is) / this%wiP(ic, is)%meanSpan
+  !       endif
+  !
+  !       ! -1.0 multiplied to invert sign of gamma
+  !       this%wiP(ic, is)%gamPrev = this%wiP(ic, is)%gamTrapz
+  !
+  !       ! Compute induced drag
+  !       ! velInduced in either direction doesnt change drag direction
+  !       this%wiP(ic, is)%delDiConstant = density*abs(velInduced(ic, is))* &
+  !         & abs(gamElementChord(ic, is))*this%wiP(ic, is)%meanSpan
+  !       this%wiP(ic, is)%delDiUnsteady = this%wiP(ic, is)%delPUnsteady* &
+  !         & this%wiP(ic, is)%panelArea * &
+  !         & dot_product(this%wiP(ic, is)%nCap, unitVec(this%wiP(ic, is)%velCPm))
+  !
+  !       ! Invert direction of normalForce according to sign of omega and collective pitch
+  !       ! This will be incorrect for cambered airfoils in the region 
+  !       ! where alpha is -ve but lift is +ve
+  !       this%wiP(ic, is)%normalForce = this%wiP(ic, is)%delP* &
+  !         & this%wiP(ic, is)%panelArea*this%wiP(ic, is)%nCap*invertGammaSign
+  !
+  !       this%wiP(ic, is)%normalForceUnsteady = this%wiP(ic, is)%delPUnsteady* &
+  !         & this%wiP(ic, is)%panelArea*this%wiP(ic, is)%nCap*invertGammaSign
+  !
+  !       this%secForceInertial(:, is) = this%secForceInertial(:, is) + this%wiP(ic, is)%normalForce
+  !
+  !       this%secLift(:, is) = this%secLift(:, is) + projVec(this%wiP(ic, is)%normalForce, &
+  !         this%secLiftDir(:, is))
+  !       this%secLiftUnsteady(:, is) = this%secLiftUnsteady(:, is) + &
+  !         & projVec(this%wiP(ic, is)%normalForceUnsteady, this%secLiftDir(:, is))
+  !     enddo
+  !     this%secDragInduced(:, is) = this%secDragDir(:, is)* &
+  !       sum(this%wiP(:, is)%delDiConstant + this%wiP(:, is)%delDiUnsteady)
+  !     ! Drag unsteady is purely for monitoring purposes if required
+  !     ! and is not used for computations anywhere
+  !     this%secDragUnsteady(:, is) = this%secDragDir(:, is)* &
+  !       sum(this%wiP(:, is)%delDiUnsteady)
+  !   enddo
+  !
+  !   ! To overwrite unit vectors previously assigned in main.f90
+  !   this%secDragProfile = 0._dp  
+  !
+  !   this%secDrag = this%secDragInduced + this%secDragProfile
+  !
+  !   ! Compute sectional coefficients
+  !   ! Compute secChordwiseResVel for calculating secDynamicPressure
+  !   ! including induced velocities
+  !   call this%calc_secChordwiseResVel()
+  !
+  !   secDynamicPressure = this%getSecDynamicPressure(density)
+  !
+  !   do is = 1, this%ns
+  !     if (abs(secDynamicPressure(is)) > eps) then
+  !       ! Use sign of delP to obtain sign of CL
+  !       signSecCL = sign(1._dp, sum(this%wiP(:, is)%delP))
+  !       this%secCL(is) = norm2(this%secLift(:, is))*signSecCL/ &
+  !         & (secDynamicPressure(is)*this%secArea(is))
+  !       this%secCD(is) = norm2(this%secDrag(:, is))/ &
+  !         & (secDynamicPressure(is)*this%secArea(is))
+  !       this%secCLu(is) = norm2(this%secLiftUnsteady(:, is))*signSecCL/ &
+  !         & (secDynamicPressure(is)*this%secArea(is))
+  !       this%secMflap(is) = norm2(this%secLift(:, is))*signSecCL* &
+  !         & this%secMflapArm(is)
+  !     else
+  !       this%secCL(is) = 0._dp
+  !       this%secCD(is) = 0._dp
+  !       this%secCLu(is) = 0._dp
+  !       this%secMflap(is) = 0._dp
+  !     endif
+  !   enddo
+  !
+  !   call this%sumSecToNetForces()
+  !
+  ! end subroutine blade_calc_force_gamma
 
   function blade_getSecDynamicPressure(this, density)
   class(blade_class), intent(in) :: this
@@ -1752,7 +1998,7 @@ class(blade_class), intent(inout) :: this
     integer :: is
 
     ! Compute unsteady sec lift from gamma distribution
-    call this%calc_force_gamma(density, invertGammaSign, dt)
+    call this%calc_force(density, invertGammaSign, dt)
 
     secDynamicPressure = this%getSecDynamicPressure(density)
 
@@ -1793,13 +2039,11 @@ class(blade_class), intent(inout) :: this
       ! Lift and Drag vectors
       this%secLift(:, is) = &
         & this%secLiftDir(:, is)*leadingTerm(is)*this%secCL(is) 
-      this%secDragProfile(:, is) = &
-        & this%secDragDir(:, is)*leadingTerm(is)*this%secCD(is)
+      ! this%secDragProfile(:, is) = &
+      !   & this%secDragDir(:, is)*leadingTerm(is)*this%secCD(is)
       this%secLiftUnsteady(:, is) = &
         & this%secLiftDir(:, is)*leadingTerm(is)*this%secCLu(is) 
       ! Lift in inertial frame
-      ! Warning: This would give a wrong answer if a considerable dihedral
-      ! is present for the wing since the blade Y-axis is not flapped
       this%secForceInertial(:, is) = cross_product(this%yAxis, &
         this%secChordwiseResVel(:, is))
       this%secForceInertial(:, is) = sign(1._dp, sum(this%wiP(:, is)%vr%gam)) &
@@ -1897,9 +2141,6 @@ class(blade_class), intent(inout) :: this
       this%secVix(is) = norm2(noProjVec(secVi, this%secTauCapSpan(:, is))- &
         & (/0._dp, 0._dp, secVi(3)/))
 
-      ! This computation will be wrong when a trajectory 
-      ! is input or when the vertical axis is not global zAxis
-      ! Introduce a 'noRot' axis for these sort of measurements
       this%secTheta(is) = pi*0.5 - getAngleTan( &
         & -1._dp*this%secTauCapChord(:, is), verticalAxis)
     enddo
@@ -1998,13 +2239,10 @@ class(blade_class), intent(inout) :: this
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: Omega
     integer :: is
-    ! This has to be changed to be computed using local velocity
-    ! and circulation direction so that it is applicable to generalized
-    ! kinematics
     do is = 1, this%ns
-      this%secDragDir(:, is) = unitVec(this%wiP(1, is)%velCPm)
-      this%secLiftDir(:, is) = sign(1._dp, Omega)*cross_product(this%secDragDir(:, is), &
-        & this%yAxis)
+      this%secDragDir(:, is) = unitVec(this%secChordwiseResVel(:, is))
+      this%secLiftDir(:, is) = sign(1._dp, Omega)*unitVec( &
+        & cross_product(this%secDragDir(:, is), this%yAxisAziFlap))
     enddo
   end subroutine blade_dirLiftDrag
 
@@ -2380,6 +2618,9 @@ class(blade_class), intent(inout) :: this
 
       this%Omega = sourceRotor%Omega
       this%shaftAxis = sourceRotor%shaftAxis
+      this%xAxisBody = sourceRotor%xAxisBody
+      this%yAxisBody = sourceRotor%yAxisBody
+      this%zAxisBody = sourceRotor%zAxisBody
       this%controlPitch = sourceRotor%controlPitch
       this%thetaTwist = sourceRotor%thetaTwist
 
@@ -2461,6 +2702,10 @@ class(blade_class), intent(inout) :: this
         this%omegaBody(1) = -1._dp*this%omegaBody(1)
         this%omegaBody(2) = -1._dp*this%omegaBody(2)
       end select
+
+        this%xAxisBody(this%imagePlane) = -1._dp*this%xAxisBody(this%imagePlane)
+        this%yAxisBody(this%imagePlane) = -1._dp*this%yAxisBody(this%imagePlane)
+        this%zAxisBody(this%imagePlane) = -1._dp*this%zAxisBody(this%imagePlane)
     endif
 
     ! Warn if all velocities zero
@@ -2535,6 +2780,11 @@ class(blade_class), intent(inout) :: this
     ! Override ns to 1 if non-lifting surface
     if (abs(this%surfaceType) .eq. 2) this%ns = 1
 
+    ! Define body axis
+    this%xAxisBody = xAxis
+    this%yAxisBody = yAxis
+    this%zAxisBody = zAxis
+
     ! Initialize variables for use in allocating
     if (abs(this%surfaceType) == 1) then
       this%nNwake = min(this%nNwake, nt)
@@ -2593,6 +2843,10 @@ class(blade_class), intent(inout) :: this
       allocate (this%blade(ib)%secChord(this%ns))
       allocate (this%blade(ib)%secArea(this%ns))
       allocate (this%blade(ib)%secLift(3, this%ns))
+      allocate (this%blade(ib)%secLiftInPlane(3, this%ns))
+      allocate (this%blade(ib)%secLiftOutPlane(3, this%ns))
+      allocate (this%blade(ib)%secLiftInPlaneUnsteady(3, this%ns))
+      allocate (this%blade(ib)%secLiftOutPlaneUnsteady(3, this%ns))
       allocate (this%blade(ib)%secLiftUnsteady(3, this%ns))
       allocate (this%blade(ib)%secDrag(3, this%ns))
       allocate (this%blade(ib)%secLiftDir(3, this%ns))
@@ -2730,7 +2984,17 @@ class(blade_class), intent(inout) :: this
       this%blade(ib)%yAxis = yAxis
       this%blade(ib)%zAxis = zAxis
 
-      this%blade(ib)%flapAxis = this%blade(ib)%xAxis
+      ! These axes do not have pitch or flap rotations
+      this%blade(ib)%xAxisAzi = xAxis
+      this%blade(ib)%yAxisAzi = yAxis
+      this%blade(ib)%zAxisAzi = zAxis
+
+      ! These axes do not have pitch rotation
+      ! They are rotated by the flap angle
+      this%blade(ib)%xAxisAziFlap = xAxis
+      this%blade(ib)%yAxisAziFlap = yAxis
+      this%blade(ib)%zAxisAziFlap = zAxis
+
       this%blade(ib)%flapOrigin = this%blade(ib)%yAxis* &
         & this%radius*this%flapHinge
 
@@ -2750,7 +3014,7 @@ class(blade_class), intent(inout) :: this
           ! Normalize
           this%blade(ib)%secTauCapChord(:, j) = unitVec(this%blade(ib)%secTauCapChord(:, j))
 
-          this%blade(ib)%secNormalVec(:, j) = unitVec(this%blade(ib)%secNormalVec(:, j))
+          this%blade(ib)%secNormalVec(:, j) = sign(1._dp, this%Omega)*unitVec(this%blade(ib)%secNormalVec(:, j))
         enddo
 
         ! Initialize vr coords of all panels except last row (to accomodate mismatch of vr coords when using unequal spacing)
@@ -2850,6 +3114,9 @@ class(blade_class), intent(inout) :: this
           do i = 1, this%nc
             call this%blade(ib)%wiP(i, j)%calcCP()
             call this%blade(ib)%wiP(i, j)%calcN()
+            if (sign(1._dp, this%Omega) < 0._dp) then
+              call this%blade(ib)%wiP(i, j)%invertNcap()
+            endif
             call this%blade(ib)%wiP(i, j)%calcTau()
             this%blade(ib)%wiP(i, j)%rHinge = length3d((this%blade(ib)%wiP(1, j)%pc(:, 1) &
               + this%blade(ib)%wiP(1, j)%pc(:, 4))*0.5_dp, this%blade(ib)%wiP(i, j)%CP)
@@ -2987,7 +3254,14 @@ class(blade_class), intent(inout) :: this
         this%blade(ib)%yAxis = this%blade(1)%yAxis
         this%blade(ib)%zAxis = this%blade(1)%zAxis
 
-        this%blade(ib)%flapAxis = this%blade(1)%flapAxis
+        this%blade(ib)%xAxisAzi = this%blade(1)%xAxisAzi
+        this%blade(ib)%yAxisAzi = this%blade(1)%yAxisAzi
+        this%blade(ib)%zAxisAzi = this%blade(1)%zAxisAzi
+
+        this%blade(ib)%xAxisAziFlap = this%blade(1)%xAxisAziFlap
+        this%blade(ib)%yAxisAziFlap = this%blade(1)%yAxisAziFlap
+        this%blade(ib)%zAxisAziFlap = this%blade(1)%zAxisAziFlap
+
         this%blade(ib)%flapOrigin = this%blade(1)%flapOrigin
 
         ! Initialize sec vectors
@@ -3098,7 +3372,8 @@ class(blade_class), intent(inout) :: this
     ! Rotate blades for multi-bladed rotors
     do ib = 2, this%nb
       bladeOffset = sign(1._dp, this%Omega)*twoPi/this%nb*(ib - 1)
-      call this%blade(ib)%rot_axis(bladeOffset, this%shaftAxis, this%hubCoords)
+      call this%blade(ib)%rotate(bladeOffset, this%shaftAxis, this%hubCoords, &
+        & 'azimuth')
     enddo
 
     ! Rotate rotor by phi,theta,psi about CG
@@ -3644,7 +3919,8 @@ class(blade_class), intent(inout) :: this
   end subroutine rotor_move
 
   subroutine rotor_rot_pts(this, pts, origin, order)
-    ! Rotate using pts => phi theta psi
+    !! Rotate using pts => phi theta psi
+    !! Warning: This rotation is about the global reference frame
     use libMath, only: Tbg, Tgb
   class(rotor_class), intent(inout) :: this
     real(dp), dimension(3), intent(in) :: pts    ! pts => phi,theta,psi
@@ -3671,6 +3947,9 @@ class(blade_class), intent(inout) :: this
     enddo
 
     this%shaftAxis = matmul(TMat, this%shaftAxis)
+    this%xAxisBody = matmul(TMat, this%xAxisBody)
+    this%yAxisBody = matmul(TMat, this%yAxisBody)
+    this%zAxisBody = matmul(TMat, this%zAxisBody)
 
     this%hubCoords = matmul(TMat, this%hubCoords-origin)+origin
     this%cgCoords = matmul(TMat, this%cgCoords-origin)+origin
@@ -3698,7 +3977,8 @@ class(blade_class), intent(inout) :: this
 
     this%psi = this%psi + dpsi
     do ib = 1, this%nb
-      call this%blade(ib)%rot_axis(dpsi, this%shaftAxis, this%hubCoords)
+      call this%blade(ib)%rotate(dpsi, this%shaftAxis, this%hubCoords, &
+        & 'azimuth')
       this%blade(ib)%psi = this%blade(ib)%psi + dpsi
       if (.not. present(nopitch)) then
         thetaNext = this%gettheta(this%psi, ib)
@@ -4025,19 +4305,17 @@ class(blade_class), intent(inout) :: this
     call this%shiftwake()
   end subroutine rotor_rollup
 
-  subroutine rotor_calc_force_gamma(this, density, dt)
+  subroutine rotor_calc_force(this, density, dt)
     ! Compute force from circulation
   class(rotor_class), intent(inout) :: this
     real(dp), intent(in) :: density, dt
     integer :: ib, ic, is
 
     this%forceInertial = 0._dp
+
+    call this%dirLiftDrag()
     do ib = 1, this%nbConvect
-      call this%blade(ib)%calc_force_gamma(density, &
-        & sign(1._dp, this%Omega) * sign(1._dp, this%controlPitch(1)) * &
-        & sign(1._dp, this%shaftAxis(1)) * &
-        & sign(1._dp, this%shaftAxis(2)) * &
-        & sign(1._dp, this%shaftAxis(3)), dt)
+      call this%blade(ib)%calc_force(density, this%Omega, dt)
     enddo
 
     axisym: if (this%axisymmetrySwitch .eq. 1) then
@@ -4063,6 +4341,13 @@ class(blade_class), intent(inout) :: this
         this%blade(ib)%secLiftDir = this%blade(1)%secLiftDir
         this%blade(ib)%secLiftUnsteady = this%blade(1)%secLiftUnsteady
 
+        this%blade(ib)%secLiftInPlane = this%blade(1)%secLiftInPlane
+        this%blade(ib)%secLiftOutPlane = this%blade(1)%secLiftOutPlane
+        this%blade(ib)%secLiftInPlaneUnsteady = &
+          & this%blade(1)%secLiftInPlaneUnsteady
+        this%blade(ib)%secLiftOutPlaneUnsteady = &
+          & this%blade(1)%secLiftOutPlaneUnsteady
+
         this%blade(ib)%secDragUnsteady = this%blade(1)%secDragUnsteady
         this%blade(ib)%secDragProfile = this%blade(1)%secDragProfile
         this%blade(ib)%secDrag = this%blade(1)%secDrag
@@ -4084,7 +4369,68 @@ class(blade_class), intent(inout) :: this
     endif axisym
 
     call this%sumBladeToNetForces()
-  end subroutine rotor_calc_force_gamma
+  end subroutine rotor_calc_force
+
+  ! subroutine rotor_calc_force_gamma(this, density, dt)
+  !   ! Compute force from circulation
+  ! class(rotor_class), intent(inout) :: this
+  !   real(dp), intent(in) :: density, dt
+  !   integer :: ib, ic, is
+  !
+  !   this%forceInertial = 0._dp
+  !   do ib = 1, this%nbConvect
+  !     call this%blade(ib)%calc_force_gamma(density, &
+  !       & sign(1._dp, this%Omega) * sign(1._dp, this%controlPitch(1)) * &
+  !       & sign(1._dp, this%shaftAxis(1)) * &
+  !       & sign(1._dp, this%shaftAxis(2)) * &
+  !       & sign(1._dp, this%shaftAxis(3)), dt)
+  !   enddo
+  !
+  !   axisym: if (this%axisymmetrySwitch .eq. 1) then
+  !     do ib = 2, this%nb
+  !       this%blade(ib)%wiP%delP = this%blade(1)%wiP%delP
+  !       this%blade(ib)%wiP%delPUnsteady = this%blade(1)%wiP%delPUnsteady
+  !       this%blade(ib)%wiP%gamPrev = this%blade(1)%wiP%gamPrev
+  !
+  !       this%blade(ib)%wiP%delDiConstant = this%blade(1)%wiP%delDiConstant
+  !       this%blade(ib)%wiP%delDiUnsteady = this%blade(1)%wiP%delDiUnsteady
+  !
+  !       do is = 1, this%ns
+  !         do ic = 1, this%nc
+  !           this%blade(ib)%wiP(ic, is)%normalForce = &
+  !             & this%blade(1)%wiP(ic, is)%normalForce
+  !           this%blade(ib)%wiP(ic, is)%normalForceUnsteady = &
+  !             & this%blade(1)%wiP(ic, is)%normalForceUnsteady
+  !         enddo
+  !       enddo
+  !
+  !       this%blade(ib)%secForceInertial = this%blade(1)%secForceInertial
+  !       this%blade(ib)%secLift = this%blade(1)%secLift
+  !       this%blade(ib)%secLiftDir = this%blade(1)%secLiftDir
+  !       this%blade(ib)%secLiftUnsteady = this%blade(1)%secLiftUnsteady
+  !
+  !       this%blade(ib)%secDragUnsteady = this%blade(1)%secDragUnsteady
+  !       this%blade(ib)%secDragProfile = this%blade(1)%secDragProfile
+  !       this%blade(ib)%secDrag = this%blade(1)%secDrag
+  !
+  !       this%blade(ib)%secCL = this%blade(1)%secCL
+  !       this%blade(ib)%secCD = this%blade(1)%secCD
+  !       this%blade(ib)%secCLu = this%blade(1)%secCLu
+  !       this%blade(ib)%secMflap = this%blade(1)%secMflap
+  !
+  !       this%blade(ib)%forceInertial = this%blade(1)%forceInertial
+  !       this%blade(ib)%lift = this%blade(1)%lift
+  !       this%blade(ib)%drag = this%blade(1)%drag
+  !       this%blade(ib)%liftUnsteady = this%blade(1)%liftUnsteady
+  !       this%blade(ib)%dragProfile = this%blade(1)%dragProfile
+  !       this%blade(ib)%dragInduced = this%blade(1)%dragInduced
+  !       this%blade(ib)%dragUnsteady = this%blade(1)%dragUnsteady
+  !       this%blade(ib)%MflapLift = this%blade(1)%MflapLift
+  !     enddo
+  !   endif axisym
+  !
+  !   call this%sumBladeToNetForces()
+  ! end subroutine rotor_calc_force_gamma
 
   subroutine rotor_calc_force_alpha(this, density, velSound)
     ! Compute force from sec alpha
@@ -4093,6 +4439,8 @@ class(blade_class), intent(inout) :: this
     integer :: ib
 
     this%forceInertial = 0._dp
+
+    call this%dirLiftDrag()
     do ib = 1, this%nb
       call this%blade(ib)%calc_force_alpha(density, velSound)
     enddo
@@ -4106,6 +4454,8 @@ class(blade_class), intent(inout) :: this
     integer :: ib
 
     this%forceInertial = 0._dp
+
+    call this%dirLiftDrag()
     do ib = 1, this%nb
       call this%blade(ib)%calc_force_alphaGamma(density, &
         & sign(1._dp, this%Omega*this%controlPitch(1)), &
@@ -4115,17 +4465,16 @@ class(blade_class), intent(inout) :: this
   end subroutine rotor_calc_force_alphaGamma
 
   subroutine rotor_calc_secAlpha(this)
-    use libMath, only: zAxis
+    use libMath
   class(rotor_class), intent(inout) :: this
     real(dp), dimension(3) :: verticalAxis
     integer :: ib
 
-    verticalAxis = zAxis
-    if (abs(this%Omega) .gt. eps) verticalAxis = this%shaftAxis
-
     do ib = 1, this%nbConvect
+      verticalAxis = this%blade(ib)%zAxisAziFlap
       call this%blade(ib)%calc_secAlpha(verticalAxis)
     enddo
+
     axisym: if (this%axisymmetrySwitch .eq. 1) then
       do ib = 2, this%nb
         this%blade(ib)%secAlpha = this%blade(1)%secAlpha
@@ -4291,6 +4640,7 @@ class(blade_class), intent(inout) :: this
     integer :: ib
 
     do ib = 1, this%nbConvect
+      call this%blade(ib)%calc_secChordwiseResVel()
       call this%blade(ib)%dirLiftDrag(this%Omega)
     enddo
     axisym: if (this%axisymmetrySwitch .eq. 1) then
