@@ -20,11 +20,11 @@ program main
   ! Read rotor??.in files
   do ir = 1, nr
     write (rotorChar, '(I0.2)') ir
-    rotorFile = 'geom'//rotorChar//'.in'
+    rotorFile = 'geom'//rotorChar//'.nml'
     inquire(file=rotorFile, exist=fileExists)
-    if (.not. fileExists) error stop 'ERROR: A rotorXX.in file does not exist'
     call print_status('Reading file '//rotorFile)
-    call rotor(ir)%read_geom(rotorFile)
+    if (.not. fileExists) error stop 'ERROR: A geomXX.nml file does not exist'
+    call rotor(ir)%readGeom(rotorFile)
     call print_status()    ! SUCCESS
   enddo
 
