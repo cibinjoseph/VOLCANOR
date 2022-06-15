@@ -2581,26 +2581,54 @@ class(blade_class), intent(inout) :: this
     integer :: inflowPlotSwitch, gammaPlotSwitch, skewPlotSwitch
     real(dp), allocatable, dimension(:) :: airfoilSectionLimit, alpha0
 
+    ! Namelists
+    namelist /VERSION/ fileFormatVersion
+
+    namelist /SURFACE/ surfaceType, imagePlane, imageRotorNum
+
+    namelist /PANELS/ nb, propConvention, geometryFile, nCamberFiles, &
+      & nc, ns, nNwake
+
+    namelist /CAMBERSECTIONS/ camberSectionLimit, camberFile
+
+    namelist /ORIENT/ hubCoords, cgCoords, fromCoords, phiThetaPsi
+
+    namelist /GEOMPARAMS/ span, rootcut, chord, preconeAngle, Omega, &
+      & shaftAxis, theta0, thetaC, thetaS, thetaTwist, axisymmetrySwitch, &
+      & pivotLE, flapHinge, spanwiseLiftSwitch, symmetricTau, &
+      & customTrajectorySwitch, velBody, omegaBody, forceCalcSwitch, &
+      & nAirfoils
+
+    namelist /WAKEPARAMS/ apparentViscCoeff, decayCoeff, wakeTruncateNt, &
+      & prescWakeAfterTruncNt, prescWakeGenNt, spanwiseCore, &
+      & streamwiseCoreVec, rollupStartRadius, &
+      & rollupEndRadius, initWakeVel, psiStart, skewLimit
+
+    namelist /DYNAMICS/ bladeDynamicsSwitch, flapInitial, dflapInitial, &
+      & Iflap, cflap, kflap,MflapConstant, pitchDynamicsSwitch, dpitch, &
+      & bodyDynamicsSwitch, bodyDynamicsIOVars
+
+    namelist /WINDFRAME/ dragUnitVec, sideUnitVec, liftUnitVec
+
+    namelist /PLOTS/ inflowPlotSwitch, gammaPlotSwitch, skewPlotSwitch
+
+    namelist /AIRFOILS/ airfoilSectionLimit, alpha0, airfoilFile
 
     currentTemplateVersion = '0.12'
 
     open (unit=12, file=filename, status='old', action='read') 
 
-    namelist /VERSION/ fileFormatVersion
     read(unit=12, nml=VERSION)
     if (adjustl(fileFormatVersion) /= currentTemplateVersion) then
       error stop "ERROR: geomXX.in template version does not match"
     endif
 
-    namelist /SURFACE/ surfaceType, imagePlane, imageRotorNum
     read(unit=12, nml=SURFACE)
     ! [0/1]Lifting [2]Non-lifting [-1]Lifting Image [-2]Non-lifting Image
     this%surfaceType = surfaceType
     this%imagePlane = imagePlane
     this%imageRotorNum = imageRotorNum
 
-    namelist /PANELS/ nb, propConvention, geometryFile, nCamberFiles, &
-      & nc, ns, nNwake
     read(unit=12, nml=PANELS)
     this%nb = nb
     this%propConvention= propConvention
@@ -2614,7 +2642,6 @@ class(blade_class), intent(inout) :: this
     ! If mirrored, all parameters are computed from source geometry
     if (this%surfaceType .ge. 0) then
 
-      namelist /CAMBERSECTIONS/ camberSectionLimit, camberFile
       if (this%nCamberFiles > 0) then
         allocate(this%camberSectionLimit(this%nCamberFiles))
         allocate(this%camberFile(this%nCamberFiles))
@@ -2634,24 +2661,21 @@ class(blade_class), intent(inout) :: this
         this%camberFile = '0'
       endif
 
-      namelist /ORIENT/ hubCoords, cgCoords, fromCoords, phiThetaPsi
       read(unit=12, nml=ORIENT)
       this%hubCoords = hubCoords
       this%cgCoords = cgCoords
       this%fromCoords = fromCoords
       this%pts = phiThetaPsi
 
-      namelist /GEOMPARAMS/ span, rootcut, chord, preconeAngle, Omega, &
-        & shaftAxis, theta0, thetaC, thetaS, thetaTwist, axisymmetrySwitch, &
-        & pivotLE, flapHinge, spanwiseLiftSwitch, symmetricTau, &
-        & customTrajectorySwitch, velBody, omegaBody, forceCalcSwitch, &
-        & nAirfoils
       read(unit=12, nml=GEOMPARAMS)
       this%radius = span
       this%root_cut = rootcut
       this%chord = chord
       this%preconeAngle = preconeAngle
       this%Omega = Omega
+      ! DEBUG
+      print*, Omega
+      print*, this%Omega
       this%shaftAxis = shaftAxis
       this%controlPitch = [theta0, thetaC, thetaS]
       this%thetaTwist = thetaTwist
@@ -2666,10 +2690,6 @@ class(blade_class), intent(inout) :: this
       this%forceCalcSwitch = forceCalcSwitch
       this%nAirfoils = nAirfoils
 
-      namelist /WAKEPARAMS/ apparentViscCoeff, decayCoeff, wakeTruncateNt, &
-        & prescWakeAfterTruncNt, prescWakeGenNt, spanwiseCore, &
-        & streamwiseCoreVec, rollupStartRadius, &
-        & rollupEndRadius, initWakeVel, psiStart, skewLimit
       allocate (this%streamwiseCoreVec(this%ns + 1))
       allocate (streamwiseCoreVec(this%ns + 1))
       read(unit=12, nml=WAKEPARAMS)
@@ -2690,9 +2710,6 @@ class(blade_class), intent(inout) :: this
       this%psiStart = psiStart
       this%skewLimit = skewLimit
 
-      namelist /DYNAMICS/ bladeDynamicsSwitch, flapInitial, dflapInitial, Iflap, &
-        & cflap, kflap,MflapConstant, pitchDynamicsSwitch, dpitch, &
-        & bodyDynamicsSwitch, bodyDynamicsIOVars
       read(unit=12, nml=DYNAMICS)
       this%bladeDynamicsSwitch = bladeDynamicsSwitch
       this%flapInitial = flapInitial
@@ -2706,13 +2723,11 @@ class(blade_class), intent(inout) :: this
       this%bodyDynamicsSwitch = bodyDynamicsSwitch
       this%bodyDynamicsIOVars = bodyDynamicsIOVars
 
-      namelist /WINDFRAME/ dragUnitVec, sideUnitVec, liftUnitVec
       read(unit=12, nml=WINDFRAME)
       this%dragUnitVec = dragUnitVec
       this%sideUnitVec = sideUnitVec
       this%liftUnitVec = liftUnitVec
 
-      namelist /PLOTS/ inflowPlotSwitch, gammaPlotSwitch, skewPlotSwitch
       read(unit=12, nml=PLOTS)
       this%inflowPlotSwitch = inflowPlotSwitch
       this%gammaPlotSwitch = gammaPlotSwitch
@@ -2727,7 +2742,6 @@ class(blade_class), intent(inout) :: this
         allocate (this%airfoilFile(this%nAirfoils))
         allocate (this%alpha0(this%nAirfoils))
 
-        namelist /AIRFOILS/ airfoilSectionLimit, alpha0, airfoilFile
         read(unit=10, nml=AIRFOILS)
         this%airfoilSectionLimit = airfoilSectionLimit
         this%alpha0 = alpha0
@@ -2906,9 +2920,15 @@ class(blade_class), intent(inout) :: this
     ! Set dt automatically if not prescribed
     ! if dt is negative, assume no. of chords or revs
     if (dsign(1._dp, dt) < 0._dp) then
+      ! DEBUG
+      print*, this%Omega
       if (abs(this%Omega) < eps) then  ! Fixed wing
+      ! DEBUG
+        print*, 'CASE 1'
         dt = abs(dt)*this%chord/norm2(this%velBody)
       else  ! Rotor
+      ! DEBUG
+        print*, 'CASE 2'
         dt = twoPi*abs(dt)/abs(this%Omega)
       endif
       print*, 'dt set to ', dt
@@ -2920,6 +2940,8 @@ class(blade_class), intent(inout) :: this
         dxMAC = this%chord/this%nc
         dt = dxMAC/norm2(this%velBody)
       else  ! Rotor
+      ! DEBUG
+        print*, 'CASE 3'
         ! Time for 5 deg
         dt = 5._dp*degToRad/abs(this%Omega)
       endif
@@ -4785,7 +4807,7 @@ class(blade_class), intent(inout) :: this
 
       call execute_command_line('python3 dynamics.py', wait=.True., &
         & exitstat=exitcode)
-      if (exitcode) then
+      if (exitcode .ne. 0) then
         error stop 'ERROR: dynamics.py returned non-zero exit code'
       endif
 
