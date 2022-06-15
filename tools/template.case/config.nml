@@ -30,7 +30,7 @@ chordSpacing = 1
 ! wakePlotSwitch   wakeTipPlotSwitch   forcePlotSwitch   gridPlotSwitch
 wakePlot = 1
 wakeTipPlot = 0
-forcePlot = 1
+rotorForcePlot = 1
 gridPlot = 0
 ! WAKE PROPERTY SWITCHES: [0]Off [1]On
 ! wakeDissipationSwitch            wakeStrainSwitch   wakeBurstSwitch
