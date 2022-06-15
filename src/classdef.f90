@@ -2679,7 +2679,11 @@ class(blade_class), intent(inout) :: this
       this%prescWakeAfterTruncNt = prescWakeAfterTruncNt
       this%prescWakeGenNt = prescWakeGenNt
       this%spanwiseCore = spanwiseCore
-      this%streamwiseCoreVec = streamwiseCoreVec
+      if (norm2(streamwiseCoreVec(2:)) < eps) then
+        this%streamwiseCoreVec = streamwiseCoreVec(1)
+      else
+        this%streamwiseCoreVec = streamwiseCoreVec
+      endif
       this%rollupStartRadius = rollupStartRadius
       this%rollupEndRadius = rollupEndRadius
       this%initWakeVel = initWakeVel
