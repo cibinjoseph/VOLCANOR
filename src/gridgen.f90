@@ -2,7 +2,7 @@ program gridgen
   use libCommon
 
   integer :: nx, ny, nz
-  real(dp), dimension(3) :: cMin, cMax    ! Coordinates of corners
+  real(dp), dimension(3) :: xyzMin, xyzMax    ! Coordinates of corners
   real(dp), dimension(3) :: vel           ! x,y,z velocities
   integer :: fileRange, fileRangeStart, fileRangeStep, fileRangeEnd
 
@@ -16,24 +16,27 @@ program gridgen
   type(vr_class), allocatable, dimension(:) :: vrWing, vrNwake
   type(vf_class), allocatable, dimension(:) :: vfFwake, vfNwakeTE
   real(dp), allocatable, dimension(:) :: gamFwake, gamNwakeTE
+  character(len=10) :: fileFormatVersion, currentTemplateVersion
+
+  currentTemplateVersion = '0.2'
 
   ! Read gridconfig.in file
   call print_status('Reading file '//'gridconfig.in')
-  open (unit=11, file='gridconfig.in', status='old', action='read')
-  call skip_comments(11)
-  read (11, *) nx, ny, nz
-  call skip_comments(11)
-  read (11, *) cMin(1), cMin(2), cMin(3)
-  call skip_comments(11)
-  read (11, *) cMax(1), cMax(2), cMax(3)
-  call skip_comments(11)
-  read (11, *) vel(1), vel(2), vel(3)
-  call skip_comments(11)
-  read (11, *) fileRangeStart, fileRangeStep, fileRangeEnd
-  close (11)
+  open(unit=11, file='gridconfig.in', status='old', action='read')
 
-  ! Sanity check for cMin and cMax values
-  if (cMin(1) > cMax(1) .or. cMin(2) > cMax(2) .or. cMin(3) > cMax(3)) then
+  namelist /VERSION/ fileFormatVersion
+  read(unit=11, nml=VERSION)
+  if (adjustl(fileFormatVersion) /= currentTemplateVersion) then
+    error stop 'ERROR: gridconfig.nml template version does not match'
+  endif
+
+  namelist /INPUTS/ nx, ny, nz, xyzMin, xyzMax, vel, &
+    & fileRangeStart, fileRangeStep, fileRangeEnd
+  read(unit=11, nml=INPUTS)
+  close(11)
+
+  ! Sanity check for xyzMin and xyzMax values
+  if (xyzMin(1) > xyzMax(1) .or. xyzMin(2) > xyzMax(2) .or. xyzMin(3) > xyzMax(3)) then
     error stop 'ERROR: All XYZmin values should be greater than XYZmax values'
   endif
 
@@ -51,9 +54,9 @@ program gridgen
   write (ny_char, '(I5)') ny
   write (nz_char, '(I5)') nz
 
-  xVec = linspace(cMin(1), cMax(1), nx)
-  yVec = linspace(cMin(2), cMax(2), ny)
-  zVec = linspace(cMin(3), cMax(3), nz)
+  xVec = linspace(xyzMin(1), xyzMax(1), nx)
+  yVec = linspace(xyzMin(2), xyzMax(2), ny)
+  zVec = linspace(xyzMin(3), xyzMax(3), nz)
 
   ! Create grid
   call print_status('Creating cartesian grid')
