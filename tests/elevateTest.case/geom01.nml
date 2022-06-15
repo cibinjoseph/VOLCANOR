@@ -15,8 +15,8 @@ imageRotorNum = 1
 ! No. of blades,nb  Prop convention  NcamberFiles  geometry filename
 nb = 5
 propConvention = 0
-geometryFile = 0
-nCamberFiles = elevate.xyz
+nCamberFiles = 0
+geometryFile = elevate.xyz
 ! Chordwise panels,nc   Spanwise panels,ns   
 nc = 16
 ns = 16
@@ -85,10 +85,8 @@ decayCoeff = 0
 wakeTruncateNt = -3
 prescWakeAfterTruncNt = 0
 prescWakeGenNt = 0
-! spanwise core radius[x/c]       streamwise core_switch
-!                                 [s]ectional  [i]dentical
+! spanwise core radius[x/c]
 spanwiseCore = 0.04
-streamwiseCoreSwitch = i
 ! streamwise core radius[x/c]   root <----> tip  (ns+1 entries)
 streamwiseCoreVec = 0.04
 ! Spanwise start[r/R]  &  end[r/R] for centroid of tip vorticity
@@ -108,8 +106,8 @@ skewLimit = 0.5
 bladeDynamicsSwitch = 0
 ! flap0     dflap0      Iflap      cflap     kflap     MflapConst
 ! -------------------------------------------------------------------
-flap0 = 0.0
-dflap0 = 0.0
+flapInitial = 0.0
+dflapInitial = 0.0
 Iflap = 0.0
 cflap = 0.0
 kflap = 0.0
