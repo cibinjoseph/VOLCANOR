@@ -16,22 +16,24 @@ contains
       & gridPlot, wakeDissipation, wakeStrain, wakeBurst, slowStart, &
       & slowStartNt, fdScheme, initWakeVelNt, probe
 
+    ! Namelists
+    namelist /VERSION/ fileFormatVersion
+    namelist /PARAMS/ nt, dt, nr, density, velSound, kinematicVisc
+    namelist /OPTIONS/ restartWriteNt, restartFromNt, ntSub, ntSubInit, &
+      & spanSpacing, chordSpacing, wakePlot, wakeTipPlot, rotorForcePlot, &
+      & gridPlot, wakeDissipation, wakeStrain, wakeBurst, slowStart, &
+      & slowStartNt, fdScheme, initWakeVelNt, probe
+
     currentVersion = '0.3'
 
     open (unit=11, file=filename, status='old', action='read')
-    namelist /VERSION/ fileFormatVersion
     read (unit=11, nml=VERSION)
     if (adjustl(fileFormatVersion) /= currentVersion) then
       error stop "ERROR: config.nml template version does not match"
     endif
 
-    namelist /PARAMS/ nt, dt, nr, density, velSound, kinematicVisc
     read (unit=11, nml=PARAMS)
 
-    namelist /OPTIONS/ restartWriteNt, restartFromNt, ntSub, ntSubInit, &
-      & spanSpacing, chordSpacing, wakePlot, wakeTipPlot, rotorForcePlot, &
-      & gridPlot, wakeDissipation, wakeStrain, wakeBurst, slowStart, &
-      & slowStartNt, fdScheme, initWakeVelNt, probe
     read (unit=11, nml=OPTIONS)
 
     switches%restartWriteNt = restartWriteNt
