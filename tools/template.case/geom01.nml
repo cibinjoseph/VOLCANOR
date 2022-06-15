@@ -85,10 +85,8 @@ decayCoeff = 0
 wakeTruncateNt = 0
 prescWakeAfterTruncNt = 0
 prescWakeGenNt = 0
-! spanwise core radius[x/c]       streamwise core_switch
-!                                 [s]ectional  [i]dentical
+! spanwise core radius[x/c]
 spanwiseCore = 0.04
-streamwiseCoreSwitch = i
 ! streamwise core radius[x/c]   root <----> tip  (ns+1 entries)
 streamwiseCoreVec = 0.04
 ! Spanwise start[r/R]  &  end[r/R] for centroid of tip vorticity
@@ -106,10 +104,9 @@ skewLimit = 0.5
 ! I*ddflap + c*dflap + (I*Om^2 + k)*flap = MflapLift + MflapConst
 ! bladeDynamicsSwitch
 bladeDynamicsSwitch = 0
-! flap0     dflap0      Iflap      cflap     kflap     MflapConst
-! -------------------------------------------------------------------
-flap0 = 0.0
-dflap0 = 0.0
+! flapInitial  dflapInitial      Iflap      cflap     kflap     MflapConst
+flapinitial = 0.0
+dflapInitial = 0.0
 Iflap = 0.0
 cflap = 0.0
 kflap = 0.0
