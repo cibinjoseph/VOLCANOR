@@ -10,8 +10,8 @@ program main
 
   ! Read config.in file
   print*
-  call print_status('Reading file '//'config.in')
-  call read_config('config.in')
+  call print_status('Reading file '//'config.nml')
+  call readConfig('config.nml')
   call print_status()    ! SUCCESS
 
   ! Allocate rotor objects

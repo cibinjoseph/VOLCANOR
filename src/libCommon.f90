@@ -6,6 +6,55 @@ module libCommon
 
 contains
 
+  subroutine readConfig(filename)
+    use libMath, only : eps, skip_comments
+    use classdef, only : switches_class
+    character(len=*), intent(in) :: filename
+    character(len=10) :: fileFormatVersion, currentVersion
+    integer :: restartWriteNt, restartFromNt, ntSub, ntSubInit, &
+      & spanSpacing, chordSpacing, wakePlot, wakeTipPlot, rotorForcePlot, &
+      & gridPlot, wakeDissipation, wakeStrain, wakeBurst, slowStart, &
+      & slowStartNt, fdScheme, initWakeVelNt, probe
+
+    currentVersion = '0.3'
+
+    open (unit=11, file=filename, status='old', action='read')
+    namelist /VERSION/ fileFormatVersion
+    read (unit=11, nml=VERSION)
+    if (adjustl(fileFormatVersion) /= currentVersion) then
+      error stop "ERROR: config.nml template version does not match"
+    endif
+
+    namelist /PARAMS/ nt, dt, nr, density, velSound, kinematicVisc
+    read (unit=11, nml=PARAMS)
+
+    namelist /OPTIONS/ restartWriteNt, restartFromNt, ntSub, ntSubInit, &
+      & spanSpacing, chordSpacing, wakePlot, wakeTipPlot, rotorForcePlot, &
+      & gridPlot, wakeDissipation, wakeStrain, wakeBurst, slowStart, &
+      & slowStartNt, fdScheme, initWakeVelNt, probe
+    read (unit=11, nml=OPTIONS)
+
+    switches%restartWriteNt = restartWriteNt
+    switches%restartFromNt = restartFromNt
+    switches%ntSub = ntSub
+    switches%ntSubInit = ntSubInit
+    switches%spanSpacing = spanSpacing
+    switches%chordSpacing = chordSpacing
+    switches%wakePlot = wakePlot
+    switches%wakeTipPlot = wakeTipPlot
+    switches%rotorForcePlot = rotorForcePlot
+    switches%gridPlot = gridPlot
+    switches%wakeDissipation = wakeDissipation
+    switches%wakeStrain = wakeStrain
+    switches%wakeBurst = wakeBurst
+    switches%slowStart = slowStart
+    switches%slowStartNt = slowStartNt
+    switches%fdScheme = fdScheme
+    switches%initWakeVelNt = initWakeVelNt
+    switches%probe = probe
+    close (11)
+  end subroutine readConfig
+
   subroutine read_config(filename)
     use libMath, only : eps, skip_comments
     use classdef, only : switches_class
