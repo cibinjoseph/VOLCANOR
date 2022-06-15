@@ -2673,7 +2673,7 @@ class(blade_class), intent(inout) :: this
       this%chord = chord
       this%preconeAngle = preconeAngle
       this%Omega = Omega
-      ! DEBUG
+      ! DEBUG - these keep showing 0.0
       print*, Omega
       print*, this%Omega
       this%shaftAxis = shaftAxis
@@ -2920,15 +2920,9 @@ class(blade_class), intent(inout) :: this
     ! Set dt automatically if not prescribed
     ! if dt is negative, assume no. of chords or revs
     if (dsign(1._dp, dt) < 0._dp) then
-      ! DEBUG
-      print*, this%Omega
       if (abs(this%Omega) < eps) then  ! Fixed wing
-      ! DEBUG
-        print*, 'CASE 1'
         dt = abs(dt)*this%chord/norm2(this%velBody)
       else  ! Rotor
-      ! DEBUG
-        print*, 'CASE 2'
         dt = twoPi*abs(dt)/abs(this%Omega)
       endif
       print*, 'dt set to ', dt
@@ -2940,8 +2934,6 @@ class(blade_class), intent(inout) :: this
         dxMAC = this%chord/this%nc
         dt = dxMAC/norm2(this%velBody)
       else  ! Rotor
-      ! DEBUG
-        print*, 'CASE 3'
         ! Time for 5 deg
         dt = 5._dp*degToRad/abs(this%Omega)
       endif
