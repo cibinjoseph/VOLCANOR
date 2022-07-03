@@ -2645,8 +2645,12 @@ class(blade_class), intent(inout) :: this
       allocate (airfoilSectionLimit(nAirfoils))
       allocate (airfoilFile(nAirfoils))
       allocate (alpha0(nAirfoils))
+      read(unit=12, nml=AIRFOILS)
+    else
+      allocate (airfoilSectionLimit(1))
+      allocate (airfoilFile(1))
+      allocate (alpha0(1))
     endif
-    read(unit=12, nml=AIRFOILS)
     close(12)
 
     ! Write a copy of geom file that was read
@@ -2771,6 +2775,14 @@ class(blade_class), intent(inout) :: this
         this%airfoilSectionLimit = airfoilSectionLimit
         this%alpha0 = alpha0
         this%airfoilFile = airfoilFile
+      else
+        allocate (this%airfoilSectionLimit(1))
+        allocate (this%airfoilFile(1))
+        allocate (this%alpha0(1))
+
+        this%airfoilSectionLimit = 1._dp
+        this%alpha0 = 0._dp
+        this%airfoilFile = ''
       endif
     endif
   end subroutine rotor_readGeom
