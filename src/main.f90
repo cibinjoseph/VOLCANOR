@@ -5,8 +5,8 @@ program main
   implicit none
 
   ! Ensure all necessary files exist
-  inquire(file='config.in', exist=fileExists)
-  if (.not. fileExists) error stop 'ERROR: config.in does not exist'
+  inquire(file='config.nml', exist=fileExists)
+  if (.not. fileExists) error stop 'ERROR: config.nml does not exist'
 
   ! Read config.in file
   print*
