@@ -11,7 +11,7 @@ program main
   ! Read config.in file
   print*
   call print_status('Reading file '//'config.nml')
-  call readConfig('config.nml')
+  call readConfig('config.nml', ResultsDir//'config.nml')
   call print_status()    ! SUCCESS
 
   ! Allocate rotor objects
@@ -24,7 +24,7 @@ program main
     inquire(file=rotorFile, exist=fileExists)
     call print_status('Reading file '//rotorFile)
     if (.not. fileExists) error stop 'ERROR: A geomXX.nml file does not exist'
-    call rotor(ir)%readGeom(rotorFile)
+    call rotor(ir)%readGeom(rotorFile, ResultsDir//rotorFile)
     call print_status()    ! SUCCESS
   enddo
 

@@ -10,6 +10,7 @@ all:
 	make run
 
 fileclean:
+	-rm -f $(resultspath)/*.nml
 	-rm -f $(resultspath)/*.plt
 	-rm -f $(resultspath)/*.curve
 	-rm -f $(resultspath)/*.dat
