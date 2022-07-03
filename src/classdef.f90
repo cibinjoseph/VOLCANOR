@@ -2624,12 +2624,37 @@ class(blade_class), intent(inout) :: this
     endif
 
     read(unit=12, nml=SURFACE)
+    read(unit=12, nml=PANELS)
+    if (this%nCamberFiles > 0) then
+      allocate(camberSectionLimit(nCamberFiles))
+      allocate(camberFile(nCamberFiles))
+    else
+      allocate(camberSectionLimit(1))
+      allocate(camberFile(1))
+    endif
+    read(unit=12, nml=CAMBERSECTIONS)
+    read(unit=12, nml=ORIENT)
+    read(unit=12, nml=GEOMPARAMS)
+    allocate (streamwiseCoreVec(ns + 1))
+    read(unit=12, nml=WAKEPARAMS)
+    read(unit=12, nml=DYNAMICS)
+    read(unit=12, nml=WINDFRAME)
+    read(unit=12, nml=PLOTS)
+    if (nAirfoils .gt. 0) then
+      allocate (airfoilSectionLimit(nAirfoils))
+      allocate (airfoilFile(nAirfoils))
+      allocate (alpha0(nAirfoils))
+
+      open(unit=13, file=airfoilFile)
+      read(unit=13, nml=AIRFOILS)
+      close(13)
+    endif
+
     ! [0/1]Lifting [2]Non-lifting [-1]Lifting Image [-2]Non-lifting Image
     this%surfaceType = surfaceType
     this%imagePlane = imagePlane
     this%imageRotorNum = imageRotorNum
 
-    read(unit=12, nml=PANELS)
     this%nb = nb
     this%propConvention= propConvention
     this%geometryFile = geometryFile 
@@ -2645,29 +2670,21 @@ class(blade_class), intent(inout) :: this
       if (this%nCamberFiles > 0) then
         allocate(this%camberSectionLimit(this%nCamberFiles))
         allocate(this%camberFile(this%nCamberFiles))
-        allocate(camberSectionLimit(this%nCamberFiles))
-        allocate(camberFile(this%nCamberFiles))
-        read(unit=12, nml=CAMBERSECTIONS)
         this%camberSectionLimit = camberSectionLimit
         this%camberFile = camberFile
       else
         allocate(this%camberSectionLimit(1))
         allocate(this%camberFile(1))
-        allocate(camberSectionLimit(1))
-        allocate(camberFile(1))
         ! Default uncambered section
-        read(unit=12, nml=CAMBERSECTIONS)
         this%camberSectionLimit = 1.0
         this%camberFile = '0'
       endif
 
-      read(unit=12, nml=ORIENT)
       this%hubCoords = hubCoords
       this%cgCoords = cgCoords
       this%fromCoords = fromCoords
       this%pts = phiThetaPsi
 
-      read(unit=12, nml=GEOMPARAMS)
       this%radius = span
       this%root_cut = rootcut
       this%chord = chord
@@ -2691,8 +2708,6 @@ class(blade_class), intent(inout) :: this
       this%nAirfoils = nAirfoils
 
       allocate (this%streamwiseCoreVec(this%ns + 1))
-      allocate (streamwiseCoreVec(this%ns + 1))
-      read(unit=12, nml=WAKEPARAMS)
       this%apparentViscCoeff = apparentViscCoeff
       this%decayCoeff =  decayCoeff
       this%wakeTruncateNt = wakeTruncateNt
@@ -2710,7 +2725,6 @@ class(blade_class), intent(inout) :: this
       this%psiStart = psiStart
       this%skewLimit = skewLimit
 
-      read(unit=12, nml=DYNAMICS)
       this%bladeDynamicsSwitch = bladeDynamicsSwitch
       this%flapInitial = flapInitial
       this%dflapInitial = dflapInitial
@@ -2723,12 +2737,10 @@ class(blade_class), intent(inout) :: this
       this%bodyDynamicsSwitch = bodyDynamicsSwitch
       this%bodyDynamicsIOVars = bodyDynamicsIOVars
 
-      read(unit=12, nml=WINDFRAME)
       this%dragUnitVec = dragUnitVec
       this%sideUnitVec = sideUnitVec
       this%liftUnitVec = liftUnitVec
 
-      read(unit=12, nml=PLOTS)
       this%inflowPlotSwitch = inflowPlotSwitch
       this%gammaPlotSwitch = gammaPlotSwitch
       this%skewPlotSwitch = skewPlotSwitch
@@ -2742,7 +2754,6 @@ class(blade_class), intent(inout) :: this
         allocate (this%airfoilFile(this%nAirfoils))
         allocate (this%alpha0(this%nAirfoils))
 
-        read(unit=10, nml=AIRFOILS)
         this%airfoilSectionLimit = airfoilSectionLimit
         this%alpha0 = alpha0
         this%airfoilFile = airfoilFile
