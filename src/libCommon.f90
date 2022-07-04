@@ -38,7 +38,7 @@ contains
 
     ! Write a copy to results if requested
     if (present(outputFilename)) then
-      open(unit=12, file=outputFilename, status='new', action='write')
+      open(unit=12, file=outputFilename, status='replace', action='write')
       write(unit=12, nml=VERSION)
       write(unit=12, nml=PARAMS)
       write(unit=12, nml=OPTIONS)

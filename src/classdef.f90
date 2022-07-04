@@ -2651,7 +2651,7 @@ class(blade_class), intent(inout) :: this
 
     ! Write a copy of geom file that was read
     if (present(outputFilename)) then
-      open(unit=14, file=outputFilename, status='new', action='write') 
+      open(unit=14, file=outputFilename, status='replace', action='write')
       write(unit=14, nml=VERSION)
       write(unit=14, nml=SURFACE)
       write(unit=14, nml=PANELS)
