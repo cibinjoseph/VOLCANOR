@@ -4501,32 +4501,34 @@ class(blade_class), intent(inout) :: this
       ! Suppress Fwake gam if required
       if (this%suppressFwakeSwitch .eq. 1) gamRollup = 0._dp
 
-      if (rowFarNext == 0) then
-        ! If no more far wakes exist to assign rolledup wake to,
-        ! then shift far wakes by one step for truncation
-        call this%shiftFwake()
-        rowFarNext = 1
-      endif
+      if (this%nFwake > 0) then
+        if (rowFarNext == 0) then
+          ! If no more far wakes exist to assign rolledup wake to,
+          ! then shift far wakes by one step for truncation
+          call this%shiftFwake()
+          rowFarNext = 1
+        endif
 
-      ! Initialize far wake tip
-      this%blade(ib)%waF(rowFarNext)%vf%fc(:, 2) = centroidLE
-      this%blade(ib)%waF(rowFarNext)%vf%fc(:, 1) = centroidTE
-      this%blade(ib)%waF(rowFarNext)%gam = gamRollup
-      this%blade(ib)%waF(rowFarNext)%vf%age = ageRollup
-      this%blade(ib)%waF(rowFarNext)%vf%rVc0 = radiusRollup
-      this%blade(ib)%waF(rowFarNext)%vf%rVc = radiusRollup
-      ! TRUE => record original length
-      call this%blade(ib)%waF(rowFarNext)%vf%calclength(.TRUE.)
+        ! Initialize far wake tip
+        this%blade(ib)%waF(rowFarNext)%vf%fc(:, 2) = centroidLE
+        this%blade(ib)%waF(rowFarNext)%vf%fc(:, 1) = centroidTE
+        this%blade(ib)%waF(rowFarNext)%gam = gamRollup
+        this%blade(ib)%waF(rowFarNext)%vf%age = ageRollup
+        this%blade(ib)%waF(rowFarNext)%vf%rVc0 = radiusRollup
+        this%blade(ib)%waF(rowFarNext)%vf%rVc = radiusRollup
+        ! TRUE => record original length
+        call this%blade(ib)%waF(rowFarNext)%vf%calclength(.TRUE.)
 
-      ! Ensure continuity in far wake by assigning
-      ! current centroidTE to LE of previous far wake filament
-      ! The discontinuity would occur due to convection of
-      ! last row of waN in convectwake()
-      if (rowFarNext < this%nFwake) then
-        this%blade(ib)%waF(rowFarNext + 1)%vf%fc(:, 2) = centroidTE
+        ! Ensure continuity in far wake by assigning
+        ! current centroidTE to LE of previous far wake filament
+        ! The discontinuity would occur due to convection of
+        ! last row of waN in convectwake()
+        if (rowFarNext < this%nFwake) then
+          this%blade(ib)%waF(rowFarNext + 1)%vf%fc(:, 2) = centroidTE
+        endif
       endif
     enddo
-    
+
     ! Shift near wake panels after rollup
     call this%shiftwake()
   end subroutine rotor_rollup
