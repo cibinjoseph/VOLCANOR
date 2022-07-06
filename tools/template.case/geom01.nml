@@ -2,7 +2,7 @@
 ! File format version
 fileFormatVersion = 0.12
 /
-! -------------------------------------------------------------------
+
 &SURFACE
 ! Surface type [0/1]Lifting [2]Non-lifting    Mirrored about X/Y/Z
 ! [-1]Lifting Image [-2]Non-lifting Image    [1/2/3]plane  from rotor
@@ -10,7 +10,7 @@ surfaceType = 0
 imagePlane = 3
 imageRotorNum = 1
 /
-! -------------------------------------------------------------------
+
 &PANELS
 ! No. of blades,nb  Prop convention  NcamberFiles  geometry filename
 nb = 1
@@ -23,14 +23,14 @@ ns = 13
 ! Near wake panels,nNwake [n]timesteps [-n]chords/revs
 nNwake = 160
 /
-! -------------------------------------------------------------------
+
 &CAMBERSECTIONS
 ! CamberSectionLimit[r/R]  Camber filename
 ! These can also be comma seperated if nCamberFiles>1
 camberSectionLimit = 1.0
 camberFile = 0
 /
-! -------------------------------------------------------------------
+
 &ORIENT
 ! X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
 hubCoords = 0.0, 0.0, 0.0
@@ -41,7 +41,7 @@ fromCoords = 0.0, 0.0, 0.0
 ! Phi       Theta       Psi     about cgCoords [all in deg]
 phiThetaPsi = 0.0, 0.0, 0.0
 /
-! -------------------------------------------------------------------
+
 &GEOMPARAMS
 ! Span[m]      root_cut[r/R]      chord[m]    preconeAngle[deg]
 span = 4.0
@@ -74,7 +74,7 @@ omegaBody = 0.0, 0.0, 0.0
 forceCalcSwitch = 0
 nAirfoils = 0
 /
-! -------------------------------------------------------------------
+
 &WAKEPARAMS
 ! apparentViscCoeff  decayCoeff
 ! (1-10000)          (bq/s) 
@@ -93,12 +93,11 @@ streamwiseCoreVec = 0.04
 rollupStartRadius = 0.75
 rollupEndRadius = 1.0 
 ! initWakeVel[m/s]     psiStart[deg]      skewLimit
-! -------------------------------------------------------------------
 initWakeVel = 0.0
 psiStart = 0.0
 skewLimit = 0.5
 /
-! -------------------------------------------------------------------
+
 &DYNAMICS
 ! BLADE DYNAMICS [Angles in radians]
 ! I*ddflap + c*dflap + (I*Om^2 + k)*flap = MflapLift + MflapConst
@@ -119,7 +118,7 @@ dpitch = 0.0
 bodyDynamicsSwitch = 0
 bodyDynamicsIOVars = 1
 /
-! -------------------------------------------------------------------
+
 &WINDFRAME
 ! CUSTOM WIND FRAME FOR FORCE OUTPUT
 ! Drag (x-wind), Side (y-wind), Lift (z-wind)
@@ -127,7 +126,7 @@ dragUnitVec = 0.0, 0.0, 0.0
 sideUnitVec = 0.0, 0.0, 0.0
 liftUnitVec = 0.0, 0.0, 0.0
 /
-! -------------------------------------------------------------------
+
 &PLOTS
 ! PLOTS OF SPANWISE DISTRIBUTIONS:
 ! [0]Off  [n]Every nth iteration  [-n]Chords/revs
@@ -136,7 +135,7 @@ inflowPlotSwitch = 0
 gammaPlotSwitch = 0
 skewPlotSwitch = 0
 /
-! -------------------------------------------------------------------
+
 &AIRFOILS
 ! section limit    alpha0    Airfoil file names
 ! (r/R)              [for FELS]
