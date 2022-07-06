@@ -2567,16 +2567,16 @@ class(blade_class), intent(inout) :: this
     real(dp), dimension(3) :: hubCoords, cgCoords, fromCoords, phiThetaPsi, &
       & shaftAxis, velBody, omegaBody
     real(dp) :: span, rootcut, chord, preconeAngle, Omega, &
-      & theta0, thetaC, thetaS, thetaTwist, axisymmetrySwitch, &
-      & pivotLE, flapHinge
-    integer:: spanwiseLiftSwitch, symmetricTau, &
-      & customTrajectorySwitch, forceCalcSwitch
-    real(dp) :: apparentViscCoeff, decayCoeff, wakeTruncateNt, &
-      & prescWakeAfterTruncNt, prescWakeGenNt, spanwiseCore, &
+      & theta0, thetaC, thetaS, thetaTwist, pivotLE, flapHinge
+    integer:: spanwiseLiftSwitch, symmetricTau, axisymmetrySwitch, &
+      & customTrajectorySwitch, forceCalcSwitch, wakeTruncateNt, &
+      & prescWakeAfterTruncNt, prescWakeGenNt
+    real(dp) :: apparentViscCoeff, decayCoeff, spanwiseCore, &
       & rollupStartRadius, rollupEndRadius, initWakeVel, psiStart, skewLimit
     real(dp), allocatable, dimension(:) :: streamwiseCoreVec
     integer :: bladeDynamicsSwitch, pitchDynamicsSwitch
-    real(dp) :: flapInitial, dflapInitial, Iflap, cflap, kflap,MflapConstant, dpitch
+    real(dp) :: flapInitial, dflapInitial, &
+      & Iflap, cflap, kflap, MflapConstant, dpitch
     integer :: bodyDynamicsSwitch, bodyDynamicsIOVars
     real(dp), dimension(3) :: dragUnitVec, sideUnitVec, liftUnitVec
     integer :: inflowPlotSwitch, gammaPlotSwitch, skewPlotSwitch
