@@ -7,7 +7,6 @@ module libCommon
 contains
 
   subroutine readConfig(filename, outputFilename)
-    use libMath, only : eps, skip_comments
     use classdef, only : switches_class
     character(len=*), intent(in) :: filename
     character(len=*), optional, intent(in) :: outputFilename
@@ -66,7 +65,7 @@ contains
   end subroutine readConfig
 
   subroutine read_config(filename)
-    use libMath, only : eps, skip_comments
+    use libMath, only: skip_comments
     use classdef, only : switches_class
     character(len=*), intent(in) :: filename
     character(len=10) :: fileFormatVersion, currentVersion

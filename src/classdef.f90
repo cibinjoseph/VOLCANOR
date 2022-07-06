@@ -2554,7 +2554,6 @@ class(blade_class), intent(inout) :: this
   class(rotor_class) :: this
     character(len=*), intent(in) :: filename
     character(len=*), optional, intent(in) :: outputFilename
-    integer :: i
     character(len=10) :: fileFormatVersion, currentTemplateVersion
 
     ! Namelist variables
