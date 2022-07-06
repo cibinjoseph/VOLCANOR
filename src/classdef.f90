@@ -1471,11 +1471,10 @@ class(blade_class), intent(inout) :: this
 
   end subroutine blade_convectwake
 
-  subroutine blade_limitWakeVel(this, rowNear, rowFar, dt)
+  subroutine blade_limitWakeVel(this, rowNear, rowFar)
     !! Limits all wake velocity to a set value to prevent blow up
   class(blade_class), intent(inout) :: this
     integer, intent(in) :: rowNear, rowFar
-    real(dp), intent(in) :: dt
     integer :: i, j, di, nNwake, nFwake
 
     nNwake = size(this%waN, 1)
@@ -4722,7 +4721,7 @@ class(blade_class), intent(inout) :: this
 
     do ib = 1, this%nbConvect
       ! Wake velocity limiter turned off since it's not tested thoroghly
-      ! call this%blade(ib)%limitWakeVel(this%rowNear, this%rowFar, dt)
+      ! call this%blade(ib)%limitWakeVel(this%rowNear, this%rowFar)
       call this%blade(ib)%convectwake(this%rowNear, this%rowFar, dt, wakeType)
     enddo
 
