@@ -5,13 +5,13 @@ program main
   implicit none
 
   ! Ensure all necessary files exist
-  inquire(file='config.in', exist=fileExists)
-  if (.not. fileExists) error stop 'ERROR: config.in does not exist'
+  inquire(file='config.nml', exist=fileExists)
+  if (.not. fileExists) error stop 'ERROR: config.nml does not exist'
 
   ! Read config.in file
   print*
   call print_status('Reading file '//'config.nml')
-  call readConfig('config.nml')
+  call readConfig('config.nml', ResultsDir//'config.nml')
   call print_status()    ! SUCCESS
 
   ! Allocate rotor objects
@@ -20,11 +20,11 @@ program main
   ! Read rotor??.in files
   do ir = 1, nr
     write (rotorChar, '(I0.2)') ir
-    rotorFile = 'geom'//rotorChar//'.in'
+    rotorFile = 'geom'//rotorChar//'.nml'
     inquire(file=rotorFile, exist=fileExists)
     call print_status('Reading file '//rotorFile)
-    if (.not. fileExists) error stop 'ERROR: A geomXX.in file does not exist'
-    call rotor(ir)%read_geom(rotorFile)
+    if (.not. fileExists) error stop 'ERROR: A geomXX.nml file does not exist'
+    call rotor(ir)%readGeom(rotorFile, ResultsDir//rotorFile)
     call print_status()    ! SUCCESS
   enddo
 

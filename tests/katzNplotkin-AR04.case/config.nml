@@ -6,8 +6,8 @@ fileFormatVersion = 0.4
 &PARAMS
 ! NO. OF TIMESTEPS [nt]    TIMESTEP (sec) [dt]         NO. OF ROTORS [nr]
 ! [-nt]chords or revs    [0]default [-nt]chords or revs
-nt = -10
-dt = 0.0
+nt = 160
+dt = 0.00625
 nr = 1
 ! DENSITY [kg/m3]    SOUND VEL. [m/s]  KINEMATICVISC [m2/s]
 density = 1.0
@@ -28,13 +28,13 @@ spanSpacing = 2
 chordSpacing = 1
 ! PLOT WAKE: [0]Off [n]Every n'th iteration [-n]chords or revs
 ! wakePlotSwitch   wakeTipPlotSwitch   forcePlotSwitch   gridPlotSwitch
-wakePlot = 1
+wakePlot = 32
 wakeTipPlot = 0
 rotorForcePlot = 1
 gridPlot = 0
 ! WAKE PROPERTY SWITCHES: [0]Off [1]On
 ! wakeDissipationSwitch            wakeStrainSwitch   wakeBurstSwitch
-wakeDissipation = 1
+wakeDissipation = 0
 wakeStrain = 0
 wakeBurst = 0
 ! SLOW START TO AVOID LARGE STARTING VORTEX:

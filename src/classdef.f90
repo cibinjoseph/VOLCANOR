@@ -322,7 +322,7 @@ module classdef
     character(len=30) :: geometryFile
     real(dp) :: nonDimforceDenominator
   contains
-    procedure :: read_geom => rotor_read_geom
+    ! procedure :: read_geom => rotor_read_geom
     procedure :: readGeom => rotor_readGeom
     procedure :: init => rotor_init
     procedure :: deinit => rotor_deinit
@@ -1471,11 +1471,10 @@ class(blade_class), intent(inout) :: this
 
   end subroutine blade_convectwake
 
-  subroutine blade_limitWakeVel(this, rowNear, rowFar, dt)
+  subroutine blade_limitWakeVel(this, rowNear, rowFar)
     !! Limits all wake velocity to a set value to prevent blow up
   class(blade_class), intent(inout) :: this
     integer, intent(in) :: rowNear, rowFar
-    real(dp), intent(in) :: dt
     integer :: i, j, di, nNwake, nFwake
 
     nNwake = size(this%waN, 1)
@@ -2419,142 +2418,142 @@ class(blade_class), intent(inout) :: this
   ! ++++ | rotor_class Methods
   !------+--
 
-  subroutine rotor_read_geom(this, filename)
-    use libMath, only: skip_comments
-  class(rotor_class) :: this
-    character(len=*), intent(in) :: filename
-    integer :: i
-    character(len=10) :: fileFormatVersion, currentTemplateVersion
+  ! subroutine rotor_read_geom(this, filename)
+  !   use libMath, only: skip_comments
+  ! class(rotor_class) :: this
+  !   character(len=*), intent(in) :: filename
+  !   integer :: i
+  !   character(len=10) :: fileFormatVersion, currentTemplateVersion
+  !
+  !   currentTemplateVersion = '0.12'
+  !
+  !   open (unit=12, file=filename, status='old', action='read')
+  !   call skip_comments(12)
+  !   read(12, *) fileFormatVersion
+  !   if (adjustl(fileFormatVersion) /= currentTemplateVersion) then
+  !     error stop "ERROR: geomXX.in template version does not match"
+  !   endif
+  !
+  !   call skip_comments(12)
+  !   ! [0/1]Lifting [2]Non-lifting [-1]Lifting Image [-2]Non-lifting Image
+  !   read (12, *) this%surfaceType, this%imagePlane, this%imageRotorNum
+  !
+  !   call skip_comments(12)
+  !   read (12, *) this%nb, this%propConvention, &
+  !     & this%nCamberFiles, this%geometryFile
+  !
+  !   ! Read other parameters only if non-mirrored type geometry
+  !   ! If mirrored, all parameters are computed from source geometry
+  !   if (this%surfaceType .ge. 0) then
+  !
+  !     call skip_comments(12)
+  !     if (this%nCamberFiles > 0) then
+  !       allocate(this%camberSectionLimit(this%nCamberFiles))
+  !       allocate(this%camberFile(this%nCamberFiles))
+  !       do i = 1, this%nCamberFiles
+  !         read(12, *) this%camberSectionLimit(i), this%camberFile(i)
+  !         call skip_comments(12)
+  !       enddo
+  !     else
+  !       allocate(this%camberSectionLimit(1))
+  !       allocate(this%camberFile(1))
+  !       ! Default uncambered section
+  !       this%camberSectionLimit = 1.0
+  !       this%camberFile = '0'
+  !       read(12, *)
+  !       call skip_comments(12)
+  !     endif
+  !
+  !     read (12, *) this%nc, this%ns, this%nNwake
+  !     call skip_comments(12)
+  !     read (12, *) this%hubCoords(1), this%hubCoords(2), this%hubCoords(3)
+  !     call skip_comments(12)
+  !     read (12, *) this%cgCoords(1), this%cgCoords(2), this%cgCoords(3)
+  !     call skip_comments(12)
+  !     read (12, *) this%fromCoords(1), this%fromCoords(2), this%fromCoords(3)
+  !     call skip_comments(12)
+  !     read (12, *) this%pts(1), this%pts(2), this%pts(3)
+  !     call skip_comments(12)
+  !     read (12, *) this%radius, this%root_cut, this%chord, this%preconeAngle
+  !     call skip_comments(12)
+  !     read (12, *) this%Omega, this%shaftAxis(1), this%shaftAxis(2), this%shaftAxis(3)
+  !     call skip_comments(12)
+  !     read (12, *) this%controlPitch(1), this%controlPitch(2), this%controlPitch(3), this%thetaTwist
+  !     call skip_comments(12)
+  !     read(12, *) this%customTrajectorySwitch, this%axisymmetrySwitch
+  !     call skip_comments(12)
+  !     read (12, *) this%velBody(1), this%velBody(2), this%velBody(3) &
+  !       , this%omegaBody(1), this%omegaBody(2), this%omegaBody(3)
+  !     call skip_comments(12)
+  !     read (12, *) this%pivotLE, this%flapHinge, this%spanwiseLiftSwitch, &
+  !       & this%symmetricTau
+  !     call skip_comments(12)
+  !     read (12, *) this%apparentViscCoeff, this%decayCoeff
+  !     call skip_comments(12)
+  !     read(12, *) this%wakeTruncateNt, &
+  !       & this%prescWakeAfterTruncNt, this%prescWakeGenNt
+  !     call skip_comments(12)
+  !     read (12, *) this%spanwiseCore, this%streamwiseCoreSwitch
+  !     call skip_comments(12)
+  !     allocate (this%streamwiseCoreVec(this%ns + 1))
+  !     if (this%streamwiseCoreSwitch .eq. 'i') then  ! [i]dentical
+  !       read (12, *) this%streamwiseCoreVec(1)
+  !       do i = 2, this%ns + 1
+  !         this%streamwiseCoreVec(i) = this%streamwiseCoreVec(1)
+  !       enddo
+  !     elseif (this%streamwiseCoreSwitch .eq. 's') then  ! [s]ectional
+  !       read (12, *) (this%streamwiseCoreVec(i), i=1, this%ns + 1)
+  !     else
+  !       error stop 'ERROR: Wrong input for streamwiseCoreSwitch in geomXX.in'
+  !     endif
+  !     call skip_comments(12)
+  !     ! Dimensional quantities
+  !     read (12, *) this%rollupStartRadius, this%rollupEndRadius
+  !     call skip_comments(12)
+  !     read (12, *) this%initWakeVel, this%psiStart, this%skewLimit
+  !     call skip_comments(12)
+  !     read (12, *) this%bladeDynamicsSwitch
+  !     call skip_comments(12)
+  !     read (12, *) this%flapInitial, this%dflapInitial, &
+  !       & this%Iflap, this%cflap, this%kflap, this%MflapConstant
+  !     call skip_comments(12)
+  !     read (12, *) this%pitchDynamicsSwitch, this%dpitch
+  !     call skip_comments(12)
+  !     read (12, *) this%bodyDynamicsSwitch, this%bodyDynamicsIOVars
+  !     call skip_comments(12)
+  !     read (12, *) this%dragUnitVec(1), this%dragUnitVec(2), this%dragUnitVec(3)
+  !     call skip_comments(12)
+  !     read (12, *) this%sideUnitVec(1), this%sideUnitVec(2), this%sideUnitVec(3)
+  !     call skip_comments(12)
+  !     read (12, *) this%liftUnitVec(1), this%liftUnitVec(2), this%liftUnitVec(3)
+  !     call skip_comments(12)
+  !     read (12, *) this%inflowPlotSwitch, this%gammaPlotSwitch, &
+  !       & this%skewPlotSwitch
+  !     call skip_comments(12)
+  !     read (12, *) this%forceCalcSwitch, this%nAirfoils
+  !     ! Ensure airfoil tables are provided when force calculation requires them
+  !     if (this%forceCalcSwitch .gt. 0 .and. this%nAirfoils .eq. 0) then 
+  !       error stop 'ERROR: No. of airfoil tables set to 0 in geomXX.in'
+  !     endif
+  !     call skip_comments(12)
+  !     if (this%nAirfoils .gt. 0) then
+  !       allocate (this%airfoilSectionLimit(this%nAirfoils))
+  !       allocate (this%airfoilFile(this%nAirfoils))
+  !       allocate (this%alpha0(this%nAirfoils))
+  !       do i = 1, this%nAirfoils
+  !         read (12, *) this%airfoilSectionLimit(i), this%alpha0(i), this%airfoilFile(i)
+  !       enddo
+  !     endif
+  !   endif
+  !   close (12)
+  ! end subroutine rotor_read_geom
 
-    currentTemplateVersion = '0.12'
-
-    open (unit=12, file=filename, status='old', action='read')
-    call skip_comments(12)
-    read(12, *) fileFormatVersion
-    if (adjustl(fileFormatVersion) /= currentTemplateVersion) then
-      error stop "ERROR: geomXX.in template version does not match"
-    endif
-
-    call skip_comments(12)
-    ! [0/1]Lifting [2]Non-lifting [-1]Lifting Image [-2]Non-lifting Image
-    read (12, *) this%surfaceType, this%imagePlane, this%imageRotorNum
-
-    call skip_comments(12)
-    read (12, *) this%nb, this%propConvention, &
-      & this%nCamberFiles, this%geometryFile
-
-    ! Read other parameters only if non-mirrored type geometry
-    ! If mirrored, all parameters are computed from source geometry
-    if (this%surfaceType .ge. 0) then
-
-      call skip_comments(12)
-      if (this%nCamberFiles > 0) then
-        allocate(this%camberSectionLimit(this%nCamberFiles))
-        allocate(this%camberFile(this%nCamberFiles))
-        do i = 1, this%nCamberFiles
-          read(12, *) this%camberSectionLimit(i), this%camberFile(i)
-          call skip_comments(12)
-        enddo
-      else
-        allocate(this%camberSectionLimit(1))
-        allocate(this%camberFile(1))
-        ! Default uncambered section
-        this%camberSectionLimit = 1.0
-        this%camberFile = '0'
-        read(12, *)
-        call skip_comments(12)
-      endif
-
-      read (12, *) this%nc, this%ns, this%nNwake
-      call skip_comments(12)
-      read (12, *) this%hubCoords(1), this%hubCoords(2), this%hubCoords(3)
-      call skip_comments(12)
-      read (12, *) this%cgCoords(1), this%cgCoords(2), this%cgCoords(3)
-      call skip_comments(12)
-      read (12, *) this%fromCoords(1), this%fromCoords(2), this%fromCoords(3)
-      call skip_comments(12)
-      read (12, *) this%pts(1), this%pts(2), this%pts(3)
-      call skip_comments(12)
-      read (12, *) this%radius, this%root_cut, this%chord, this%preconeAngle
-      call skip_comments(12)
-      read (12, *) this%Omega, this%shaftAxis(1), this%shaftAxis(2), this%shaftAxis(3)
-      call skip_comments(12)
-      read (12, *) this%controlPitch(1), this%controlPitch(2), this%controlPitch(3), this%thetaTwist
-      call skip_comments(12)
-      read(12, *) this%customTrajectorySwitch, this%axisymmetrySwitch
-      call skip_comments(12)
-      read (12, *) this%velBody(1), this%velBody(2), this%velBody(3) &
-        , this%omegaBody(1), this%omegaBody(2), this%omegaBody(3)
-      call skip_comments(12)
-      read (12, *) this%pivotLE, this%flapHinge, this%spanwiseLiftSwitch, &
-        & this%symmetricTau
-      call skip_comments(12)
-      read (12, *) this%apparentViscCoeff, this%decayCoeff
-      call skip_comments(12)
-      read(12, *) this%wakeTruncateNt, &
-        & this%prescWakeAfterTruncNt, this%prescWakeGenNt
-      call skip_comments(12)
-      read (12, *) this%spanwiseCore, this%streamwiseCoreSwitch
-      call skip_comments(12)
-      allocate (this%streamwiseCoreVec(this%ns + 1))
-      if (this%streamwiseCoreSwitch .eq. 'i') then  ! [i]dentical
-        read (12, *) this%streamwiseCoreVec(1)
-        do i = 2, this%ns + 1
-          this%streamwiseCoreVec(i) = this%streamwiseCoreVec(1)
-        enddo
-      elseif (this%streamwiseCoreSwitch .eq. 's') then  ! [s]ectional
-        read (12, *) (this%streamwiseCoreVec(i), i=1, this%ns + 1)
-      else
-        error stop 'ERROR: Wrong input for streamwiseCoreSwitch in geomXX.in'
-      endif
-      call skip_comments(12)
-      ! Dimensional quantities
-      read (12, *) this%rollupStartRadius, this%rollupEndRadius
-      call skip_comments(12)
-      read (12, *) this%initWakeVel, this%psiStart, this%skewLimit
-      call skip_comments(12)
-      read (12, *) this%bladeDynamicsSwitch
-      call skip_comments(12)
-      read (12, *) this%flapInitial, this%dflapInitial, &
-        & this%Iflap, this%cflap, this%kflap, this%MflapConstant
-      call skip_comments(12)
-      read (12, *) this%pitchDynamicsSwitch, this%dpitch
-      call skip_comments(12)
-      read (12, *) this%bodyDynamicsSwitch, this%bodyDynamicsIOVars
-      call skip_comments(12)
-      read (12, *) this%dragUnitVec(1), this%dragUnitVec(2), this%dragUnitVec(3)
-      call skip_comments(12)
-      read (12, *) this%sideUnitVec(1), this%sideUnitVec(2), this%sideUnitVec(3)
-      call skip_comments(12)
-      read (12, *) this%liftUnitVec(1), this%liftUnitVec(2), this%liftUnitVec(3)
-      call skip_comments(12)
-      read (12, *) this%inflowPlotSwitch, this%gammaPlotSwitch, &
-        & this%skewPlotSwitch
-      call skip_comments(12)
-      read (12, *) this%forceCalcSwitch, this%nAirfoils
-      ! Ensure airfoil tables are provided when force calculation requires them
-      if (this%forceCalcSwitch .gt. 0 .and. this%nAirfoils .eq. 0) then 
-        error stop 'ERROR: No. of airfoil tables set to 0 in geomXX.in'
-      endif
-      call skip_comments(12)
-      if (this%nAirfoils .gt. 0) then
-        allocate (this%airfoilSectionLimit(this%nAirfoils))
-        allocate (this%airfoilFile(this%nAirfoils))
-        allocate (this%alpha0(this%nAirfoils))
-        do i = 1, this%nAirfoils
-          read (12, *) this%airfoilSectionLimit(i), this%alpha0(i), this%airfoilFile(i)
-        enddo
-      endif
-    endif
-    close (12)
-  end subroutine rotor_read_geom
-
-  subroutine rotor_readGeom(this, filename)
+  subroutine rotor_readGeom(this, filename, outputFilename)
     ! Read geom as a namelist
     use libMath, only: skip_comments
   class(rotor_class) :: this
     character(len=*), intent(in) :: filename
-    integer :: i
+    character(len=*), optional, intent(in) :: outputFilename
     character(len=10) :: fileFormatVersion, currentTemplateVersion
 
     ! Namelist variables
@@ -2566,16 +2565,16 @@ class(blade_class), intent(inout) :: this
     real(dp), dimension(3) :: hubCoords, cgCoords, fromCoords, phiThetaPsi, &
       & shaftAxis, velBody, omegaBody
     real(dp) :: span, rootcut, chord, preconeAngle, Omega, &
-      & theta0, thetaC, thetaS, thetaTwist, axisymmetrySwitch, &
-      & pivotLE, flapHinge
-    integer:: spanwiseLiftSwitch, symmetricTau, &
-      & customTrajectorySwitch, forceCalcSwitch
-    real(dp) :: apparentViscCoeff, decayCoeff, wakeTruncateNt, &
-      & prescWakeAfterTruncNt, prescWakeGenNt, spanwiseCore, &
+      & theta0, thetaC, thetaS, thetaTwist, pivotLE, flapHinge
+    integer:: spanwiseLiftSwitch, symmetricTau, axisymmetrySwitch, &
+      & customTrajectorySwitch, forceCalcSwitch, wakeTruncateNt, &
+      & prescWakeAfterTruncNt, prescWakeGenNt
+    real(dp) :: apparentViscCoeff, decayCoeff, spanwiseCore, &
       & rollupStartRadius, rollupEndRadius, initWakeVel, psiStart, skewLimit
     real(dp), allocatable, dimension(:) :: streamwiseCoreVec
     integer :: bladeDynamicsSwitch, pitchDynamicsSwitch
-    real(dp) :: flapInitial, dflapInitial, Iflap, cflap, kflap,MflapConstant, dpitch
+    real(dp) :: flapInitial, dflapInitial, &
+      & Iflap, cflap, kflap, MflapConstant, dpitch
     integer :: bodyDynamicsSwitch, bodyDynamicsIOVars
     real(dp), dimension(3) :: dragUnitVec, sideUnitVec, liftUnitVec
     integer :: inflowPlotSwitch, gammaPlotSwitch, skewPlotSwitch
@@ -2614,9 +2613,9 @@ class(blade_class), intent(inout) :: this
 
     namelist /AIRFOILS/ airfoilSectionLimit, alpha0, airfoilFile
 
-    currentTemplateVersion = '0.12'
+    currentTemplateVersion = '0.13'
 
-    open (unit=12, file=filename, status='old', action='read') 
+    open(unit=12, file=filename, status='old', action='read') 
 
     read(unit=12, nml=VERSION)
     if (adjustl(fileFormatVersion) /= currentTemplateVersion) then
@@ -2624,12 +2623,52 @@ class(blade_class), intent(inout) :: this
     endif
 
     read(unit=12, nml=SURFACE)
+    read(unit=12, nml=PANELS)
+    if (this%nCamberFiles > 0) then
+      allocate(camberSectionLimit(nCamberFiles))
+      allocate(camberFile(nCamberFiles))
+    else
+      allocate(camberSectionLimit(1))
+      allocate(camberFile(1))
+    endif
+    read(unit=12, nml=CAMBERSECTIONS)
+    read(unit=12, nml=ORIENT)
+    read(unit=12, nml=GEOMPARAMS)
+    allocate (streamwiseCoreVec(ns + 1))
+    read(unit=12, nml=WAKEPARAMS)
+    read(unit=12, nml=DYNAMICS)
+    read(unit=12, nml=WINDFRAME)
+    read(unit=12, nml=PLOTS)
+    if (nAirfoils .gt. 0) then
+      allocate (airfoilSectionLimit(nAirfoils))
+      allocate (airfoilFile(nAirfoils))
+      allocate (alpha0(nAirfoils))
+      read(unit=12, nml=AIRFOILS)
+    endif
+    close(12)
+
+    ! Write a copy of geom file that was read
+    if (present(outputFilename)) then
+      open(unit=14, file=outputFilename, status='replace', action='write')
+      write(unit=14, nml=VERSION)
+      write(unit=14, nml=SURFACE)
+      write(unit=14, nml=PANELS)
+      write(unit=14, nml=CAMBERSECTIONS)
+      write(unit=14, nml=ORIENT)
+      write(unit=14, nml=GEOMPARAMS)
+      write(unit=14, nml=WAKEPARAMS)
+      write(unit=14, nml=DYNAMICS)
+      write(unit=14, nml=WINDFRAME)
+      write(unit=14, nml=PLOTS)
+      close(14)
+    endif
+
+    ! Set all variables to required values
     ! [0/1]Lifting [2]Non-lifting [-1]Lifting Image [-2]Non-lifting Image
     this%surfaceType = surfaceType
     this%imagePlane = imagePlane
     this%imageRotorNum = imageRotorNum
 
-    read(unit=12, nml=PANELS)
     this%nb = nb
     this%propConvention= propConvention
     this%geometryFile = geometryFile 
@@ -2645,37 +2684,26 @@ class(blade_class), intent(inout) :: this
       if (this%nCamberFiles > 0) then
         allocate(this%camberSectionLimit(this%nCamberFiles))
         allocate(this%camberFile(this%nCamberFiles))
-        allocate(camberSectionLimit(this%nCamberFiles))
-        allocate(camberFile(this%nCamberFiles))
-        read(unit=12, nml=CAMBERSECTIONS)
         this%camberSectionLimit = camberSectionLimit
         this%camberFile = camberFile
       else
         allocate(this%camberSectionLimit(1))
         allocate(this%camberFile(1))
-        allocate(camberSectionLimit(1))
-        allocate(camberFile(1))
         ! Default uncambered section
-        read(unit=12, nml=CAMBERSECTIONS)
         this%camberSectionLimit = 1.0
         this%camberFile = '0'
       endif
 
-      read(unit=12, nml=ORIENT)
       this%hubCoords = hubCoords
       this%cgCoords = cgCoords
       this%fromCoords = fromCoords
       this%pts = phiThetaPsi
 
-      read(unit=12, nml=GEOMPARAMS)
       this%radius = span
       this%root_cut = rootcut
       this%chord = chord
       this%preconeAngle = preconeAngle
       this%Omega = Omega
-      ! DEBUG - these keep showing 0.0
-      print*, Omega
-      print*, this%Omega
       this%shaftAxis = shaftAxis
       this%controlPitch = [theta0, thetaC, thetaS]
       this%thetaTwist = thetaTwist
@@ -2691,8 +2719,6 @@ class(blade_class), intent(inout) :: this
       this%nAirfoils = nAirfoils
 
       allocate (this%streamwiseCoreVec(this%ns + 1))
-      allocate (streamwiseCoreVec(this%ns + 1))
-      read(unit=12, nml=WAKEPARAMS)
       this%apparentViscCoeff = apparentViscCoeff
       this%decayCoeff =  decayCoeff
       this%wakeTruncateNt = wakeTruncateNt
@@ -2710,7 +2736,6 @@ class(blade_class), intent(inout) :: this
       this%psiStart = psiStart
       this%skewLimit = skewLimit
 
-      read(unit=12, nml=DYNAMICS)
       this%bladeDynamicsSwitch = bladeDynamicsSwitch
       this%flapInitial = flapInitial
       this%dflapInitial = dflapInitial
@@ -2723,12 +2748,10 @@ class(blade_class), intent(inout) :: this
       this%bodyDynamicsSwitch = bodyDynamicsSwitch
       this%bodyDynamicsIOVars = bodyDynamicsIOVars
 
-      read(unit=12, nml=WINDFRAME)
       this%dragUnitVec = dragUnitVec
       this%sideUnitVec = sideUnitVec
       this%liftUnitVec = liftUnitVec
 
-      read(unit=12, nml=PLOTS)
       this%inflowPlotSwitch = inflowPlotSwitch
       this%gammaPlotSwitch = gammaPlotSwitch
       this%skewPlotSwitch = skewPlotSwitch
@@ -2742,13 +2765,11 @@ class(blade_class), intent(inout) :: this
         allocate (this%airfoilFile(this%nAirfoils))
         allocate (this%alpha0(this%nAirfoils))
 
-        read(unit=10, nml=AIRFOILS)
         this%airfoilSectionLimit = airfoilSectionLimit
         this%alpha0 = alpha0
         this%airfoilFile = airfoilFile
       endif
     endif
-    close (12)
   end subroutine rotor_readGeom
 
   subroutine rotor_init(this, rotorNumber, density, dt, nt, &
@@ -2905,9 +2926,9 @@ class(blade_class), intent(inout) :: this
         this%omegaBody(2) = -1._dp*this%omegaBody(2)
       end select
 
-        this%xAxisBody(this%imagePlane) = -1._dp*this%xAxisBody(this%imagePlane)
-        this%yAxisBody(this%imagePlane) = -1._dp*this%yAxisBody(this%imagePlane)
-        this%zAxisBody(this%imagePlane) = -1._dp*this%zAxisBody(this%imagePlane)
+      this%xAxisBody(this%imagePlane) = -1._dp*this%xAxisBody(this%imagePlane)
+      this%yAxisBody(this%imagePlane) = -1._dp*this%yAxisBody(this%imagePlane)
+      this%zAxisBody(this%imagePlane) = -1._dp*this%zAxisBody(this%imagePlane)
     endif
 
     ! Warn if all velocities zero
@@ -2920,6 +2941,8 @@ class(blade_class), intent(inout) :: this
     ! Set dt automatically if not prescribed
     ! if dt is negative, assume no. of chords or revs
     if (dsign(1._dp, dt) < 0._dp) then
+      ! DEBUG
+      print*, this%Omega
       if (abs(this%Omega) < eps) then  ! Fixed wing
         dt = abs(dt)*this%chord/norm2(this%velBody)
       else  ! Rotor
@@ -4476,32 +4499,34 @@ class(blade_class), intent(inout) :: this
       ! Suppress Fwake gam if required
       if (this%suppressFwakeSwitch .eq. 1) gamRollup = 0._dp
 
-      if (rowFarNext == 0) then
-        ! If no more far wakes exist to assign rolledup wake to,
-        ! then shift far wakes by one step for truncation
-        call this%shiftFwake()
-        rowFarNext = 1
-      endif
+      if (this%nFwake > 0) then
+        if (rowFarNext == 0) then
+          ! If no more far wakes exist to assign rolledup wake to,
+          ! then shift far wakes by one step for truncation
+          call this%shiftFwake()
+          rowFarNext = 1
+        endif
 
-      ! Initialize far wake tip
-      this%blade(ib)%waF(rowFarNext)%vf%fc(:, 2) = centroidLE
-      this%blade(ib)%waF(rowFarNext)%vf%fc(:, 1) = centroidTE
-      this%blade(ib)%waF(rowFarNext)%gam = gamRollup
-      this%blade(ib)%waF(rowFarNext)%vf%age = ageRollup
-      this%blade(ib)%waF(rowFarNext)%vf%rVc0 = radiusRollup
-      this%blade(ib)%waF(rowFarNext)%vf%rVc = radiusRollup
-      ! TRUE => record original length
-      call this%blade(ib)%waF(rowFarNext)%vf%calclength(.TRUE.)
+        ! Initialize far wake tip
+        this%blade(ib)%waF(rowFarNext)%vf%fc(:, 2) = centroidLE
+        this%blade(ib)%waF(rowFarNext)%vf%fc(:, 1) = centroidTE
+        this%blade(ib)%waF(rowFarNext)%gam = gamRollup
+        this%blade(ib)%waF(rowFarNext)%vf%age = ageRollup
+        this%blade(ib)%waF(rowFarNext)%vf%rVc0 = radiusRollup
+        this%blade(ib)%waF(rowFarNext)%vf%rVc = radiusRollup
+        ! TRUE => record original length
+        call this%blade(ib)%waF(rowFarNext)%vf%calclength(.TRUE.)
 
-      ! Ensure continuity in far wake by assigning
-      ! current centroidTE to LE of previous far wake filament
-      ! The discontinuity would occur due to convection of
-      ! last row of waN in convectwake()
-      if (rowFarNext < this%nFwake) then
-        this%blade(ib)%waF(rowFarNext + 1)%vf%fc(:, 2) = centroidTE
+        ! Ensure continuity in far wake by assigning
+        ! current centroidTE to LE of previous far wake filament
+        ! The discontinuity would occur due to convection of
+        ! last row of waN in convectwake()
+        if (rowFarNext < this%nFwake) then
+          this%blade(ib)%waF(rowFarNext + 1)%vf%fc(:, 2) = centroidTE
+        endif
       endif
     enddo
-    
+
     ! Shift near wake panels after rollup
     call this%shiftwake()
   end subroutine rotor_rollup
@@ -4695,7 +4720,7 @@ class(blade_class), intent(inout) :: this
 
     do ib = 1, this%nbConvect
       ! Wake velocity limiter turned off since it's not tested thoroghly
-      ! call this%blade(ib)%limitWakeVel(this%rowNear, this%rowFar, dt)
+      ! call this%blade(ib)%limitWakeVel(this%rowNear, this%rowFar)
       call this%blade(ib)%convectwake(this%rowNear, this%rowFar, dt, wakeType)
     enddo
 

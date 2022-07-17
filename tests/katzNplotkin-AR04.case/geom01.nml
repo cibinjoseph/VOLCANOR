@@ -19,7 +19,7 @@ geometryFile = 0
 nCamberFiles = 0
 ! Chordwise panels,nc   Spanwise panels,ns   
 nc = 4
-ns = 13
+ns = 26
 ! Near wake panels,nNwake [n]timesteps [-n]chords/revs
 nNwake = 160
 /
@@ -78,7 +78,7 @@ nAirfoils = 0
 &WAKEPARAMS
 ! apparentViscCoeff  decayCoeff
 ! (1-10000)          (bq/s) 
-apparentViscCoeff = 1
+apparentViscCoeff = 5
 decayCoeff = 0
 ! wakeTruncateNt  prescWakeAfterTruncNt   prescWakeGenNt
 !   [0]Off [n] timesteps [-n] chords/revs

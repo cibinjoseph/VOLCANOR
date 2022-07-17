@@ -6,10 +6,10 @@ module libCommon
 
 contains
 
-  subroutine readConfig(filename)
-    use libMath, only : eps, skip_comments
+  subroutine readConfig(filename, outputFilename)
     use classdef, only : switches_class
     character(len=*), intent(in) :: filename
+    character(len=*), optional, intent(in) :: outputFilename
     character(len=10) :: fileFormatVersion, currentVersion
     integer :: restartWriteNt, restartFromNt, ntSub, ntSubInit, &
       & spanSpacing, chordSpacing, wakePlot, wakeTipPlot, rotorForcePlot, &
@@ -24,17 +24,25 @@ contains
       & gridPlot, wakeDissipation, wakeStrain, wakeBurst, slowStart, &
       & slowStartNt, fdScheme, initWakeVelNt, probe
 
-    currentVersion = '0.3'
+    currentVersion = '0.4'
 
-    open (unit=11, file=filename, status='old', action='read')
-    read (unit=11, nml=VERSION)
+    open(unit=11, file=filename, status='old', action='read')
+    read(unit=11, nml=VERSION)
     if (adjustl(fileFormatVersion) /= currentVersion) then
       error stop "ERROR: config.nml template version does not match"
     endif
+    read(unit=11, nml=PARAMS)
+    read(unit=11, nml=OPTIONS)
+    close(11)
 
-    read (unit=11, nml=PARAMS)
-
-    read (unit=11, nml=OPTIONS)
+    ! Write a copy to results if requested
+    if (present(outputFilename)) then
+      open(unit=12, file=outputFilename, status='replace', action='write')
+      write(unit=12, nml=VERSION)
+      write(unit=12, nml=PARAMS)
+      write(unit=12, nml=OPTIONS)
+      close(12)
+    endif
 
     switches%restartWriteNt = restartWriteNt
     switches%restartFromNt = restartFromNt
@@ -54,11 +62,10 @@ contains
     switches%fdScheme = fdScheme
     switches%initWakeVelNt = initWakeVelNt
     switches%probe = probe
-    close (11)
   end subroutine readConfig
 
   subroutine read_config(filename)
-    use libMath, only : eps, skip_comments
+    use libMath, only: skip_comments
     use classdef, only : switches_class
     character(len=*), intent(in) :: filename
     character(len=10) :: fileFormatVersion, currentVersion
