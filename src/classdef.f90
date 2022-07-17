@@ -2941,8 +2941,6 @@ class(blade_class), intent(inout) :: this
     ! Set dt automatically if not prescribed
     ! if dt is negative, assume no. of chords or revs
     if (dsign(1._dp, dt) < 0._dp) then
-      ! DEBUG
-      print*, this%Omega
       if (abs(this%Omega) < eps) then  ! Fixed wing
         dt = abs(dt)*this%chord/norm2(this%velBody)
       else  ! Rotor
