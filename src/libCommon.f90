@@ -24,7 +24,7 @@ contains
       & gridPlot, wakeDissipation, wakeStrain, wakeBurst, slowStart, &
       & slowStartNt, fdScheme, initWakeVelNt, probe
 
-    currentVersion = '0.3'
+    currentVersion = '0.4'
 
     open(unit=11, file=filename, status='old', action='read')
     read(unit=11, nml=VERSION)

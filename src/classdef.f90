@@ -2613,7 +2613,7 @@ class(blade_class), intent(inout) :: this
 
     namelist /AIRFOILS/ airfoilSectionLimit, alpha0, airfoilFile
 
-    currentTemplateVersion = '0.12'
+    currentTemplateVersion = '0.13'
 
     open(unit=12, file=filename, status='old', action='read') 
 

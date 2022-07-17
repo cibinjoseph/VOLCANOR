@@ -1,6 +1,6 @@
 &VERSION
 ! File format version
-fileFormatVersion = 0.3
+fileFormatVersion = 0.4
 /
 
 &PARAMS
