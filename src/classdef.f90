@@ -14,7 +14,7 @@ module classdef
   type switches_class
     integer :: ntSub, ntSubInit
     integer :: spanSpacing, chordSpacing
-    integer :: wakeDissipation, wakeStrain, wakeBurst
+    integer :: wakeDissipation, wakeStrain, wakeBurst, wakeSuppress
     integer :: slowStart, slowStartNt
     integer :: wakeTipPlot, wakePlot, gridPlot
     integer :: rotorForcePlot

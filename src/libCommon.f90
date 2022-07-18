@@ -13,16 +13,16 @@ contains
     character(len=10) :: fileFormatVersion, currentVersion
     integer :: restartWriteNt, restartFromNt, ntSub, ntSubInit, &
       & spanSpacing, chordSpacing, wakePlot, wakeTipPlot, rotorForcePlot, &
-      & gridPlot, wakeDissipation, wakeStrain, wakeBurst, slowStart, &
-      & slowStartNt, fdScheme, initWakeVelNt, probe
+      & gridPlot, wakeDissipation, wakeStrain, wakeBurst, wakeSuppress, &
+      & slowStart, slowStartNt, fdScheme, initWakeVelNt, probe
 
     ! Namelists
     namelist /VERSION/ fileFormatVersion
     namelist /PARAMS/ nt, dt, nr, density, velSound, kinematicVisc
     namelist /OPTIONS/ restartWriteNt, restartFromNt, ntSub, ntSubInit, &
       & spanSpacing, chordSpacing, wakePlot, wakeTipPlot, rotorForcePlot, &
-      & gridPlot, wakeDissipation, wakeStrain, wakeBurst, slowStart, &
-      & slowStartNt, fdScheme, initWakeVelNt, probe
+      & gridPlot, wakeDissipation, wakeStrain, wakeBurst, wakeSuppress, &
+      & slowStart, slowStartNt, fdScheme, initWakeVelNt, probe
 
     currentVersion = '0.4'
 
@@ -57,6 +57,7 @@ contains
     switches%wakeDissipation = wakeDissipation
     switches%wakeStrain = wakeStrain
     switches%wakeBurst = wakeBurst
+    switches%wakeSuppress = wakeSuppress
     switches%slowStart = slowStart
     switches%slowStartNt = slowStartNt
     switches%fdScheme = fdScheme

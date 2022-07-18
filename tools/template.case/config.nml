@@ -33,10 +33,10 @@ wakeTipPlot = 0
 rotorForcePlot = 1
 gridPlot = 0
 ! WAKE PROPERTY SWITCHES: [0]Off [1]On
-! wakeDissipationSwitch            wakeStrainSwitch   wakeBurstSwitch
 wakeDissipation = 1
 wakeStrain = 0
 wakeBurst = 0
+wakeSuppress = 0
 ! SLOW START TO AVOID LARGE STARTING VORTEX:
 ! [0]Off [1]linear [2]tanh [3]extended tanh
 ! slowStartSwitch       slowStartNt [-nt] chords or revs
