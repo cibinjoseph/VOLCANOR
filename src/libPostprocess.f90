@@ -133,11 +133,12 @@ contains
     close(10)
   end subroutine params2file
 
-  subroutine geom2file(timestamp, rotor)
+  subroutine geom2file(timestamp, rotor, wakeSuppress)
     ! Plot rotor geometry and wake to file
     use classdef, only: rotor_class
     type(rotor_class), intent(in) :: rotor
     character(len=*), intent(in) :: timestamp
+    integer, intent(in) :: wakeSuppress
     character(len=5) :: nxChar, nyChar
     real(dp), dimension(3, rotor%nc + 1, rotor%ns + 1) :: wingMesh
     real(dp), dimension(3, rotor%nNwake + 1, rotor%ns + 1) :: wakeMesh
@@ -184,111 +185,113 @@ contains
         write(10, *) ((rotor%blade(ib)%wiP(i, j)%vr%gam*0._dp, i=1,nx), j=1,ny)
         !write(10,*) ((rotor%blade(ib)%wiP(i,j)%vr%skew,i=1,nx),j=1,ny)
 
-        ! Near wake
-        nx = rotor%nNwakeEnd
-        ny = rotor%ns
-        write (nxChar, '(I5)') nx - (rotor%rowNear - 1) + 1
-        write (nyChar, '(I5)') ny + 1
+        if (wakeSuppress == 0) then
+          ! Near wake
+          nx = rotor%nNwakeEnd
+          ny = rotor%ns
+          write (nxChar, '(I5)') nx - (rotor%rowNear - 1) + 1
+          write (nyChar, '(I5)') ny + 1
 
-        !Check if necessary - $omp parallel do collapse(2)
-        do j = 1, ny
+          !Check if necessary - $omp parallel do collapse(2)
+          do j = 1, ny
+            do i = rotor%rowNear, nx
+              wakeMesh(:, i, j) = rotor%blade(ib)%waN(i, j)%vr%vf(1)%fc(:, 1)
+            enddo
+          enddo
+          !Check if necessary -$omp end parallel do
           do i = rotor%rowNear, nx
-            wakeMesh(:, i, j) = rotor%blade(ib)%waN(i, j)%vr%vf(1)%fc(:, 1)
+            wakeMesh(:, i, ny + 1) = rotor%blade(ib)%waN(i, ny)%vr%vf(4)%fc(:, 1)
           enddo
-        enddo
-        !Check if necessary -$omp end parallel do
-        do i = rotor%rowNear, nx
-          wakeMesh(:, i, ny + 1) = rotor%blade(ib)%waN(i, ny)%vr%vf(4)%fc(:, 1)
-        enddo
-        do j = 1, ny
-          wakeMesh(:, nx + 1, j) = rotor%blade(ib)%waN(nx, j)%vr%vf(2)%fc(:, 1)
-        enddo
-        wakeMesh(:, nx + 1, ny + 1) = rotor%blade(ib)%waN(nx, ny)%vr%vf(3)%fc(:, 1)
-
-        write (10, *) 'Zone I='//trim(nxChar)//' J='//trim(nyChar)//' K=1  T="NearWake"'
-        write (10, *) 'DATAPACKING=BLOCK'
-        write (10, *) 'VARLOCATION=([4]=CELLCENTERED, [5]=CELLCENTERED)' !,[6]=CELLCENTERED)'
-        write (10, *) ((wakeMesh(1, i, j), i=rotor%rowNear, nx + 1), j=1, ny + 1)
-        write (10, *) ((wakeMesh(2, i, j), i=rotor%rowNear, nx + 1), j=1, ny + 1)
-        write (10, *) ((wakeMesh(3, i, j), i=rotor%rowNear, nx + 1), j=1, ny + 1)
-        write (10, *) ((-1._dp*rotor%blade(ib)%waN(i, j)%vr%gam, i=rotor%rowNear, nx), j=1, ny)
-        write(10,*) ((rotor%blade(ib)%waN(i,j)%vr%skew, i=rotor%rowNear, nx), j=1, ny)
-        !write(10,*) ((rotor%blade(ib)%waN(i,j)%vr%skew,i=rotor%rowNear,nx),j=1,ny)
-
-        ! Far wake
-        nx = rotor%nFwakeEnd
-        if (rotor%rowFar .le. rotor%nFwakeEnd) then
-          write (nxChar, '(I5)') nx - (rotor%rowFar - 1) + 1
-
-          !Check if necessary - $omp parallel do collapse(2)
-          do i = rotor%rowFar, nx
-            wakeTip(:, i) = rotor%blade(ib)%waF(i)%vf%fc(:, 2)
+          do j = 1, ny
+            wakeMesh(:, nx + 1, j) = rotor%blade(ib)%waN(nx, j)%vr%vf(2)%fc(:, 1)
           enddo
-          wakeTip(:, nx + 1) = rotor%blade(ib)%waF(rotor%nFwakeEnd)%vf%fc(:, 1)
-          !Check if necessary -$omp end parallel do
+          wakeMesh(:, nx + 1, ny + 1) = rotor%blade(ib)%waN(nx, ny)%vr%vf(3)%fc(:, 1)
 
-          write (10, *) 'Zone I='//trim(nxChar)//' J=1   K=1   T="FarWake"'
-          write (10, *) 'DATAPACKING=BLOCK'
-          write (10, *) 'VARLOCATION=([4]=CELLCENTERED ,[5]=CELLCENTERED)' !,[6]=CELLCENTERED)'
-          write (10, *) (wakeTip(1, i), i=rotor%rowFar, nx + 1)
-          write (10, *) (wakeTip(2, i), i=rotor%rowFar, nx + 1)
-          write (10, *) (wakeTip(3, i), i=rotor%rowFar, nx + 1)
-          write (10, *) (-1._dp*rotor%blade(ib)%waF(i)%gam, i=rotor%rowFar, nx)
-          write(10,*) (rotor%blade(ib)%waF(i)%vf%rVc*0._dp, i=rotor%rowFar, nx)
-          !write(10,*) (rotor%blade(ib)%waF(i)%vf%age,i=rotor%rowFar,nx)
-
-        else  ! No far wake present
-
-          write (nxChar, '(I5)') 2  ! Plot mesh as single redundant point
-          wakeTip(:, 1) = rotor%blade(ib)%waN(rotor%nNwake, rotor%ns)%vr%vf(3)%fc(:, 1)
-
-          write (10, *) 'Zone I='//trim(nxChar)//' J=1   K=1   T="FarWake"'
+          write (10, *) 'Zone I='//trim(nxChar)//' J='//trim(nyChar)//' K=1  T="NearWake"'
           write (10, *) 'DATAPACKING=BLOCK'
           write (10, *) 'VARLOCATION=([4]=CELLCENTERED, [5]=CELLCENTERED)' !,[6]=CELLCENTERED)'
-          write (10, *) wakeTip(1, 1), wakeTip(1, 1)
-          write (10, *) wakeTip(2, 1), wakeTip(2, 1)
-          write (10, *) wakeTip(3, 1), wakeTip(3, 1)
-          write (10, *) 0._dp
-          write(10,*) 0._dp
-          !write(10,*) 0._dp
-        endif
+          write (10, *) ((wakeMesh(1, i, j), i=rotor%rowNear, nx + 1), j=1, ny + 1)
+          write (10, *) ((wakeMesh(2, i, j), i=rotor%rowNear, nx + 1), j=1, ny + 1)
+          write (10, *) ((wakeMesh(3, i, j), i=rotor%rowNear, nx + 1), j=1, ny + 1)
+          write (10, *) ((-1._dp*rotor%blade(ib)%waN(i, j)%vr%gam, i=rotor%rowNear, nx), j=1, ny)
+          write(10,*) ((rotor%blade(ib)%waN(i,j)%vr%skew, i=rotor%rowNear, nx), j=1, ny)
+          !write(10,*) ((rotor%blade(ib)%waN(i,j)%vr%skew,i=rotor%rowNear,nx),j=1,ny)
 
-        ! Prescribed far wake
-        nx = size(rotor%blade(ib)%wapF%waF)
-        if (rotor%blade(ib)%wapF%isPresent) then
-          write (nxChar, '(I5)') nx + 1
+          ! Far wake
+          nx = rotor%nFwakeEnd
+          if (rotor%rowFar .le. rotor%nFwakeEnd) then
+            write (nxChar, '(I5)') nx - (rotor%rowFar - 1) + 1
 
-          !Check if necessary - $omp parallel do collapse(2)
-          do i = 1, nx
-            wakeTipPresc(:, i) = rotor%blade(ib)%wapF%waF(i)%vf%fc(:, 2)
-          enddo
-          wakeTipPresc(:, nx + 1) = rotor%blade(ib)%wapF%waF(size(rotor%blade(1)%wapF%waF))%vf%fc(:, 1)
-          !Check if necessary -$omp end parallel do
+            !Check if necessary - $omp parallel do collapse(2)
+            do i = rotor%rowFar, nx
+              wakeTip(:, i) = rotor%blade(ib)%waF(i)%vf%fc(:, 2)
+            enddo
+            wakeTip(:, nx + 1) = rotor%blade(ib)%waF(rotor%nFwakeEnd)%vf%fc(:, 1)
+            !Check if necessary -$omp end parallel do
 
-          write (10, *) 'Zone I='//trim(nxChar)//' J=1   K=1   T="PrescFarWake"'
-          write (10, *) 'DATAPACKING=BLOCK'
-          write (10, *) 'VARLOCATION=([4]=CELLCENTERED ,[5]=CELLCENTERED)' !,[6]=CELLCENTERED)'
-          write (10, *) (wakeTipPresc(1, i), i=1, nx + 1)
-          write (10, *) (wakeTipPresc(2, i), i=1, nx + 1)
-          write (10, *) (wakeTipPresc(3, i), i=1, nx + 1)
-          write (10, *) (-1._dp*rotor%blade(ib)%wapF%waF(i)%gam, i=1, nx)
-          write(10,*) (rotor%blade(ib)%wapF%waF(i)%vf%rVc, i=1, nx)
-          !write(10,*) (rotor%blade(ib)%waF(i)%vf%age,i=rotor%rowFar,nx)
+            write (10, *) 'Zone I='//trim(nxChar)//' J=1   K=1   T="FarWake"'
+            write (10, *) 'DATAPACKING=BLOCK'
+            write (10, *) 'VARLOCATION=([4]=CELLCENTERED ,[5]=CELLCENTERED)' !,[6]=CELLCENTERED)'
+            write (10, *) (wakeTip(1, i), i=rotor%rowFar, nx + 1)
+            write (10, *) (wakeTip(2, i), i=rotor%rowFar, nx + 1)
+            write (10, *) (wakeTip(3, i), i=rotor%rowFar, nx + 1)
+            write (10, *) (-1._dp*rotor%blade(ib)%waF(i)%gam, i=rotor%rowFar, nx)
+            write(10,*) (rotor%blade(ib)%waF(i)%vf%rVc*0._dp, i=rotor%rowFar, nx)
+            !write(10,*) (rotor%blade(ib)%waF(i)%vf%age,i=rotor%rowFar,nx)
 
-        else  ! No prescribed far wake present
+          else  ! No far wake present
 
-          write (nxChar, '(I5)') 2  ! Plot mesh as single redundant point
-          wakeTip(:, 1) = rotor%blade(ib)%waN(rotor%nNwake, rotor%ns)%vr%vf(3)%fc(:, 1)
+            write (nxChar, '(I5)') 2  ! Plot mesh as single redundant point
+            wakeTip(:, 1) = rotor%blade(ib)%waN(rotor%nNwake, rotor%ns)%vr%vf(3)%fc(:, 1)
 
-          write (10, *) 'Zone I='//trim(nxChar)//' J=1   K=1   T="PrescFarWake"'
-          write (10, *) 'DATAPACKING=BLOCK'
-          write (10, *) 'VARLOCATION=([4]=CELLCENTERED, [5]=CELLCENTERED)' !,[6]=CELLCENTERED)'
-          write (10, *) wakeTip(1, 1), wakeTip(1, 1)
-          write (10, *) wakeTip(2, 1), wakeTip(2, 1)
-          write (10, *) wakeTip(3, 1), wakeTip(3, 1)
-          write (10, *) 0._dp
-          write(10,*) 0._dp
-          !write(10,*) 0._dp
+            write (10, *) 'Zone I='//trim(nxChar)//' J=1   K=1   T="FarWake"'
+            write (10, *) 'DATAPACKING=BLOCK'
+            write (10, *) 'VARLOCATION=([4]=CELLCENTERED, [5]=CELLCENTERED)' !,[6]=CELLCENTERED)'
+            write (10, *) wakeTip(1, 1), wakeTip(1, 1)
+            write (10, *) wakeTip(2, 1), wakeTip(2, 1)
+            write (10, *) wakeTip(3, 1), wakeTip(3, 1)
+            write (10, *) 0._dp
+            write(10,*) 0._dp
+            !write(10,*) 0._dp
+          endif
+
+          ! Prescribed far wake
+          nx = size(rotor%blade(ib)%wapF%waF)
+          if (rotor%blade(ib)%wapF%isPresent) then
+            write (nxChar, '(I5)') nx + 1
+
+            !Check if necessary - $omp parallel do collapse(2)
+            do i = 1, nx
+              wakeTipPresc(:, i) = rotor%blade(ib)%wapF%waF(i)%vf%fc(:, 2)
+            enddo
+            wakeTipPresc(:, nx + 1) = rotor%blade(ib)%wapF%waF(size(rotor%blade(1)%wapF%waF))%vf%fc(:, 1)
+            !Check if necessary -$omp end parallel do
+
+            write (10, *) 'Zone I='//trim(nxChar)//' J=1   K=1   T="PrescFarWake"'
+            write (10, *) 'DATAPACKING=BLOCK'
+            write (10, *) 'VARLOCATION=([4]=CELLCENTERED ,[5]=CELLCENTERED)' !,[6]=CELLCENTERED)'
+            write (10, *) (wakeTipPresc(1, i), i=1, nx + 1)
+            write (10, *) (wakeTipPresc(2, i), i=1, nx + 1)
+            write (10, *) (wakeTipPresc(3, i), i=1, nx + 1)
+            write (10, *) (-1._dp*rotor%blade(ib)%wapF%waF(i)%gam, i=1, nx)
+            write(10,*) (rotor%blade(ib)%wapF%waF(i)%vf%rVc, i=1, nx)
+            !write(10,*) (rotor%blade(ib)%waF(i)%vf%age,i=rotor%rowFar,nx)
+
+          else  ! No prescribed far wake present
+
+            write (nxChar, '(I5)') 2  ! Plot mesh as single redundant point
+            wakeTip(:, 1) = rotor%blade(ib)%waN(rotor%nNwake, rotor%ns)%vr%vf(3)%fc(:, 1)
+
+            write (10, *) 'Zone I='//trim(nxChar)//' J=1   K=1   T="PrescFarWake"'
+            write (10, *) 'DATAPACKING=BLOCK'
+            write (10, *) 'VARLOCATION=([4]=CELLCENTERED, [5]=CELLCENTERED)' !,[6]=CELLCENTERED)'
+            write (10, *) wakeTip(1, 1), wakeTip(1, 1)
+            write (10, *) wakeTip(2, 1), wakeTip(2, 1)
+            write (10, *) wakeTip(3, 1), wakeTip(3, 1)
+            write (10, *) 0._dp
+            write(10,*) 0._dp
+            !write(10,*) 0._dp
+          endif
         endif
       enddo
     elseif (abs(rotor%surfaceType) == 2) then
