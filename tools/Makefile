@@ -12,6 +12,7 @@ all:
 fileclean:
 	-rm -f $(resultspath)/*.nml
 	-rm -f $(resultspath)/*.plt
+	-rm -f $(resultspath)/*.tec
 	-rm -f $(resultspath)/*.curve
 	-rm -f $(resultspath)/*.dat
 	-rm -f $(resultspath)/*.csv

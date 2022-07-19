@@ -147,7 +147,7 @@ contains
     integer :: i, j, nx, ny, ib
 
     open (unit=10, file=ResultsDir// &
-      & 'r'//rotor%id//'wingNwake'//timestamp//'.plt', position='append')
+      & 'r'//rotor%id//'wingNwake'//timestamp//'.tec', position='append')
 
     if (abs(rotor%surfaceType) == 1) then
       ! Lifting surface
@@ -547,7 +547,7 @@ contains
 
     do ib = 1, rotor%nb
       open (unit=10, file=ResultsDir// &
-        & 'r'//rotor%id//'b'//rotor%blade(ib)%id//'Surface.plt', &
+        & 'r'//rotor%id//'b'//rotor%blade(ib)%id//'Surface.tec', &
         & action='write', position='append')
 
       write (10, *) 'Title="r'//rotor%id//'b'//rotor%blade(ib)%id//'"'
@@ -691,7 +691,7 @@ contains
     integer :: ib, i, j, nx, ny
 
     open (unit=10, file=ResultsDir// &
-      & 'r'//rotor%id//'tip'//timestamp//'.plt', &
+      & 'r'//rotor%id//'tip'//timestamp//'.tec', &
       & action='write', position='append')
 
     open (unit=11, file=ResultsDir// &

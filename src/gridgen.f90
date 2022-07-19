@@ -141,9 +141,9 @@ program gridgen
     velCentre(3, :, :, :) = velCentre(3, :, :, :) + vel(3)
 
     ! Write to file
-    call print_status('Writing file '//'grid'//filetimestamp//'.plt')
+    call print_status('Writing file '//'grid'//filetimestamp//'.tec')
     write (filetimestamp, '(I0.5)') fileRange
-    open (unit=13, file='Results/grid'//filetimestamp//'.plt', &
+    open (unit=13, file='Results/grid'//filetimestamp//'.tec', &
       & status='old', action='read')
 
     write (13, *) 'TITLE = "Grid"'
