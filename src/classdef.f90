@@ -2926,6 +2926,31 @@ class(blade_class), intent(inout) :: this
         this%omegaBody(2) = -1._dp*this%omegaBody(2)
       end select
 
+      if (this%customTrajectorySwitch == 1) then
+        allocate(this%velBodyHistory(3, nt))
+        allocate(this%omegaBodyHistory(3, nt))
+
+        this%velBodyHistory = sourceRotor%velBodyHistory
+        this%omegaBodyHistory = sourceRotor%omegaBodyHistory
+
+        this%velBodyHistory(this%imagePlane, :) = -1._dp* &
+          & this%velBodyHistory(this%imagePlane, :)
+
+        select case (this%imagePlane)
+        case (1)
+          this%omegaBodyHistory(3, :) = -1._dp* &
+            & this%omegaBodyHistory(3, :)
+        case (2)
+          this%omegaBodyHistory(3, :) = -1._dp* &
+            & this%omegaBodyHistory(3, :)
+        case (3)
+          this%omegaBodyHistory(1, :) = -1._dp* &
+            & this%omegaBodyHistory(1, :)
+          this%omegaBodyHistory(2, :) = -1._dp* &
+            & this%omegaBodyHistory(2, :)
+        end select
+      endif
+
       this%xAxisBody(this%imagePlane) = -1._dp*this%xAxisBody(this%imagePlane)
       this%yAxisBody(this%imagePlane) = -1._dp*this%yAxisBody(this%imagePlane)
       this%zAxisBody(this%imagePlane) = -1._dp*this%zAxisBody(this%imagePlane)
@@ -3036,21 +3061,22 @@ class(blade_class), intent(inout) :: this
     allocate (this%RHS(this%nc*this%ns*this%nb))
 
     ! Read custom trajectory file if specified
-    if (this%customTrajectorySwitch .eq. 1) then
-      allocate(this%velBodyHistory(3, nt))
-      allocate(this%omegaBodyHistory(3, nt))
-
-      open (unit=13, file='trajectory'//this%id//'.in', &
-        & status='old', action='read')
-      do i = 1, nt
-        read(13, *) this%velBodyHistory(1, i), &
-          & this%velBodyHistory(2, i), &
-          & this%velBodyHistory(3, i), &
-          & this%omegaBodyHistory(1, i), &
-          & this%omegaBodyHistory(2, i), &
-          & this%omegaBodyHistory(3, i)
-      enddo
-      close(13)
+    if (this%surfaceType .ge. 0) then
+      if (this%customTrajectorySwitch .eq. 1) then
+        allocate(this%velBodyHistory(3, nt))
+        allocate(this%omegaBodyHistory(3, nt))
+        open (unit=13, file='trajectory'//this%id//'.in', &
+          & status='old', action='read')
+        do i = 1, nt
+          read(13, *) this%velBodyHistory(1, i), &
+            & this%velBodyHistory(2, i), &
+            & this%velBodyHistory(3, i), &
+            & this%omegaBodyHistory(1, i), &
+            & this%omegaBodyHistory(2, i), &
+            & this%omegaBodyHistory(3, i)
+        enddo
+        close(13)
+      endif
     endif
 
     ! Allocate blade object variables
