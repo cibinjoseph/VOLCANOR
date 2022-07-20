@@ -4,7 +4,11 @@
 A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method in 
 Fortran 90+ for aerodynamic analysis of rotors and wings under generic 3D motion.
 
-## Usage
+## Usage  
+1. Use Cmake to build executable _volcanor_.
+2. Create a newcase folder using _newcase.sh_.
+3. Set up input parameters in _config.nml_ and _geom01.nml_.
+4. Run using the make command.
 
 ## Code Details 
 ### Algorithm
@@ -41,20 +45,20 @@ Vortex filament  | vf
 
 ### File formats
 
-_.in_ - Input file  
+_.nml_ - Input namelist file  
 _.dat_ - Binary file  
 _.csv_ - CSV file (tab delimited) with first row as header  
 _.json_ - JSON file  
 _.log_ - Log file  
-_.plt_ - Tecplot file
+_.tec_ - Tecplot file
 
 ### Code Organization
 
 **Input files**  
 All input files have the extension _.in_    
-_config.in_  -  Main configuration file containing general solver inputs  
-_geomXX.in_  -  Configuration file for each geometry containing geometric parameters  
-_gridconfig.in_  -  Configuration file for generating grid-based solutions during postprocessing  
+_config.nml_  -  Main configuration file containing general solver inputs  
+_geomXX.nml_  -  Configuration file for each geometry containing geometric parameters  
+_gridconfig.nml_  -  Configuration file for generating grid-based solutions during postprocessing  
 
 **Code files**  
 _init_file.f90_  -  Variable initialisations  
