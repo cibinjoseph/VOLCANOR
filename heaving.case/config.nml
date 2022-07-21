@@ -20,8 +20,8 @@ kinematicVisc = 0.000018
 restartWriteNt = 0
 restartFromNt = 0
 ! NO. OF SUBITERATIONS [ntSub]  NO. OF INITIAL SUBITERATIONS [ntSubInit] 
-ntSub = 0
-ntSubInit = 0
+ntSub = 10
+ntSubInit = 10
 ! SPAN DISCRETIZATION : [1]linear [2]cosine [3]halfsine
 ! spanSpacingSwitch   chordSpacingSwitch
 spanSpacing = 2
@@ -36,7 +36,7 @@ gridPlot = 0
 wakeDissipation = 1
 wakeStrain = 0
 wakeBurst = 0
-wakeSuppress = 1
+wakeSuppress = 0
 ! SLOW START TO AVOID LARGE STARTING VORTEX:
 ! [0]Off [1]linear [2]tanh [3]extended tanh
 ! slowStartSwitch       slowStartNt [-nt] chords or revs
