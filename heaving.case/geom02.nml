@@ -57,7 +57,7 @@ thetaC = 0.0
 thetaS = 0.0
 thetaTwist = 0.0
 ! axisymmetrySwitch  [0]Off [1]On
-axisymmetrySwitch = 0
+axisymmetrySwitch = 1
 ! pivot point     flapHinge      spanwiseLiftTerm    invert tauSpan
 ! from LE[x/c]  from centre[r/R]    [1]enable     for swept/symmetric
 pivotLE = 0.00
