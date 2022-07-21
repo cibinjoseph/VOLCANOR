@@ -13,7 +13,7 @@ imageRotorNum = 1
 
 &PANELS
 ! No. of blades,nb  Prop convention  NcamberFiles  geometry filename
-nb = 1
+nb = 2
 propConvention = 0
 geometryFile = 0
 nCamberFiles = 0
@@ -21,7 +21,7 @@ nCamberFiles = 0
 nc = 12
 ns = 30
 ! Near wake panels,nNwake [n]timesteps [-n]chords/revs
-nNwake = 2000
+nNwake = -10
 /
 
 &CAMBERSECTIONS
@@ -65,7 +65,7 @@ flapHinge = 0.0
 spanwiseLiftSwitch = 0
 symmetricTau = 0
 ! customTrajectorySwitch  [0]Off [1]On
-customTrajectorySwitch = 0
+customTrajectorySwitch = 1
 ! u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]
 velBody = 0.0, 0.0, 0.0
 omegaBody = 0.0, 0.0, 0.0
