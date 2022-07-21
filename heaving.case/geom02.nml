@@ -6,7 +6,7 @@ fileFormatVersion = 0.13
 &SURFACE
 ! Surface type [0/1]Lifting [2]Non-lifting    Mirrored about X/Y/Z
 ! [-1]Lifting Image [-2]Non-lifting Image    [1/2/3]plane  from rotor
-surfaceType = 0
+surfaceType = -1
 imagePlane = 3
 imageRotorNum = 1
 /
@@ -33,9 +33,9 @@ camberFile = 0
 
 &ORIENT
 ! X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
-hubCoords = 0.0, 0.0, 0.762
+hubCoords = 0.0, 0.0, -0.762
 ! X-cgCoords      Y-cgCoords      Z-cgCoords     [all in m]
-cgCoords = 0.0, 0.0, 0.762
+cgCoords = 0.0, 0.0, -0.762
 ! X-from          Y-from          Z-from         [all in m]
 fromCoords = 0.0, 0.0, 0.0
 ! Phi       Theta       Psi     about cgCoords [all in deg]
