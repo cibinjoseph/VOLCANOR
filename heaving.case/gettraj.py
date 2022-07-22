@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 ntInit = 300
-nt = 720
+nt = 720*2
 dt = 2.77993E-3
 f = 0.5
 

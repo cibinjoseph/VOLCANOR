@@ -21,7 +21,7 @@ nCamberFiles = 0
 nc = 12
 ns = 30
 ! Near wake panels,nNwake [n]timesteps [-n]chords/revs
-nNwake = -10
+nNwake = -5
 /
 
 &CAMBERSECTIONS
