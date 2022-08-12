@@ -1079,7 +1079,10 @@ contains
       axisOrigin = this%wiP(1, 1)%PC(:, 1)*(1._dp - this%pivotLE) &
         & + this%wiP(this%nc, 1)%PC(:, 2)*this%pivotLE
 
-      call this%rotate(theta, this%yAxis, axisOrigin, 'pitch')
+      call this%rotate(theta, &
+        & this%yAxis(1), this%yAxis(2), this%yAxis(3), & 
+        & axisOrigin(1), axisOrigin(2), axisOrigin(3), &
+        & 'pitch')
     endif
   end subroutine blade_rot_pitch
 
@@ -1088,17 +1091,21 @@ contains
   class(blade_class), intent(inout) :: this
     real(dp), intent(in) :: beta
 
-    call this%rotate(beta, this%xAxisAzi, this%flapOrigin, 'flap')
+    call this%rotate(beta, &
+        & this%xAxisAzi(1), this%xAxisAzi(2), this%xAxisAzi(3), &
+        & this%flapOrigin(1), this%flapOrigin(2), this%flapOrigin(3), &
+        & 'flap')
   end subroutine blade_rot_flap
 
-  subroutine blade_rotate(this, angleRad, axisVec, origin, rotateType)
+  subroutine blade_rotate(this, angleRad, axisX, axisY, axisZ, &
+      & originX, originY, originZ, rotateType)
     !! Rotate blade geometry about axis at specified origin
     !! Rotation angle in radians
     use libMath, only: getTransformAxis
   class(blade_class), intent(inout) :: this
     real(dp), intent(in), value :: angleRad
-    real(dp), intent(in), value, dimension(3) :: axisVec
-    real(dp), intent(in), value, dimension(3) :: origin
+    real(dp), intent(in), value :: axisX, axisY, axisZ
+    real(dp), intent(in), value :: originX, originY, originZ
     real(dp), dimension(3, 3) :: Tmat
     character(len=*), intent(in) :: rotateType
     integer :: i, j
@@ -1106,10 +1113,10 @@ contains
 
     if (abs(angleRad) > eps) then
       ! Translate to origin
-      call this%move(-origin)
+      call this%move(-1._dp*[originX, originY, originZ])
 
-      ! Rotate about axisVec
-      Tmat = getTransformAxis(angleRad, axisVec)
+      ! Rotate about axis = (axisX, axisY, axisZ)
+      Tmat = getTransformAxis(angleRad, [axisX, axisY, axisZ])
       do j = 1, this%ns
         do i = 1, this%nc
           call this%wiP(i, j)%rot(TMat)
@@ -1117,12 +1124,13 @@ contains
       enddo
 
       ! Untranslate from origin
-      call this%move(origin)
+      call this%move([originX, originY, originZ])
 
       ! Rotate secCP also
       !$omp parallel do
       do i = 1, this%ns
-        this%secCP(:, i) = matmul(TMat, this%secCP(:, i)-origin)+origin
+        this%secCP(:, i) = matmul(TMat, this%secCP(:, i) - &
+          & [originX, originY, originZ])+[originX, originY, originZ]
 
         ! Rotate sec vectors also along with blade
         this%secTauCapChord(:, i) = matmul(TMat, this%secTauCapChord(:, i))
@@ -3620,7 +3628,9 @@ class(blade_class), intent(inout) :: this
     ! Rotate blades for multi-bladed rotors
     do ib = 2, this%nb
       bladeOffset = sign(1._dp, this%Omega)*twoPi/this%nb*(ib - 1)
-      call this%blade(ib)%rotate(bladeOffset, this%shaftAxis, this%hubCoords, &
+      call this%blade(ib)%rotate(bladeOffset, &
+        & this%shaftAxis(1), this%shaftAxis(2), this%shaftAxis(3), &
+        & this%hubCoords(1), this%hubCoords(2), this%hubCoords(3), &
         & 'azimuth')
     enddo
 
@@ -4225,7 +4235,9 @@ class(blade_class), intent(inout) :: this
 
     this%psi = this%psi + dpsi
     do ib = 1, this%nb
-      call this%blade(ib)%rotate(dpsi, this%shaftAxis, this%hubCoords, &
+      call this%blade(ib)%rotate(dpsi, &
+        & this%shaftAxis(1), this%shaftAxis(2), this%shaftAxis(3), &
+        & this%hubCoords(1), this%hubCoords(2), this%hubCoords(3), &
         & 'azimuth')
       this%blade(ib)%psi = this%blade(ib)%psi + dpsi
       if (.not. present(nopitch)) then
