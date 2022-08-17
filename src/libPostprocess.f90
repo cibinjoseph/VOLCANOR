@@ -185,7 +185,7 @@ contains
         write(10, *) ((rotor%blade(ib)%wiP(i, j)%vr%gam*0._dp, i=1,nx), j=1,ny)
         !write(10,*) ((rotor%blade(ib)%wiP(i,j)%vr%skew,i=1,nx),j=1,ny)
 
-        if (wakeSuppress == 0) then
+        if (wakeSuppress == 0 .and. rotor%nNwake > 0) then
           ! Near wake
           nx = rotor%nNwakeEnd
           ny = rotor%ns
@@ -678,10 +678,11 @@ contains
 
   end subroutine geomSurface2file
 
-  subroutine tip2file(timestamp, rotor)
+  subroutine tip2file(timestamp, rotor, wakeSuppress)
     use classdef, only: rotor_class
     type(rotor_class), intent(in) :: rotor
     character(len=*), intent(in) :: timestamp
+    integer, intent(in) :: wakeSuppress
     character(len=5) :: nxChar, nyChar
     real(dp), dimension(3, rotor%nc + 1, rotor%ns + 1) :: wingMesh
     real(dp), dimension(3, rotor%nNwake + 1) :: nWakeTip

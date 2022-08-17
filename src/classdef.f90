@@ -3031,7 +3031,9 @@ class(blade_class), intent(inout) :: this
     if (this%surfaceType == 0) this%surfaceType = 1
     if (abs(this%surfaceType) == 2) this%suppressFwakeSwitch = 0
 
-    if (this%nNwake < 2) error stop 'ERROR: Atleast 2 near wake rows mandatory'
+    if (this%nNwake > 0) then
+      if (this%nNwake < 2) error stop 'ERROR: Atleast 2 near wake rows mandatory'
+    endif
 
     ! Override ns to 1 if non-lifting surface
     if (abs(this%surfaceType) .eq. 2) this%ns = 1
@@ -3090,8 +3092,10 @@ class(blade_class), intent(inout) :: this
     ! Allocate blade object variables
     do ib = 1, this%nb
       allocate (this%blade(ib)%wiP(this%nc, this%ns))
-      allocate (this%blade(ib)%waN(this%nNwake, this%ns))
-      allocate (this%blade(ib)%waF(this%nFwake))
+      if (this%nNwake > 0) then
+        allocate (this%blade(ib)%waN(this%nNwake, this%ns))
+        allocate (this%blade(ib)%waF(this%nFwake))
+      endif
       allocate (this%blade(ib)%secTauCapChord(3, this%ns))
       allocate (this%blade(ib)%secTauCapSpan(3, this%ns))
       allocate (this%blade(ib)%secNormalVec(3, this%ns))
@@ -3699,6 +3703,7 @@ class(blade_class), intent(inout) :: this
     ! Allocate vars required for wake convection
     ! on the basis of finite diff scheme
     do ib = 1, this%nb
+      if (this%nNwake > 0) then
       allocate(this%blade(ib)%velNwake(3, this%nNwake, this%ns + 1))
       allocate(this%blade(ib)%velFwake(3, this%nFwake))
       this%blade(ib)%velNwake = 0._dp
@@ -3787,11 +3792,13 @@ class(blade_class), intent(inout) :: this
         this%blade(ib)%velFwakePredicted = 0._dp
         this%blade(ib)%velFwakeStep = 0._dp
       end select
-    enddo
+    endif
+  enddo
 
-    ! Wake initialization
-    ! Assign core_radius to mid vortices
-    do ib = 1, this%nb
+  ! Wake initialization
+  ! Assign core_radius to mid vortices
+  do ib = 1, this%nb
+    if (this%nNwake > 0) then
       do i = 2, 4, 2
         this%blade(ib)%waN%vr%vf(i)%rVc0 = this%spanwiseCore
         this%blade(ib)%waN%vr%vf(i)%rVc = this%spanwiseCore
@@ -3820,20 +3827,21 @@ class(blade_class), intent(inout) :: this
       this%blade(ib)%waF%vf%rVc = this%streamwiseCoreVec(this%ns + 1)
       !enddo
 
-    enddo
+    endif
+  enddo
 
-    ! Compute direction of wind frame forces (-body)
-    ! Assuming sideslip is not present
-    if ((norm2(this%dragUnitVec) .le. eps) &
-      .and. (norm2(this%sideUnitVec) .le. eps) &
-      .and. (norm2(this%liftUnitVec) .le. eps)) then
-      if (abs(this%Omega) .le. eps) then
-        if (abs(this%velBody(1)) .gt. eps) then  ! v is assumed zero
-          this%dragUnitVec = -1._dp*unitVec([this%velBody(1), 0._dp, this%velBody(3)])
-          this%sideUnitVec = yAxis
-        else  ! u is assumed zero
-          this%dragUnitVec = -1._dp*unitVec([0._dp, this%velBody(2), this%velBody(3)])
-          this%sideUnitVec = xAxis
+  ! Compute direction of wind frame forces (-body)
+  ! Assuming sideslip is not present
+  if ((norm2(this%dragUnitVec) .le. eps) &
+    .and. (norm2(this%sideUnitVec) .le. eps) &
+    .and. (norm2(this%liftUnitVec) .le. eps)) then
+    if (abs(this%Omega) .le. eps) then
+      if (abs(this%velBody(1)) .gt. eps) then  ! v is assumed zero
+        this%dragUnitVec = -1._dp*unitVec([this%velBody(1), 0._dp, this%velBody(3)])
+        this%sideUnitVec = yAxis
+      else  ! u is assumed zero
+        this%dragUnitVec = -1._dp*unitVec([0._dp, this%velBody(2), this%velBody(3)])
+      this%sideUnitVec = xAxis
         endif
         this%liftUnitVec = cross_product(this%dragUnitVec, this%sideUnitVec)
       else
@@ -3861,57 +3869,59 @@ class(blade_class), intent(inout) :: this
     integer :: ib
     ! Deallocate variables
     do ib = 1, this%nb
-      deallocate (this%blade(ib)%velNwake)
-      deallocate (this%blade(ib)%velFwake)
+      if (this%nNwake > 0) then
+        deallocate (this%blade(ib)%velNwake)
+        deallocate (this%blade(ib)%velFwake)
 
-      select case (switches%fdScheme)
-      case (0)
-        ! Nothing to deallocate
-      case (1)
-        deallocate (this%blade(ib)%waNPredicted)
-        deallocate (this%blade(ib)%velNwakePredicted)
+        select case (switches%fdScheme)
+        case (0)
+          ! Nothing to deallocate
+        case (1)
+          deallocate (this%blade(ib)%waNPredicted)
+          deallocate (this%blade(ib)%velNwakePredicted)
 
-        deallocate (this%blade(ib)%waFPredicted)
-        deallocate (this%blade(ib)%velFwakePredicted)
-      case (2)
-        deallocate (this%blade(ib)%velNwake1)
-        deallocate (this%blade(ib)%velNwakeStep)
+          deallocate (this%blade(ib)%waFPredicted)
+          deallocate (this%blade(ib)%velFwakePredicted)
+        case (2)
+          deallocate (this%blade(ib)%velNwake1)
+          deallocate (this%blade(ib)%velNwakeStep)
 
-        deallocate (this%blade(ib)%velFwake1)
-        deallocate (this%blade(ib)%velFwakeStep)
-      case (3)
-        deallocate (this%blade(ib)%waNPredicted)
-        deallocate (this%blade(ib)%velNwake1)
-        deallocate (this%blade(ib)%velNwakeStep)
+          deallocate (this%blade(ib)%velFwake1)
+          deallocate (this%blade(ib)%velFwakeStep)
+        case (3)
+          deallocate (this%blade(ib)%waNPredicted)
+          deallocate (this%blade(ib)%velNwake1)
+          deallocate (this%blade(ib)%velNwakeStep)
 
-        deallocate (this%blade(ib)%waFPredicted)
-        deallocate (this%blade(ib)%velFwake1)
-        deallocate (this%blade(ib)%velFwakeStep)
-      case (4)
-        deallocate (this%blade(ib)%waNPredicted)
-        deallocate (this%blade(ib)%velNwake1)
-        deallocate (this%blade(ib)%velNwake2)
-        deallocate (this%blade(ib)%velNwakeStep)
+          deallocate (this%blade(ib)%waFPredicted)
+          deallocate (this%blade(ib)%velFwake1)
+          deallocate (this%blade(ib)%velFwakeStep)
+        case (4)
+          deallocate (this%blade(ib)%waNPredicted)
+          deallocate (this%blade(ib)%velNwake1)
+          deallocate (this%blade(ib)%velNwake2)
+          deallocate (this%blade(ib)%velNwakeStep)
 
-        deallocate (this%blade(ib)%waFPredicted)
-        deallocate (this%blade(ib)%velFwake1)
-        deallocate (this%blade(ib)%velFwake2)
-        deallocate (this%blade(ib)%velFwakeStep)
-      case (5)
-        deallocate (this%blade(ib)%waNPredicted)
-        deallocate (this%blade(ib)%velNwake1)
-        deallocate (this%blade(ib)%velNwake2)
-        deallocate (this%blade(ib)%velNwake3)
-        deallocate (this%blade(ib)%velNwakePredicted)
-        deallocate (this%blade(ib)%velNwakeStep)
+          deallocate (this%blade(ib)%waFPredicted)
+          deallocate (this%blade(ib)%velFwake1)
+          deallocate (this%blade(ib)%velFwake2)
+          deallocate (this%blade(ib)%velFwakeStep)
+        case (5)
+          deallocate (this%blade(ib)%waNPredicted)
+          deallocate (this%blade(ib)%velNwake1)
+          deallocate (this%blade(ib)%velNwake2)
+          deallocate (this%blade(ib)%velNwake3)
+          deallocate (this%blade(ib)%velNwakePredicted)
+          deallocate (this%blade(ib)%velNwakeStep)
 
-        deallocate (this%blade(ib)%waFPredicted)
-        deallocate (this%blade(ib)%velFwake1)
-        deallocate (this%blade(ib)%velFwake2)
-        deallocate (this%blade(ib)%velFwake3)
-        deallocate (this%blade(ib)%velFwakePredicted)
-        deallocate (this%blade(ib)%velFwakeStep)
-      end select
+          deallocate (this%blade(ib)%waFPredicted)
+          deallocate (this%blade(ib)%velFwake1)
+          deallocate (this%blade(ib)%velFwake2)
+          deallocate (this%blade(ib)%velFwake3)
+          deallocate (this%blade(ib)%velFwakePredicted)
+          deallocate (this%blade(ib)%velFwakeStep)
+        end select
+      endif
     enddo
 
   end subroutine rotor_deinit
