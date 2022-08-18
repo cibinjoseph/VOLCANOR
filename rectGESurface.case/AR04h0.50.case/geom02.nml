@@ -46,7 +46,7 @@ phiThetaPsi = 0.0, 0.0, 0.0
 ! Span[m]      root_cut[r/R]      chord[m]    preconeAngle[deg]
 span = 20.0
 rootcut = 0.0
-chord = 40.0
+chord = 35.0
 preconeAngle = 0.0
 ! Omega[rad/s]   X-shaftAxis     Y-shaftAxis     Z-shaftAxis
 Omega = 0.0
