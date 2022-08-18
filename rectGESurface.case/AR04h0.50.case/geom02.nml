@@ -1,6 +1,6 @@
 &VERSION
 ! File format version
-fileFormatVersion = 0.13
+fileFormatVersion = 0.14
 /
 
 &SURFACE
@@ -15,11 +15,14 @@ imageRotorNum = 1
 ! No. of blades,nb  Prop convention  NcamberFiles  geometry filename
 nb = 1
 propConvention = 0
+! SPAN DISCRETIZATION : [1]linear [2]cosine [3]halfsine
+spanSpacing = 1
+chordSpacing = 1
 geometryFile = 0
 nCamberFiles = 0
 ! Chordwise panels,nc   Spanwise panels,ns   
-nc = 50
-ns = 50
+nc = 100
+ns = 100
 ! Near wake panels,nNwake [n]timesteps [-n]chords/revs
 nNwake = 0
 /

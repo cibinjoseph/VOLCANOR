@@ -1,6 +1,6 @@
 &VERSION
 ! File format version
-fileFormatVersion = 0.13
+fileFormatVersion = 0.14
 /
 
 &SURFACE
@@ -15,6 +15,9 @@ imageRotorNum = 1
 ! No. of blades,nb  Prop convention  NcamberFiles  geometry filename
 nb = 1
 propConvention = 0
+! SPAN DISCRETIZATION : [1]linear [2]cosine [3]halfsine
+spanSpacing = 2
+chordSpacing = 1
 geometryFile = 0
 nCamberFiles = 0
 ! Chordwise panels,nc   Spanwise panels,ns   
@@ -33,9 +36,9 @@ camberFile = 0
 
 &ORIENT
 ! X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
-hubCoords = 0.0, 0.0, 0.5
+hubCoords = -29.0, 8.0, 0.5
 ! X-cgCoords      Y-cgCoords      Z-cgCoords     [all in m]
-cgCoords = 0.0, 0.0, 0.5
+cgCoords = -29.0, 8.0, 0.5
 ! X-from          Y-from          Z-from         [all in m]
 fromCoords = 0.0, 0.0, 0.0
 ! Phi       Theta       Psi     about cgCoords [all in deg]
