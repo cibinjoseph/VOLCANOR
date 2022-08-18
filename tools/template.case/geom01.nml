@@ -73,10 +73,6 @@ customTrajectorySwitch = 0
 ! u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]
 velBody = -10.0, 0.0, 0.0
 omegaBody = 0.0, 0.0, 0.0
-! Panel discretization : [1]linear [2]cosine [3]halfsine
-! spanSpacingSwitch   chordSpacingSwitch
-spanSpacing = 2
-chordSpacing = 1
 ! forceCalcSwitch
 ! [0]gamma [1]alpha [2]FELS             No. of airfoil files
 forceCalcSwitch = 0
