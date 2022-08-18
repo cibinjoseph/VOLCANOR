@@ -21,8 +21,8 @@ chordSpacing = 1
 geometryFile = 0
 nCamberFiles = 0
 ! Chordwise panels,nc   Spanwise panels,ns   
-nc = 100
-ns = 100
+nc = 150
+ns = 150
 ! Near wake panels,nNwake [n]timesteps [-n]chords/revs
 nNwake = 0
 /
