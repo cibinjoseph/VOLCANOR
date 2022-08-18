@@ -678,11 +678,10 @@ contains
 
   end subroutine geomSurface2file
 
-  subroutine tip2file(timestamp, rotor, wakeSuppress)
+  subroutine tip2file(timestamp, rotor)
     use classdef, only: rotor_class
     type(rotor_class), intent(in) :: rotor
     character(len=*), intent(in) :: timestamp
-    integer, intent(in) :: wakeSuppress
     character(len=5) :: nxChar, nyChar
     real(dp), dimension(3, rotor%nc + 1, rotor%ns + 1) :: wingMesh
     real(dp), dimension(3, rotor%nNwake + 1) :: nWakeTip
