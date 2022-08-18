@@ -13,7 +13,6 @@ module classdef
 
   type switches_class
     integer :: ntSub, ntSubInit
-    integer :: spanSpacing, chordSpacing
     integer :: wakeDissipation, wakeStrain, wakeBurst, wakeSuppress
     integer :: slowStart, slowStartNt
     integer :: wakeTipPlot, wakePlot, gridPlot
@@ -302,7 +301,7 @@ module classdef
     real(dp) :: initWakeVel, psiStart, skewLimit
     real(dp) :: apparentViscCoeff, decayCoeff
     real(dp) :: rollupStartRadius, rollupEndRadius
-    integer :: propConvention
+    integer :: propConvention, spanSpacing, chordSpacing
     integer :: overrideTauSpan, symmetricTau
     integer :: wakeTruncateNt
     integer :: prescWakeNt, prescWakeAfterTruncNt, prescWakeGenNt
@@ -2566,7 +2565,7 @@ class(blade_class), intent(inout) :: this
 
     ! Namelist variables
     integer :: surfaceType, imagePlane, imageRotorNum, nb, propConvention, &
-      & nCamberFiles, nc, ns, nNwake, nAirfoils
+      & spanSpacing, chordSpacing, nCamberFiles, nc, ns, nNwake, nAirfoils
     real(dp), allocatable, dimension(:) :: camberSectionLimit
     character(len=30), allocatable, dimension(:) :: camberFile, airfoilFile
     character(len=30) :: geometryFile
@@ -2593,8 +2592,8 @@ class(blade_class), intent(inout) :: this
 
     namelist /SURFACE/ surfaceType, imagePlane, imageRotorNum
 
-    namelist /PANELS/ nb, propConvention, geometryFile, nCamberFiles, &
-      & nc, ns, nNwake
+    namelist /PANELS/ nb, propConvention, spanSpacing, chordSpacing, &
+      & geometryFile, nCamberFiles, nc, ns, nNwake
 
     namelist /CAMBERSECTIONS/ camberSectionLimit, camberFile
 
@@ -2621,7 +2620,7 @@ class(blade_class), intent(inout) :: this
 
     namelist /AIRFOILS/ airfoilSectionLimit, alpha0, airfoilFile
 
-    currentTemplateVersion = '0.13'
+    currentTemplateVersion = '0.14'
 
     open(unit=12, file=filename, status='old', action='read') 
 
@@ -2679,6 +2678,8 @@ class(blade_class), intent(inout) :: this
 
     this%nb = nb
     this%propConvention= propConvention
+    this%spanSpacing= spanSpacing
+    this%chordSpacing= chordSpacing
     this%geometryFile = geometryFile 
     this%nCamberFiles = nCamberFiles
     this%nc = nc
@@ -2811,6 +2812,8 @@ class(blade_class), intent(inout) :: this
     if (this%surfaceType .lt. 0) then
       this%nb = sourceRotor%nb
       this%propConvention = sourceRotor%propConvention
+      this%spanSpacing = sourceRotor%spanSpacing
+      this%chordSpacing = sourceRotor%chordSpacing
       this%nCamberFiles = sourceRotor%nCamberFiles
 
       ! Geometry file has to still be manually input
@@ -3158,7 +3161,7 @@ class(blade_class), intent(inout) :: this
 
     ! Blade initialization
     if (this%geometryFile(1:1) .eq. '0') then
-      select case (switches%chordSpacing)
+      select case (this%chordSpacing)
       case (1)
         if (this%Omega .ge. 0) then
           xVec = linspace(-this%chord, 0._dp, this%nc + 1)
@@ -3179,7 +3182,7 @@ class(blade_class), intent(inout) :: this
         endif
       end select
 
-      select case (switches%spanSpacing)
+      select case (this%spanSpacing)
       case (1)
         yVec = linspace(this%root_cut*this%radius, this%radius, this%ns + 1)
       case (2)

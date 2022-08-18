@@ -12,7 +12,7 @@ contains
     character(len=*), optional, intent(in) :: outputFilename
     character(len=10) :: fileFormatVersion, currentVersion
     integer :: restartWriteNt, restartFromNt, ntSub, ntSubInit, &
-      & spanSpacing, chordSpacing, wakePlot, wakeTipPlot, rotorForcePlot, &
+      & wakePlot, wakeTipPlot, rotorForcePlot, &
       & gridPlot, wakeDissipation, wakeStrain, wakeBurst, wakeSuppress, &
       & slowStart, slowStartNt, fdScheme, initWakeVelNt, probe
 
@@ -20,11 +20,11 @@ contains
     namelist /VERSION/ fileFormatVersion
     namelist /PARAMS/ nt, dt, nr, density, velSound, kinematicVisc
     namelist /OPTIONS/ restartWriteNt, restartFromNt, ntSub, ntSubInit, &
-      & spanSpacing, chordSpacing, wakePlot, wakeTipPlot, rotorForcePlot, &
+      & wakePlot, wakeTipPlot, rotorForcePlot, &
       & gridPlot, wakeDissipation, wakeStrain, wakeBurst, wakeSuppress, &
       & slowStart, slowStartNt, fdScheme, initWakeVelNt, probe
 
-    currentVersion = '0.4'
+    currentVersion = '0.5'
 
     open(unit=11, file=filename, status='old', action='read')
     read(unit=11, nml=VERSION)
@@ -48,8 +48,6 @@ contains
     switches%restartFromNt = restartFromNt
     switches%ntSub = ntSub
     switches%ntSubInit = ntSubInit
-    switches%spanSpacing = spanSpacing
-    switches%chordSpacing = chordSpacing
     switches%wakePlot = wakePlot
     switches%wakeTipPlot = wakeTipPlot
     switches%rotorForcePlot = rotorForcePlot
@@ -86,8 +84,6 @@ contains
     read (11, *) switches%restartWriteNt, switches%restartFromNt
     call skip_comments(11)
     read (11, *) switches%ntSub, switches%ntSubInit
-    call skip_comments(11)
-    read (11, *) switches%spanSpacing, switches%chordSpacing
     call skip_comments(11)
     read (11, *) density, velSound, kinematicVisc
     call skip_comments(11)

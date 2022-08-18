@@ -66,7 +66,6 @@ contains
     write(10, *) '"restartFromNt": ', switches%restartFromNt, ','
     write(10, *) '"ntSub": ', switches%ntSub, ','
     write(10, *) '"ntSubInit": ', switches%ntSubInit, ','
-    write(10, *) '"spanSpacing": ', switches%spanSpacing, ','
     write(10, *) '"density": ', density, ','
     write(10, *) '"velSound": ', velSound, ','
     write(10, *) '"wakePlot": ', switches%wakePlot, ','

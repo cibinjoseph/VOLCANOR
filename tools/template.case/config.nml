@@ -1,6 +1,6 @@
 &VERSION
 ! File format version
-fileFormatVersion = 0.4
+fileFormatVersion = 0.5
 /
 
 &PARAMS
@@ -22,10 +22,6 @@ restartFromNt = 0
 ! NO. OF SUBITERATIONS [ntSub]  NO. OF INITIAL SUBITERATIONS [ntSubInit] 
 ntSub = 0
 ntSubInit = 0
-! SPAN DISCRETIZATION : [1]linear [2]cosine [3]halfsine
-! spanSpacingSwitch   chordSpacingSwitch
-spanSpacing = 2
-chordSpacing = 1
 ! PLOT WAKE: [0]Off [n]Every n'th iteration [-n]chords or revs
 ! wakePlotSwitch   wakeTipPlotSwitch   forcePlotSwitch   gridPlotSwitch
 wakePlot = 1

@@ -1,6 +1,6 @@
 &VERSION
 ! File format version
-fileFormatVersion = 0.13
+fileFormatVersion = 0.14
 /
 
 &SURFACE
@@ -12,9 +12,13 @@ imageRotorNum = 1
 /
 
 &PANELS
-! No. of blades,nb  Prop convention  NcamberFiles  geometry filename
+! No. of blades,nb  Prop convention [0]Helicopter [1]Prop
 nb = 1
 propConvention = 0
+! Panel discretization [1]linear [2]cosine [3]halfsine
+spanSpacing = 2
+chordSpacing = 1
+! degengeom geometryFile from OpenVSP
 geometryFile = 0
 nCamberFiles = 0
 ! Chordwise panels,nc   Spanwise panels,ns   
@@ -69,6 +73,10 @@ customTrajectorySwitch = 0
 ! u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]
 velBody = -10.0, 0.0, 0.0
 omegaBody = 0.0, 0.0, 0.0
+! Panel discretization : [1]linear [2]cosine [3]halfsine
+! spanSpacingSwitch   chordSpacingSwitch
+spanSpacing = 2
+chordSpacing = 1
 ! forceCalcSwitch
 ! [0]gamma [1]alpha [2]FELS             No. of airfoil files
 forceCalcSwitch = 0
