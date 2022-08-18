@@ -20,8 +20,8 @@ kinematicVisc = 0.000018
 restartWriteNt = 0
 restartFromNt = 0
 ! NO. OF SUBITERATIONS [ntSub]  NO. OF INITIAL SUBITERATIONS [ntSubInit] 
-ntSub = 10
-ntSubInit = 10
+ntSub = 35
+ntSubInit = 35
 ! PLOT WAKE: [0]Off [n]Every n'th iteration [-n]chords or revs
 ! wakePlotSwitch   wakeTipPlotSwitch   forcePlotSwitch   gridPlotSwitch
 wakePlot = 1
