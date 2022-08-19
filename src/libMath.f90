@@ -166,6 +166,23 @@ contains
   end function halfsinspace
 
   ! -------------------------------------------------
+  !                tanspace
+  ! -------------------------------------------------
+  function tanspace(xstart, xend, nx) result(xout)
+    real(dp), intent(in) :: xstart, xend
+    integer, intent(in) :: nx
+    real(dp) :: thetaLimits
+    real(dp), dimension(nx) :: xout
+    real(dp), dimension(nx) :: theta_spacing
+
+    thetaLimits = 1.2_dp
+
+    theta_spacing = linspace(-1._dp*thetaLimits, thetaLimits, nx)
+    xout = xstart + (xend - xstart) * tan(theta_spacing)/tan(thetaLimits)
+
+  end function tanspace
+
+  ! -------------------------------------------------
   !                cross_product
   ! -------------------------------------------------
   function cross_product(aVec, bVec)

@@ -3162,24 +3162,34 @@ class(blade_class), intent(inout) :: this
     ! Blade initialization
     if (this%geometryFile(1:1) .eq. '0') then
       select case (this%chordSpacing)
-      case (1)
+      case (1)  ! Equidistant
         if (this%Omega .ge. 0) then
           xVec = linspace(-this%chord, 0._dp, this%nc + 1)
         else
           xVec = linspace(this%chord, 0._dp, this%nc + 1)
         endif
-      case (2)
+
+      case (2)  ! Cosine
         if (this%Omega .ge. 0) then
           xVec = cosspace(-this%chord, 0._dp, this%nc + 1)
         else
           xVec = cosspace(this%chord, 0._dp, this%nc + 1)
         endif
-      case (3)
+
+      case (3)  ! Sine
         if (this%Omega .ge. 0) then
           xVec = halfsinspace(-this%chord, 0._dp, this%nc + 1)
         else
           xVec = halfsinspace(this%chord, 0._dp, this%nc + 1)
         endif
+
+      case (4)  ! Tan
+        if (this%Omega .ge. 0) then
+          xVec = tanspace(-this%chord, 0._dp, this%nc + 1)
+        else
+          xVec = tanspace(this%chord, 0._dp, this%nc + 1)
+        endif
+
       end select
 
       select case (this%spanSpacing)
@@ -3189,6 +3199,8 @@ class(blade_class), intent(inout) :: this
         yVec = cosspace(this%root_cut*this%radius, this%radius, this%ns + 1)
       case (3)
         yVec = halfsinspace(this%root_cut*this%radius, this%radius, this%ns + 1)
+      case (4)
+        yVec = tanspace(this%root_cut*this%radius, this%radius, this%ns + 1)
       end select
 
       ! Initialize panel coordinates

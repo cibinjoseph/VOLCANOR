@@ -15,7 +15,7 @@ imageRotorNum = 1
 ! No. of blades,nb  Prop convention [0]Helicopter [1]Prop
 nb = 1
 propConvention = 0
-! Panel discretization [1]linear [2]cosine [3]halfsine
+! Panel discretization [1]linear [2]cosine [3]halfsine [4]tan
 spanSpacing = 2
 chordSpacing = 1
 ! degengeom geometryFile from OpenVSP
