@@ -2803,7 +2803,6 @@ class(blade_class), intent(inout) :: this
     real(dp) :: bladeOffset
     real(dp) :: velShed
     real(dp), dimension(4) :: xshift
-    logical :: warnUser
 
     ! Set id
     write(this%id, '(I0.2)') rotorNumber
@@ -3502,24 +3501,21 @@ class(blade_class), intent(inout) :: this
         this%blade(ib)%wiP%vr%vf(i)%rVc = this%blade(ib)%wiP%vr%vf(i)%rVc0
       enddo
 
+      ! Disabling this check as it does not make a difference
+
       ! Verify CP is outside vortex core for boundary panels
-      warnUser = .FALSE.
-      if (this%blade(ib)%wiP(1, 1)%isCPinsidecore()) then
-        print *, 'Warning: CP inside vortex core at panel LU'
-        warnUser = .TRUE.
-      endif
-      if (this%blade(ib)%wiP(this%nc, 1)%isCPinsidecore()) then
-        print *, 'Warning: CP inside vortex core at panel LB'
-        warnUser = .TRUE.
-      endif
-      if (this%blade(ib)%wiP(1, this%ns)%isCPinsidecore()) then
-        print *, 'Warning: CP inside vortex core at panel RU'
-        warnUser = .TRUE.
-      endif
-      if (this%blade(ib)%wiP(this%nc, this%ns)%isCPinsidecore()) then
-        print *, 'Warning: CP inside vortex core at panel RB'
-        warnUser = .TRUE.
-      endif
+      ! if (this%blade(ib)%wiP(1, 1)%isCPinsidecore()) then
+      !   print *, 'Warning: CP inside vortex core at panel LU'
+      ! endif
+      ! if (this%blade(ib)%wiP(this%nc, 1)%isCPinsidecore()) then
+      !   print *, 'Warning: CP inside vortex core at panel LB'
+      ! endif
+      ! if (this%blade(ib)%wiP(1, this%ns)%isCPinsidecore()) then
+      !   print *, 'Warning: CP inside vortex core at panel RU'
+      ! endif
+      ! if (this%blade(ib)%wiP(this%nc, this%ns)%isCPinsidecore()) then
+      !   print *, 'Warning: CP inside vortex core at panel RB'
+      ! endif
     enddo
 
     ! Copy Blade1 variables to other blades if symmetric
