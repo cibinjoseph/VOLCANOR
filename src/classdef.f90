@@ -2966,10 +2966,12 @@ class(blade_class), intent(inout) :: this
       this%zAxisBody(this%imagePlane) = -1._dp*this%zAxisBody(this%imagePlane)
     endif
 
-    ! Warn if all velocities zero
-    if (abs(this%Omega) < eps) then
-      if (norm2(this%velBody) < eps) then
-        error stop "ERROR: All velocity set to zero"
+    ! Warn if all velocities zero for surfaces (with wake)
+    if (this%nNwake .ne. 0) then
+      if (abs(this%Omega) < eps) then
+        if (norm2(this%velBody) < eps) then
+          error stop "ERROR: All velocity set to zero"
+        endif
       endif
     endif
 
