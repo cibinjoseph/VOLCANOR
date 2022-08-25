@@ -24,7 +24,7 @@ ntSub = 35
 ntSubInit = 35
 ! PLOT WAKE: [0]Off [n]Every n'th iteration [-n]chords or revs
 ! wakePlotSwitch   wakeTipPlotSwitch   forcePlotSwitch   gridPlotSwitch
-wakePlot = 1
+wakePlot = 100
 wakeTipPlot = 100
 rotorForcePlot = 1
 gridPlot = 0
