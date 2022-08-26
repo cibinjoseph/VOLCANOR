@@ -37,9 +37,9 @@ camberFile = 0
 
 &ORIENT
 ! X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
-hubCoords = 0.0, 0.0, 0.0
+hubCoords = 0.0, 0.0, 0.1905
 ! X-cgCoords      Y-cgCoords      Z-cgCoords     [all in m]
-cgCoords = 0.0, 0.0, 0.0
+cgCoords = 0.0, 0.0, 0.1905
 ! X-from          Y-from          Z-from         [all in m]
 fromCoords = 0.0, 0.0, 0.0
 ! Phi       Theta       Psi     about cgCoords [all in deg]
