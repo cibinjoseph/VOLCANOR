@@ -89,6 +89,8 @@ contains
     write(10, *) '"chordSpacing": "', rotor%chordSpacing, '",'
     write(10, *) '"nCamberFiles": "', rotor%nCamberFiles, '",'
     write(10, *) '"surfaceType": "', rotor%surfaceType, '",'
+    write(10, *) '"imagePlane": "', rotor%imagePlane, '",'
+    write(10, *) '"imageRotorNum": "', rotor%imageRotorNum, '",'
     write(10, *) '"nc": ', rotor%nc, ','
     write(10, *) '"ns": ', rotor%ns, ','
     write(10, *) '"nNwake": ', rotor%nNwake, ','
