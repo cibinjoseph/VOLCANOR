@@ -1,8 +1,8 @@
 &VERSION
 ! File format version
-fileFormatVersion = 0.13
+fileFormatVersion = 0.14
 /
-! -------------------------------------------------------------------
+
 &SURFACE
 ! Surface type [0/1]Lifting [2]Non-lifting    Mirrored about X/Y/Z
 ! [-1]Lifting Image [-2]Non-lifting Image    [1/2/3]plane  from rotor
@@ -10,11 +10,14 @@ surfaceType = 0
 imagePlane = 3
 imageRotorNum = 1
 /
-! -------------------------------------------------------------------
+
 &PANELS
 ! No. of blades,nb  Prop convention  NcamberFiles  geometry filename
 nb = 5
 propConvention = 0
+! Panel discretization
+spanSpacing = 2
+chordSpacing = 1
 nCamberFiles = 0
 geometryFile = elevate.xyz
 ! Chordwise panels,nc   Spanwise panels,ns   
@@ -23,7 +26,7 @@ ns = 16
 ! Near wake panels,nNwake [n]timesteps [-n]chords/revs
 nNwake = 30
 /
-! -------------------------------------------------------------------
+
 &CAMBERSECTIONS
 ! CamberSectionLimit[r/R]  Camber filename
 ! These can also be comma seperated if nCamberFiles>1
