@@ -85,6 +85,8 @@ contains
     write(10, *) '"nb": ', rotor%nb, ','
     write(10, *) '"propConvention": ', rotor%propConvention, ','
     write(10, *) '"geometryFile": "', rotor%geometryFile, '",'
+    write(10, *) '"spanSpacing": "', rotor%spanSpacing, '",'
+    write(10, *) '"chordSpacing": "', rotor%chordSpacing, '",'
     write(10, *) '"nCamberFiles": "', rotor%nCamberFiles, '",'
     write(10, *) '"surfaceType": "', rotor%surfaceType, '",'
     write(10, *) '"nc": ', rotor%nc, ','
