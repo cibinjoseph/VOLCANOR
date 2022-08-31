@@ -68,8 +68,8 @@ contains
 
     rotor%nAirfoils = 0
 
-    switches%spanSpacing = spanSpacingSwitch
-    switches%chordSpacing = chordSpacingSwitch
+    rotor%spanSpacing = spanSpacingSwitch
+    rotor%chordSpacing = chordSpacingSwitch
     switches%fdScheme = fdSchemeSwitch
 
     call rotor%init(1, density, dt, nt, switches)

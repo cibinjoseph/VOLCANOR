@@ -17,8 +17,6 @@ contains
     density = 1.2_dp
 
     ! Switches
-    switches%spanSpacing = 2
-    switches%chordSpacing = 1
     switches%fdScheme = 3
     switches%wakeDissipation = 1
     switches%slowStart = 0
@@ -28,6 +26,8 @@ contains
 
     rotor%nb = 1
     rotor%geometryFile = '0'
+    rotor%spanSpacing = 2
+    rotor%chordSpacing = 1
 
     rotor%nc = 1
     rotor%ns = 2
