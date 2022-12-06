@@ -6,7 +6,7 @@ fileFormatVersion = 0.14
 &SURFACE
 ! Surface type [0/1]Lifting [2]Non-lifting    Mirrored about X/Y/Z
 ! [-1]Lifting Image [-2]Non-lifting Image    [1/2/3]plane  from rotor
-surfaceType = -1
+surfaceType = 0
 imagePlane = 3
 imageRotorNum = 1
 /
