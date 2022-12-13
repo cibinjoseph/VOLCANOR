@@ -2174,7 +2174,7 @@ class(blade_class), intent(inout) :: this
           & - vecLE
         ! Find components along and normal to chordwise vector
         xzCoord(1, ic+1) = norm2(projVec(vecPC, this%secTauCapChord(:, is)))
-        xzCoord(2, ic+1) = norm2(projVec(vecPC, this%secNormalVec(:, is)))
+        xzCoord(2, ic+1) = dot_product(vecPC, this%secNormalVec(:, is))
       enddo
       ! Get distance along chord for secCP
       xzCP(1) = norm2(vecPC)*chordwiseFraction
