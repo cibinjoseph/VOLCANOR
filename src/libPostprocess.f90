@@ -884,11 +884,13 @@ contains
     integer :: ib, ispan
     character(len=24) :: forceDimFilename
     character(len=27) :: forceNonDimFilename
+    real(dp) :: signLift
 
+    signLift = sign(1._dp, dot_product(rotor%lift, rotor%zAxisBody))
     forceNonDimFilename = ResultsDir//'r'//rotor%id//'ForceNonDim.csv'
     open (unit=11, file=forceNonDimFilename, action='write', position='append')
     write (11, 100) timestamp, &
-      norm2(rotor%lift) / rotor%nonDimforceDenominator, &          ! CL
+      signLift*norm2(rotor%lift) / rotor%nonDimforceDenominator, & ! CL
       norm2(rotor%drag) / rotor%nonDimforceDenominator, &          ! CD
       norm2(rotor%liftUnsteady) / rotor%nonDimforceDenominator, &  ! CLu
       norm2(rotor%dragInduced) / rotor%nonDimforceDenominator, &   ! CDi
