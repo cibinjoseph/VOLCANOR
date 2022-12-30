@@ -8,7 +8,7 @@ fileFormatVersion = 0.5
 ! [-nt]chords or revs    [0]default [-nt]chords or revs
 nt = 400
 dt = 0.0
-nr = 2
+nr = 1
 ! DENSITY [kg/m3]    SOUND VEL. [m/s]  KINEMATICVISC [m2/s]
 density = 1.0
 velSound = 330.0
