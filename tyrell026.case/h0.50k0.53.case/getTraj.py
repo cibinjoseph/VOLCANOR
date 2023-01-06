@@ -7,7 +7,7 @@ hs = 0.1
 k = 0.53
 vinf = 10.0
 dt = (1.0/3.0)*1E-2
-ncyc = 2
+ncyc = 5
 
 om = 2.0*vinf*k
 timePeriod = 2.0*np.pi/om
