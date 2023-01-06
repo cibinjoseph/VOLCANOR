@@ -32,7 +32,7 @@ nNwake = 2000
 ! CamberSectionLimit[r/R]  Camber filename
 ! These can also be comma seperated if nCamberFiles>1
 camberSectionLimit = 1.0
-camberFile = t026camber
+camberFile = t026.camber
 /
 
 &ORIENT
