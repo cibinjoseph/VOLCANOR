@@ -18,7 +18,7 @@ t = np.arange(1, nt+1, 1)*dt
 w = om*hs*np.cos(om*t)
 
 for i in range(nt):
-    print("0.0 0.0 " + str(w[i]) + " 0.0 0.0 0.0")
+    print("-10.0 0.0 " + str(w[i]) + " 0.0 0.0 0.0")
 
 print("Total time = ", end="")
 print(totTime)

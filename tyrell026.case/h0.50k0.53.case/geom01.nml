@@ -71,7 +71,7 @@ symmetricTau = 1
 ! customTrajectorySwitch  [0]Off [1]On
 customTrajectorySwitch = 1
 ! u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]
-velBody = -10.0, 0.0, 0.0
+velBody = 0.0, 0.0, 0.0
 omegaBody = 0.0, 0.0, 0.0
 ! forceCalcSwitch
 ! [0]gamma [1]alpha [2]FELS             No. of airfoil files
