@@ -2970,7 +2970,7 @@ class(blade_class), intent(inout) :: this
     if (this%nNwake .ne. 0) then
       if (abs(this%Omega) < eps) then
         if (norm2(this%velBody) < eps) then
-          error stop "ERROR: All velocity set to zero"
+          print*, "WARNING: All velocity set to zero"
         endif
       endif
     endif
