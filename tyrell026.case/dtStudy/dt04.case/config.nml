@@ -1,0 +1,49 @@
+&VERSION
+! File format version
+fileFormatVersion = 0.5
+/
+
+&PARAMS
+! NO. OF TIMESTEPS [nt]    TIMESTEP (sec) [dt]         NO. OF ROTORS [nr]
+! [-nt]chords or revs    [0]default [-nt]chords or revs
+nt = 118
+dt = 0.025
+nr = 2
+! DENSITY [kg/m3]    SOUND VEL. [m/s]  KINEMATICVISC [m2/s]
+density = 1.0
+velSound = 330.0
+kinematicVisc = 0.000018
+/
+
+&OPTIONS
+! restartWriteNt    restartFromNt [0]Off [1..]timesteps
+restartWriteNt = 0
+restartFromNt = 0
+! NO. OF SUBITERATIONS [ntSub]  NO. OF INITIAL SUBITERATIONS [ntSubInit] 
+ntSub = 0
+ntSubInit = 0
+! PLOT WAKE: [0]Off [n]Every n'th iteration [-n]chords or revs
+! wakePlotSwitch   wakeTipPlotSwitch   forcePlotSwitch   gridPlotSwitch
+wakePlot = 1
+wakeTipPlot = 0
+rotorForcePlot = 1
+gridPlot = 0
+! WAKE PROPERTY SWITCHES: [0]Off [1]On
+wakeDissipation = 1
+wakeStrain = 0
+wakeBurst = 0
+wakeSuppress = 0
+! SLOW START TO AVOID LARGE STARTING VORTEX:
+! [0]Off [1]linear [2]tanh [3]extended tanh
+! slowStartSwitch       slowStartNt [-nt] chords or revs
+slowStart = 0
+slowStartNt = 0
+! WAKE CONVECTION FINITE-DIFFERENCE SCHEME:
+! fdScheme [0]FT1 [1]PC2 [2]AB2 [3]AM2 [4]AM3 [5]AM4
+fdScheme = 3
+! initWakeVelNt
+initWakeVelNt = 0   
+! USE VEL PROBES
+! probeSwitch [0]Off [1]On
+probe = 0                                          
+/

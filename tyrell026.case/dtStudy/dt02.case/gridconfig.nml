@@ -1,0 +1,18 @@
+&VERSION
+fileFormatVersion = 0.2
+/
+! -----------------------------------------------
+&INPUTS
+! NO. OF NODES FOR GRID
+nx = 161
+ny = 161
+nz = 111
+xyzMin = -6.0, -6.0, 1.6
+xyzMax = 6.0, 8.0, 4.0
+vel = 0.0, -6.0, -3.0
+! RANGE OF FILAMENT FILES TO BE READ
+! Start        Step        End     
+fileRangeStart = 400
+fileRangeStep = 1
+fileRangeEnd = 400
+/
