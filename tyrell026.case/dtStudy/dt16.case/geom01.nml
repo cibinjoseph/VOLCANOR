@@ -1,0 +1,149 @@
+&VERSION
+! File format version
+fileFormatVersion = 0.14
+/
+
+&SURFACE
+! Surface type [0/1]Lifting [2]Non-lifting    Mirrored about X/Y/Z
+! [-1]Lifting Image [-2]Non-lifting Image    [1/2/3]plane  from rotor
+surfaceType = 0
+imagePlane = 3
+imageRotorNum = 1
+/
+
+&PANELS
+! No. of blades,nb  Prop convention [0]Helicopter [1]Prop
+nb = 1
+propConvention = 0
+! Panel discretization [1]linear [2]cosine [3]halfsine [4]tan
+spanSpacing = 2
+chordSpacing = 1
+! degengeom geometryFile from OpenVSP
+geometryFile = 0
+nCamberFiles = 1
+! Chordwise panels,nc   Spanwise panels,ns   
+nc = 30
+ns = 30
+! Near wake panels,nNwake [n]timesteps [-n]chords/revs
+nNwake = 2000
+/
+
+&CAMBERSECTIONS
+! CamberSectionLimit[r/R]  Camber filename
+! These can also be comma seperated if nCamberFiles>1
+camberSectionLimit = 1.0
+camberFile = t026.camber
+/
+
+&ORIENT
+! X-hubCoords     Y-hubCoords     Z-hubCoords    [all in m]
+hubCoords = 0.0, 0.0, 0.5
+! X-cgCoords      Y-cgCoords      Z-cgCoords     [all in m]
+cgCoords = 0.0, 0.0, 0.5
+! X-from          Y-from          Z-from         [all in m]
+fromCoords = 0.0, 0.0, 0.0
+! Phi       Theta       Psi     about cgCoords [all in deg]
+phiThetaPsi = 0.0, 0.0, 0.0
+/
+
+&GEOMPARAMS
+! Span[m]      root_cut[r/R]      chord[m]    preconeAngle[deg]
+span = 20.0
+rootcut = 0.0
+chord = 1.0
+preconeAngle = 0.0
+! Omega[rad/s]   X-shaftAxis     Y-shaftAxis     Z-shaftAxis
+Omega = 0.0
+shaftAxis = 0.0, 0.0, 1.0
+! theta0[deg]    thetaC[deg]    thetaS[deg]    thetaTwist[deg]
+theta0 = 0.0
+thetaC = 0.0
+thetaS = 0.0
+thetaTwist = 0.0
+! axisymmetrySwitch  [0]Off [1]On
+axisymmetrySwitch = 0
+! pivot point     flapHinge      spanwiseLiftTerm    invert tauSpan
+! from LE[x/c]  from centre[r/R]    [1]enable     for swept/symmetric
+pivotLE = 0.00
+flapHinge = 0.0
+spanwiseLiftSwitch = 0
+symmetricTau = 1
+! customTrajectorySwitch  [0]Off [1]On
+customTrajectorySwitch = 1
+! u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]
+velBody = -10.0, 0.0, 0.0
+omegaBody = 0.0, 0.0, 0.0
+! forceCalcSwitch
+! [0]gamma [1]alpha [2]FELS             No. of airfoil files
+forceCalcSwitch = 0
+nAirfoils = 0
+/
+
+&WAKEPARAMS
+! apparentViscCoeff  decayCoeff
+! (1-10000)          (bq/s) 
+apparentViscCoeff = 1
+decayCoeff = 0
+! wakeTruncateNt  prescWakeAfterTruncNt   prescWakeGenNt
+!   [0]Off [n] timesteps [-n] chords/revs
+wakeTruncateNt = 0
+prescWakeAfterTruncNt = 0
+prescWakeGenNt = 0
+! spanwise core radius[x/c]
+spanwiseCore = 0.04
+! streamwise core radius[x/c]   root <----> tip  (ns+1 entries)
+streamwiseCoreVec = 0.04
+! Spanwise start[r/R]  &  end[r/R] for centroid of tip vorticity
+rollupStartRadius = 0.75
+rollupEndRadius = 1.0 
+! initWakeVel[m/s]     psiStart[deg]      skewLimit
+initWakeVel = 0.0
+psiStart = 0.0
+skewLimit = 0.5
+/
+
+&DYNAMICS
+! BLADE DYNAMICS [Angles in radians]
+! I*ddflap + c*dflap + (I*Om^2 + k)*flap = MflapLift + MflapConst
+! bladeDynamicsSwitch
+bladeDynamicsSwitch = 0
+! flapInitial  dflapInitial      Iflap      cflap     kflap     MflapConst
+flapinitial = 0.0
+dflapInitial = 0.0
+Iflap = 0.0
+cflap = 0.0
+kflap = 0.0
+MflapConstant = 0.0
+! pitchDynamicsSwitch    dpitch
+pitchDynamicsSwitch = 0
+dpitch = 0.0
+! BODY DYNAMICS
+! bodyDynamicsSwitch      internal[0]/external[vars]
+bodyDynamicsSwitch = 0
+bodyDynamicsIOVars = 1
+/
+
+&WINDFRAME
+! CUSTOM WIND FRAME FOR FORCE OUTPUT
+! Drag (x-wind), Side (y-wind), Lift (z-wind)
+dragUnitVec = 0.0, 0.0, 0.0
+sideUnitVec = 0.0, 0.0, 0.0
+liftUnitVec = 0.0, 0.0, 0.0
+/
+
+&PLOTS
+! PLOTS OF SPANWISE DISTRIBUTIONS:
+! [0]Off  [n]Every nth iteration  [-n]Chords/revs
+! inflow    gamma   skew
+inflowPlotSwitch = 0
+gammaPlotSwitch = 0
+skewPlotSwitch = 0
+/
+
+&AIRFOILS
+! section limit    alpha0    Airfoil file names
+! (r/R)              [for FELS]
+airfoilSectionLimit = 1.0
+alpha0 = 0.0
+airfoilFile = NACA63A012.C81
+/
