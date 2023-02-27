@@ -32,6 +32,24 @@ A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method
 ### Performance Improvements
 - Implement recording to array before writing
 
+## Installation
+The solver has the following dependencies:
+- CMake
+- OpenMP
+- LAPACK
+- BLAS
+- GNU or Intel Fortran compiler
+- Python (Optional; for postprocessing)
+- Paraview (Optional; for postprocessing)
+
+The volcanor executable may be built in the following manner:
+```bash
+mkdir build
+cd build
+FC=ifort cmake ..
+make
+```
+
 ## Contribution and Usage
 This code is under active development and a lot of features--including a proper user-friendly interface--have yet to be added. Users are encouraged to go through the code if interested, and let the author know of issues and bugs, if found. However, be warned that most of the features are untested and unvalidated and the author offers no guarantee on the results obtained at this point in time.
 
