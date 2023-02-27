@@ -18,12 +18,14 @@ mkdir -v $caseName
 mkdir -v "$caseName/Results"
 mkdir -v "$caseName/Restart"
 
+REPO_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+
 # Copy template files
 echo "2. Copying template files"
-cp -v tools/template.case/*.nml $caseName/
+cp -v ${REPO_DIR}/tools/template.case/*.nml $caseName/
 
 # Create links
 echo "3. Creating links to executables"
-ln -v -s "$PWD/bin" "$caseName/bin"
-ln -v -s "$PWD/tools" "$caseName/tools"
-ln -v -s "$PWD/tools/Makefile" "$caseName/Makefile"
+ln -v -s "${REPO_DIR}/bin" "$caseName/bin"
+ln -v -s "${REPO_DIR}/tools" "$caseName/tools"
+ln -v -s "${REPO_DIR}/tools/Makefile" "$caseName/Makefile"
