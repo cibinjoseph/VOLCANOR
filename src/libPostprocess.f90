@@ -1,11 +1,15 @@
+!! Module definition for libPostProcess
+
 module libPostprocess
+  !! Procedures to write out results of simulations
+
   use libMath, only: dp, pi, eps, radToDeg
   character(len=8) :: ResultsDir = 'Results/'
 
 contains
 
   subroutine init_plots(numOfRotors)
-    ! Initialise headers for plot files
+    !! Initialise headers for plot files
     integer, intent(in) :: numOfRotors
     character(len=30) :: forceDimFilename
     character(len=30) :: forceNonDimFilename
@@ -47,7 +51,7 @@ contains
 
   subroutine params2file(rotor, nt, dt, nr, &
       & density, velSound, switches)
-    ! Write rotor parameters to json file
+    !! Write rotor parameters to json file
     use classdef, only: rotor_class, switches_class
     type(rotor_class), intent(in) :: rotor
     type(switches_class), intent(in) :: switches
@@ -137,7 +141,7 @@ contains
   end subroutine params2file
 
   subroutine geom2file(timestamp, rotor, wakeSuppress)
-    ! Plot rotor geometry and wake to file
+    !! Plot rotor geometry and wake to file
     use classdef, only: rotor_class
     type(rotor_class), intent(in) :: rotor
     character(len=*), intent(in) :: timestamp
@@ -327,7 +331,7 @@ contains
   end subroutine geom2file
 
   subroutine probes2file(timestamp, probe, probeVel, rotor, t)
-    ! Write velocities at probe locations
+    !! Write velocities at probe locations
     use classdef, only: rotor_class
     type(rotor_class), intent(inout), dimension(:) :: rotor
     character(len=*), intent(in) :: timestamp
@@ -357,7 +361,7 @@ contains
   end subroutine probes2file
 
   subroutine filaments2file(timestamp, rotor)
-    ! Write filaments to file for using with grid-based plots
+    !! Write filaments to file for using with grid-based plots
     use classdef, only: vf_class, vr_class, rotor_class
     type(rotor_class), intent(in), dimension(:) :: rotor
     character(len=*), intent(in) :: timestamp
@@ -468,79 +472,8 @@ contains
     deallocate (gamFwake)
   end subroutine filaments2file
 
-  subroutine mesh2file(wing_array, wake_array, filename)
-    ! Obsolete
-    use classdef, only: wingpanel_class, Nwake_class
-    type(wingpanel_class), intent(in), dimension(:, :) :: wing_array
-    type(Nwake_class), intent(in), dimension(:, :) :: wake_array
-    character(len=*), intent(in) :: filename
-    character(len=5) :: nxChar, nyChar
-    real(dp), dimension(3, size(wing_array, 1) + 1, size(wing_array, 2) + 1) :: wingMesh
-    real(dp), dimension(3, size(wake_array, 1) + 1, size(wake_array, 2) + 1) :: wakeMesh
-    integer :: i, j, nx, ny
-
-    nx = size(wing_array, 1)
-    ny = size(wing_array, 2)
-    write (nxChar, '(I5)') nx + 1
-    write (nyChar, '(I5)') ny + 1
-
-    open (unit=10, file=filename, action='write', position='append')
-    do j = 1, ny
-      do i = 1, nx
-        wingMesh(:, i, j) = wing_array(i, j)%pc(:, 1)
-      enddo
-    enddo
-    do i = 1, nx
-      wingMesh(:, i, ny + 1) = wing_array(i, ny)%pc(:, 4)
-    enddo
-    do j = 1, ny
-      wingMesh(:, nx + 1, j) = wing_array(nx, j)%pc(:, 2)
-    enddo
-    wingMesh(:, nx + 1, ny + 1) = wing_array(nx, ny)%pc(:, 3)
-
-    write (10, *) 'Title = "Panel array"'
-    write (10, *) 'VARIABLES = "X" "Y" "Z" "GAM"'
-    write (10, *) 'Zone I='//trim(nxChar)//' J='//trim(nyChar)//' K=1  T="Wing"'
-    write (10, *) 'DATAPACKING=BLOCK'
-    write (10, *) 'VARLOCATION=([4]=CELLCENTERED)'!,[5]=CELLCENTERED)'
-    write (10, *) ((wingMesh(1, i, j), i=1, nx + 1), j=1, ny + 1)
-    write (10, *) ((wingMesh(2, i, j), i=1, nx + 1), j=1, ny + 1)
-    write (10, *) ((wingMesh(3, i, j), i=1, nx + 1), j=1, ny + 1)
-    write (10, *) ((-1._dp*wing_array(i, j)%vr%gam, i=1, nx), j=1, ny)
-
-    nx = size(wake_array, 1)
-    ny = size(wake_array, 2)
-    write (nxChar, '(I5)') nx + 1
-    write (nyChar, '(I5)') ny + 1
-
-    !Check if necessary - $omp parallel do collapse(2)
-    do j = 1, ny
-      do i = 1, nx
-        wakeMesh(:, i, j) = wake_array(i, j)%vr%vf(1)%fc(:, 1)
-      enddo
-    enddo
-    !Check if necessary -$omp end parallel do
-    do i = 1, nx
-      wakeMesh(:, i, ny + 1) = wake_array(i, ny)%vr%vf(4)%fc(:, 1)
-    enddo
-    do j = 1, ny
-      wakeMesh(:, nx + 1, j) = wake_array(nx, j)%vr%vf(2)%fc(:, 1)
-    enddo
-    wakeMesh(:, nx + 1, ny + 1) = wake_array(nx, ny)%vr%vf(3)%fc(:, 1)
-
-    write (10, *) 'Zone I='//trim(nxChar)//' J='//trim(nyChar)//' K=1  T="Wake"'
-    write (10, *) 'DATAPACKING=BLOCK'
-    write (10, *) 'VARLOCATION=([4]=CELLCENTERED)'!,[5]=CELLCENTERED)'
-    write (10, *) ((wakeMesh(1, i, j), i=1, nx + 1), j=1, ny + 1)
-    write (10, *) ((wakeMesh(2, i, j), i=1, nx + 1), j=1, ny + 1)
-    write (10, *) ((wakeMesh(3, i, j), i=1, nx + 1), j=1, ny + 1)
-    write (10, *) ((-1._dp*wake_array(i, j)%vr%gam, i=1, nx), j=1, ny)
-
-    close (10)
-  end subroutine mesh2file
-
   subroutine geomSurface2file(rotor)
-    ! Plot surface geometry to file
+    !! Plot surface geometry to file
     use classdef, only: rotor_class
     type(rotor_class), intent(in) :: rotor
 
@@ -682,6 +615,7 @@ contains
   end subroutine geomSurface2file
 
   subroutine tip2file(timestamp, rotor)
+    !! Wake tip to file
     use classdef, only: rotor_class
     type(rotor_class), intent(in) :: rotor
     character(len=*), intent(in) :: timestamp
@@ -850,6 +784,7 @@ contains
   end subroutine tip2file
 
   subroutine skew2file(timestamp, rotor)
+    !! Skew parameter to file
     use classdef, only: rotor_class
     type(rotor_class), intent(in) :: rotor
     character(len=*), intent(in) :: timestamp
@@ -947,6 +882,7 @@ contains
   end subroutine force2file
 
   subroutine dynamics2file(timestamp, rotor)
+    !! Rotor dynamics to file
     use classdef, only: rotor_class
     character(len=*), intent(in) :: timestamp
     type(rotor_class), intent(in) :: rotor
@@ -962,8 +898,8 @@ contains
   end subroutine dynamics2file
 
   subroutine inflow2file(timestamp, rotorArray, rotorNumber, directionVector)
-    ! Calculate inflow velocity along directionVector 
-    ! on the blades of rotor(rotorNumber) at rotor(rotorNumber)%secCP
+    !! Calculate inflow velocity along directionVector 
+    !! on the blades of rotor(rotorNumber) at rotor(rotorNumber)%secCP
     use classdef, only: rotor_class
     character(len=*), intent(in) :: timestamp
     type(rotor_class), intent(inout), dimension(:) :: rotorArray
@@ -1010,8 +946,8 @@ contains
   end subroutine inflow2file
 
   subroutine gamma2file(timestamp, rotor)
-    ! Calculate inflow velocity along directionVector on the blades of rotor(rotorNumber)
-    ! at rotor(rotorNumber)%secCP
+    !! Calculate inflow velocity along directionVector on the blades of rotor(rotorNumber)
+    !! at rotor(rotorNumber)%secCP
     use classdef, only: rotor_class
     character(len=*), intent(in) :: timestamp
     type(rotor_class), intent(in) :: rotor
@@ -1038,4 +974,3 @@ contains
   end subroutine gamma2file
 
 end module libPostprocess
-
