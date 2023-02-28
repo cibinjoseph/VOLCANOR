@@ -87,9 +87,6 @@ target_link_libraries(volcanor Common Postprocess)
 add_executable(gridgen ${PROJECT_SOURCE_DIR}/src/gridgen.f90)
 target_link_libraries(gridgen Common)
 
-add_executable(trial.out ${PROJECT_SOURCE_DIR}/src/trial.f90)
-target_link_libraries(trial.out Common Postprocess)
-
 # Target release/run to regenerate Makefile
 add_custom_target(run
   COMMAND ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=Release -DPROF=FALSE ${PROJECT_SOURCE_DIR}
