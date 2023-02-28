@@ -1,35 +1,77 @@
-!------+--------------------+------|
-! ++++ | MODULE DEFINITIONS | ++++ |
-!------+--------------------+------|
+!! Module definition for various objects that are used
+
 module classdef
+  !! Class and procedures for the various objects
+
   use libMath, only: dp, pi, eps, degToRad, radToDeg
   use libC81, only: C81_class
   implicit none
 
   real(dp), parameter :: tol = 1.E-6
-  real(dp), parameter :: invTol2 = 1.E06
-  real(dp), parameter :: inv4pi = 0.25_dp/pi
-  real(dp), parameter :: twoPi = 2.0_dp*pi
+  !! Tolerance for use in unit tests
+  real(dp), parameter, private :: invTol2 = 1.E06
+  real(dp), parameter, private :: inv4pi = 0.25_dp/pi
+  real(dp), parameter, private :: twoPi = 2.0_dp*pi
 
   type switches_class
-    integer :: ntSub, ntSubInit
-    integer :: wakeDissipation, wakeStrain, wakeBurst, wakeSuppress
-    integer :: slowStart, slowStartNt
-    integer :: wakeTipPlot, wakePlot, gridPlot
+    !! Switches that determine solver options
+
+    integer :: ntSub
+    !! No. of timesteps for sub-iterations [+/-n]
+    integer :: ntSubInit
+    !! No. of timesteps for initial sub-iterations [+/-n]
+    integer :: wakeDissipation
+    !! Wake dissipation [0, 1]
+    integer :: wakeStrain
+    !! Wake strain [0, 1]
+    integer :: wakeBurst
+    !! Wake burst on exceeding skew value [0, 1]
+    integer :: wakeSuppress
+    !! Suppress wake (for testing and non-lifting surfaces) [0, 1]
+    integer :: slowStart
+    !! Slow start to avoid large starting vortex [0, 1]
+    integer :: slowStartNt
+    !! Slow start to avoid large starting vortex [+/-n]
+    integer :: wakeTipPlot
+    !! Plot wake tip every nth timestep [+/-n]
+    integer :: wakePlot
+    !! Plot full wake every nth timestep [+/-n]
+    integer :: gridPlot
+    !! Record vortices for field computation every nth timestep [+/-n]
     integer :: rotorForcePlot
-    integer :: fdScheme, probe, nProbes
+    !! Plot rotor forces every nth timestep [+/-n]
+    integer :: fdScheme
+    !! Choose finite-difference scheme [0,1,...,5]
+    integer :: probe
+    !! Use probes for recording velocity [0,1]
+    integer :: nProbes
+    !! No. of probes [n]
     integer :: initWakeVelNt
-    integer :: restartFromNt, restartWriteNt
+    !! Use initial velocity for convecting away starting vortex [0, 1]
+    integer :: restartFromNt
+    !! Restart from nth timestep [n]
+    integer :: restartWriteNt
+    !! Write restart files every nth timestep for restarting later [n]
   end type switches_class
 
   type vf_class
-    real(dp), dimension(3, 2) :: fc  ! filament coords (xyz,1:2)
-    real(dp) :: l0 = 0._dp    ! original length
-    real(dp) :: lc = 0._dp    ! current length
-    real(dp) :: rVc0 = 0._dp ! initial vortex core radius
-    real(dp) :: rVc = 0._dp  ! current vortex core radius
-    real(dp) :: age = 0._dp   ! vortex age (in s)
-    real(dp) :: ageAzimuthal = 0._dp   ! vortex age (in radians)
+    !! Vortex filament class
+
+    real(dp), dimension(3, 2) :: fc
+    !! Filament coords (xyz, 1:2)
+    real(dp) :: l0 = 0._dp
+    !! Original length
+    real(dp) :: lc = 0._dp
+    !! Current length
+    real(dp) :: rVc0 = 0._dp
+    !! Initial vortex core radius
+    real(dp) :: rVc = 0._dp
+    !! Current vortex core radius
+    real(dp) :: age = 0._dp
+    !! Vortex age (in seconds)
+    real(dp) :: ageAzimuthal = 0._dp
+    !! vortex age (in radians)
+
   contains
     procedure :: vind => vf_vind
     procedure :: calclength => vf_calclength
@@ -37,9 +79,13 @@ module classdef
   end type vf_class
 
   type vr_class
+    !! Vortex ring class
+
     type(vf_class), dimension(4) :: vf
     real(dp) :: gam
+    !! Circulation
     real(dp) :: skew
+    !! Skew parameter
   contains
     procedure :: vind => vr_vind
     procedure :: vindSource => vr_vindSource
@@ -51,13 +97,15 @@ module classdef
     procedure :: decay => vr_decay
     procedure :: calc_skew => calc_skew
     procedure :: burst => vr_burst
-    procedure :: getInteriorAngles => vr_getInteriorAngles
-    procedure :: getMedianAngle => vr_getMedianAngle
-    procedure :: getBimedianCos => vr_getBimedianCos
+    procedure, private :: getInteriorAngles => vr_getInteriorAngles
+    procedure, private :: getMedianAngle => vr_getMedianAngle
+    procedure, private :: getBimedianCos => vr_getBimedianCos
     procedure :: mirror => vr_mirror
   end type vr_class
 
   type wingpanel_class
+    !! Wing panel class
+
     ! Panel coordinates
     ! o-------> Y along span
     ! |
@@ -68,30 +116,54 @@ module classdef
     ! |   2-------3  - Trailing edge
     ! |
     ! V X along chord
+
     type(vr_class) :: vr
     real(dp) :: gamPrev
+    !! Circulation at previous timestep
     real(dp) :: gamTrapz
-    real(dp), dimension(3, 4) :: PC    ! panel coords
-    real(dp), dimension(3) :: CP      ! coll point coords
-    real(dp), dimension(3) :: nCap    ! unit normal vector
-    real(dp), dimension(3) :: tauCapChord ! unit tangential vector along chord
-    real(dp), dimension(3) :: tauCapSpan  ! unit tangential vector along span
-    ! local vel at CP 
-    real(dp), dimension(3) :: velCP    ! excluding wing vortices
-    real(dp), dimension(3) :: velCPTotal  ! including wing vortices
-    real(dp), dimension(3) :: velCPm  ! rel. inertial vel at CP (due to motion)
-    real(dp), dimension(3) :: normalForce ! normalForce vector (inertial frame)
+    !! Circulation after trapezoidal integration
+    real(dp), dimension(3, 4) :: PC
+    !! Panel coords (xyz, 1:4)
+    real(dp), dimension(3) :: CP
+    !! Collocation point coords
+    real(dp), dimension(3) :: nCap
+    !! Unit normal vector
+    real(dp), dimension(3) :: tauCapChord
+    !! Unit tangential vector along chord
+    real(dp), dimension(3) :: tauCapSpan
+    !! Unit tangential vector along span
+    real(dp), dimension(3) :: velCP
+    !! Local vel at CP excluding wing vortices
+    real(dp), dimension(3) :: velCPTotal
+    !! Local vel at CP including wing vortices
+    real(dp), dimension(3) :: velCPm
+    !! Local vel at CP due to wing motion
+    real(dp), dimension(3) :: normalForce
+    !! Normal force vector (inertial frame)
     real(dp), dimension(3) :: normalForceUnsteady 
+    !! Unsteady part of normal force vector (inertial frame)
     real(dp), dimension(3) :: chordwiseResVel
-    real(dp) :: velPitch             ! pitch velocity
-    real(dp) :: delP                  ! Pressure difference at panel
-    real(dp) :: delPUnsteady          ! Unsteady pressure at panel
-    real(dp) :: delDiConstant         ! Induced drag (constant part) at panel
-    real(dp) :: delDiUnsteady         ! Induced drag (unsteady part) at panel
-    real(dp) :: meanChord, meanSpan ! Panel mean dimensions
-    real(dp) :: panelArea            ! Panel area for computing lift
-    real(dp) :: rHinge ! dist to point about which pitching occurs (LE of wing)
-    real(dp) :: alpha                 ! local angle of attack
+    !! Chordwise resultant velocity vector
+    real(dp) :: velPitch
+    !! Airfoil pitch velocity about rHinge
+    real(dp) :: delP
+    !! Pressure difference between upper and lower surfaces at panel
+    real(dp) :: delPUnsteady
+    !! Unsteady pressure at panel
+    real(dp) :: delDiConstant
+    !! Induced drag (constant part) at panel
+    real(dp) :: delDiUnsteady
+    !! Induced drag (unsteady part) at panel
+    real(dp) :: meanChord
+    !! Panel mean chord
+    real(dp) :: meanSpan
+    !! Panel mean span 
+    real(dp) :: panelArea
+    !! Panel area for computing lift
+    real(dp) :: rHinge
+    !! Dist to point about which airfoil pitching occurs (LE of wing)
+    real(dp) :: alpha
+    !! Local angle of attack (in radians)
   contains
     procedure :: assignP => wingpanel_assignP
     procedure :: calcCP => wingpanel_calcCP
@@ -107,6 +179,8 @@ module classdef
   end type wingpanel_class
 
   type Nwake_class
+    !! Near wake class
+
     ! VR coordinates
     ! o-------> Y along span
     ! |
@@ -122,6 +196,8 @@ module classdef
   end type Nwake_class
 
   type Fwake_class
+    !! Far wake class
+
     ! VF coordinates
     ! o-------> Y along span
     ! |
@@ -134,6 +210,7 @@ module classdef
     ! V X along chord
     type(vf_class) :: vf
     real(dp) :: gam = 0._dp
+    !! Circulation
   contains
     procedure :: shiftdP => Fwake_shiftdP
     procedure :: assignP => Fwake_assignP
@@ -159,6 +236,7 @@ module classdef
   end type pFwake_class
 
   type blade_class
+    !! Single blade class
     !    _____________________       Y
     ! O o---------------------|------>
     !   |________BLADE________|
