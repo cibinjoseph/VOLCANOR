@@ -1,7 +1,7 @@
 !! Module definition for libMath module
 
 module libMath
-  !! Subroutines for manipulation of matrices and vectors
+  !! Procedures to manipulate matrices and vectors
 
   implicit none
   integer, parameter :: dp = kind(1.d0)
