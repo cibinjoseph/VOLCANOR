@@ -1,19 +1,35 @@
+!! Module definition for libCommon
+
 module libCommon
-  use libMath, only : dp
+  !! Utility procedures and those to compute induced velocity of rotors
+
   use classdef, only : switches_class, rotor_class
   implicit none
+
+  integer, parameter, private :: dp = kind(1.d0)
+  !! Double precision setting
 
   ! Contains variable declarations
   type(rotor_class), allocatable, dimension(:) :: rotor
 
   ! Kinematics
-  integer :: nt, nr
+  integer :: nt
+  !! No. of timesteps
+  integer :: nr
+  !! No. of rotors
   real(dp) :: dt
+  !! Timestep size
 
   ! Other Variables
   integer :: iterStart
   real(dp) :: t
-  real(dp) :: density, velSound, kinematicVisc
+  !! Time
+  real(dp) :: density
+  !! Density
+  real(dp) :: velSound
+  !! Velocity of sound to compute Mach
+  real(dp) :: kinematicVisc
+  !! Kinematic viscosity
   character(len=5) :: timestamp
   character(len=2) :: rotorChar
   character(len=10) :: rotorFile
@@ -33,6 +49,8 @@ module libCommon
 contains
 
   subroutine readConfig(filename, outputFilename)
+    !! Read config.nml input file (in namelist format)
+
     use classdef, only : switches_class
     character(len=*), intent(in) :: filename
     character(len=*), optional, intent(in) :: outputFilename
@@ -93,12 +111,16 @@ contains
   !                Induced Velocity Functions              !
   !--------------------------------------------------------!
 
-  ! Induced velocity by rotor (wing n wake) on Nwake corner points
   function vind_onNwake_byRotor(rotor, Nwake, optionalChar) result(vindArray)
+    !! Compute induced velocity by rotor (wing + wake) on Nwake corner points
+
     use classdef, only : rotor_class, Nwake_class
     type(rotor_class), intent(inout) :: rotor
+    !! Rotor
     type(Nwake_class), intent(in), dimension(:, :) :: Nwake
+    !! Near wake
     character(len=1), optional :: optionalChar
+    !! If 'P' is specified, predicted wake of rotor is used
     real(dp), dimension(3, size(Nwake, 1), size(Nwake, 2) + 1) :: vindArray
     integer :: i, j, rows, cols
 
@@ -138,7 +160,7 @@ contains
       !$omp parallel do
       do i = 1, rows
         vindArray(:, i, cols + 1) = rotor%vind_bywing(Nwake(i, cols)%vr%vf(3)%fc(:, 1)) &
-                                    + rotor%vind_bywake(Nwake(i, cols)%vr%vf(3)%fc(:, 1), 'P')
+          + rotor%vind_bywake(Nwake(i, cols)%vr%vf(3)%fc(:, 1), 'P')
       enddo
       !$omp end parallel do
 
@@ -148,12 +170,16 @@ contains
 
   end function vind_onNwake_byRotor
 
-  ! Induced velocity by rotor (wing n wake) on Fwake corner points
   function vind_onFwake_byRotor(rotor, Fwake, optionalChar) result(vindArray)
+    !! Compute induced velocity by rotor (wing + wake) on Fwake corner points
+
     use classdef, only : rotor_class, Fwake_class
     type(rotor_class), intent(inout) :: rotor
+    !! Rotor
     type(Fwake_class), intent(in), dimension(:) :: Fwake
+    !! Far wake
     character(len=1), optional :: optionalChar
+    !! If 'P' is specified, predicted wake of rotor is used
     real(dp), dimension(3, size(Fwake, 1)) :: vindArray
     integer :: i, rows
 
@@ -164,7 +190,7 @@ contains
       !$omp parallel do
       do i = 1, rows
         vindArray(:, i) = rotor%vind_bywing(Fwake(i)%vf%fc(:, 1)) &
-                          + rotor%vind_bywake(Fwake(i)%vf%fc(:, 1))
+          + rotor%vind_bywake(Fwake(i)%vf%fc(:, 1))
       enddo
       !$omp end parallel do
 
@@ -174,7 +200,7 @@ contains
       !$omp parallel do
       do i = 1, rows
         vindArray(:, i) = rotor%vind_bywing(Fwake(i)%vf%fc(:, 1)) &
-                          + rotor%vind_bywake(Fwake(i)%vf%fc(:, 1), 'P')
+          + rotor%vind_bywake(Fwake(i)%vf%fc(:, 1), 'P')
       enddo
       !$omp end parallel do
 
@@ -184,29 +210,37 @@ contains
 
   end function vind_onFwake_byRotor
 
-  ! Calculates 2nd order accurate induced velocity on near wake
-  function vel_order2_Nwake(v_wake_n, v_wake_np1)   ! np1 => n+1
-    real(dp), intent(in), dimension(:, :, :) :: v_wake_n, v_wake_np1
+  function vel_order2_Nwake(v_wake_n, v_wake_np1)
+    !! Calculate 2nd order accurate induced velocity on near wake
+
+    real(dp), intent(in), dimension(:, :, :) :: v_wake_n
+    !! Induced velocity on wake at timestep n
+    real(dp), intent(in), dimension(:, :, :) :: v_wake_np1
+    !! Induced velocity on wake at timestep n+1
     real(dp), dimension(3, size(v_wake_n, 2), size(v_wake_n, 3)) :: vel_order2_Nwake
     integer :: i, j
     do j = 1, size(v_wake_n, 3)
       vel_order2_Nwake(:, 1, j) = (v_wake_np1(:, 1, j) &
-                                   + v_wake_n(:, 1, j))*0.5_dp
+        + v_wake_n(:, 1, j))*0.5_dp
       do i = 2, size(v_wake_n, 2) - 1
         vel_order2_Nwake(:, i, j) = (v_wake_np1(:, i, j) &
-                                     + v_wake_np1(:, i - 1, j) &
-                                     + v_wake_n(:, i + 1, j) &
-                                     + v_wake_n(:, i, j))*0.25_dp
+          + v_wake_np1(:, i - 1, j) &
+          + v_wake_n(:, i + 1, j) &
+          + v_wake_n(:, i, j))*0.25_dp
       enddo
       vel_order2_Nwake(:, size(v_wake_n, 2), j) = &
         (v_wake_np1(:, size(v_wake_n, 2), j) &
-         + v_wake_n(:, size(v_wake_n, 2), j))*0.5_dp
+        + v_wake_n(:, size(v_wake_n, 2), j))*0.5_dp
     enddo
   end function vel_order2_Nwake
 
-  ! Calculates 2nd order accurate induced velocity on far wake
-  function vel_order2_Fwake(v_wake_n, v_wake_np1)   ! np1 => n+1
-    real(dp), intent(in), dimension(:, :) :: v_wake_n, v_wake_np1
+  function vel_order2_Fwake(v_wake_n, v_wake_np1)
+    !! Calculate 2nd order accurate induced velocity on far wake
+
+    real(dp), intent(in), dimension(:, :) :: v_wake_n
+    !! Induced velocity on wake at timestep n
+    real(dp), intent(in), dimension(:, :) :: v_wake_np1
+    !! Induced velocity on wake at timestep n+1
     real(dp), dimension(3, size(v_wake_n, 2)) :: vel_order2_Fwake
     integer :: i
     vel_order2_Fwake(:, 1) = (v_wake_np1(:, 1) + v_wake_n(:, 1))*0.5_dp
@@ -223,8 +257,9 @@ contains
       + v_wake_n(:, size(v_wake_n, 2)))*0.5_dp
   end function vel_order2_Fwake
 
-  ! Prints status message (or SUCCESS if left blank)
   subroutine print_status(statusMessage)
+    !! Prints status message (or SUCCESS if left blank)
+
     character(len=*), optional :: statusMessage
     character(len=34) :: statusPrint    ! Adjust for spacing
 
