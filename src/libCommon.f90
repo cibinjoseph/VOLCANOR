@@ -89,47 +89,6 @@ contains
     switches%probe = probe
   end subroutine readConfig
 
-  subroutine read_config(filename)
-    use libMath, only: skip_comments
-    use classdef, only : switches_class
-    character(len=*), intent(in) :: filename
-    character(len=10) :: fileFormatVersion, currentVersion
-
-    currentVersion = '0.3'
-
-    open (unit=11, file=filename, status='old', action='read')
-    call skip_comments(11)
-    read (11, *)  fileFormatVersion
-    if (adjustl(fileFormatVersion) /= currentVersion) then
-      error stop "ERROR: config.in template version does not match"
-    endif
-
-    call skip_comments(11)
-    read (11, *) nt, dt, nr
-    call skip_comments(11)
-    read (11, *) switches%restartWriteNt, switches%restartFromNt
-    call skip_comments(11)
-    read (11, *) switches%ntSub, switches%ntSubInit
-    call skip_comments(11)
-    read (11, *) density, velSound, kinematicVisc
-    call skip_comments(11)
-    read (11, *) switches%wakePlot, switches%wakeTipPlot, &
-      & switches%rotorForcePlot, switches%gridPlot
-    call skip_comments(11)
-    read (11, *) switches%wakeDissipation, switches%wakeStrain, &
-      & switches%wakeBurst
-    call skip_comments(11)
-    read (11, *) switches%slowStart, switches%slowStartNt
-    call skip_comments(11)
-    read (11, *) switches%fdScheme
-    call skip_comments(11)
-    read (11, *) switches%initWakeVelNt
-    call skip_comments(11)
-    read (11, *) switches%probe
-    close (11)
-
-  end subroutine read_config
-
   !--------------------------------------------------------!
   !                Induced Velocity Functions              !
   !--------------------------------------------------------!
