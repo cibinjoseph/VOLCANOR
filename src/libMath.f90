@@ -2,16 +2,22 @@ module libMath
 
   implicit none
   integer, parameter :: dp = kind(1.d0)
+  !! Double precision setting
   real(dp), parameter :: pi = atan(1._dp)*4._dp
+  !! Value of pi
   real(dp), parameter :: eps = epsilon(1._dp)
+  !! Value of machine epsilon
   real(dp), parameter :: degToRad = pi/180._dp
+  !! For converting degree to radian
   real(dp), parameter :: radToDeg = 180._dp/pi
+  !! For converting radian to degree
 
   real(dp), parameter, dimension(3) :: xAxis = [1._dp, 0._dp, 0._dp]
+  !! Global x-axis
   real(dp), parameter, dimension(3) :: yAxis = [0._dp, 1._dp, 0._dp]
+  !! Global y-axis
   real(dp), parameter, dimension(3) :: zAxis = [0._dp, 0._dp, 1._dp]
-
-  character(len=1), parameter :: commentChar = '#'
+  !! Global z-axis
 
   interface lsq2
     module procedure lsq2_scalar, lsq2_array
@@ -19,13 +25,14 @@ module libMath
 
 contains
 
-  ! -------------------------------------------------
-  !                isFloatEqual
-  ! -------------------------------------------------
   function isFloatEqual(a, b, tol)
-    !! Checks if a == b with tolerance
-    real(dp), intent(in) :: a, b
+    !! Checks if a == b within a tolerance
+    real(dp), intent(in) :: a
+    !! Real number a
+    real(dp), intent(in) :: b
+    !! Real number b
     real(dp), optional :: tol
+    !! Tolerance is epsilon if not specified
     logical :: isFloatEqual
 
     if (.not. present(tol)) then
@@ -35,14 +42,14 @@ contains
     endif
   end function isFloatEqual
 
-  ! -------------------------------------------------
-  !                inv2
-  ! -------------------------------------------------
   function inv2(A) result(Ainv)
     !! Inverse of a matrix calculated by finding the LU
     !! decomposition using LAPACK
+
     real(dp), dimension(:, :), intent(in) :: A
+    !! Square matrix A
     real(dp), dimension(size(A,1),size(A,2)) :: Ainv
+    !! Inverse of matrix A
 
     real(dp), dimension(size(A,1)) :: work  ! work array for LAPACK
     integer, dimension(size(A,1)) :: ipiv   ! pivot indices
@@ -72,13 +79,15 @@ contains
     end if
   end function inv2
 
-  ! -------------------------------------------------
-  !                matmul2
-  ! -------------------------------------------------
   function matmul2(A, B) result(AB)
     !! Matrix multiplication implemented using BLAS
-    real(dp), dimension(:, :), intent(in) :: A, B
+
+    real(dp), dimension(:, :), intent(in) :: A
+    !! Matrix A
+    real(dp), dimension(:, :), intent(in) :: B
+    !! Matrix B
     real(dp), dimension(size(A, 1), size(B, 2)) :: AB
+    !! Product of matrices A and B
     integer :: m, k
 
     external DGEMM
@@ -90,14 +99,15 @@ contains
     call DGEMM('N', 'N', m, size(B, 2), k, 1._dp, A, m, B, k, 0._dp, AB, m)
   end function matmul2
 
-  ! -------------------------------------------------
-  !                matmulAX
-  ! -------------------------------------------------
   function matmulAX(A, X) result(AX)
     !! Matrix multiplication with vector implemented using BLAS
+
     real(dp), dimension(:, :), intent(in) :: A
+    !! Matrix A
     real(dp), dimension(:), intent(in) :: X
+    !! Vector X
     real(dp), dimension(size(A, 1)) :: AX
+    !! Product of matrix A and vector X
     integer :: m, n
 
     external DGEMV
@@ -108,24 +118,31 @@ contains
     call DGEMV('N', m, n, 1._dp, A, m, X, 1, 0._dp, AX, 1)
   end function matmulAX
 
-  ! -------------------------------------------------
-  !                length3d
-  ! -------------------------------------------------
   function length3d(P1, P2) result(length)
-    real(dp), intent(in), dimension(3) :: P1, P2
+    !! Compute length of linesegment between points P1 and P2
+
+    real(dp), intent(in), dimension(3) :: P1
+    !! Coordinates of point P1
+    real(dp), intent(in), dimension(3) :: P2
+    !! Coordinates of point P2
     real(dp) :: length
+    !! Length of linesegment
     real(dp), dimension(3) :: delta
     delta = P1 - P2
     length = norm2(delta)
   end function length3d
 
-  ! -------------------------------------------------
-  !                linspace
-  ! -------------------------------------------------
   function linspace(xstart, xend, nx) result(xout)
-    real(dp), intent(in) :: xstart, xend
+    !! Return linearly-spaced array over a specified interval
+
+    real(dp), intent(in) :: xstart
+    !! Start value of sequence
+    real(dp), intent(in) :: xend
+    !! End value of sequence
     integer, intent(in) :: nx
+    !! Number of points sequence
     real(dp), dimension(nx) :: xout
+    !! Array of real numbers
     integer :: i
     real(dp) :: dx
 
@@ -136,10 +153,9 @@ contains
 
   end function linspace
 
-  ! -------------------------------------------------
-  !                cosspace
-  ! -------------------------------------------------
   function cosspace(xstart, xend, nx) result(xout)
+    !! Return cossine-spaced array over a specified interval
+
     real(dp), intent(in) :: xstart, xend
     integer, intent(in) :: nx
     real(dp), dimension(nx) :: xout
@@ -151,10 +167,9 @@ contains
 
   end function cosspace
 
-  ! -------------------------------------------------
-  !                halfsinspace
-  ! -------------------------------------------------
   function halfsinspace(xstart, xend, nx) result(xout)
+    !! Return half sine-spaced array over a specified interval
+
     real(dp), intent(in) :: xstart, xend
     integer, intent(in) :: nx
     real(dp), dimension(nx) :: xout
@@ -165,10 +180,9 @@ contains
 
   end function halfsinspace
 
-  ! -------------------------------------------------
-  !                tanspace
-  ! -------------------------------------------------
   function tanspace(xstart, xend, nx) result(xout)
+    !! Return tan-spaced array over a specified interval
+
     real(dp), intent(in) :: xstart, xend
     integer, intent(in) :: nx
     real(dp) :: thetaLimits
@@ -182,10 +196,9 @@ contains
 
   end function tanspace
 
-  ! -------------------------------------------------
-  !                cross_product
-  ! -------------------------------------------------
   function cross_product(aVec, bVec)
+    !! Compute cross product between two 3d vectors
+
     real(dp), intent(in), dimension(3) :: aVec, bVec
     real(dp), dimension(3) :: cross_product
 
@@ -195,10 +208,9 @@ contains
 
   end function cross_product
 
-  ! -------------------------------------------------
-  !                outer_product
-  ! -------------------------------------------------
   function outer_product(aVec, bVec)
+    !! Compute outer product between two 3d vectors
+
     real(dp), intent(in), dimension(3) :: aVec, bVec
     real(dp), dimension(3, 3) :: outer_product
     outer_product(:, 1) = [aVec(1)*bVec(1), aVec(2)*bVec(1), aVec(3)*bVec(1)]
@@ -206,37 +218,34 @@ contains
     outer_product(:, 3) = [aVec(1)*bVec(2), aVec(2)*bVec(3), aVec(3)*bVec(3)]
   end function outer_product
 
-  ! -------------------------------------------------
-  !                getAngleTan
-  ! -------------------------------------------------
   function getAngleTan(aVec, bVec)
+    !! Angle between two 3d vectors using tan formula
+    !! Result will be from -pi to pi
+
     real(dp), intent(in), dimension(3) :: aVec, bVec
     real(dp) :: getAngleTan
     real(dp) :: mag2A, mag2B, dotAB
 
-    ! Result will be -pi to pi
     mag2A = sum(aVec**2._dp)
     mag2B = sum(bVec**2._dp)
     dotAB = dot_product(aVec, bVec)
     getAngleTan = atan2(sqrt(mag2A*mag2B - dotAB*dotAB), dotAB)
   end function getAngleTan
 
-  ! -------------------------------------------------
-  !                getAngleCos
-  ! -------------------------------------------------
   function getAngleCos(aVec, bVec)
+    !! Angle between two 3d vectors using cos formula
+    !! Assumes no angle > 180 deg exists
+
     real(dp), intent(in), dimension(3) :: aVec, bVec
     real(dp) :: getAngleCos
 
-    ! Assumes no angle > 180 deg exists
     getAngleCos = acos(dot_product(aVec, bVec)/ &
                        (sqrt(sum(aVec**2._dp)*sum(bVec**2._dp))))
   end function getAngleCos
 
-  ! -------------------------------------------------
-  !                unitVec
-  ! -------------------------------------------------
   function unitVec(aVec)
+    !! Normalizes a non-zero 3d vector
+
     real(dp), intent(in), dimension(3) :: aVec
     real(dp), dimension(3) :: unitVec
     real(dp) :: normVal
@@ -249,11 +258,9 @@ contains
     endif
   end function unitVec
 
-  ! -------------------------------------------------
-  !                projVec
-  ! -------------------------------------------------
   function projVec(aVec, dirVec)
-    !! Returns aVec projected along dirVec
+    !! Returns 3d vector aVec projected along dirVec
+
     real(dp), intent(in), dimension(3) :: aVec, dirVec
     real(dp), dimension(3) :: projVec
     real(dp) :: normSq
@@ -265,11 +272,9 @@ contains
     endif
   end function projVec
 
-  ! -------------------------------------------------
-  !                noProjVec
-  ! -------------------------------------------------
   function noProjVec(aVec, dirVec)
-    !! Removes component along dirVec from aVec
+    !! Removes component along dirVec from a vector aVec
+
     real(dp), intent(in), dimension(3) :: aVec, dirVec
     real(dp), dimension(3) :: noProjVec
     real(dp) :: normSq
@@ -282,17 +287,16 @@ contains
     endif
   end function noProjVec
 
-  ! -------------------------------------------------
-  !                inv
-  ! -------------------------------------------------
-  ! Matrix Inversion
-  ! Ax=b
-  ! PA = LU or A=P'LU
-  ! P'LUx=b
-  ! LUx=Pb
-  ! Solve Ld=Pb using Forward  sub where d=Ux
-  ! Solve Ux=d using Backward sub
   function inv(A) result(Ainv)
+    !! Native implementation of matrix inverse based on Doolittle method
+    ! Matrix Inversion algorithm
+    ! Ax=b
+    ! PA = LU or A=P'LU
+    ! P'LUx=b
+    ! LUx=Pb
+    ! Solve Ld=Pb using Forward  sub where d=Ux
+    ! Solve Ux=d using Backward sub
+
     real(dp), intent(in), dimension(:, :) :: A
     real(dp), dimension(size(A, 1), size(A, 1)) :: Ainv
 
@@ -419,6 +423,8 @@ contains
   end function inv
 
   function isInverse(A, Ainv)
+    !! Check if Ainv is inverse of matrix A by multiplication
+
     logical :: isInverse
     real(dp), intent(in), dimension(:, :) :: A, Ainv
     real(dp), dimension(size(A, 1), size(A, 2)) :: productMat
@@ -448,11 +454,8 @@ contains
     enddo
   end function isInverse
 
-  ! -------------------------------------------------
-  !                print_mat
-  ! -------------------------------------------------
-  ! Display in matrix format
   subroutine print_mat(M)
+    !! Display in matrix format
     real(dp), intent(in), dimension(:, :)     :: M
     real(dp), dimension(size(M, 1), size(M, 2)) :: M_dummy
     integer :: i, j
@@ -464,14 +467,12 @@ contains
       enddo
       write (*, *)
     enddo
-100 format(ES14.3)
+    100 format(ES14.3)
   end subroutine print_mat
 
-  ! -------------------------------------------------
-  !                pwl_interp1d
-  ! -------------------------------------------------
   function pwl_interp1d(x, y, q)
     !! Piecewise linear 1d interpolation
+
     real(dp), intent(in), dimension(:) :: x, y
     real(dp), intent(in) :: q
     integer :: n, i, idx
@@ -513,10 +514,9 @@ contains
   end function pwl_interp1d
 
 
-  ! -------------------------------------------------
-  !                interp1d
-  ! -------------------------------------------------
   function interp1d(xq, x, y, order)
+    !! 1-d Interpolation using 1st and 2nd order Lagrange polynomials
+
     real(dp), intent(in) :: xq
     real(dp), intent(in), dimension(:) :: x, y
     integer, intent(in) :: order
@@ -571,10 +571,9 @@ contains
 
   end function interp1d
 
-  !--------------------------------------------------------!
-  !        Linear Least Squares fitting (2nd order)        !
-  !--------------------------------------------------------!
   function lsq2_scalar(xQuery, xData, yData)
+  !! Linear Least Squares fitting (2nd order)
+
     real(dp), intent(in) :: xQuery
     real(dp), intent(in), dimension(:) :: xData, yData
     real(dp), dimension(3) :: coeff, RHS
@@ -634,7 +633,6 @@ contains
   end function lsq2_array
 
   !--------------------------------------------------------!
-  !              Transformation Functions                  !
   !--------------------------------------------------------!
   ! Code to generate Transformation matrices in Octave
   !
@@ -647,10 +645,18 @@ contains
   ! Tbg=Rp*Rt*Rs
   ! Tgb=Rs'*Rt'*Rp'
 
-  ! Transformation matrix bg
   function Tbg(cs_phi, cs_theta, cs_psi)
-    real(dp), dimension(2), intent(in) :: cs_phi, cs_theta, cs_psi  ! cos and sin
+    !! Transformation matrix (body to global frame)
+
+    real(dp), dimension(2), intent(in) :: cs_phi
+    !! cos(phi), sin(phi)
+    real(dp), dimension(2), intent(in) :: cs_theta
+    !! cos(theta), sin(theta)
+    real(dp), dimension(2), intent(in) :: cs_psi
+    !! cos(psi), sin(psi)
     real(dp), dimension(3, 3) :: Tbg
+    !! 3x3 transformation matrix
+
     Tbg(1, :) = [cs_psi(1)*cs_theta(1), cs_theta(1)*cs_psi(2), -1._dp*cs_theta(2)]
     Tbg(2, 1) = cs_psi(1)*cs_phi(2)*cs_theta(2) - cs_phi(1)*cs_psi(2)
     Tbg(2, 2) = cs_phi(1)*cs_psi(1) + cs_phi(2)*cs_psi(2)*cs_theta(2)
@@ -661,9 +667,17 @@ contains
   end function Tbg
 
   function Tgb(cs_phi, cs_theta, cs_psi)
-    real(dp), dimension(2), intent(in) :: cs_phi, cs_theta, cs_psi  
-    ! cs_ represent cos and sin
+    !! Transformation matrix (global to body frame)
+
+    real(dp), dimension(2), intent(in) :: cs_phi
+    !! cos(phi), sin(phi)
+    real(dp), dimension(2), intent(in) :: cs_theta
+    !! cos(theta), sin(theta)
+    real(dp), dimension(2), intent(in) :: cs_psi
+    !! cos(psi), sin(psi)
     real(dp), dimension(3, 3) :: Tgb
+    !! 3x3 transformation matrix
+
     Tgb(1, 1) = cs_psi(1)*cs_theta(1)
     Tgb(1, 2) = cs_phi(2)*cs_theta(2)*cs_psi(1) - cs_psi(2)*cs_phi(1)
     Tgb(1, 3) = cs_phi(2)*cs_psi(2) + cs_theta(2)*cs_phi(1)*cs_psi(1)
@@ -676,11 +690,14 @@ contains
   end function Tgb
 
   function getTransformAxis(theta, axisVec) result(TMat)
-    !! Transformation matrix for rotation about an axis
-    !! theta in radians
+    !! Transformation matrix for theta angular rotation about a 3d axis
+
     real(dp), intent(in) :: theta
+    !! theta angle in radians
     real(dp), dimension(3), intent(in) :: axisVec
+    !! 3d axis vector
     real(dp), dimension(3, 3) :: TMat
+    !! 3x3 transformation matrix
     real(dp), dimension(3) :: axis
     real(dp) :: ct, st, omct
 
@@ -706,7 +723,7 @@ contains
   end function getTransformAxis
 
   function trapz(y, x)
-    !! Trapezoid integration unequal intervals
+    !! Trapezoid integration with unequal intervals
     real(dp) :: trapz
     real(dp), intent(in), dimension(:) :: x, y
     integer :: i
@@ -721,18 +738,5 @@ contains
     enddo
     trapz = 0.5_dp*trapz
   end function trapz
-
-  ! Skips comments in input file
-  ! Comment character is set using the global var commentChar
-  subroutine skip_comments(fileUnit)
-    integer, intent(in) :: fileUnit
-    character(len=1) :: firstChar
-
-    firstChar = commentChar
-    do while (firstChar .eq. commentChar)
-      read(fileUnit, '(A)') firstChar
-    enddo
-    backspace(fileUnit)
-  end subroutine skip_comments
 
 end module libMath
