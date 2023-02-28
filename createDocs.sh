@@ -1,5 +1,10 @@
 #!/bin/bash
 
+##############################################
+# Run this in the topmost folder of the repo #
+#       to generate the documentation        #
+##############################################
+
 rm -rf docs/src
 if [[ $* == '--help' ]] || [[ $* == '-h' ]]; then
   echo 'Usage createDocs.sh [OPTION]'
