@@ -1,26 +1,48 @@
+!! Module definition for libC81
+
 module libC81
+  !! Procedures to manipulate C81 files and data structure
 
   implicit none
-  integer, parameter :: dp = kind(1.d0)
+  integer, parameter, private :: dp = kind(1.d0)
+  !! Double precision setting
 
   type C81_class
     !! Base class for C81 performance data
+
     character(len=30) :: airfoilName
-    integer :: ML  !! No. of lift coefficient machs
-    integer :: NL  !! No. of lift coefficient alphas
-    integer :: MD  !! No. of drag coefficient machs
-    integer :: ND  !! No. of drag coefficient alphas
-    integer :: MM  !! No. of moment coefficient machs
-    integer :: NM  !! No. of moment coefficient alphas  
-    real(dp), allocatable, dimension(:) :: MaL  !! Machs for lift
-    real(dp), allocatable, dimension(:) :: MaD  !! Machs for drag
-    real(dp), allocatable, dimension(:) :: MaM  !! Machs for moment
-    real(dp), allocatable, dimension(:) :: AL  !! Alphas for lift  
-    real(dp), allocatable, dimension(:) :: AD  !! Alphas for drag
-    real(dp), allocatable, dimension(:) :: AM  !! Alphas for moment
-    real(dp), allocatable, dimension(:,:) :: CL  !! Lift coefficient  
-    real(dp), allocatable, dimension(:,:) :: CD  !! Drag coefficient
-    real(dp), allocatable, dimension(:,:) :: CM  !! Moment coefficient
+    !! Airfoil name in C81 file
+    integer :: ML
+    !! No. of lift coefficient machs
+    integer :: NL
+    !! No. of lift coefficient alphas
+    integer :: MD
+    !! No. of drag coefficient machs
+    integer :: ND
+    !! No. of drag coefficient alphas
+    integer :: MM
+    !! No. of moment coefficient machs
+    integer :: NM
+    !! No. of moment coefficient alphas  
+    real(dp), allocatable, dimension(:) :: MaL
+    !! Machs for lift
+    real(dp), allocatable, dimension(:) :: MaD
+    !! Machs for drag
+    real(dp), allocatable, dimension(:) :: MaM
+    !! Machs for moment
+    real(dp), allocatable, dimension(:) :: AL
+    !! Alphas for lift  
+    real(dp), allocatable, dimension(:) :: AD
+    !! Alphas for drag
+    real(dp), allocatable, dimension(:) :: AM
+    !! Alphas for moment
+    real(dp), allocatable, dimension(:,:) :: CL
+    !! Lift coefficient  
+    real(dp), allocatable, dimension(:,:) :: CD
+    !! Drag coefficient
+    real(dp), allocatable, dimension(:,:) :: CM
+    !! Moment coefficient
+
   contains
     procedure :: writefile
     procedure :: readfile
@@ -29,9 +51,13 @@ module libC81
     procedure :: getCM
   end type C81_class
 
+  private :: getBilinearInterp
+  private :: getInterval
+  private :: getTable
+
 contains
 
-  subroutine writefile(this,C81filename)
+  subroutine writefile(this, C81filename)
   !! Writes C81 class data to C81 file
   class(C81_class) :: this
     character(len=*), intent(in) :: C81filename
@@ -274,6 +300,7 @@ contains
   end function getCM
 
   function getInterval(A,x) result(indx)
+    !! Return interval of a vector A in which x lies inside 
     real(dp), intent(in), dimension(:) :: A
     real(dp), intent(in) :: x
     integer, dimension(2) :: indx  ! Left and right indices 
@@ -317,12 +344,13 @@ contains
     fMat(1,:) = [f11,f12]
     fMat(2,:) = [f21,f22]
 
-    getBilinearInterp = dot_product([xvec(2)-x,x-xvec(1)],matmul(fMat,(/yvec(2)-y,y-yvec(1)/)))
+    getBilinearInterp = dot_product([xvec(2)-x,x-xvec(1)], &
+      & matmul(fMat,(/yvec(2)-y,y-yvec(1)/)))
     getBilinearInterp = getBilinearInterp/(xvec(2)-xvec(1))/(yvec(2)-yvec(1))
 
   end function getBilinearInterp
 
-  function getTable(filename,rows,cols)
+  function getTable(filename, rows, cols)
     !! Returns data from csv formatted file
     character(len=*), intent(in) :: filename
     integer, intent(in) :: rows  !! No. of rows
