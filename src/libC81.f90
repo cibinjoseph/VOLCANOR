@@ -1,6 +1,7 @@
 module libC81
-  use libMath 
+
   implicit none
+  integer, parameter :: dp = kind(1.d0)
 
   type C81_class
     !! Base class for C81 performance data
