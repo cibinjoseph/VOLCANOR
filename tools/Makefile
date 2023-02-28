@@ -1,5 +1,6 @@
 ##################################
-#  USE CMAKE GENERATED MAKEFILE  #
+# THIS FILE IS FOR RUNNING CASES #
+#  USE CMAKE-GENERATED MAKEFILE  #
 #    FOR BUILDING EXECUTABLE     #
 ##################################
 
