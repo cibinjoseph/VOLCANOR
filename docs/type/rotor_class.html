@@ -1,0 +1,2769 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+   <meta name="description" content="An unsteady vortex lattice solver written in Fortran">
+    <meta name="author" content="Cibin Joseph" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>rotor_class &ndash; VOLCANOR </title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="../js/jquery-2.1.3.min.js"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">VOLCANOR <small>0.0.1</small></a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href='../page/index.html'>Introduction</a></li>
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+     aria-expanded="false">Contents <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <li><a href="../lists/files.html">Source Files</a></li>
+            <li><a href="../lists/modules.html">Modules</a></li>
+            <li><a href="../lists/procedures.html">Procedures</a></li>
+                   <li><a href="../lists/types.html">Derived Types</a></li>
+            <li><a href="../lists/programs.html">Programs</a></li>
+       
+            </ul>
+        
+            </li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
+                             <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
+          </ul>
+        <form action="../search.html" class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+        </div>
+<!--
+        <button type="submit" class="btn btn-default">Submit</button>
+-->
+        </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>rotor_class
+    <small>Derived Type</small>
+    </h1>
+    <div class="row">
+  <div class="col-lg-12">
+<div class="well well-sm">
+  <ul class="list-inline" style="margin-bottom:0px;display:inline">
+     <li><i class="fa fa-list-ol"></i>
+       <a data-toggle="tooltip"
+    data-placement="bottom" data-html="true"
+    title="<p>30.5% of total for derived types.</p>Including implementation: 1943 statements, 55.3% of total for derived types.">104 statements</a>
+     </li> 
+    <li><i class="fa fa-code"></i><a href="../src/classdef.f90"> Source File</a></li>
+  </ul>
+  <ol class="breadcrumb in-well text-right">
+     <li><a href='../sourcefile/classdef.f90.html'>classdef.f90</a></li>
+     <li><a href='../module/classdef.html'>classdef</a></li>
+     <li class="active">rotor_class</li>
+  </ol>
+</div>
+</div>
+</div>
+<script>
+  $(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+  })
+</script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+    <div id="sidebar">
+  <h3>Contents</h3>
+ 
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#vars-0">Variables</a></h3></div>
+  <div id="vars-0" class="panel-collapse collapse">
+    <div class="list-group">
+      <a class="list-group-item" href="../type/rotor_class.html#variable-id~2">id</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-nb">nb</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-ns~2">ns</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-nc~2">nc</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-nnwake">nNwake</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-nfwake">nFwake</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-nbconvect">nbConvect</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-nnwakeend">nNwakeEnd</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-nfwakeend">nFwakeEnd</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-blade">blade</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-omega">Omega</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-omegaslow">omegaSlow</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-shaftaxis">shaftAxis</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-xaxisbody">xAxisBody</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-yaxisbody">yAxisBody</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-zaxisbody">zAxisBody</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-hubcoords">hubCoords</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-cgcoords">cgCoords</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-fromcoords">fromCoords</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-radius">radius</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-chord">chord</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-root_cut">root_cut</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-preconeangle~2">preconeAngle</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-dpitch">dpitch</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-flapinitial~2">flapInitial</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-dflapinitial~2">dflapInitial</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-iflap~2">Iflap</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-cflap~2">cflap</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-kflap~2">kflap</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-mflapconstant~2">MflapConstant</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-forceinertial~2">forceInertial</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-lift~2">lift</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-liftprev">liftPrev</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-drag~2">drag</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-draginduced~2">dragInduced</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-dragprofile~2">dragProfile</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-liftunsteady~2">liftUnsteady</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-dragunsteady~2">dragUnsteady</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-liftunitvec">liftUnitVec</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-dragunitvec">dragUnitVec</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-sideunitvec">sideUnitVec</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-controlpitch">controlPitch</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-thetatwist">thetaTwist</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-pivotle~2">pivotLE</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-flaphinge">flapHinge</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-velbody">velBody</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-omegabody">omegaBody</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-velbodyprev">velBodyPrev</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-omegabodyprev">omegaBodyPrev</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-velbodyhistory">velBodyHistory</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-omegabodyhistory">omegaBodyHistory</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-psi~2">psi</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-pts">pts</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-streamwisecoreswitch">streamwiseCoreSwitch</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-spanwisecore">spanwiseCore</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-streamwisecorevec">streamwiseCoreVec</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-aic">AIC</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-aic_inv">AIC_inv</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-gamvec">gamVec</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-gamvecprev">gamVecPrev</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-rhs">RHS</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-cambersectionlimit">camberSectionLimit</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-airfoilsectionlimit~2">airfoilSectionLimit</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-alpha0~2">alpha0</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-initwakevel">initWakeVel</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-psistart">psiStart</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-skewlimit">skewLimit</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-apparentvisccoeff">apparentViscCoeff</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-decaycoeff">decayCoeff</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-rollupstartradius">rollupStartRadius</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-rollupendradius">rollupEndRadius</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-propconvention">propConvention</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-spanspacing">spanSpacing</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-chordspacing">chordSpacing</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-overridetauspan">overrideTauSpan</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-symmetrictau">symmetricTau</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-waketruncatent">wakeTruncateNt</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-prescwakent">prescWakeNt</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-prescwakeaftertruncnt">prescWakeAfterTruncNt</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-prescwakegennt">prescWakeGenNt</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-rollupstart">rollupStart</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-rollupend">rollupEnd</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-suppressfwakeswitch">suppressFwakeSwitch</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-forcecalcswitch">forceCalcSwitch</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-skewplotswitch">skewPlotSwitch</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-inflowplotswitch">inflowPlotSwitch</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-bladedynamicsswitch">bladeDynamicsSwitch</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-pitchdynamicsswitch">pitchDynamicsSwitch</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-bodydynamicsswitch">bodyDynamicsSwitch</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-bodydynamicsiovars">bodyDynamicsIOVars</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-spanwiseliftswitch~2">spanwiseLiftSwitch</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-customtrajectoryswitch">customTrajectorySwitch</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-gammaplotswitch">gammaPlotSwitch</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-rownear">rowNear</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-rowfar">rowFar</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-ncamberfiles">nCamberFiles</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-nairfoils">nAirfoils</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-imageplane">imagePlane</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-imagerotornum">imageRotorNum</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-surfacetype">surfaceType</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-axisymmetryswitch">axisymmetrySwitch</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-camberfile">camberFile</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-airfoilfile~2">airfoilFile</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-geometryfile">geometryFile</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-nondimforcedenominator">nonDimforceDenominator</a>
+    </div>
+  </div>
+</div>
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#boundprocs-0">Type-Bound Procedures</a></h3></div>
+  <div id="boundprocs-0" class="panel-collapse collapse">
+    <div class="list-group">
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-readgeom">readGeom</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-init">init</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-deinit">deinit</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-plot3dtoblade">plot3dtoblade</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-stltoblade">stltoblade</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-getcamber">getCamber</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-gettheta">gettheta</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-getthetadot">getthetadot</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-move~2">move</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-rot_pts~2">rot_pts</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-rot_advance">rot_advance</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-rot_flap~2">rot_flap</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-assignshed">assignshed</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-map_gam">map_gam</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-age_wake">age_wake</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-dissipate_wake">dissipate_wake</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-strain_wake">strain_wake</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-calcaic">calcAIC</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-vind_bywing~2">vind_bywing</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-vind_bywing_boundvortices~2">vind_bywing_boundVortices</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-vind_bywake~2">vind_bywake</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-shiftwake">shiftwake</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-shiftfwake">shiftFwake</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-rollup">rollup</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-calc_force~2">calc_force</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-calc_force_alpha~2">calc_force_alpha</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-calc_force_alphagamma~2">calc_force_alphaGamma</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-calc_secalpha~2">calc_secAlpha</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-convectwake~2">convectwake</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-burst_wake~2">burst_wake</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-calc_skew~3">calc_skew</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-dirliftdrag~2">dirLiftDrag</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-sumbladetonetforces">sumBladeToNetForces</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-mirrorgamma">mirrorGamma</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-mirrorvelcp">mirrorVelCP</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-mirrorwake">mirrorWake</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-tochordsrevs">toChordsRevs</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-erasenwake">eraseNwake</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-erasefwake">eraseFwake</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-updateprescribedwake">updatePrescribedWake</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-computebladedynamics~2">computeBladeDynamics</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-getdw">getdw</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-computebodydynamics">computeBodyDynamics</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-rotor_write">rotor_write</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-write%28unformatted%29~2">write(unformatted)</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-rotor_read">rotor_read</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-read%28unformatted%29~2">read(unformatted)</a>
+    </div>
+  </div>
+</div>
+
+</div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+      <h2>type, public :: rotor_class</h2>
+    <p>Rotor class</p>
+<br>    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Inherits</h3>
+      </div>
+      <div class="panel-body">
+    <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: type~~rotor_class~~InheritsGraph Pages: 1 -->
+<svg id="typerotor_classInheritsGraph" width="641pt" height="202pt"
+ viewBox="0.00 0.00 641.00 202.11" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="type~~rotor_class~~InheritsGraph" class="graph" transform="scale(1.01 1.01) rotate(0) translate(4 200)">
+<title>type~~rotor_class~~InheritsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-200 643,-200 643,4 -4,4"/>
+<!-- type~rotor_class -->
+<g id="type~~rotor_class~~InheritsGraph_node1" class="node">
+<title>type~rotor_class</title>
+<polygon fill="none" stroke="black" points="639,-114 574,-114 574,-90 639,-90 639,-114"/>
+<text text-anchor="middle" x="606.5" y="-99.6" font-family="Helvetica,sans-Serif" font-size="10.50">rotor_class</text>
+</g>
+<!-- type~blade_class -->
+<g id="type~~rotor_class~~InheritsGraph_node2" class="node">
+<title>type~blade_class</title>
+<g id="a_type~~rotor_class~~InheritsGraph_node2"><a xlink:href=".././type/blade_class.html" xlink:title="blade_class">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="514,-114 445,-114 445,-90 514,-90 514,-114"/>
+<text text-anchor="middle" x="479.5" y="-99.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">blade_class</text>
+</a>
+</g>
+</g>
+<!-- type~rotor_class&#45;&gt;type~blade_class -->
+<g id="type~~rotor_class~~InheritsGraph_edge1" class="edge">
+<title>type~rotor_class&#45;&gt;type~blade_class</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M573.96,-102C559.01,-102 540.89,-102 524.61,-102"/>
+<polygon fill="#000000" stroke="#000000" points="524.22,-98.5 514.22,-102 524.22,-105.5 524.22,-98.5"/>
+<text text-anchor="middle" x="544" y="-104.4" font-family="Helvetica,sans-Serif" font-size="9.50">blade</text>
+</g>
+<!-- type~wingpanel_class -->
+<g id="type~~rotor_class~~InheritsGraph_node3" class="node">
+<title>type~wingpanel_class</title>
+<g id="a_type~~rotor_class~~InheritsGraph_node3"><a xlink:href=".././type/wingpanel_class.html" xlink:title="wingpanel_class">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="318,-196 227,-196 227,-172 318,-172 318,-196"/>
+<text text-anchor="middle" x="272.5" y="-181.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">wingpanel_class</text>
+</a>
+</g>
+</g>
+<!-- type~blade_class&#45;&gt;type~wingpanel_class -->
+<g id="type~~rotor_class~~InheritsGraph_edge2" class="edge">
+<title>type~blade_class&#45;&gt;type~wingpanel_class</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M467.39,-114.24C457.67,-124.21 442.69,-137.93 427,-146 396.18,-161.84 358.43,-171.3 328.08,-176.82"/>
+<polygon fill="#000000" stroke="#000000" points="327.35,-173.39 318.09,-178.54 328.54,-180.29 327.35,-173.39"/>
+<text text-anchor="middle" x="381.5" y="-176.4" font-family="Helvetica,sans-Serif" font-size="9.50">wiP</text>
+</g>
+<!-- type~pfwake_class -->
+<g id="type~~rotor_class~~InheritsGraph_node4" class="node">
+<title>type~pfwake_class</title>
+<g id="a_type~~rotor_class~~InheritsGraph_node4"><a xlink:href=".././type/pfwake_class.html" xlink:title="pFwake_class">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="312.5,-24 232.5,-24 232.5,0 312.5,0 312.5,-24"/>
+<text text-anchor="middle" x="272.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFwake_class</text>
+</a>
+</g>
+</g>
+<!-- type~blade_class&#45;&gt;type~pfwake_class -->
+<g id="type~~rotor_class~~InheritsGraph_edge5" class="edge">
+<title>type~blade_class&#45;&gt;type~pfwake_class</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M470.99,-89.93C462.13,-76.75 446.17,-56.08 427,-45 395.3,-26.68 354.61,-18.5 323.09,-14.87"/>
+<polygon fill="#000000" stroke="#000000" points="323.08,-11.35 312.77,-13.8 322.36,-18.31 323.08,-11.35"/>
+<text text-anchor="middle" x="381.5" y="-47.4" font-family="Helvetica,sans-Serif" font-size="9.50">wapF, wapFPredicted</text>
+</g>
+<!-- type~fwake_class -->
+<g id="type~~rotor_class~~InheritsGraph_node5" class="node">
+<title>type~fwake_class</title>
+<g id="a_type~~rotor_class~~InheritsGraph_node5"><a xlink:href=".././type/fwake_class.html" xlink:title="Fwake_class">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="172,-113 98,-113 98,-89 172,-89 172,-113"/>
+<text text-anchor="middle" x="135" y="-98.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Fwake_class</text>
+</a>
+</g>
+</g>
+<!-- type~blade_class&#45;&gt;type~fwake_class -->
+<g id="type~~rotor_class~~InheritsGraph_edge4" class="edge">
+<title>type~blade_class&#45;&gt;type~fwake_class</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M444.72,-101.9C383.08,-101.72 252.28,-101.34 182.36,-101.14"/>
+<polygon fill="#000000" stroke="#000000" points="182.1,-97.63 172.09,-101.11 182.08,-104.63 182.1,-97.63"/>
+<text text-anchor="middle" x="272.5" y="-103.4" font-family="Helvetica,sans-Serif" font-size="9.50">waF, waFPredicted</text>
+</g>
+<!-- type~c81_class -->
+<g id="type~~rotor_class~~InheritsGraph_node6" class="node">
+<title>type~c81_class</title>
+<g id="a_type~~rotor_class~~InheritsGraph_node6"><a xlink:href=".././type/c81_class.html" xlink:title="C81_class">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="303.5,-66 241.5,-66 241.5,-42 303.5,-42 303.5,-66"/>
+<text text-anchor="middle" x="272.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">C81_class</text>
+</a>
+</g>
+</g>
+<!-- type~blade_class&#45;&gt;type~c81_class -->
+<g id="type~~rotor_class~~InheritsGraph_edge6" class="edge">
+<title>type~blade_class&#45;&gt;type~c81_class</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M456.23,-89.95C447.35,-85.6 436.91,-81.02 427,-78 389.56,-66.6 345.25,-60.41 313.88,-57.19"/>
+<polygon fill="#000000" stroke="#000000" points="314.06,-53.69 303.77,-56.21 313.39,-60.66 314.06,-53.69"/>
+<text text-anchor="middle" x="381.5" y="-80.4" font-family="Helvetica,sans-Serif" font-size="9.50">C81</text>
+</g>
+<!-- type~nwake_class -->
+<g id="type~~rotor_class~~InheritsGraph_node7" class="node">
+<title>type~nwake_class</title>
+<g id="a_type~~rotor_class~~InheritsGraph_node7"><a xlink:href=".././type/nwake_class.html" xlink:title="Nwake_class">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="310,-154 235,-154 235,-130 310,-130 310,-154"/>
+<text text-anchor="middle" x="272.5" y="-139.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Nwake_class</text>
+</a>
+</g>
+</g>
+<!-- type~blade_class&#45;&gt;type~nwake_class -->
+<g id="type~~rotor_class~~InheritsGraph_edge3" class="edge">
+<title>type~blade_class&#45;&gt;type~nwake_class</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M444.82,-111.66C438.91,-113.21 432.79,-114.73 427,-116 391.43,-123.83 350.77,-130.62 320.24,-135.3"/>
+<polygon fill="#000000" stroke="#000000" points="319.66,-131.84 310.29,-136.8 320.7,-138.77 319.66,-131.84"/>
+<text text-anchor="middle" x="381.5" y="-134.4" font-family="Helvetica,sans-Serif" font-size="9.50">waN, waNPredicted</text>
+</g>
+<!-- type~vr_class -->
+<g id="type~~rotor_class~~InheritsGraph_node8" class="node">
+<title>type~vr_class</title>
+<g id="a_type~~rotor_class~~InheritsGraph_node8"><a xlink:href=".././type/vr_class.html" xlink:title="vr_class">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="162,-155 108,-155 108,-131 162,-131 162,-155"/>
+<text text-anchor="middle" x="135" y="-140.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">vr_class</text>
+</a>
+</g>
+</g>
+<!-- type~wingpanel_class&#45;&gt;type~vr_class -->
+<g id="type~~rotor_class~~InheritsGraph_edge7" class="edge">
+<title>type~wingpanel_class&#45;&gt;type~vr_class</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M231.58,-171.92C212.74,-166.22 190.43,-159.47 172.1,-153.92"/>
+<polygon fill="#000000" stroke="#000000" points="172.96,-150.53 162.38,-150.98 170.93,-157.23 172.96,-150.53"/>
+<text text-anchor="middle" x="199.5" y="-166.4" font-family="Helvetica,sans-Serif" font-size="9.50">vr</text>
+</g>
+<!-- type~pfwake_class&#45;&gt;type~fwake_class -->
+<g id="type~~rotor_class~~InheritsGraph_edge8" class="edge">
+<title>type~pfwake_class&#45;&gt;type~fwake_class</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M243.75,-24.04C238.1,-26.78 232.27,-29.83 227,-33 202.31,-47.85 176.16,-67.89 158.26,-82.37"/>
+<polygon fill="#000000" stroke="#000000" points="155.7,-79.94 150.18,-88.98 160.14,-85.36 155.7,-79.94"/>
+<text text-anchor="middle" x="199.5" y="-59.4" font-family="Helvetica,sans-Serif" font-size="9.50">waF</text>
+</g>
+<!-- type~vf_class -->
+<g id="type~~rotor_class~~InheritsGraph_node9" class="node">
+<title>type~vf_class</title>
+<g id="a_type~~rotor_class~~InheritsGraph_node9"><a xlink:href=".././type/vf_class.html" xlink:title="vf_class">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="54,-133 0,-133 0,-109 54,-109 54,-133"/>
+<text text-anchor="middle" x="27" y="-118.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">vf_class</text>
+</a>
+</g>
+</g>
+<!-- type~fwake_class&#45;&gt;type~vf_class -->
+<g id="type~~rotor_class~~InheritsGraph_edge9" class="edge">
+<title>type~fwake_class&#45;&gt;type~vf_class</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M97.77,-104.01C89.27,-105.02 80.28,-106.32 72,-108 69.38,-108.53 66.7,-109.14 64,-109.81"/>
+<polygon fill="#000000" stroke="#000000" points="63.09,-106.43 54.34,-112.41 64.9,-113.19 63.09,-106.43"/>
+<text text-anchor="middle" x="76" y="-110.4" font-family="Helvetica,sans-Serif" font-size="9.50">vf</text>
+</g>
+<!-- type~nwake_class&#45;&gt;type~vr_class -->
+<g id="type~~rotor_class~~InheritsGraph_edge10" class="edge">
+<title>type~nwake_class&#45;&gt;type~vr_class</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M234.83,-142.27C215.52,-142.41 191.91,-142.59 172.61,-142.73"/>
+<polygon fill="#000000" stroke="#000000" points="172.36,-139.23 162.38,-142.81 172.41,-146.23 172.36,-139.23"/>
+<text text-anchor="middle" x="199.5" y="-144.4" font-family="Helvetica,sans-Serif" font-size="9.50">vr</text>
+</g>
+<!-- type~vr_class&#45;&gt;type~vf_class -->
+<g id="type~~rotor_class~~InheritsGraph_edge11" class="edge">
+<title>type~vr_class&#45;&gt;type~vf_class</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M107.8,-137.56C94.67,-134.84 78.58,-131.5 64.29,-128.53"/>
+<polygon fill="#000000" stroke="#000000" points="64.77,-125.06 54.27,-126.45 63.35,-131.91 64.77,-125.06"/>
+<text text-anchor="middle" x="76" y="-133.4" font-family="Helvetica,sans-Serif" font-size="9.50">vf</text>
+</g>
+</g>
+</svg>
+</div><script>var pantyperotor_classInheritsGraph = svgPanZoom('#typerotor_classInheritsGraph', {zoomEnabled: true,controlIconsEnabled: true, fit: true, center: true,}); </script><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="178pt" height="32pt"
+ viewBox="0.00 0.00 177.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 173.5,-28 173.5,4 -4,4"/>
+<!-- Type -->
+<g id="node1" class="node">
+<title>Type</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="169.5,-24 72.5,-24 72.5,0 169.5,0 169.5,-24"/>
+<text text-anchor="middle" x="121" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a derived type to the parent type which it
+    extends. Dashed arrows point from a derived type to the other
+    types it contains as a components, with a label listing the name(s) of
+    said component(s).
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+      <h3>Contents</h3>
+ 
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#vars-1">Variables</a></h3></div>
+  <div id="vars-1" class="panel-collapse collapse">
+    <div class="list-group">
+      <a class="list-group-item" href="../type/rotor_class.html#variable-id~2">id</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-nb">nb</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-ns~2">ns</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-nc~2">nc</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-nnwake">nNwake</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-nfwake">nFwake</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-nbconvect">nbConvect</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-nnwakeend">nNwakeEnd</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-nfwakeend">nFwakeEnd</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-blade">blade</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-omega">Omega</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-omegaslow">omegaSlow</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-shaftaxis">shaftAxis</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-xaxisbody">xAxisBody</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-yaxisbody">yAxisBody</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-zaxisbody">zAxisBody</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-hubcoords">hubCoords</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-cgcoords">cgCoords</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-fromcoords">fromCoords</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-radius">radius</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-chord">chord</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-root_cut">root_cut</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-preconeangle~2">preconeAngle</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-dpitch">dpitch</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-flapinitial~2">flapInitial</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-dflapinitial~2">dflapInitial</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-iflap~2">Iflap</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-cflap~2">cflap</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-kflap~2">kflap</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-mflapconstant~2">MflapConstant</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-forceinertial~2">forceInertial</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-lift~2">lift</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-liftprev">liftPrev</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-drag~2">drag</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-draginduced~2">dragInduced</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-dragprofile~2">dragProfile</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-liftunsteady~2">liftUnsteady</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-dragunsteady~2">dragUnsteady</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-liftunitvec">liftUnitVec</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-dragunitvec">dragUnitVec</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-sideunitvec">sideUnitVec</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-controlpitch">controlPitch</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-thetatwist">thetaTwist</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-pivotle~2">pivotLE</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-flaphinge">flapHinge</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-velbody">velBody</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-omegabody">omegaBody</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-velbodyprev">velBodyPrev</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-omegabodyprev">omegaBodyPrev</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-velbodyhistory">velBodyHistory</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-omegabodyhistory">omegaBodyHistory</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-psi~2">psi</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-pts">pts</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-streamwisecoreswitch">streamwiseCoreSwitch</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-spanwisecore">spanwiseCore</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-streamwisecorevec">streamwiseCoreVec</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-aic">AIC</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-aic_inv">AIC_inv</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-gamvec">gamVec</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-gamvecprev">gamVecPrev</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-rhs">RHS</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-cambersectionlimit">camberSectionLimit</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-airfoilsectionlimit~2">airfoilSectionLimit</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-alpha0~2">alpha0</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-initwakevel">initWakeVel</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-psistart">psiStart</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-skewlimit">skewLimit</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-apparentvisccoeff">apparentViscCoeff</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-decaycoeff">decayCoeff</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-rollupstartradius">rollupStartRadius</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-rollupendradius">rollupEndRadius</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-propconvention">propConvention</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-spanspacing">spanSpacing</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-chordspacing">chordSpacing</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-overridetauspan">overrideTauSpan</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-symmetrictau">symmetricTau</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-waketruncatent">wakeTruncateNt</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-prescwakent">prescWakeNt</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-prescwakeaftertruncnt">prescWakeAfterTruncNt</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-prescwakegennt">prescWakeGenNt</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-rollupstart">rollupStart</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-rollupend">rollupEnd</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-suppressfwakeswitch">suppressFwakeSwitch</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-forcecalcswitch">forceCalcSwitch</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-skewplotswitch">skewPlotSwitch</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-inflowplotswitch">inflowPlotSwitch</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-bladedynamicsswitch">bladeDynamicsSwitch</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-pitchdynamicsswitch">pitchDynamicsSwitch</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-bodydynamicsswitch">bodyDynamicsSwitch</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-bodydynamicsiovars">bodyDynamicsIOVars</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-spanwiseliftswitch~2">spanwiseLiftSwitch</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-customtrajectoryswitch">customTrajectorySwitch</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-gammaplotswitch">gammaPlotSwitch</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-rownear">rowNear</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-rowfar">rowFar</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-ncamberfiles">nCamberFiles</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-nairfoils">nAirfoils</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-imageplane">imagePlane</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-imagerotornum">imageRotorNum</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-surfacetype">surfaceType</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-axisymmetryswitch">axisymmetrySwitch</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-camberfile">camberFile</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-airfoilfile~2">airfoilFile</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-geometryfile">geometryFile</a>
+      <a class="list-group-item" href="../type/rotor_class.html#variable-nondimforcedenominator">nonDimforceDenominator</a>
+    </div>
+  </div>
+</div>
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#boundprocs-1">Type-Bound Procedures</a></h3></div>
+  <div id="boundprocs-1" class="panel-collapse collapse">
+    <div class="list-group">
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-readgeom">readGeom</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-init">init</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-deinit">deinit</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-plot3dtoblade">plot3dtoblade</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-stltoblade">stltoblade</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-getcamber">getCamber</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-gettheta">gettheta</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-getthetadot">getthetadot</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-move~2">move</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-rot_pts~2">rot_pts</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-rot_advance">rot_advance</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-rot_flap~2">rot_flap</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-assignshed">assignshed</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-map_gam">map_gam</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-age_wake">age_wake</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-dissipate_wake">dissipate_wake</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-strain_wake">strain_wake</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-calcaic">calcAIC</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-vind_bywing~2">vind_bywing</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-vind_bywing_boundvortices~2">vind_bywing_boundVortices</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-vind_bywake~2">vind_bywake</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-shiftwake">shiftwake</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-shiftfwake">shiftFwake</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-rollup">rollup</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-calc_force~2">calc_force</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-calc_force_alpha~2">calc_force_alpha</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-calc_force_alphagamma~2">calc_force_alphaGamma</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-calc_secalpha~2">calc_secAlpha</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-convectwake~2">convectwake</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-burst_wake~2">burst_wake</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-calc_skew~3">calc_skew</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-dirliftdrag~2">dirLiftDrag</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-sumbladetonetforces">sumBladeToNetForces</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-mirrorgamma">mirrorGamma</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-mirrorvelcp">mirrorVelCP</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-mirrorwake">mirrorWake</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-tochordsrevs">toChordsRevs</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-erasenwake">eraseNwake</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-erasefwake">eraseFwake</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-updateprescribedwake">updatePrescribedWake</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-computebladedynamics~2">computeBladeDynamics</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-getdw">getdw</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-computebodydynamics">computeBodyDynamics</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-rotor_write">rotor_write</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-write%28unformatted%29~2">write(unformatted)</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-rotor_read">rotor_read</a>
+      <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-read%28unformatted%29~2">read(unformatted)</a>
+    </div>
+  </div>
+</div>
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+    <section>
+    <h2>Components</h2>
+    <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Visibility</th><th>Attributes</th><th></th><th>Name</th><th></th><th>Initial</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" id="variable-id~2"></span>character(len=2),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>id</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-nb"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>nb</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-ns~2"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>ns</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-nc~2"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>nc</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-nnwake"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>nNwake</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-nfwake"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>nFwake</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-nbconvect"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>nbConvect</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-nnwakeend"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>nNwakeEnd</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-nfwakeend"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>nFwakeEnd</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-blade"></span>type(<a href='../type/blade_class.html'>blade_class</a>),</td>
+<td>public,</td>  <td>allocatable, dimension(:)</td><td>::</td>
+  <td><strong>blade</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-omega"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>Omega</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-omegaslow"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>omegaSlow</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-shaftaxis"></span>real(kind=dp),</td>
+<td>public,</td>  <td>dimension(3)</td><td>::</td>
+  <td><strong>shaftAxis</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-xaxisbody"></span>real(kind=dp),</td>
+<td>public,</td>  <td>dimension(3)</td><td>::</td>
+  <td><strong>xAxisBody</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-yaxisbody"></span>real(kind=dp),</td>
+<td>public,</td>  <td>dimension(3)</td><td>::</td>
+  <td><strong>yAxisBody</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-zaxisbody"></span>real(kind=dp),</td>
+<td>public,</td>  <td>dimension(3)</td><td>::</td>
+  <td><strong>zAxisBody</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-hubcoords"></span>real(kind=dp),</td>
+<td>public,</td>  <td>dimension(3)</td><td>::</td>
+  <td><strong>hubCoords</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-cgcoords"></span>real(kind=dp),</td>
+<td>public,</td>  <td>dimension(3)</td><td>::</td>
+  <td><strong>cgCoords</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-fromcoords"></span>real(kind=dp),</td>
+<td>public,</td>  <td>dimension(3)</td><td>::</td>
+  <td><strong>fromCoords</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-radius"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>radius</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-chord"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>chord</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-root_cut"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>root_cut</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-preconeangle~2"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>preconeAngle</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-dpitch"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>dpitch</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-flapinitial~2"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>flapInitial</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-dflapinitial~2"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>dflapInitial</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-iflap~2"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>Iflap</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-cflap~2"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>cflap</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-kflap~2"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>kflap</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-mflapconstant~2"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>MflapConstant</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-forceinertial~2"></span>real(kind=dp),</td>
+<td>public,</td>  <td>dimension(3)</td><td>::</td>
+  <td><strong>forceInertial</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-lift~2"></span>real(kind=dp),</td>
+<td>public,</td>  <td>dimension(3)</td><td>::</td>
+  <td><strong>lift</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-liftprev"></span>real(kind=dp),</td>
+<td>public,</td>  <td>dimension(3)</td><td>::</td>
+  <td><strong>liftPrev</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-drag~2"></span>real(kind=dp),</td>
+<td>public,</td>  <td>dimension(3)</td><td>::</td>
+  <td><strong>drag</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-draginduced~2"></span>real(kind=dp),</td>
+<td>public,</td>  <td>dimension(3)</td><td>::</td>
+  <td><strong>dragInduced</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-dragprofile~2"></span>real(kind=dp),</td>
+<td>public,</td>  <td>dimension(3)</td><td>::</td>
+  <td><strong>dragProfile</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-liftunsteady~2"></span>real(kind=dp),</td>
+<td>public,</td>  <td>dimension(3)</td><td>::</td>
+  <td><strong>liftUnsteady</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-dragunsteady~2"></span>real(kind=dp),</td>
+<td>public,</td>  <td>dimension(3)</td><td>::</td>
+  <td><strong>dragUnsteady</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-liftunitvec"></span>real(kind=dp),</td>
+<td>public,</td>  <td>dimension(3)</td><td>::</td>
+  <td><strong>liftUnitVec</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-dragunitvec"></span>real(kind=dp),</td>
+<td>public,</td>  <td>dimension(3)</td><td>::</td>
+  <td><strong>dragUnitVec</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-sideunitvec"></span>real(kind=dp),</td>
+<td>public,</td>  <td>dimension(3)</td><td>::</td>
+  <td><strong>sideUnitVec</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-controlpitch"></span>real(kind=dp),</td>
+<td>public,</td>  <td>dimension(3)</td><td>::</td>
+  <td><strong>controlPitch</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-thetatwist"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>thetaTwist</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-pivotle~2"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>pivotLE</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-flaphinge"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>flapHinge</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-velbody"></span>real(kind=dp),</td>
+<td>public,</td>  <td>dimension(3)</td><td>::</td>
+  <td><strong>velBody</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-omegabody"></span>real(kind=dp),</td>
+<td>public,</td>  <td>dimension(3)</td><td>::</td>
+  <td><strong>omegaBody</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-velbodyprev"></span>real(kind=dp),</td>
+<td>public,</td>  <td>dimension(3)</td><td>::</td>
+  <td><strong>velBodyPrev</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-omegabodyprev"></span>real(kind=dp),</td>
+<td>public,</td>  <td>dimension(3)</td><td>::</td>
+  <td><strong>omegaBodyPrev</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-velbodyhistory"></span>real(kind=dp),</td>
+<td>public,</td>  <td>allocatable, dimension(:, :)</td><td>::</td>
+  <td><strong>velBodyHistory</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-omegabodyhistory"></span>real(kind=dp),</td>
+<td>public,</td>  <td>allocatable, dimension(:, :)</td><td>::</td>
+  <td><strong>omegaBodyHistory</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-psi~2"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>psi</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-pts"></span>real(kind=dp),</td>
+<td>public,</td>  <td>dimension(3)</td><td>::</td>
+  <td><strong>pts</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-streamwisecoreswitch"></span>character(len=1),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>streamwiseCoreSwitch</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-spanwisecore"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>spanwiseCore</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-streamwisecorevec"></span>real(kind=dp),</td>
+<td>public,</td>  <td>allocatable, dimension(:)</td><td>::</td>
+  <td><strong>streamwiseCoreVec</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-aic"></span>real(kind=dp),</td>
+<td>public,</td>  <td>allocatable, dimension(:, :)</td><td>::</td>
+  <td><strong>AIC</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-aic_inv"></span>real(kind=dp),</td>
+<td>public,</td>  <td>allocatable, dimension(:, :)</td><td>::</td>
+  <td><strong>AIC_inv</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-gamvec"></span>real(kind=dp),</td>
+<td>public,</td>  <td>allocatable, dimension(:)</td><td>::</td>
+  <td><strong>gamVec</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-gamvecprev"></span>real(kind=dp),</td>
+<td>public,</td>  <td>allocatable, dimension(:)</td><td>::</td>
+  <td><strong>gamVecPrev</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-rhs"></span>real(kind=dp),</td>
+<td>public,</td>  <td>allocatable, dimension(:)</td><td>::</td>
+  <td><strong>RHS</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-cambersectionlimit"></span>real(kind=dp),</td>
+<td>public,</td>  <td>allocatable, dimension(:)</td><td>::</td>
+  <td><strong>camberSectionLimit</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-airfoilsectionlimit~2"></span>real(kind=dp),</td>
+<td>public,</td>  <td>allocatable, dimension(:)</td><td>::</td>
+  <td><strong>airfoilSectionLimit</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-alpha0~2"></span>real(kind=dp),</td>
+<td>public,</td>  <td>allocatable, dimension(:)</td><td>::</td>
+  <td><strong>alpha0</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-initwakevel"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>initWakeVel</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-psistart"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>psiStart</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-skewlimit"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>skewLimit</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-apparentvisccoeff"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>apparentViscCoeff</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-decaycoeff"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>decayCoeff</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-rollupstartradius"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>rollupStartRadius</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-rollupendradius"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>rollupEndRadius</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-propconvention"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>propConvention</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-spanspacing"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>spanSpacing</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-chordspacing"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>chordSpacing</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-overridetauspan"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>overrideTauSpan</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-symmetrictau"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>symmetricTau</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-waketruncatent"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>wakeTruncateNt</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-prescwakent"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>prescWakeNt</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-prescwakeaftertruncnt"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>prescWakeAfterTruncNt</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-prescwakegennt"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>prescWakeGenNt</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-rollupstart"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>rollupStart</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-rollupend"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>rollupEnd</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-suppressfwakeswitch"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>suppressFwakeSwitch</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-forcecalcswitch"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>forceCalcSwitch</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-skewplotswitch"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>skewPlotSwitch</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-inflowplotswitch"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>inflowPlotSwitch</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-bladedynamicsswitch"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>bladeDynamicsSwitch</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-pitchdynamicsswitch"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>pitchDynamicsSwitch</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-bodydynamicsswitch"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>bodyDynamicsSwitch</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-bodydynamicsiovars"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>bodyDynamicsIOVars</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-spanwiseliftswitch~2"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>spanwiseLiftSwitch</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-customtrajectoryswitch"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>customTrajectorySwitch</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-gammaplotswitch"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>gammaPlotSwitch</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-rownear"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>rowNear</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-rowfar"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>rowFar</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-ncamberfiles"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>nCamberFiles</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-nairfoils"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>nAirfoils</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-imageplane"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>imagePlane</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-imagerotornum"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>imageRotorNum</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-surfacetype"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>surfaceType</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-axisymmetryswitch"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>axisymmetrySwitch</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-camberfile"></span>character(len=30),</td>
+<td>public,</td>  <td>allocatable, dimension(:)</td><td>::</td>
+  <td><strong>camberFile</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-airfoilfile~2"></span>character(len=30),</td>
+<td>public,</td>  <td>allocatable, dimension(:)</td><td>::</td>
+  <td><strong>airfoilFile</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-geometryfile"></span>character(len=30),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>geometryFile</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-nondimforcedenominator"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>nonDimforceDenominator</strong></td><td></td><td></td><td></td>
+</tr>
+</tbody>
+</table>
+
+    </section>
+    <br>
+    
+    
+    
+ 
+    <section>
+    <h2>Type-Bound Procedures</h2>
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-readgeom"></span><h3>procedure, public :: <strong>readGeom</strong>  => <a href='../proc/rotor_readgeom.html'>rotor_readGeom</a>   </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+          <h3>public subroutine <a href='../proc/rotor_readgeom.html'>rotor_readGeom</a>(this, filename, outputFilename)</h3>
+<p>Read rotor geometry from geomXX.nml in namelist format</p>
+    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>)</td>
+<td></td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>character(len=*),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>filename</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>character(len=*),</td>
+<td>intent(in),</td>
+  <td>optional</td>  <td></td><td>::</td>
+  <td><strong>outputFilename</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-init"></span><h3>procedure, public :: <strong>init</strong>  => <a href='../proc/rotor_init.html'>rotor_init</a>   </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+          <h3>public subroutine <a href='../proc/rotor_init.html'>rotor_init</a>(this, rotorNumber, density, dt, nt, switches, sourceRotor)</h3>
+<p>Initialize variables of rotor geometry and wake</p>
+    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>)</td>
+<td></td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>rotorNumber</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>density</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>dt</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>nt</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/switches_class.html'>switches_class</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>switches</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/rotor_class.html'>rotor_class</a>),</td>
+<td></td>
+  <td>optional</td>  <td></td><td>::</td>
+  <td><strong>sourceRotor</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-deinit"></span><h3>procedure, public :: <strong>deinit</strong>  => <a href='../proc/rotor_deinit.html'>rotor_deinit</a>   </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+          <h3>public subroutine <a href='../proc/rotor_deinit.html'>rotor_deinit</a>(this, switches)</h3>
+<p>Deinitialise rotor variables</p>
+    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>)</td>
+<td></td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/switches_class.html'>switches_class</a>),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>switches</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-plot3dtoblade"></span><h3>procedure, public :: <strong>plot3dtoblade</strong>  => <a href='../proc/rotor_plot3dtoblade.html'>rotor_plot3dtoblade</a>   </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+          <h3>public subroutine <a href='../proc/rotor_plot3dtoblade.html'>rotor_plot3dtoblade</a>(this, PLOT3Dfilename)</h3>
+<p>Read blade geometry from PLOT3D formatted file</p>
+    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>)</td>
+<td></td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>character(len=*),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>PLOT3Dfilename</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-stltoblade"></span><h3>procedure, public :: <strong>stltoblade</strong>  => <a href='../proc/rotor_stltoblade.html'>rotor_stltoblade</a>   </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+          <h3>public subroutine <a href='../proc/rotor_stltoblade.html'>rotor_stltoblade</a>(this, stlfilename)</h3>
+<p>Read ASCII stl file for non-lifting surface geometry</p>
+    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>)</td>
+<td></td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>character(len=*),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>stlfilename</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-getcamber"></span><h3>procedure, public :: <strong>getCamber</strong>  => <a href='../proc/rotor_getcamber.html'>rotor_getCamber</a>   </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+          <h3>public function <a href='../proc/rotor_getcamber.html'>rotor_getCamber</a>(this, x, y)</h3>
+<p>Get z coordinate on wing from x, y values</p>
+    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>)</td>
+<td></td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(in),</td>
+  <td></td>  <td>dimension(:)</td><td>::</td>
+  <td><strong>x</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(in),</td>
+  <td></td>  <td>dimension(:)</td><td>::</td>
+  <td><strong>y</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+<h4>Return Value <small>real(kind=dp),dimension(size(x), size(y))</small></h4>  
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-gettheta"></span><h3>procedure, public :: <strong>gettheta</strong>  => <a href='../proc/rotor_gettheta.html'>rotor_gettheta</a>   </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+          <h3>public function <a href='../proc/rotor_gettheta.html'>rotor_gettheta</a>(this, psi, ib)</h3>
+<p>Get pitch angle corresponding to blade azimuthal location</p>
+    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>)</td>
+<td></td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>psi</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>ib</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+<h4>Return Value <small>real(kind=dp)</small></h4>  
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-getthetadot"></span><h3>procedure, public :: <strong>getthetadot</strong>  => <a href='../proc/rotor_getthetadot.html'>rotor_getthetadot</a>   </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+          <h3>public function <a href='../proc/rotor_getthetadot.html'>rotor_getthetadot</a>(this, psi, ib)</h3>    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>)</td>
+<td></td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>psi</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>ib</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+<h4>Return Value <small>real(kind=dp)</small></h4>  
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-move~2"></span><h3>procedure, public :: <strong>move</strong>  => <a href='../proc/rotor_move.html'>rotor_move</a>   </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+          <h3>public subroutine <a href='../proc/rotor_move.html'>rotor_move</a>(this, dshift)</h3>    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>)</td>
+<td></td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(in),</td>
+  <td></td>  <td>dimension(3)</td><td>::</td>
+  <td><strong>dshift</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-rot_pts~2"></span><h3>procedure, public :: <strong>rot_pts</strong>  => <a href='../proc/rotor_rot_pts.html'>rotor_rot_pts</a>   </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+          <h3>public subroutine <a href='../proc/rotor_rot_pts.html'>rotor_rot_pts</a>(this, pts, origin, order)</h3>
+<p>Rotate using pts =&gt; phi theta psi
+Warning: This rotation is about the global reference frame</p>
+    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(in),</td>
+  <td></td>  <td>dimension(3)</td><td>::</td>
+  <td><strong>pts</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(in),</td>
+  <td></td>  <td>dimension(3)</td><td>::</td>
+  <td><strong>origin</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>order</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-rot_advance"></span><h3>procedure, public :: <strong>rot_advance</strong>  => <a href='../proc/rotor_rot_advance.html'>rotor_rot_advance</a>   </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+          <h3>public subroutine <a href='../proc/rotor_rot_advance.html'>rotor_rot_advance</a>(this, dpsi, nopitch)</h3>
+<p>Rotate rotor by dpsi angle about axis</p>
+    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>dpsi</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>logical,</td>
+<td></td>
+  <td>optional</td>  <td></td><td>::</td>
+  <td><strong>nopitch</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-rot_flap~2"></span><h3>procedure, public :: <strong>rot_flap</strong>  => <a href='../proc/rotor_rot_flap.html'>rotor_rot_flap</a>   </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+          <h3>public subroutine <a href='../proc/rotor_rot_flap.html'>rotor_rot_flap</a>(this)</h3>
+<p>Rotate blades by flap angle</p>
+    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-assignshed"></span><h3>procedure, public :: <strong>assignshed</strong>  => <a href='../proc/rotor_assignshed.html'>rotor_assignshed</a>   </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+          <h3>public subroutine <a href='../proc/rotor_assignshed.html'>rotor_assignshed</a>(this, edge)</h3>
+<p>Assign coordinates to first rowNear of wake from last row of blade</p>
+    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>character(len=2),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>edge</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-map_gam"></span><h3>procedure, public :: <strong>map_gam</strong>  => <a href='../proc/rotor_map_gam.html'>rotor_map_gam</a>   </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+          <h3>public subroutine <a href='../proc/rotor_map_gam.html'>rotor_map_gam</a>(this)</h3>
+<p>Map gam from vector to matrix format</p>
+    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-age_wake"></span><h3>procedure, public :: <strong>age_wake</strong>  => <a href='../proc/rotor_age_wake.html'>rotor_age_wake</a>   </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+          <h3>public subroutine <a href='../proc/rotor_age_wake.html'>rotor_age_wake</a>(this, dt)</h3>
+<p>Update age of wake filaments</p>
+    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>dt</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-dissipate_wake"></span><h3>procedure, public :: <strong>dissipate_wake</strong>  => <a href='../proc/rotor_dissipate_wake.html'>rotor_dissipate_wake</a>   </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+          <h3>public subroutine <a href='../proc/rotor_dissipate_wake.html'>rotor_dissipate_wake</a>(this, dt, kinematicViscosity)</h3>    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>dt</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>kinematicViscosity</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-strain_wake"></span><h3>procedure, public :: <strong>strain_wake</strong>  => <a href='../proc/rotor_strain_wake.html'>rotor_strain_wake</a>   </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+          <h3>public subroutine <a href='../proc/rotor_strain_wake.html'>rotor_strain_wake</a>(this)</h3>    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-calcaic"></span><h3>procedure, public :: <strong>calcAIC</strong>  => <a href='../proc/rotor_calcaic.html'>rotor_calcAIC</a>   </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+          <h3>public subroutine <a href='../proc/rotor_calcaic.html'>rotor_calcAIC</a>(this)</h3>
+<p>Compute AIC matrix for rotor</p>
+    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-vind_bywing~2"></span><h3>procedure, public :: <strong>vind_bywing</strong>  => <a href='../proc/rotor_vind_bywing.html'>rotor_vind_bywing</a>   </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+          <h3>public function <a href='../proc/rotor_vind_bywing.html'>rotor_vind_bywing</a>(this, P)</h3>
+<p>Compute induced velocity by all wing vortices at P</p>
+    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(in),</td>
+  <td></td>  <td>dimension(3)</td><td>::</td>
+  <td><strong>P</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+<h4>Return Value <small>real(kind=dp),dimension(3)</small></h4>  
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-vind_bywing_boundvortices~2"></span><h3>procedure, public :: <strong>vind_bywing_boundVortices</strong>  => <a href='../proc/rotor_vind_bywing_boundvortices.html'>rotor_vind_bywing_boundVortices</a>   </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+          <h3>public function <a href='../proc/rotor_vind_bywing_boundvortices.html'>rotor_vind_bywing_boundVortices</a>(this, P)</h3>
+<p>Compute induced velocity by bound vortices at P</p>
+    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(in),</td>
+  <td></td>  <td>dimension(3)</td><td>::</td>
+  <td><strong>P</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+<h4>Return Value <small>real(kind=dp),dimension(3)</small></h4>  
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-vind_bywake~2"></span><h3>procedure, public :: <strong>vind_bywake</strong>  => <a href='../proc/rotor_vind_bywake.html'>rotor_vind_bywake</a>   </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+          <h3>public function <a href='../proc/rotor_vind_bywake.html'>rotor_vind_bywake</a>(this, P, optionalChar)</h3>    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(in),</td>
+  <td></td>  <td>dimension(3)</td><td>::</td>
+  <td><strong>P</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>character(len=1),</td>
+<td></td>
+  <td>optional</td>  <td></td><td>::</td>
+  <td><strong>optionalChar</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+<h4>Return Value <small>real(kind=dp),dimension(3)</small></h4>  
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-shiftwake"></span><h3>procedure, public :: <strong>shiftwake</strong>  => <a href='../proc/rotor_shiftwake.html'>rotor_shiftwake</a>   </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+          <h3>public subroutine <a href='../proc/rotor_shiftwake.html'>rotor_shiftwake</a>(this)</h3>
+<p>Shift wake locations on rollup</p>
+    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-shiftfwake"></span><h3>procedure, public :: <strong>shiftFwake</strong>  => <a href='../proc/rotor_shiftfwake.html'>rotor_shiftFwake</a>   </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+          <h3>public subroutine <a href='../proc/rotor_shiftfwake.html'>rotor_shiftFwake</a>(this)</h3>
+<p>Shift wake locations of Fwake for truncation</p>
+    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-rollup"></span><h3>procedure, public :: <strong>rollup</strong>  => <a href='../proc/rotor_rollup.html'>rotor_rollup</a>   </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+          <h3>public subroutine <a href='../proc/rotor_rollup.html'>rotor_rollup</a>(this)</h3>    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-calc_force~2"></span><h3>procedure, public :: <strong>calc_force</strong>  => <a href='../proc/rotor_calc_force.html'>rotor_calc_force</a>   </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+          <h3>public subroutine <a href='../proc/rotor_calc_force.html'>rotor_calc_force</a>(this, density, dt)</h3>
+<p>Compute force from circulation</p>
+    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>density</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>dt</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-calc_force_alpha~2"></span><h3>procedure, public :: <strong>calc_force_alpha</strong>  => <a href='../proc/rotor_calc_force_alpha.html'>rotor_calc_force_alpha</a>   </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+          <h3>public subroutine <a href='../proc/rotor_calc_force_alpha.html'>rotor_calc_force_alpha</a>(this, density, velSound)</h3>
+<p>Compute force from sec alpha</p>
+    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>density</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>velSound</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-calc_force_alphagamma~2"></span><h3>procedure, public :: <strong>calc_force_alphaGamma</strong>  => <a href='../proc/rotor_calc_force_alphagamma.html'>rotor_calc_force_alphaGamma</a>   </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+          <h3>public subroutine <a href='../proc/rotor_calc_force_alphagamma.html'>rotor_calc_force_alphaGamma</a>(this, density, velSound, dt)</h3>
+<p>Compute force from sec alpha</p>
+    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>density</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>velSound</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>dt</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-calc_secalpha~2"></span><h3>procedure, public :: <strong>calc_secAlpha</strong>  => <a href='../proc/rotor_calc_secalpha.html'>rotor_calc_secAlpha</a>   </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+          <h3>public subroutine <a href='../proc/rotor_calc_secalpha.html'>rotor_calc_secAlpha</a>(this)</h3>    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-convectwake~2"></span><h3>procedure, public :: <strong>convectwake</strong>  => <a href='../proc/rotor_convectwake.html'>rotor_convectwake</a>   </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+          <h3>public subroutine <a href='../proc/rotor_convectwake.html'>rotor_convectwake</a>(this, iter, dt, wakeType)</h3>    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>iter</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>dt</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>character(len=1),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>wakeType</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-burst_wake~2"></span><h3>procedure, public :: <strong>burst_wake</strong>  => <a href='../proc/rotor_burst_wake.html'>rotor_burst_wake</a>   </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+          <h3>public subroutine <a href='../proc/rotor_burst_wake.html'>rotor_burst_wake</a>(this)</h3>    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-calc_skew~3"></span><h3>procedure, public :: <strong>calc_skew</strong>  => <a href='../proc/rotor_calc_skew.html'>rotor_calc_skew</a>   </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+          <h3>public subroutine <a href='../proc/rotor_calc_skew.html'>rotor_calc_skew</a>(this)</h3>    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-dirliftdrag~2"></span><h3>procedure, public :: <strong>dirLiftDrag</strong>  => <a href='../proc/rotor_dirliftdrag.html'>rotor_dirLiftDrag</a>   </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+          <h3>public subroutine <a href='../proc/rotor_dirliftdrag.html'>rotor_dirLiftDrag</a>(this)</h3>    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-sumbladetonetforces"></span><h3>procedure, public :: <strong>sumBladeToNetForces</strong>  => <a href='../proc/rotor_sumbladetonetforces.html'>rotor_sumBladeToNetForces</a>   </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+          <h3>public subroutine <a href='../proc/rotor_sumbladetonetforces.html'>rotor_sumBladeToNetForces</a>(this)</h3>    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-mirrorgamma"></span><h3>procedure, public :: <strong>mirrorGamma</strong>  => <a href='../proc/rotor_mirrorgamma.html'>rotor_mirrorGamma</a>   </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+          <h3>public subroutine <a href='../proc/rotor_mirrorgamma.html'>rotor_mirrorGamma</a>(this, fromRotor)</h3>
+<p>Mirrors gamma from another rotor</p>
+    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>fromRotor</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-mirrorvelcp"></span><h3>procedure, public :: <strong>mirrorVelCP</strong>  => <a href='../proc/rotor_mirrorvelcp.html'>rotor_mirrorVelCP</a>   </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+          <h3>public subroutine <a href='../proc/rotor_mirrorvelcp.html'>rotor_mirrorVelCP</a>(this, fromRotor)</h3>
+<p>Mirrors velCP, velCPm from another rotor</p>
+    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>fromRotor</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-mirrorwake"></span><h3>procedure, public :: <strong>mirrorWake</strong>  => <a href='../proc/rotor_mirrorwake.html'>rotor_mirrorWake</a>   </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+          <h3>public subroutine <a href='../proc/rotor_mirrorwake.html'>rotor_mirrorWake</a>(this, fromRotor, wakeType)</h3>
+<p>Mirrors wake positions from another rotor</p>
+    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>fromRotor</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>character(len=1),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>wakeType</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-tochordsrevs"></span><h3>procedure, public :: <strong>toChordsRevs</strong>  => <a href='../proc/rotor_tochordsrevs.html'>rotor_toChordsRevs</a>   </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+          <h3>public subroutine <a href='../proc/rotor_tochordsrevs.html'>rotor_toChordsRevs</a>(this, nsteps, dt)</h3>
+<p>Converts -ve nsteps to nsteps for corresponding no. of chords or revs</p>
+    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>nsteps</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>dt</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-erasenwake"></span><h3>procedure, public :: <strong>eraseNwake</strong>  => <a href='../proc/rotor_erasenwake.html'>rotor_eraseNwake</a>   </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+          <h3>public subroutine <a href='../proc/rotor_erasenwake.html'>rotor_eraseNwake</a>(this, rowErase)</h3>
+<p>Erase a near wake row by setting gamma to zero</p>
+    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>rowErase</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-erasefwake"></span><h3>procedure, public :: <strong>eraseFwake</strong>  => <a href='../proc/rotor_erasefwake.html'>rotor_eraseFwake</a>   </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+          <h3>public subroutine <a href='../proc/rotor_erasefwake.html'>rotor_eraseFwake</a>(this, rowErase)</h3>
+<p>Erase a far wake row by setting gamma to zero</p>
+    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>rowErase</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-updateprescribedwake"></span><h3>procedure, public :: <strong>updatePrescribedWake</strong>  => <a href='../proc/rotor_updateprescribedwake.html'>rotor_updatePrescribedWake</a>   </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+          <h3>public subroutine <a href='../proc/rotor_updateprescribedwake.html'>rotor_updatePrescribedWake</a>(this, dt, wakeType)</h3>
+<p>Attaches prescribed far wake</p>
+    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>dt</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>character(len=1),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>wakeType</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-computebladedynamics~2"></span><h3>procedure, public :: <strong>computeBladeDynamics</strong>  => <a href='../proc/rotor_computebladedynamics.html'>rotor_computeBladeDynamics</a>   </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+          <h3>public subroutine <a href='../proc/rotor_computebladedynamics.html'>rotor_computeBladeDynamics</a>(this, dt)</h3>    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>dt</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-getdw"></span><h3>procedure, public :: <strong>getdw</strong>    </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+          <h3>public function <a href='../proc/getdw.html'>getdw</a>(this, w, thrust)</h3>    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>w</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>thrust</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+<h4>Return Value <small>real(kind=dp)</small></h4>  
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-computebodydynamics"></span><h3>procedure, public :: <strong>computeBodyDynamics</strong>  => <a href='../proc/rotor_computebodydynamics.html'>rotor_computeBodyDynamics</a>   </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+          <h3>public subroutine <a href='../proc/rotor_computebodydynamics.html'>rotor_computeBodyDynamics</a>(this, dt)</h3>    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>dt</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-rotor_write"></span><h3>procedure, public :: <strong>rotor_write</strong>    </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+          <h3>public subroutine <a href='../proc/rotor_write.html'>rotor_write</a>(this, unit, iostat, iomsg)</h3>    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>unit</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(out)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>iostat</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>character(len=*),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>iomsg</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-write%28unformatted%29~2"></span><h3>generic, public :: <strong>write(unformatted)</strong>  => <a href='../type/rotor_class.html#boundprocedure-rotor_write'>rotor_write</a>   </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+            <h3>public subroutine <a href='../proc/rotor_write.html'>rotor_write</a>(this, unit, iostat, iomsg)</h3>    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>unit</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(out)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>iostat</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>character(len=*),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>iomsg</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-rotor_read"></span><h3>procedure, public :: <strong>rotor_read</strong>    </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+          <h3>public subroutine <a href='../proc/rotor_read.html'>rotor_read</a>(this, unit, iostat, iomsg)</h3>    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>unit</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(out)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>iostat</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>character(len=*),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>iomsg</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+      </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-read%28unformatted%29~2"></span><h3>generic, public :: <strong>read(unformatted)</strong>  => <a href='../type/rotor_class.html#boundprocedure-rotor_read'>rotor_read</a>   </h3></div>
+  <ul class="list-group">
+      <li class="list-group-item">
+            <h3>public subroutine <a href='../proc/rotor_read.html'>rotor_read</a>(this, unit, iostat, iomsg)</h3>    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>class(<a href='../type/rotor_class.html'>rotor_class</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>this</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>unit</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(out)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>iostat</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>character(len=*),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>iomsg</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+      </li>
+  </ul>
+</div>
+
+    </section>
+    
+    
+    </div>
+  </div>
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-6"><p>VOLCANOR was developed by Cibin Joseph<br>&copy; 2023 
+</p>
+        </div>
+        <div class="col-xs-6 col-md-6">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-03-01T13:03:11.600695           </p>
+        </div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="../js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script src="../tipuesearch/tipuesearch_content.js"></script>
+    <script src="../tipuesearch/tipuesearch_set.js"></script>
+    <script src="../tipuesearch/tipuesearch.js"></script>
+    
+  </body>
+</html>
