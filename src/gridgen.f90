@@ -1,5 +1,9 @@
 program gridgen
   use libCommon
+  use classdef
+  use libMath, only : linspace
+
+  ! integer, parameter :: dp = kind(1.d0)
 
   integer :: nx, ny, nz
   real(dp), dimension(3) :: xyzMin, xyzMax    ! Coordinates of corners
