@@ -1,5 +1,9 @@
 program gridgen
   use libCommon
+  use classdef
+  use libMath, only : linspace
+
+  ! integer, parameter :: dp = kind(1.d0)
 
   integer :: nx, ny, nz
   real(dp), dimension(3) :: xyzMin, xyzMax    ! Coordinates of corners
@@ -21,8 +25,8 @@ program gridgen
   currentTemplateVersion = '0.2'
 
   ! Read gridconfig.in file
-  call print_status('Reading file '//'gridconfig.in')
-  open(unit=11, file='gridconfig.in', status='old', action='read')
+  call print_status('Reading file '//'gridconfig.nml')
+  open(unit=11, file='gridconfig.nml', status='old', action='read')
 
   namelist /VERSION/ fileFormatVersion
   read(unit=11, nml=VERSION)
@@ -144,7 +148,7 @@ program gridgen
     call print_status('Writing file '//'grid'//filetimestamp//'.tec')
     write (filetimestamp, '(I0.5)') fileRange
     open (unit=13, file='Results/grid'//filetimestamp//'.tec', &
-      & status='old', action='read')
+      & status='new', action='write')
 
     write (13, *) 'TITLE = "Grid"'
     write (13, *) 'VARIABLES = "X" "Y" "Z" "U" "V" "W"'
