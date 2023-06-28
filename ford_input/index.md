@@ -1,4 +1,4 @@
-title: Introduction
+title: Documentation
 
 The vortex lattice method is a potential flow based method. While different flavours exist, the one implemented here is a lifting surface model with a free-wake formulation. To keep the solver generalized, the flow solution is obtained in the global frame. Details on this specific implementation of the vortex lattice method are available in the following references:
 
@@ -34,13 +34,13 @@ A few utility codes are provided in `tools/` to make plotting and parsing of res
 ### Installation
 The solver has the following dependencies:
 
-* CMake
-* OpenMP
-* LAPACK
-* BLAS
-* GNU or Intel Fortran compiler
-* Python (Optional; for postprocessing)
-* Paraview (Optional; for postprocessing)
+* [CMake](https://cmake.org/install/)
+* [OpenMP](https://www.openmp.org/)
+* [LAPACK](https://www.netlib.org/lapack/)
+* [BLAS](https://www.netlib.org/blas/)
+* [GNU Fortran](https://gcc.gnu.org/fortran/) or [Intel Fortran](https://www.intel.com/content/www/us/en/developer/tools/oneapi/fortran-compiler.html) compiler
+* [Python](https://www.python.org/) (Optional; for postprocessing)
+* [Paraview](https://www.paraview.org/download/) (Optional; for postprocessing)
 
 The source files utilize a CMake build system. Follow the steps below to generate the `volcanor` executable.
 
