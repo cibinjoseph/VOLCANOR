@@ -13,5 +13,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Deploy docs
+      - uses: actions/setup-python@v1
+        with:
+          python-version: '3.x'
+      - name: Install dependencies
+        run: pip install ford
+      - name: Build documentation
         run: ./createDocs.sh
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
