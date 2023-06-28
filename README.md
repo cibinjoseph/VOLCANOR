@@ -1,5 +1,4 @@
-[![](https://img.shields.io/badge/status-under%20development-green.svg)]()  [![](https://img.shields.io/badge/Last%20Updated-Nov%202020-green.svg)]()  
-[![Build Status](https://travis-ci.com/cibinjoseph/VOLCANOR.svg?token=FMmn3XQeRECGNsy6mT6B&branch=test)](https://travis-ci.com/github/cibinjoseph/VOLCANOR)
+[![](https://img.shields.io/badge/status-under%20development-green.svg)]() ![Documentation](https://github.com/cibinjoseph/VOLCANOR/actions/workflows/docs.yaml/badge.svg)
 
 ![VOLCANOR](media/VOLCANOR-logo.png)
 
@@ -17,20 +16,6 @@ A Parallel, Object oriented implementation of the Unsteady Vortex Lattice method
 - Arbitrary prescribed trajectory
 - Wake axisymmetry leveraging for efficient solution
 - Wake truncation
-
-## Improvements (To be made)
-### Stability Improvements
-- Provision to provide precomputed initial solution
-
-### Feature and Solution Improvements
-- Account for pitching velocity
-- Write out in binary format
-- Prandtl-glauert, Karman-Tsien compressibility corrections etc.
-- Check 25% of panel span inset of vortices create difference
-- Include Trim algorithm
-
-### Performance Improvements
-- Implement recording to array before writing
 
 ## Installation
 The solver has the following dependencies:
@@ -51,10 +36,10 @@ make
 ```
 
 ## Contribution and Usage
-This code is under active development and a lot of features--including a proper user-friendly interface--have yet to be added. Users are encouraged to go through the code if interested, and let the author know of issues and bugs, if found. However, be warned that most of the features are untested and unvalidated and the author offers no guarantee on the results obtained at this point in time.
+This code is under active development and a lot of features--including a proper user-friendly interface--have yet to be added. At this point, often changes have to be made in-code which requires compilation. This solver is open-sourced only to serve as a starting point to other researchers and extensive changes may be required to adapt it to your specific needs. Users are encouraged to go through the code if interested, and let the author know of issues and bugs. However, be warned that most of the features are untested and unvalidated and the author offers no guarantee on the results obtained.
 
 ## Authors
-All code here was created by [Cibin Joseph](https://github.com/cibinjoseph) (cibinjoseph92@gmail.com).
+All code here was created by me, [Cibin Joseph](https://github.com/cibinjoseph) (cibinjoseph92@gmail.com) during my PhD tenure at Indian Institute of Technology (IIT) Madras, India. I have shifted my focus to other engineering challenges, resulting in a decreased pace of development for this project of mine.
 
 ## License
 GNU General Public License v3.0
