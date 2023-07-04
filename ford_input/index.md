@@ -44,10 +44,11 @@ The solver has the following dependencies:
 
 The source files utilize a CMake build system. Follow the steps below to generate the `volcanor` executable.
 
-1. Create a `build/` directory in the topmost folder.
-2. Change directory to `build/`.
-3. Run `cmake` from this directory pointing to the directory one level below. This will generate a Makefile for your OS and available compiler.
-4. Run `make volcanor` to compile all source files and generate the `volcanor` executable in the `bin/` folder.
+1. Clone the Github repository using `git clone git@github.com:cibinjoseph/VOLCANOR.git`
+2. Create a `build/` directory in the topmost folder `VOLCANOR/`.
+3. Change directory to `build/`.
+4. Run `cmake` from this directory pointing to the directory one level below. This will generate a Makefile for your OS and available compiler.
+5. Run `make volcanor` to compile all source files and generate the `volcanor` executable in the `bin/` folder.
 
 On a Linux system with Intel Fortran installed, this is achieved using the following commands.
 ```
