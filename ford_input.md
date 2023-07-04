@@ -1,6 +1,6 @@
 ---
 project: VOLCANOR
-version: 0.1.8
+version: 0.1.9
 project_dir: .
 src_dir: ./src
 output_dir: ./docs
