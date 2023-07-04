@@ -39,7 +39,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="../../index.html">VOLCANOR <small>0.1.8</small></a>
+          <a class="navbar-brand" href="../../index.html">VOLCANOR <small>0.1.9</small></a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
@@ -113,8 +113,83 @@
 <h3>Case directory setup</h3>
 <p>Use the <code>newcase.sh</code> script to generate a new 'case' directory with the name <code>simplewing.case</code> as described in <a href="index.html">Case directory setup</a>.</p>
 <h3>Case setup</h3>
-<p>The <code>config.nml</code> file contains global parameters that control the whole simulation like density, number of timesteps and timestep length. </p>
-<p>Geometry inside each simulation is defined using the <code>geomXX.nml</code> files where <code>XX</code> denotes a serial number.</p>
+<p>The <code>config.nml</code> file sets up global parameters that control the whole simulation like number of timesteps, timestep length and fluid density. For this case, the default settings should work fine. The relevant section is shown below and the number of timesteps <code>nt</code> is set to be computed from the time required for the wing to traverse 10 chord lengths. The timestep length <code>dt</code> defaults to time taken for traversing a distance 1/16th of the chord length. Intervals at which solution plots and results should be written out may be controlled in sections below the <code>PARAMS</code> section.</p>
+<div class="codehilite"><pre><span></span><code><span class="p">&amp;</span><span class="n">PARAMS</span><span class="w"></span>
+<span class="c">! NO. OF TIMESTEPS [nt]    TIMESTEP (sec) [dt]         NO. OF ROTORS [nr]</span>
+<span class="c">! [nt]timesteps  [0]default  [-nt]chords or revs</span>
+<span class="n">nt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">10</span><span class="w"></span>
+<span class="n">dt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="w"></span>
+<span class="n">nr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="c">! DENSITY [kg/m3]    SOUND VEL. [m/s]  KINEMATICVISC [m2/s]</span>
+<span class="n">density</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="w"></span>
+<span class="n">velSound</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">33</span><span class="mf">0.0</span><span class="w"></span>
+
+<span class="n">kinematicVisc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.000018</span><span class="w"></span>
+<span class="o">/</span><span class="w"></span>
+</code></pre></div>
+
+<p>Geometry required for each simulation is defined using the <code>geomXX.nml</code> files, where <code>XX</code> denotes a serial number. We shall simulate a wing of unit chord and aspect ratio 4. For the <code>geom01.nml</code> file, the relevant section is shown below. The parameter <code>theta0</code> represent the wing pitch angle and the nomenclature is borrowed from rotorcraft conventions. The freestream velocity is set to 10 m/s using the vector <code>velBody</code>. Note the axis conventions used here. The negative sign is present since we are setting the velocity of the geometry which is towards the negative direction in an inertial coordinate frame.</p>
+<div class="codehilite"><pre><span></span><code><span class="p">&amp;</span><span class="n">GEOMPARAMS</span><span class="w"></span>
+<span class="c">! Span[m]      root_cut[r/R]      chord[m]    preconeAngle[deg]</span>
+<span class="n">span</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">4.0</span><span class="w"></span>
+<span class="n">rootcut</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="w"></span>
+<span class="n">chord</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="w"></span>
+<span class="n">preconeAngle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="w"></span>
+<span class="c">! Omega[rad/s]   X-shaftAxis     Y-shaftAxis     Z-shaftAxis</span>
+<span class="n">Omega</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="w"></span>
+<span class="n">shaftAxis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="w"></span>
+<span class="c">! theta0[deg]    thetaC[deg]    thetaS[deg]    thetaTwist[deg]</span>
+<span class="n">theta0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">5.0</span><span class="w"></span>
+<span class="n">thetaC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="w"></span>
+<span class="n">thetaS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="w"></span>
+<span class="n">thetaTwist</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="w"></span>
+<span class="c">! axisymmetrySwitch  [0]Off [1]On</span>
+<span class="n">axisymmetrySwitch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="c">! pivot point     flapHinge      spanwiseLiftTerm    invert tauSpan</span>
+<span class="c">! from LE[x/c]  from centre[r/R]    [1]enable     for swept/symmetric</span>
+<span class="n">pivotLE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.00</span><span class="w"></span>
+<span class="n">flapHinge</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="w"></span>
+<span class="n">spanwiseLiftSwitch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="n">symmetricTau</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="c">! customTrajectorySwitch  [0]Off [1]On</span>
+<span class="n">customTrajectorySwitch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="c">! u[m/s]    v[m/s]     w[m/s]    p[rad/s]    q[rad/s]    r[rad/s]</span>
+<span class="n">velBody</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="w"></span>
+<span class="n">omegaBody</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="w"></span>
+<span class="c">! forceCalcSwitch</span>
+<span class="c">! [0]gamma [1]alpha [2]FELS             No. of airfoil files</span>
+<span class="n">forceCalcSwitch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="n">nAirfoils</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="o">/</span><span class="w"></span>
+</code></pre></div>
+
+<p>The wing and wake discretization may be set in the <code>PANELS</code> section. Providing a large number of near wake rows using <code>nNwake</code> ensures that the wake surface is modelled with sufficient accuracy. <code>nc</code> and <code>ns</code> control the number of chordwise and spanwise panels on the wing. </p>
+<div class="codehilite"><pre><span></span><code><span class="p">&amp;</span><span class="n">PANELS</span><span class="w"></span>
+<span class="c">! No. of blades,nb  Prop convention [0]Helicopter [1]Prop</span>
+<span class="n">nb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="n">propConvention</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="c">! Panel discretization [1]linear [2]cosine [3]halfsine [4]tan</span>
+<span class="n">spanSpacing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="w"></span>
+<span class="n">chordSpacing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="c">! degengeom geometryFile from OpenVSP</span>
+<span class="n">geometryFile</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="n">nCamberFiles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="c">! Chordwise panels,nc   Spanwise panels,ns</span>
+<span class="n">nc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span><span class="w"></span>
+<span class="n">ns</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">13</span><span class="w"></span>
+<span class="c">! Near wake panels,nNwake [n]timesteps [-n]chords/revs</span>
+<span class="n">nNwake</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">160</span><span class="w"></span>
+<span class="o">/</span><span class="w"></span>
+</code></pre></div>
+
+<h3>Simulation</h3>
+<p>To run the simulation we make use of the <code>Makefile</code> present in this case folder. Start the simulation using the <code>make</code> command. When the simulation is run, the current timestep is printed out on screen and a copy of the output is also written to <code>volcanor.log</code>.</p>
+<p>During the simulation, basic monitors like force plots can be generated using the script provided in <code>tools/plotit.py</code>. For example, to monitor the force coefficient, use the <code>-f</code> flag.</p>
+<div class="codehilite"><pre><span></span><code>./tools/plotit.py -f
+</code></pre></div>
+
+<p>We can plot the wakes during or after the simulation completes. Paraview is a powerful data visualization software that is recommended to postprocess results. Alternatives like <a href="https://www.tecplot.com/">Tecplot</a> or <a href="https://visit-dav.github.io/visit-website/index.html">VisIt</a> can also be used. Visualize the wake by opening the <code>r01wingNwakeXXXXX.tec</code> tecplot files generated by the solver in the <code>Results</code> directory.  </p>
+<p><img src="paraview.png"  width="800"></p>
     </div>
     <div class="col-md-3 col-md-pull-9">
       <hr class="visible-xs visible-sm">
@@ -149,7 +224,7 @@
             <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-06-28T19:18:43.187053             </p>
+ on 2023-07-04T21:23:30.213077             </p>
           </div>
         </div>
         <br>
