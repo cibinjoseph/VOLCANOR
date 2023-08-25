@@ -5,7 +5,6 @@
 A Parallel, Object-oriented implementation of the Unsteady Vortex Lattice method in Fortran 90+ for aerodynamic analysis of rotors and wings under generic 3D motion.
 
 **Documentation**: [cibinjoseph.github.io/VOLCANOR/](https://cibinjoseph.github.io/VOLCANOR/)
-https://cibinjoseph.github.io/VOLCANOR/
 
 ## Features
 - Quadrilateral vortex filament panels for surfaces and wakes
