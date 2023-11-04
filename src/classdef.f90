@@ -1511,12 +1511,13 @@ contains
 
   end function blade_vind_bywake
 
-  subroutine blade_convectwake(this, rowNear, rowFar, dt, wakeType)
+  subroutine blade_convectwake(this, rowNear, rowFar, dt, wakeType, ductSwitch)
     !! Convect wake collocation points using velNwake matrix
   class(blade_class), intent(inout) :: this
     integer, intent(in) :: rowNear, rowFar
     real(dp), intent(in) :: dt
     character(len=1), intent(in) :: wakeType  ! For predicted wake
+    integer, optional :: ductSwitch
     integer :: i, j, nNwake, nFwake
 
     nNwake = size(this%waN, 1)
@@ -1568,7 +1569,7 @@ contains
 
     end select
 
-    call this%wake_continuity(rowNear, rowFar, wakeType)
+    call this%wake_continuity(rowNear, rowFar, wakeType, ductSwitch)
 
   end subroutine blade_convectwake
 
@@ -1604,12 +1605,13 @@ contains
     !$omp end parallel do
   end subroutine blade_limitWakeVel
 
-  subroutine blade_wake_continuity(this, rowNear, rowFar, wakeType)
+  subroutine blade_wake_continuity(this, rowNear, rowFar, wakeType, ductSwitch)
     !! Maintain continuity between vortex ring elements after convection
     !! of wake collocation points
   class(blade_class), intent(inout) :: this
     integer, intent(in) :: rowNear, rowFar
     character(len=1), intent(in) :: wakeType  ! For predicted wake
+    integer, optional :: ductSwitch
     integer :: i, j, nNwake, nFwake
 
     nNwake = size(this%waN, 1)
@@ -1638,6 +1640,19 @@ contains
         call this%waN(i, this%ns)%vr%assignP(4, this%waN(i - 1, this%ns)%vr%vf(3)%fc(:, 1))
       enddo
       !$omp end parallel do
+
+      if (present(ductSwitch)) then
+        if (ductSwitch == 1) then
+          !$omp parallel do
+          do i = rowNear + 1, nNwake
+            call this%waN(i, this%ns)%vr%assignP(4, &
+              & this%waN(i, 1)%vr%vf(1)%fc(:, 1))
+            call this%waN(i, this%ns)%vr%assignP(3, &
+              & this%waN(i, 1)%vr%vf(1)%fc(:, 2))
+          enddo
+          !$omp end parallel do
+        endif
+      endif
 
       nFwake = size(this%waF, 1)
       !$omp parallel do
@@ -4783,7 +4798,8 @@ contains
     do ib = 1, this%nbConvect
       ! Wake velocity limiter turned off since it's not tested thoroghly
       ! call this%blade(ib)%limitWakeVel(this%rowNear, this%rowFar)
-      call this%blade(ib)%convectwake(this%rowNear, this%rowFar, dt, wakeType)
+      call this%blade(ib)%convectwake(this%rowNear, this%rowFar, dt, &
+        & wakeType, this%ductSwitch)
     enddo
 
     axisym: if (this%axisymmetrySwitch .eq. 1) then
