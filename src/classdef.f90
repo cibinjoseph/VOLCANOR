@@ -409,6 +409,7 @@ module classdef
     integer :: nCamberFiles, nAirfoils
     integer :: imagePlane, imageRotorNum
     integer :: surfaceType  
+    integer :: ductSwitch
     integer :: axisymmetrySwitch
     character(len=30), allocatable, dimension(:) :: camberFile, airfoilFile
     character(len=30) :: geometryFile
@@ -2538,7 +2539,8 @@ contains
       & shaftAxis, velBody, omegaBody
     real(dp) :: span, rootcut, chord, preconeAngle, Omega, &
       & theta0, thetaC, thetaS, thetaTwist, pivotLE, flapHinge
-    integer:: spanwiseLiftSwitch, symmetricTau, axisymmetrySwitch, &
+    integer:: spanwiseLiftSwitch, symmetricTau, &
+      & ductSwitch, axisymmetrySwitch, &
       & customTrajectorySwitch, forceCalcSwitch, wakeTruncateNt, &
       & prescWakeAfterTruncNt, prescWakeGenNt
     real(dp) :: apparentViscCoeff, decayCoeff, spanwiseCore, &
@@ -2565,7 +2567,8 @@ contains
     namelist /ORIENT/ hubCoords, cgCoords, fromCoords, phiThetaPsi
 
     namelist /GEOMPARAMS/ span, rootcut, chord, preconeAngle, Omega, &
-      & shaftAxis, theta0, thetaC, thetaS, thetaTwist, axisymmetrySwitch, &
+      & shaftAxis, theta0, thetaC, thetaS, thetaTwist, &
+      & ductSwitch, axisymmetrySwitch, &
       & pivotLE, flapHinge, spanwiseLiftSwitch, symmetricTau, &
       & customTrajectorySwitch, velBody, omegaBody, forceCalcSwitch, &
       & nAirfoils
@@ -2585,7 +2588,7 @@ contains
 
     namelist /AIRFOILS/ airfoilSectionLimit, alpha0, airfoilFile
 
-    currentTemplateVersion = '0.14'
+    currentTemplateVersion = '0.15'
 
     open(unit=12, file=filename, status='old', action='read') 
 
@@ -2681,6 +2684,7 @@ contains
       this%shaftAxis = shaftAxis
       this%controlPitch = [theta0, thetaC, thetaS]
       this%thetaTwist = thetaTwist
+      this%ductSwitch = ductSwitch
       this%axisymmetrySwitch = axisymmetrySwitch
       this%pivotLE = pivotLE
       this%flapHinge = flapHinge
@@ -2824,6 +2828,7 @@ contains
       this%thetaTwist = sourceRotor%thetaTwist
 
       this%customTrajectorySwitch = sourceRotor%customTrajectorySwitch
+      this%ductSwitch = sourceRotor%ductSwitch
       this%axisymmetrySwitch = sourceRotor%axisymmetrySwitch
       this%velBody = sourceRotor%velBody
       this%omegaBody = sourceRotor%omegaBody
