@@ -3223,7 +3223,6 @@ contains
         zVec = rVec*sin(yVec)
         yVec = rVec*cos(yVec)
       endif
-      print*, "y", yVec(2, :)
 
       if (this%surfaceType < 0 .and. this%imagePlane == 3) then
         zVec = -1._dp*zVec
