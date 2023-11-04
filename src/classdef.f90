@@ -2782,7 +2782,6 @@ contains
     real(dp) :: spanStart, spanEnd
     real(dp), dimension(this%nc+1, this%ns+1) :: zVec
     real(dp), dimension(this%nc+1, this%ns+1) :: rVec ! For duct case
-    real(dp), dimension(this%nc+1, this%ns+1) :: thVec ! For duct case
     real(dp), dimension(this%nc, this%ns) :: dx, dy
     real(dp), dimension(3) :: leftTipCP
     real(dp) :: dxdymin, secCPLoc, rbyR, dxMAC
@@ -3209,10 +3208,7 @@ contains
 
       ! Compute camber
       if (this%nCamberFiles > 0) then
-        ! zVec = this%getCamber(xVec, yVec(1, :))
-        ! DEBUG
-        zVec(1, :) = 0.0
-        zVec(2, :) = 1.0
+        zVec = this%getCamber(xVec, yVec(1, :))
       else
         zVec = 0._dp
       endif
@@ -3223,12 +3219,9 @@ contains
         ! rVec is the radius of the duct
         ! at each section along chordwise direction
         rVec = this%radius + zVec
-        thVec = yVec
         ! yVec is intially the azimuthal angle along the duct 'circle'
-        zVec = rVec*sin(thVec)
-        ! DEBUG
-        print*, "th", rVec(2, :)*cos(thVec(2, :))
-        yVec = rVec*cos(thVec)
+        zVec = rVec*sin(yVec)
+        yVec = rVec*cos(yVec)
       endif
       print*, "y", yVec(2, :)
 
