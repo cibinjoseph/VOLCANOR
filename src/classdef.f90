@@ -2764,6 +2764,7 @@ contains
 
     real(dp), dimension(this%nc+1) :: xVec
     real(dp), dimension(this%ns+1) :: yVec
+    real(dp) :: spanStart, spanEnd
     real(dp), dimension(this%nc+1, this%ns+1) :: zVec
     real(dp), dimension(this%nc, this%ns) :: dx, dy
     real(dp), dimension(3) :: leftTipCP
@@ -3163,16 +3164,32 @@ contains
 
       end select
 
+      spanStart = this%root_cut*this%radius
+      spanEnd = this%radius
+
+      if (this%ductSwitch == 1) then
+        spanStart = 0.0
+        spanEnd = 2.0*pi
+      endif
+
       select case (this%spanSpacing)
       case (1)
-        yVec = linspace(this%root_cut*this%radius, this%radius, this%ns + 1)
+        yVec = linspace(spanStart, spanEnd, this%ns + 1)
       case (2)
-        yVec = cosspace(this%root_cut*this%radius, this%radius, this%ns + 1)
+        yVec = cosspace(spanStart, spanEnd, this%ns + 1)
       case (3)
-        yVec = halfsinspace(this%root_cut*this%radius, this%radius, this%ns + 1)
+        yVec = halfsinspace(spanStart, spanEnd, this%ns + 1)
       case (4)
-        yVec = tanspace(this%root_cut*this%radius, this%radius, this%ns + 1)
+        yVec = tanspace(spanStart, spanEnd, this%ns + 1)
       end select
+
+      if (this%ductSwitch == 1) then
+        print*, "Inside here"
+        do i = 1, this%ns+1
+          zVec(:, i) = this%radius*sin(yVec(i))
+        enddo
+        yVec = this%radius*cos(yVec)
+      endif
 
       ! Initialize panel coordinates
       do ib = 1, this%nb
@@ -3180,7 +3197,9 @@ contains
         if (this%nCamberFiles > 0) then
           zVec = this%getCamber(xVec, yVec)
         else
-          zVec = 0._dp
+          if (this%ductSwitch == 0) then
+            zVec = 0._dp
+          endif
         endif
         if (this%surfaceType < 0 .and. this%imagePlane == 3) then
           zVec = -1._dp*zVec
