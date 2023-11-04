@@ -2763,9 +2763,10 @@ contains
     type(rotor_class), optional :: sourceRotor
 
     real(dp), dimension(this%nc+1) :: xVec
-    real(dp), dimension(this%ns+1) :: yVec
+    real(dp), dimension(this%nc+1, this%ns+1) :: yVec
     real(dp) :: spanStart, spanEnd
     real(dp), dimension(this%nc+1, this%ns+1) :: zVec
+    real(dp), dimension(this%nc+1, this%ns+1) :: rVec ! For duct case
     real(dp), dimension(this%nc, this%ns) :: dx, dy
     real(dp), dimension(3) :: leftTipCP
     real(dp) :: dxdymin, secCPLoc, rbyR, dxMAC
@@ -3168,54 +3169,67 @@ contains
       spanEnd = this%radius
 
       if (this%ductSwitch == 1) then
-        spanStart = 0.0
-        spanEnd = 2.0*pi
+        ! Azimuthal angle from south to south in the counterclockwise direction
+        spanStart = -pi/2.0
+        spanEnd = 3.0*pi/2.0
       endif
 
+      ! Assign span coordinates to first row of yVec
       select case (this%spanSpacing)
       case (1)
-        yVec = linspace(spanStart, spanEnd, this%ns + 1)
+        yVec(1, :) = linspace(spanStart, spanEnd, this%ns + 1)
       case (2)
-        yVec = cosspace(spanStart, spanEnd, this%ns + 1)
+        yVec(1, :) = cosspace(spanStart, spanEnd, this%ns + 1)
       case (3)
-        yVec = halfsinspace(spanStart, spanEnd, this%ns + 1)
+        yVec(1, :) = halfsinspace(spanStart, spanEnd, this%ns + 1)
       case (4)
-        yVec = tanspace(spanStart, spanEnd, this%ns + 1)
+        yVec(1, :) = tanspace(spanStart, spanEnd, this%ns + 1)
       end select
 
+      ! Copy first row to all rows; along the chord dimension (X)
+      do ic = 2, this%nc+1
+        yVec(ic, :) = yVec(1, :)
+      enddo
+
+      ! Compute camber
+      if (this%nCamberFiles > 0) then
+        zVec = this%getCamber(xVec, yVec(1, :))
+      else
+        zVec = 0._dp
+      endif
+
+      ! If a duct is required, transform the wing to a circle
+      ! The first point is at the bottom (theta = -90deg)
       if (this%ductSwitch == 1) then
-        print*, "Inside here"
-        do i = 1, this%ns+1
-          zVec(:, i) = this%radius*sin(yVec(i))
+        ! rVec is the radius of the duct
+        ! at each section along chordwise direction
+        rVec = this%radius + zVec
+        do ic = 1, this%nc+1
+          do is = 1, this%ns+1
+            ! yVec is intially the azimuthal angle along the duct 'circle'
+            zVec(ic, is) = rVec(ic, is)*sin(yVec(ic, is))
+            yVec(ic, is) = rVec(ic, is)*cos(yVec(ic, is))
+          enddo
         enddo
-        yVec = this%radius*cos(yVec)
+      endif
+
+      if (this%surfaceType < 0 .and. this%imagePlane == 3) then
+        zVec = -1._dp*zVec
       endif
 
       ! Initialize panel coordinates
       do ib = 1, this%nb
-        ! Compute camber
-        if (this%nCamberFiles > 0) then
-          zVec = this%getCamber(xVec, yVec)
-        else
-          if (this%ductSwitch == 0) then
-            zVec = 0._dp
-          endif
-        endif
-        if (this%surfaceType < 0 .and. this%imagePlane == 3) then
-          zVec = -1._dp*zVec
-        endif
-
         ! Assign coordinates to panels
         do j = 1, this%ns
           do i = 1, this%nc
             call this%blade(ib)%wiP(i, j)%assignP(1, &
-              & [xVec(i), yVec(j), zVec(i, j)])
+              & [xVec(i), yVec(i, j), zVec(i, j)])
             call this%blade(ib)%wiP(i, j)%assignP(2, &
-              & [xVec(i+1), yVec(j), zVec(i+1, j)])
+              & [xVec(i+1), yVec(i, j), zVec(i+1, j)])
             call this%blade(ib)%wiP(i, j)%assignP(3, &
-              & [xVec(i+1), yVec(j+1), zVec(i+1, j+1)])
+              & [xVec(i+1), yVec(i, j+1), zVec(i+1, j+1)])
             call this%blade(ib)%wiP(i, j)%assignP(4, &
-              & [xVec(i), yVec(j+1), zVec(i, j+1)])
+              & [xVec(i), yVec(i, j+1), zVec(i, j+1)])
           enddo
         enddo
       enddo
