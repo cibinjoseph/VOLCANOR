@@ -4,6 +4,12 @@ project(VOLCANOR Fortran)
 # Use variable FC for setting compiler before calling cmake
 # FC=ifort cmake ..
 
+# Default values for CMAKE_BUILD_TYPE (which will be empty initially)
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  set(CMAKE_BUILD_TYPE RELEASE)
+  # message(WARNING "Setting CMAKE_BUILD_TYPE to: ${CMAKE_BUILD_TYPE}")
+endif()
+
 # Variables for gfortran
 if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
   # Check for LAPACK and BLAS
@@ -44,7 +50,10 @@ if(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
     # numbers it seems necessary in order to avoid a segfault
     # -heap-arrays 200
   endif()
-  set(COMPILERMSG "Compiler: IFORT ${CMAKE_Fortran_COMPILER_VERSION}\n")
+  set(COMPILERMSG "Compiler: IFORT ${CMAKE_Fortran_COMPILER_VERSION}
+  Build type : ${CMAKE_BUILD_TYPE}
+  Release flags : ${rls_flags}
+  Debug flags   : ${dbg_flags}\n")
 endif()
 
 # Set compiler flags using variables
@@ -87,26 +96,26 @@ target_link_libraries(volcanor Common Postprocess)
 add_executable(gridgen ${PROJECT_SOURCE_DIR}/src/gridgen.f90)
 target_link_libraries(gridgen Common)
 
-# Target release/run to regenerate Makefile
-add_custom_target(run
-  COMMAND ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=Release -DPROF=FALSE ${PROJECT_SOURCE_DIR}
-  COMMENT ${COMPILERMSG}
-  COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target volcanor)
+# Target release/volcanor_parallel to regenerate Makefile
+# add_custom_target(volcanor_parallel
+#   COMMAND ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=Release -DPROF=FALSE ${PROJECT_SOURCE_DIR}
+#   COMMENT ${COMPILERMSG}
+#   COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target volcanor)
 
-# Target debug/run_dbg to regenerate Makefile
-add_custom_target(run_dbg
+# Target debug/volcanor_dbg for debugging
+add_custom_target(volcanor_dbg
   COMMAND ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=Debug -DPROF=FALSE ${PROJECT_SOURCE_DIR}
   COMMENT ${COMPILERMSG}
   COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target volcanor)
 
-# Target profile/run_prof to regenerate Makefile
-add_custom_target(run_prof
-  COMMAND ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=Release -DPROF=TRUE ${PROJECT_SOURCE_DIR}
+# Target profile/volcanor_prof for profiling
+add_custom_target(volcanor_prof
+  COMMAND ${CMAKE_COMMAND} -DPROF=TRUE ${PROJECT_SOURCE_DIR}
   COMMENT ${COMPILERMSG}
   COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target volcanor)
 
-# Target profile/run_prof to regenerate Makefile
-add_custom_target(run_dbg_prof
+# Target profile/volcanor_dbg_prof for debugging and profiling
+add_custom_target(volcanor_dbg_prof
   COMMAND ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=Debug -DPROF=TRUE ${PROJECT_SOURCE_DIR}
   COMMENT ${COMPILERMSG}
   COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target volcanor)
