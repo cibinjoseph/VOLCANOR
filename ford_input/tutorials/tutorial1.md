@@ -18,7 +18,6 @@ nr = 1
 ! DENSITY [kg/m3]    SOUND VEL. [m/s]  KINEMATICVISC [m2/s]
 density = 1.0
 velSound = 330.0
-
 kinematicVisc = 0.000018
 /
 ```
