@@ -48,7 +48,7 @@ The source files utilize a CMake build system. Follow the steps below to generat
 2. Create a `build/` directory in the topmost folder `VOLCANOR/`.
 3. Change directory to `build/`.
 4. Run `cmake` from this directory pointing to the directory one level below. This will generate a Makefile for your OS and available compiler.
-5. Run `make volcanor` to compile all source files and generate the `volcanor` executable in the `bin/` folder.
+5. Run `make volcanor` to compile all source files and generate the `volcanor` executable in the `bin/` folder. Note that the environment variable `OMP_NUM_THREADS` should be set to the required number of parallel processes to utilize parallelization.
 
 On a Linux system with Intel Fortran installed, this is achieved using the following commands.
 ```
