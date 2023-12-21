@@ -111,6 +111,8 @@ We can plot the wakes during or after the simulation completes. [Paraview](https
 Such a visualization using Paraview is shown below.
 <img src="tr1208.png"  width="800">
 
+The net lift coefficient can be extracted from `Results/r01ForceNonDim.csv` and the sectional parameters and force distribution can be obtained from `Results/r01b01ForceDist00200.csv` where `r01` denotes the Rotor or Geometry 1 and `b01` denotes Blade 1 and `00200` is the iteration number.
+
 A basic validation example is shown below from the reference provided in the [Documentation](../index.html) page.
 
 |        | Experiment | VOLCANOR | Error %|
