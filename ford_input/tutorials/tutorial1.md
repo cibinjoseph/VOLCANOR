@@ -38,6 +38,8 @@ theta0 = 5.0
 thetaC = 0.0
 thetaS = 0.0
 thetaTwist = 0.0
+! ductSwitch  [0]Off [1]On
+ductSwitch = 0
 ! axisymmetrySwitch  [0]Off [1]On
 axisymmetrySwitch = 0
 ! pivot point     flapHinge      spanwiseLiftTerm    invert tauSpan
