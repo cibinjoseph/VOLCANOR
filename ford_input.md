@@ -18,7 +18,7 @@ fpp_extensions: fpp
 docmark: !
 display: public
 source: false
-graph: false
+graph: true
 search: true
 print_creation_date: true
 extra_filetypes:
