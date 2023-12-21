@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="An unsteady vortex lattice solver written in Fortran">
+    <meta name="author" content="Cibin Joseph" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>  GEOMPARAMS %ndash; VOLCANOR
+</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">VOLCANOR <small>0.1.10</small></a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="../page/index.html">Documentation</a></li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/namelists.html">Namelists</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>GEOMPARAMS</h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/classdef.f90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/classdef.f90.html'>classdef.f90</a></li>
+                <li class="breadcrumb-item"><a href='../module/classdef.html'>classdef</a></li>
+                <li class="breadcrumb-item"><a href='../proc/rotor_readgeom.html'>rotor_readGeom</a></li>
+            <li class="breadcrumb-item active" aria-current="page">GEOMPARAMS</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#vars-0"
+         aria-expanded="false" aria-controls="vars-0">
+         <h4 class="card-header bg-primary text-white">Variables</h4>
+      </a>
+      <div id="vars-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../namelist/geomparams.html#variable-span">span</a>
+            <a class="list-group-item" href="../namelist/geomparams.html#variable-rootcut">rootcut</a>
+            <a class="list-group-item" href="../namelist/geomparams.html#variable-chord~2">chord</a>
+            <a class="list-group-item" href="../namelist/geomparams.html#variable-preconeangle~3">preconeAngle</a>
+            <a class="list-group-item" href="../namelist/geomparams.html#variable-omega~4">Omega</a>
+            <a class="list-group-item" href="../namelist/geomparams.html#variable-shaftaxis~3">shaftAxis</a>
+            <a class="list-group-item" href="../namelist/geomparams.html#variable-theta0">theta0</a>
+            <a class="list-group-item" href="../namelist/geomparams.html#variable-thetac">thetaC</a>
+            <a class="list-group-item" href="../namelist/geomparams.html#variable-thetas">thetaS</a>
+            <a class="list-group-item" href="../namelist/geomparams.html#variable-thetatwist~2">thetaTwist</a>
+            <a class="list-group-item" href="../namelist/geomparams.html#variable-axisymmetryswitch~2">axisymmetrySwitch</a>
+            <a class="list-group-item" href="../namelist/geomparams.html#variable-pivotle~3">pivotLE</a>
+            <a class="list-group-item" href="../namelist/geomparams.html#variable-flaphinge~2">flapHinge</a>
+            <a class="list-group-item" href="../namelist/geomparams.html#variable-spanwiseliftswitch~3">spanwiseLiftSwitch</a>
+            <a class="list-group-item" href="../namelist/geomparams.html#variable-symmetrictau~2">symmetricTau</a>
+            <a class="list-group-item" href="../namelist/geomparams.html#variable-customtrajectoryswitch~2">customTrajectorySwitch</a>
+            <a class="list-group-item" href="../namelist/geomparams.html#variable-velbody~2">velBody</a>
+            <a class="list-group-item" href="../namelist/geomparams.html#variable-omegabody~2">omegaBody</a>
+            <a class="list-group-item" href="../namelist/geomparams.html#variable-forcecalcswitch~2">forceCalcSwitch</a>
+            <a class="list-group-item" href="../namelist/geomparams.html#variable-nairfoils~2">nAirfoils</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+  </div>
+
+    </div>
+
+    <div class="col-md-9" id='text'>
+        
+  <br class="visible-xs visible-sm hidden-md">
+  <section>
+    <h2>Variables</h2>
+    <table class="table table-striped" id="namelist-geomparams">
+      <thead><tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Default</th>
+          <th>Description</th>
+      </tr></thead>
+      <tbody>
+              <tr id="variable-span">
+      <td><a href="#variable-span">span</a></td>
+      <td>real(kind=dp)</td>
+      <td>None</td>
+      <td></td>
+    </tr>
+
+              <tr id="variable-rootcut">
+      <td><a href="#variable-rootcut">rootcut</a></td>
+      <td>real(kind=dp)</td>
+      <td>None</td>
+      <td></td>
+    </tr>
+
+              <tr id="variable-chord~2">
+      <td><a href="#variable-chord~2">chord</a></td>
+      <td>real(kind=dp)</td>
+      <td>None</td>
+      <td></td>
+    </tr>
+
+              <tr id="variable-preconeangle~3">
+      <td><a href="#variable-preconeangle~3">preconeAngle</a></td>
+      <td>real(kind=dp)</td>
+      <td>None</td>
+      <td></td>
+    </tr>
+
+              <tr id="variable-omega~4">
+      <td><a href="#variable-omega~4">Omega</a></td>
+      <td>real(kind=dp)</td>
+      <td>None</td>
+      <td></td>
+    </tr>
+
+              <tr id="variable-shaftaxis~3">
+      <td><a href="#variable-shaftaxis~3">shaftAxis</a></td>
+      <td>real(kind=dp)</td>
+      <td>None</td>
+      <td></td>
+    </tr>
+
+              <tr id="variable-theta0">
+      <td><a href="#variable-theta0">theta0</a></td>
+      <td>real(kind=dp)</td>
+      <td>None</td>
+      <td></td>
+    </tr>
+
+              <tr id="variable-thetac">
+      <td><a href="#variable-thetac">thetaC</a></td>
+      <td>real(kind=dp)</td>
+      <td>None</td>
+      <td></td>
+    </tr>
+
+              <tr id="variable-thetas">
+      <td><a href="#variable-thetas">thetaS</a></td>
+      <td>real(kind=dp)</td>
+      <td>None</td>
+      <td></td>
+    </tr>
+
+              <tr id="variable-thetatwist~2">
+      <td><a href="#variable-thetatwist~2">thetaTwist</a></td>
+      <td>real(kind=dp)</td>
+      <td>None</td>
+      <td></td>
+    </tr>
+
+              <tr id="variable-axisymmetryswitch~2">
+      <td><a href="#variable-axisymmetryswitch~2">axisymmetrySwitch</a></td>
+      <td>integer</td>
+      <td>None</td>
+      <td></td>
+    </tr>
+
+              <tr id="variable-pivotle~3">
+      <td><a href="#variable-pivotle~3">pivotLE</a></td>
+      <td>real(kind=dp)</td>
+      <td>None</td>
+      <td></td>
+    </tr>
+
+              <tr id="variable-flaphinge~2">
+      <td><a href="#variable-flaphinge~2">flapHinge</a></td>
+      <td>real(kind=dp)</td>
+      <td>None</td>
+      <td></td>
+    </tr>
+
+              <tr id="variable-spanwiseliftswitch~3">
+      <td><a href="#variable-spanwiseliftswitch~3">spanwiseLiftSwitch</a></td>
+      <td>integer</td>
+      <td>None</td>
+      <td></td>
+    </tr>
+
+              <tr id="variable-symmetrictau~2">
+      <td><a href="#variable-symmetrictau~2">symmetricTau</a></td>
+      <td>integer</td>
+      <td>None</td>
+      <td></td>
+    </tr>
+
+              <tr id="variable-customtrajectoryswitch~2">
+      <td><a href="#variable-customtrajectoryswitch~2">customTrajectorySwitch</a></td>
+      <td>integer</td>
+      <td>None</td>
+      <td></td>
+    </tr>
+
+              <tr id="variable-velbody~2">
+      <td><a href="#variable-velbody~2">velBody</a></td>
+      <td>real(kind=dp)</td>
+      <td>None</td>
+      <td></td>
+    </tr>
+
+              <tr id="variable-omegabody~2">
+      <td><a href="#variable-omegabody~2">omegaBody</a></td>
+      <td>real(kind=dp)</td>
+      <td>None</td>
+      <td></td>
+    </tr>
+
+              <tr id="variable-forcecalcswitch~2">
+      <td><a href="#variable-forcecalcswitch~2">forceCalcSwitch</a></td>
+      <td>integer</td>
+      <td>None</td>
+      <td></td>
+    </tr>
+
+              <tr id="variable-nairfoils~2">
+      <td><a href="#variable-nairfoils~2">nAirfoils</a></td>
+      <td>integer</td>
+      <td>None</td>
+      <td></td>
+    </tr>
+
+      </tbody>
+    </table>
+  </section>
+
+      <br>
+    </div>
+  </div>
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col"><p>VOLCANOR was developed by Cibin Joseph<br>&copy; 2023 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-12-21T00:34:47.180038             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

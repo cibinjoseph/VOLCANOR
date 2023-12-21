@@ -10,82 +10,59 @@
 
     <title>rotor_class &ndash; VOLCANOR </title>
 
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
       <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-        <![endif]-->
-
-         <script src="../js/jquery-2.1.3.min.js"></script>
-         <script src="../js/svg-pan-zoom.min.js"></script>
-
+    <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
   </head>
 
   <body>
 
     <!-- Fixed navbar -->
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
           <a class="navbar-brand" href="../index.html">VOLCANOR <small>0.1.10</small></a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-              <li><a href='../page/index.html'>Documentation</a></li>
-            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
-              <a href="#" class="dropdown-toggle"
-                 data-toggle="dropdown" role="button"
-                 aria-haspopup="true"
-                 aria-expanded="false">
-                 Contents <span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu">
-                    <li><a href="../lists/files.html">Source Files</a></li>
-                  <li><a href="../lists/modules.html">Modules</a></li>
-                  <li><a href="../lists/procedures.html">Procedures</a></li>
-                  <li><a href="../lists/types.html">Derived Types</a></li>
-                  <li><a href="../lists/programs.html">Programs</a></li>
-              </ul>
-            </li>
-                <li class="visible-xs hidden-sm visible-lg">
-                  <a href="../lists/files.html">Source Files</a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="../page/index.html">Documentation</a></li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
                 </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/modules.html">Modules</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/procedures.html">Procedures</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/types.html">Derived Types</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/programs.html">Programs</a>
-              </li>
-          </ul>
-            <form action="../search.html" class="navbar-form navbar-right" role="search">
-              <div class="form-group">
-                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/namelists.html">Namelists</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
               </div>
-              <!--
-                  <button type="submit" class="btn btn-default">Submit</button>
-                  -->
-            </form>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
 
     <div class="container">
   <div class="row">
@@ -93,33 +70,37 @@
       <small>Derived Type</small>
       
     </h1>
-      <div class="row" id="info-bar">
-    <div class="col-lg-12">
-      <div class="well well-sm">
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
         <ul class="list-inline" style="margin-bottom:0px;display:inline">
 
-          <li id="statements"><i class="fa fa-list-ol"></i>
-            <a data-toggle="tooltip"
-               data-placement="bottom" data-html="true"
-               title="<p>30.5% of total for derived types.</p>Including implementation: 1943 statements, 55.3% of total for derived types.">104 statements</a>
-          </li>
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title="<p>30.5% of total for derived types.</p>Including implementation: 1929 statements, 55.4% of total for derived types.">104 statements</a>
+            </li>
 
-            <li id="source-file">
+            <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
               <a href="../src/classdef.f90"> Source File</a>
             </li>
         </ul>
-        <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/classdef.f90.html'>classdef.f90</a></li>
-              <li><a href='../module/classdef.html'>classdef</a></li>
-          <li class="active">rotor_class</li>
-        </ol>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/classdef.f90.html'>classdef.f90</a></li>
+                <li class="breadcrumb-item"><a href='../module/classdef.html'>classdef</a></li>
+            <li class="breadcrumb-item active" aria-current="page">rotor_class</li>
+          </ol>
+        </nav>
       </div>
     </div>
   </div>
   <script>
     $(function () {
-    $('[data-toggle="tooltip"]').tooltip()
+    $('[data-bs-toggle="tooltip"]').tooltip()
     })
   </script>
 
@@ -130,14 +111,13 @@
       <div id="sidebar">
       <h3>Contents</h3>
   
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#vars-0">Variables</a>
-        </h3>
-      </div>
-      <div id="vars-0" class="panel-collapse collapse">
-        <div class="list-group">
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#vars-0"
+         aria-expanded="false" aria-controls="vars-0">
+         <h4 class="card-header bg-primary text-white">Variables</h4>
+      </a>
+      <div id="vars-0" class="collapse">
+        <div class="list-group list-group-flush">
             <a class="list-group-item" href="../type/rotor_class.html#variable-id~2">id</a>
             <a class="list-group-item" href="../type/rotor_class.html#variable-nb">nb</a>
             <a class="list-group-item" href="../type/rotor_class.html#variable-ns~2">ns</a>
@@ -262,14 +242,13 @@
   
   
   
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#boundprocs-0">Type-Bound Procedures</a>
-        </h3>
-      </div>
-      <div id="boundprocs-0" class="panel-collapse collapse">
-        <div class="list-group">
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#boundprocs-0"
+         aria-expanded="false" aria-controls="boundprocs-0">
+         <h4 class="card-header bg-primary text-white">Type-Bound Procedures</h4>
+      </a>
+      <div id="boundprocs-0" class="collapse">
+        <div class="list-group list-group-flush">
             <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-readgeom">readGeom</a>
             <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-init">init</a>
             <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-deinit">deinit</a>
@@ -321,6 +300,7 @@
       </div>
     </div>
 
+  
   
 
 
@@ -333,216 +313,16 @@
     <p>Rotor class</p>
     <br>
 
-    <section class="visible-xs visible-sm hidden-md">
-        <h3>Contents</h3>
-  
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#vars-1">Variables</a>
-        </h3>
-      </div>
-      <div id="vars-1" class="panel-collapse collapse">
-        <div class="list-group">
-            <a class="list-group-item" href="../type/rotor_class.html#variable-id~2">id</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-nb">nb</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-ns~2">ns</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-nc~2">nc</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-nnwake">nNwake</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-nfwake">nFwake</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-nbconvect">nbConvect</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-nnwakeend">nNwakeEnd</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-nfwakeend">nFwakeEnd</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-blade">blade</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-omega~3">Omega</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-omegaslow">omegaSlow</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-shaftaxis~2">shaftAxis</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-xaxisbody">xAxisBody</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-yaxisbody">yAxisBody</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-zaxisbody">zAxisBody</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-hubcoords~2">hubCoords</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-cgcoords">cgCoords</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-fromcoords">fromCoords</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-radius">radius</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-chord">chord</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-root_cut">root_cut</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-preconeangle~2">preconeAngle</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-dpitch">dpitch</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-flapinitial~2">flapInitial</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-dflapinitial~2">dflapInitial</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-iflap~2">Iflap</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-cflap~2">cflap</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-kflap~2">kflap</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-mflapconstant~2">MflapConstant</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-forceinertial~2">forceInertial</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-lift~2">lift</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-liftprev">liftPrev</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-drag~2">drag</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-draginduced~2">dragInduced</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-dragprofile~2">dragProfile</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-liftunsteady~2">liftUnsteady</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-dragunsteady~2">dragUnsteady</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-liftunitvec">liftUnitVec</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-dragunitvec">dragUnitVec</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-sideunitvec">sideUnitVec</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-controlpitch">controlPitch</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-thetatwist">thetaTwist</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-pivotle~2">pivotLE</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-flaphinge">flapHinge</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-velbody">velBody</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-omegabody">omegaBody</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-velbodyprev">velBodyPrev</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-omegabodyprev">omegaBodyPrev</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-velbodyhistory">velBodyHistory</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-omegabodyhistory">omegaBodyHistory</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-psi~2">psi</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-pts~2">pts</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-streamwisecoreswitch">streamwiseCoreSwitch</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-spanwisecore">spanwiseCore</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-streamwisecorevec">streamwiseCoreVec</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-aic">AIC</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-aic_inv">AIC_inv</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-gamvec">gamVec</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-gamvecprev">gamVecPrev</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-rhs">RHS</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-cambersectionlimit">camberSectionLimit</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-airfoilsectionlimit~2">airfoilSectionLimit</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-alpha0~2">alpha0</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-initwakevel">initWakeVel</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-psistart">psiStart</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-skewlimit~3">skewLimit</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-apparentvisccoeff">apparentViscCoeff</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-decaycoeff~3">decayCoeff</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-rollupstartradius">rollupStartRadius</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-rollupendradius">rollupEndRadius</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-propconvention">propConvention</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-spanspacing">spanSpacing</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-chordspacing">chordSpacing</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-overridetauspan">overrideTauSpan</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-symmetrictau">symmetricTau</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-waketruncatent">wakeTruncateNt</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-prescwakent">prescWakeNt</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-prescwakeaftertruncnt">prescWakeAfterTruncNt</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-prescwakegennt">prescWakeGenNt</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-rollupstart">rollupStart</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-rollupend">rollupEnd</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-suppressfwakeswitch">suppressFwakeSwitch</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-forcecalcswitch">forceCalcSwitch</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-skewplotswitch">skewPlotSwitch</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-inflowplotswitch">inflowPlotSwitch</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-bladedynamicsswitch">bladeDynamicsSwitch</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-pitchdynamicsswitch">pitchDynamicsSwitch</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-bodydynamicsswitch">bodyDynamicsSwitch</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-bodydynamicsiovars">bodyDynamicsIOVars</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-spanwiseliftswitch~2">spanwiseLiftSwitch</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-customtrajectoryswitch">customTrajectorySwitch</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-gammaplotswitch">gammaPlotSwitch</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-rownear~6">rowNear</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-rowfar~6">rowFar</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-ncamberfiles">nCamberFiles</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-nairfoils">nAirfoils</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-imageplane">imagePlane</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-imagerotornum">imageRotorNum</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-surfacetype">surfaceType</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-axisymmetryswitch">axisymmetrySwitch</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-camberfile">camberFile</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-airfoilfile~2">airfoilFile</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-geometryfile">geometryFile</a>
-            <a class="list-group-item" href="../type/rotor_class.html#variable-nondimforcedenominator">nonDimforceDenominator</a>
-        </div>
-      </div>
-    </div>
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#boundprocs-1">Type-Bound Procedures</a>
-        </h3>
-      </div>
-      <div id="boundprocs-1" class="panel-collapse collapse">
-        <div class="list-group">
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-readgeom">readGeom</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-init">init</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-deinit">deinit</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-plot3dtoblade">plot3dtoblade</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-stltoblade">stltoblade</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-getcamber">getCamber</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-gettheta">gettheta</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-getthetadot">getthetadot</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-move~2">move</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-rot_pts~2">rot_pts</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-rot_advance">rot_advance</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-rot_flap~2">rot_flap</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-assignshed">assignshed</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-map_gam">map_gam</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-age_wake">age_wake</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-dissipate_wake">dissipate_wake</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-strain_wake">strain_wake</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-calcaic">calcAIC</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-vind_bywing~2">vind_bywing</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-vind_bywing_boundvortices~2">vind_bywing_boundVortices</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-vind_bywake~2">vind_bywake</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-shiftwake">shiftwake</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-shiftfwake">shiftFwake</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-rollup">rollup</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-calc_force~2">calc_force</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-calc_force_alpha~2">calc_force_alpha</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-calc_force_alphagamma~2">calc_force_alphaGamma</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-calc_secalpha~2">calc_secAlpha</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-convectwake~2">convectwake</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-burst_wake~2">burst_wake</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-calc_skew~3">calc_skew</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-dirliftdrag~2">dirLiftDrag</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-sumbladetonetforces">sumBladeToNetForces</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-mirrorgamma">mirrorGamma</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-mirrorvelcp">mirrorVelCP</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-mirrorwake">mirrorWake</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-tochordsrevs">toChordsRevs</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-erasenwake">eraseNwake</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-erasefwake">eraseFwake</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-updateprescribedwake">updatePrescribedWake</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-computebladedynamics~2">computeBladeDynamics</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-getdw">getdw</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-computebodydynamics">computeBodyDynamics</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-rotor_write">rotor_write</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-write%28unformatted%29~2">write(unformatted)</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-rotor_read">rotor_read</a>
-            <a class="list-group-item" href="../type/rotor_class.html#boundprocedure-read%28unformatted%29~2">read(unformatted)</a>
-        </div>
-      </div>
-    </div>
-
-  
-
-
-    </section>
-    <br class="visible-xs visible-sm hidden-md">
-
     <section>
     <h2>Components</h2>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Visibility</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-<th></th><th>Initial</th>        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Visibility</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+<th></th><th scope="col">Initial</th>        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -2340,26 +2120,34 @@
 
       <section>
         <h2>Type-Bound Procedures</h2>
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-readgeom"></span><h3>procedure, public,  :: <strong>readGeom</strong>  => <a href='../proc/rotor_readgeom.html'>rotor_readGeom</a>         
-    </h3></div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-readgeom"></span>
+      <h3>
+          procedure, public ::
+  <strong>readGeom</strong> => <a href='../proc/rotor_readgeom.html'>rotor_readGeom</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  subroutine <a href='../proc/rotor_readgeom.html'>rotor_readGeom</a>(this, filename, outputFilename)  
 </h3>
     
+
   <p>Read rotor geometry from geomXX.nml in namelist format</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -2415,26 +2203,35 @@
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-init"></span><h3>procedure, public,  :: <strong>init</strong>  => <a href='../proc/rotor_init.html'>rotor_init</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-init"></span>
+      <h3>
+          procedure, public ::
+  <strong>init</strong> => <a href='../proc/rotor_init.html'>rotor_init</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  subroutine <a href='../proc/rotor_init.html'>rotor_init</a>(this, rotorNumber, density, dt, nt, switches, sourceRotor)  
 </h3>
     
+
   <p>Initialize variables of rotor geometry and wake</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -2550,26 +2347,35 @@
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-deinit"></span><h3>procedure, public,  :: <strong>deinit</strong>  => <a href='../proc/rotor_deinit.html'>rotor_deinit</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-deinit"></span>
+      <h3>
+          procedure, public ::
+  <strong>deinit</strong> => <a href='../proc/rotor_deinit.html'>rotor_deinit</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  subroutine <a href='../proc/rotor_deinit.html'>rotor_deinit</a>(this, switches)  
 </h3>
     
+
   <p>Deinitialise rotor variables</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -2610,26 +2416,35 @@
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-plot3dtoblade"></span><h3>procedure, public,  :: <strong>plot3dtoblade</strong>  => <a href='../proc/rotor_plot3dtoblade.html'>rotor_plot3dtoblade</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-plot3dtoblade"></span>
+      <h3>
+          procedure, public ::
+  <strong>plot3dtoblade</strong> => <a href='../proc/rotor_plot3dtoblade.html'>rotor_plot3dtoblade</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  subroutine <a href='../proc/rotor_plot3dtoblade.html'>rotor_plot3dtoblade</a>(this, PLOT3Dfilename)  
 </h3>
     
+
   <p>Read blade geometry from PLOT3D formatted file</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -2670,26 +2485,35 @@
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-stltoblade"></span><h3>procedure, public,  :: <strong>stltoblade</strong>  => <a href='../proc/rotor_stltoblade.html'>rotor_stltoblade</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-stltoblade"></span>
+      <h3>
+          procedure, public ::
+  <strong>stltoblade</strong> => <a href='../proc/rotor_stltoblade.html'>rotor_stltoblade</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  subroutine <a href='../proc/rotor_stltoblade.html'>rotor_stltoblade</a>(this, stlfilename)  
 </h3>
     
+
   <p>Read ASCII stl file for non-lifting surface geometry</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -2730,26 +2554,35 @@
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-getcamber"></span><h3>procedure, public,  :: <strong>getCamber</strong>  => <a href='../proc/rotor_getcamber.html'>rotor_getCamber</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-getcamber"></span>
+      <h3>
+          procedure, public ::
+  <strong>getCamber</strong> => <a href='../proc/rotor_getcamber.html'>rotor_getCamber</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  function <a href='../proc/rotor_getcamber.html'>rotor_getCamber</a>(this, x, y)  
 </h3>
     
+
   <p>Get z coordinate on wing from x, y values</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -2810,26 +2643,35 @@
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-gettheta"></span><h3>procedure, public,  :: <strong>gettheta</strong>  => <a href='../proc/rotor_gettheta.html'>rotor_gettheta</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-gettheta"></span>
+      <h3>
+          procedure, public ::
+  <strong>gettheta</strong> => <a href='../proc/rotor_gettheta.html'>rotor_gettheta</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  function <a href='../proc/rotor_gettheta.html'>rotor_gettheta</a>(this, psi, ib)  
 </h3>
     
+
   <p>Get pitch angle corresponding to blade azimuthal location</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -2890,26 +2732,35 @@
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-getthetadot"></span><h3>procedure, public,  :: <strong>getthetadot</strong>  => <a href='../proc/rotor_getthetadot.html'>rotor_getthetadot</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-getthetadot"></span>
+      <h3>
+          procedure, public ::
+  <strong>getthetadot</strong> => <a href='../proc/rotor_getthetadot.html'>rotor_getthetadot</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  function <a href='../proc/rotor_getthetadot.html'>rotor_getthetadot</a>(this, psi, ib)  
 </h3>
     
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -2970,26 +2821,35 @@
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-move~2"></span><h3>procedure, public,  :: <strong>move</strong>  => <a href='../proc/rotor_move.html'>rotor_move</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-move~2"></span>
+      <h3>
+          procedure, public ::
+  <strong>move</strong> => <a href='../proc/rotor_move.html'>rotor_move</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  subroutine <a href='../proc/rotor_move.html'>rotor_move</a>(this, dshift)  
 </h3>
     
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -3030,15 +2890,24 @@
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-rot_pts~2"></span><h3>procedure, public,  :: <strong>rot_pts</strong>  => <a href='../proc/rotor_rot_pts.html'>rotor_rot_pts</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-rot_pts~2"></span>
+      <h3>
+          procedure, public ::
+  <strong>rot_pts</strong> => <a href='../proc/rotor_rot_pts.html'>rotor_rot_pts</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  subroutine <a href='../proc/rotor_rot_pts.html'>rotor_rot_pts</a>(this, pts, origin, order)  
 </h3>
     
+
   <p>Rotate using pts =&gt; phi theta psi
 Warning: This rotation is about the global reference frame</p>
 
@@ -3046,11 +2915,11 @@ Warning: This rotation is about the global reference frame</p>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -3121,26 +2990,35 @@ Warning: This rotation is about the global reference frame</p>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-rot_advance"></span><h3>procedure, public,  :: <strong>rot_advance</strong>  => <a href='../proc/rotor_rot_advance.html'>rotor_rot_advance</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-rot_advance"></span>
+      <h3>
+          procedure, public ::
+  <strong>rot_advance</strong> => <a href='../proc/rotor_rot_advance.html'>rotor_rot_advance</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  subroutine <a href='../proc/rotor_rot_advance.html'>rotor_rot_advance</a>(this, dpsi, nopitch)  
 </h3>
     
+
   <p>Rotate rotor by dpsi angle about axis</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -3196,26 +3074,35 @@ Warning: This rotation is about the global reference frame</p>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-rot_flap~2"></span><h3>procedure, public,  :: <strong>rot_flap</strong>  => <a href='../proc/rotor_rot_flap.html'>rotor_rot_flap</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-rot_flap~2"></span>
+      <h3>
+          procedure, public ::
+  <strong>rot_flap</strong> => <a href='../proc/rotor_rot_flap.html'>rotor_rot_flap</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  subroutine <a href='../proc/rotor_rot_flap.html'>rotor_rot_flap</a>(this)  
 </h3>
     
+
   <p>Rotate blades by flap angle</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -3241,26 +3128,35 @@ Warning: This rotation is about the global reference frame</p>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-assignshed"></span><h3>procedure, public,  :: <strong>assignshed</strong>  => <a href='../proc/rotor_assignshed.html'>rotor_assignshed</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-assignshed"></span>
+      <h3>
+          procedure, public ::
+  <strong>assignshed</strong> => <a href='../proc/rotor_assignshed.html'>rotor_assignshed</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  subroutine <a href='../proc/rotor_assignshed.html'>rotor_assignshed</a>(this, edge)  
 </h3>
     
+
   <p>Assign coordinates to first rowNear of wake from last row of blade</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -3301,26 +3197,35 @@ Warning: This rotation is about the global reference frame</p>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-map_gam"></span><h3>procedure, public,  :: <strong>map_gam</strong>  => <a href='../proc/rotor_map_gam.html'>rotor_map_gam</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-map_gam"></span>
+      <h3>
+          procedure, public ::
+  <strong>map_gam</strong> => <a href='../proc/rotor_map_gam.html'>rotor_map_gam</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  subroutine <a href='../proc/rotor_map_gam.html'>rotor_map_gam</a>(this)  
 </h3>
     
+
   <p>Map gam from vector to matrix format</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -3346,26 +3251,35 @@ Warning: This rotation is about the global reference frame</p>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-age_wake"></span><h3>procedure, public,  :: <strong>age_wake</strong>  => <a href='../proc/rotor_age_wake.html'>rotor_age_wake</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-age_wake"></span>
+      <h3>
+          procedure, public ::
+  <strong>age_wake</strong> => <a href='../proc/rotor_age_wake.html'>rotor_age_wake</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  subroutine <a href='../proc/rotor_age_wake.html'>rotor_age_wake</a>(this, dt)  
 </h3>
     
+
   <p>Update age of wake filaments</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -3406,26 +3320,35 @@ Warning: This rotation is about the global reference frame</p>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-dissipate_wake"></span><h3>procedure, public,  :: <strong>dissipate_wake</strong>  => <a href='../proc/rotor_dissipate_wake.html'>rotor_dissipate_wake</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-dissipate_wake"></span>
+      <h3>
+          procedure, public ::
+  <strong>dissipate_wake</strong> => <a href='../proc/rotor_dissipate_wake.html'>rotor_dissipate_wake</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  subroutine <a href='../proc/rotor_dissipate_wake.html'>rotor_dissipate_wake</a>(this, dt, kinematicViscosity)  
 </h3>
     
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -3481,26 +3404,35 @@ Warning: This rotation is about the global reference frame</p>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-strain_wake"></span><h3>procedure, public,  :: <strong>strain_wake</strong>  => <a href='../proc/rotor_strain_wake.html'>rotor_strain_wake</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-strain_wake"></span>
+      <h3>
+          procedure, public ::
+  <strong>strain_wake</strong> => <a href='../proc/rotor_strain_wake.html'>rotor_strain_wake</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  subroutine <a href='../proc/rotor_strain_wake.html'>rotor_strain_wake</a>(this)  
 </h3>
     
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -3526,26 +3458,35 @@ Warning: This rotation is about the global reference frame</p>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-calcaic"></span><h3>procedure, public,  :: <strong>calcAIC</strong>  => <a href='../proc/rotor_calcaic.html'>rotor_calcAIC</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-calcaic"></span>
+      <h3>
+          procedure, public ::
+  <strong>calcAIC</strong> => <a href='../proc/rotor_calcaic.html'>rotor_calcAIC</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  subroutine <a href='../proc/rotor_calcaic.html'>rotor_calcAIC</a>(this)  
 </h3>
     
+
   <p>Compute AIC matrix for rotor</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -3571,26 +3512,35 @@ Warning: This rotation is about the global reference frame</p>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-vind_bywing~2"></span><h3>procedure, public,  :: <strong>vind_bywing</strong>  => <a href='../proc/rotor_vind_bywing.html'>rotor_vind_bywing</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-vind_bywing~2"></span>
+      <h3>
+          procedure, public ::
+  <strong>vind_bywing</strong> => <a href='../proc/rotor_vind_bywing.html'>rotor_vind_bywing</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  function <a href='../proc/rotor_vind_bywing.html'>rotor_vind_bywing</a>(this, P)  
 </h3>
     
+
   <p>Compute induced velocity by all wing vortices at P</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -3636,26 +3586,35 @@ Warning: This rotation is about the global reference frame</p>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-vind_bywing_boundvortices~2"></span><h3>procedure, public,  :: <strong>vind_bywing_boundVortices</strong>  => <a href='../proc/rotor_vind_bywing_boundvortices.html'>rotor_vind_bywing_boundVortices</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-vind_bywing_boundvortices~2"></span>
+      <h3>
+          procedure, public ::
+  <strong>vind_bywing_boundVortices</strong> => <a href='../proc/rotor_vind_bywing_boundvortices.html'>rotor_vind_bywing_boundVortices</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  function <a href='../proc/rotor_vind_bywing_boundvortices.html'>rotor_vind_bywing_boundVortices</a>(this, P)  
 </h3>
     
+
   <p>Compute induced velocity by bound vortices at P</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -3701,26 +3660,35 @@ Warning: This rotation is about the global reference frame</p>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-vind_bywake~2"></span><h3>procedure, public,  :: <strong>vind_bywake</strong>  => <a href='../proc/rotor_vind_bywake.html'>rotor_vind_bywake</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-vind_bywake~2"></span>
+      <h3>
+          procedure, public ::
+  <strong>vind_bywake</strong> => <a href='../proc/rotor_vind_bywake.html'>rotor_vind_bywake</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  function <a href='../proc/rotor_vind_bywake.html'>rotor_vind_bywake</a>(this, P, optionalChar)  
 </h3>
     
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -3781,26 +3749,35 @@ Warning: This rotation is about the global reference frame</p>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-shiftwake"></span><h3>procedure, public,  :: <strong>shiftwake</strong>  => <a href='../proc/rotor_shiftwake.html'>rotor_shiftwake</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-shiftwake"></span>
+      <h3>
+          procedure, public ::
+  <strong>shiftwake</strong> => <a href='../proc/rotor_shiftwake.html'>rotor_shiftwake</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  subroutine <a href='../proc/rotor_shiftwake.html'>rotor_shiftwake</a>(this)  
 </h3>
     
+
   <p>Shift wake locations on rollup</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -3826,26 +3803,35 @@ Warning: This rotation is about the global reference frame</p>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-shiftfwake"></span><h3>procedure, public,  :: <strong>shiftFwake</strong>  => <a href='../proc/rotor_shiftfwake.html'>rotor_shiftFwake</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-shiftfwake"></span>
+      <h3>
+          procedure, public ::
+  <strong>shiftFwake</strong> => <a href='../proc/rotor_shiftfwake.html'>rotor_shiftFwake</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  subroutine <a href='../proc/rotor_shiftfwake.html'>rotor_shiftFwake</a>(this)  
 </h3>
     
+
   <p>Shift wake locations of Fwake for truncation</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -3871,26 +3857,35 @@ Warning: This rotation is about the global reference frame</p>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-rollup"></span><h3>procedure, public,  :: <strong>rollup</strong>  => <a href='../proc/rotor_rollup.html'>rotor_rollup</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-rollup"></span>
+      <h3>
+          procedure, public ::
+  <strong>rollup</strong> => <a href='../proc/rotor_rollup.html'>rotor_rollup</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  subroutine <a href='../proc/rotor_rollup.html'>rotor_rollup</a>(this)  
 </h3>
     
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -3916,26 +3911,35 @@ Warning: This rotation is about the global reference frame</p>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-calc_force~2"></span><h3>procedure, public,  :: <strong>calc_force</strong>  => <a href='../proc/rotor_calc_force.html'>rotor_calc_force</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-calc_force~2"></span>
+      <h3>
+          procedure, public ::
+  <strong>calc_force</strong> => <a href='../proc/rotor_calc_force.html'>rotor_calc_force</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  subroutine <a href='../proc/rotor_calc_force.html'>rotor_calc_force</a>(this, density, dt)  
 </h3>
     
+
   <p>Compute force from circulation</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -3991,26 +3995,35 @@ Warning: This rotation is about the global reference frame</p>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-calc_force_alpha~2"></span><h3>procedure, public,  :: <strong>calc_force_alpha</strong>  => <a href='../proc/rotor_calc_force_alpha.html'>rotor_calc_force_alpha</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-calc_force_alpha~2"></span>
+      <h3>
+          procedure, public ::
+  <strong>calc_force_alpha</strong> => <a href='../proc/rotor_calc_force_alpha.html'>rotor_calc_force_alpha</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  subroutine <a href='../proc/rotor_calc_force_alpha.html'>rotor_calc_force_alpha</a>(this, density, velSound)  
 </h3>
     
+
   <p>Compute force from sec alpha</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -4066,26 +4079,35 @@ Warning: This rotation is about the global reference frame</p>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-calc_force_alphagamma~2"></span><h3>procedure, public,  :: <strong>calc_force_alphaGamma</strong>  => <a href='../proc/rotor_calc_force_alphagamma.html'>rotor_calc_force_alphaGamma</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-calc_force_alphagamma~2"></span>
+      <h3>
+          procedure, public ::
+  <strong>calc_force_alphaGamma</strong> => <a href='../proc/rotor_calc_force_alphagamma.html'>rotor_calc_force_alphaGamma</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  subroutine <a href='../proc/rotor_calc_force_alphagamma.html'>rotor_calc_force_alphaGamma</a>(this, density, velSound, dt)  
 </h3>
     
+
   <p>Compute force from sec alpha</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -4156,26 +4178,35 @@ Warning: This rotation is about the global reference frame</p>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-calc_secalpha~2"></span><h3>procedure, public,  :: <strong>calc_secAlpha</strong>  => <a href='../proc/rotor_calc_secalpha.html'>rotor_calc_secAlpha</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-calc_secalpha~2"></span>
+      <h3>
+          procedure, public ::
+  <strong>calc_secAlpha</strong> => <a href='../proc/rotor_calc_secalpha.html'>rotor_calc_secAlpha</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  subroutine <a href='../proc/rotor_calc_secalpha.html'>rotor_calc_secAlpha</a>(this)  
 </h3>
     
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -4201,26 +4232,35 @@ Warning: This rotation is about the global reference frame</p>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-convectwake~2"></span><h3>procedure, public,  :: <strong>convectwake</strong>  => <a href='../proc/rotor_convectwake.html'>rotor_convectwake</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-convectwake~2"></span>
+      <h3>
+          procedure, public ::
+  <strong>convectwake</strong> => <a href='../proc/rotor_convectwake.html'>rotor_convectwake</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  subroutine <a href='../proc/rotor_convectwake.html'>rotor_convectwake</a>(this, iter, dt, wakeType)  
 </h3>
     
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -4291,26 +4331,35 @@ Warning: This rotation is about the global reference frame</p>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-burst_wake~2"></span><h3>procedure, public,  :: <strong>burst_wake</strong>  => <a href='../proc/rotor_burst_wake.html'>rotor_burst_wake</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-burst_wake~2"></span>
+      <h3>
+          procedure, public ::
+  <strong>burst_wake</strong> => <a href='../proc/rotor_burst_wake.html'>rotor_burst_wake</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  subroutine <a href='../proc/rotor_burst_wake.html'>rotor_burst_wake</a>(this)  
 </h3>
     
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -4336,26 +4385,35 @@ Warning: This rotation is about the global reference frame</p>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-calc_skew~3"></span><h3>procedure, public,  :: <strong>calc_skew</strong>  => <a href='../proc/rotor_calc_skew.html'>rotor_calc_skew</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-calc_skew~3"></span>
+      <h3>
+          procedure, public ::
+  <strong>calc_skew</strong> => <a href='../proc/rotor_calc_skew.html'>rotor_calc_skew</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  subroutine <a href='../proc/rotor_calc_skew.html'>rotor_calc_skew</a>(this)  
 </h3>
     
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -4381,26 +4439,35 @@ Warning: This rotation is about the global reference frame</p>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-dirliftdrag~2"></span><h3>procedure, public,  :: <strong>dirLiftDrag</strong>  => <a href='../proc/rotor_dirliftdrag.html'>rotor_dirLiftDrag</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-dirliftdrag~2"></span>
+      <h3>
+          procedure, public ::
+  <strong>dirLiftDrag</strong> => <a href='../proc/rotor_dirliftdrag.html'>rotor_dirLiftDrag</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  subroutine <a href='../proc/rotor_dirliftdrag.html'>rotor_dirLiftDrag</a>(this)  
 </h3>
     
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -4426,26 +4493,35 @@ Warning: This rotation is about the global reference frame</p>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-sumbladetonetforces"></span><h3>procedure, public,  :: <strong>sumBladeToNetForces</strong>  => <a href='../proc/rotor_sumbladetonetforces.html'>rotor_sumBladeToNetForces</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-sumbladetonetforces"></span>
+      <h3>
+          procedure, public ::
+  <strong>sumBladeToNetForces</strong> => <a href='../proc/rotor_sumbladetonetforces.html'>rotor_sumBladeToNetForces</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  subroutine <a href='../proc/rotor_sumbladetonetforces.html'>rotor_sumBladeToNetForces</a>(this)  
 </h3>
     
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -4471,26 +4547,35 @@ Warning: This rotation is about the global reference frame</p>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-mirrorgamma"></span><h3>procedure, public,  :: <strong>mirrorGamma</strong>  => <a href='../proc/rotor_mirrorgamma.html'>rotor_mirrorGamma</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-mirrorgamma"></span>
+      <h3>
+          procedure, public ::
+  <strong>mirrorGamma</strong> => <a href='../proc/rotor_mirrorgamma.html'>rotor_mirrorGamma</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  subroutine <a href='../proc/rotor_mirrorgamma.html'>rotor_mirrorGamma</a>(this, fromRotor)  
 </h3>
     
+
   <p>Mirrors gamma from another rotor</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -4531,26 +4616,35 @@ Warning: This rotation is about the global reference frame</p>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-mirrorvelcp"></span><h3>procedure, public,  :: <strong>mirrorVelCP</strong>  => <a href='../proc/rotor_mirrorvelcp.html'>rotor_mirrorVelCP</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-mirrorvelcp"></span>
+      <h3>
+          procedure, public ::
+  <strong>mirrorVelCP</strong> => <a href='../proc/rotor_mirrorvelcp.html'>rotor_mirrorVelCP</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  subroutine <a href='../proc/rotor_mirrorvelcp.html'>rotor_mirrorVelCP</a>(this, fromRotor)  
 </h3>
     
+
   <p>Mirrors velCP, velCPm from another rotor</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -4591,26 +4685,35 @@ Warning: This rotation is about the global reference frame</p>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-mirrorwake"></span><h3>procedure, public,  :: <strong>mirrorWake</strong>  => <a href='../proc/rotor_mirrorwake.html'>rotor_mirrorWake</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-mirrorwake"></span>
+      <h3>
+          procedure, public ::
+  <strong>mirrorWake</strong> => <a href='../proc/rotor_mirrorwake.html'>rotor_mirrorWake</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  subroutine <a href='../proc/rotor_mirrorwake.html'>rotor_mirrorWake</a>(this, fromRotor, wakeType)  
 </h3>
     
+
   <p>Mirrors wake positions from another rotor</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -4666,26 +4769,35 @@ Warning: This rotation is about the global reference frame</p>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-tochordsrevs"></span><h3>procedure, public,  :: <strong>toChordsRevs</strong>  => <a href='../proc/rotor_tochordsrevs.html'>rotor_toChordsRevs</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-tochordsrevs"></span>
+      <h3>
+          procedure, public ::
+  <strong>toChordsRevs</strong> => <a href='../proc/rotor_tochordsrevs.html'>rotor_toChordsRevs</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  subroutine <a href='../proc/rotor_tochordsrevs.html'>rotor_toChordsRevs</a>(this, nsteps, dt)  
 </h3>
     
+
   <p>Converts -ve nsteps to nsteps for corresponding no. of chords or revs</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -4741,26 +4853,35 @@ Warning: This rotation is about the global reference frame</p>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-erasenwake"></span><h3>procedure, public,  :: <strong>eraseNwake</strong>  => <a href='../proc/rotor_erasenwake.html'>rotor_eraseNwake</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-erasenwake"></span>
+      <h3>
+          procedure, public ::
+  <strong>eraseNwake</strong> => <a href='../proc/rotor_erasenwake.html'>rotor_eraseNwake</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  subroutine <a href='../proc/rotor_erasenwake.html'>rotor_eraseNwake</a>(this, rowErase)  
 </h3>
     
+
   <p>Erase a near wake row by setting gamma to zero</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -4801,26 +4922,35 @@ Warning: This rotation is about the global reference frame</p>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-erasefwake"></span><h3>procedure, public,  :: <strong>eraseFwake</strong>  => <a href='../proc/rotor_erasefwake.html'>rotor_eraseFwake</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-erasefwake"></span>
+      <h3>
+          procedure, public ::
+  <strong>eraseFwake</strong> => <a href='../proc/rotor_erasefwake.html'>rotor_eraseFwake</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  subroutine <a href='../proc/rotor_erasefwake.html'>rotor_eraseFwake</a>(this, rowErase)  
 </h3>
     
+
   <p>Erase a far wake row by setting gamma to zero</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -4861,26 +4991,35 @@ Warning: This rotation is about the global reference frame</p>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-updateprescribedwake"></span><h3>procedure, public,  :: <strong>updatePrescribedWake</strong>  => <a href='../proc/rotor_updateprescribedwake.html'>rotor_updatePrescribedWake</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-updateprescribedwake"></span>
+      <h3>
+          procedure, public ::
+  <strong>updatePrescribedWake</strong> => <a href='../proc/rotor_updateprescribedwake.html'>rotor_updatePrescribedWake</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  subroutine <a href='../proc/rotor_updateprescribedwake.html'>rotor_updatePrescribedWake</a>(this, dt, wakeType)  
 </h3>
     
+
   <p>Attaches prescribed far wake</p>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -4936,26 +5075,35 @@ Warning: This rotation is about the global reference frame</p>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-computebladedynamics~2"></span><h3>procedure, public,  :: <strong>computeBladeDynamics</strong>  => <a href='../proc/rotor_computebladedynamics.html'>rotor_computeBladeDynamics</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-computebladedynamics~2"></span>
+      <h3>
+          procedure, public ::
+  <strong>computeBladeDynamics</strong> => <a href='../proc/rotor_computebladedynamics.html'>rotor_computeBladeDynamics</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  subroutine <a href='../proc/rotor_computebladedynamics.html'>rotor_computeBladeDynamics</a>(this, dt)  
 </h3>
     
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -4996,26 +5144,35 @@ Warning: This rotation is about the global reference frame</p>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-getdw"></span><h3>procedure, public,  :: <strong>getdw</strong>          
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-getdw"></span>
+      <h3>
+          procedure, public ::
+  <strong>getdw</strong>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  function <a href='../proc/getdw.html'>getdw</a>(this, w, thrust)  
 </h3>
     
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -5076,26 +5233,35 @@ Warning: This rotation is about the global reference frame</p>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-computebodydynamics"></span><h3>procedure, public,  :: <strong>computeBodyDynamics</strong>  => <a href='../proc/rotor_computebodydynamics.html'>rotor_computeBodyDynamics</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-computebodydynamics"></span>
+      <h3>
+          procedure, public ::
+  <strong>computeBodyDynamics</strong> => <a href='../proc/rotor_computebodydynamics.html'>rotor_computeBodyDynamics</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  subroutine <a href='../proc/rotor_computebodydynamics.html'>rotor_computeBodyDynamics</a>(this, dt)  
 </h3>
     
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -5136,26 +5302,35 @@ Warning: This rotation is about the global reference frame</p>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-rotor_write"></span><h3>procedure, public,  :: <strong>rotor_write</strong>          
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-rotor_write"></span>
+      <h3>
+          procedure, public ::
+  <strong>rotor_write</strong>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  subroutine <a href='../proc/rotor_write.html'>rotor_write</a>(this, unit, iostat, iomsg)  
 </h3>
     
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -5226,26 +5401,35 @@ Warning: This rotation is about the global reference frame</p>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-write%28unformatted%29~2"></span><h3>generic, public,  :: <strong>write(unformatted)</strong>  => <a href='../type/rotor_class.html#boundprocedure-rotor_write'>rotor_write</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-write%28unformatted%29~2"></span>
+      <h3>
+          generic, public ::
+  <strong>write(unformatted)</strong> => <a href='../type/rotor_class.html#boundprocedure-rotor_write'>rotor_write</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  subroutine <a href='../proc/rotor_write.html'>rotor_write</a>(this, unit, iostat, iomsg)  
 </h3>
     
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -5316,26 +5500,35 @@ Warning: This rotation is about the global reference frame</p>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-rotor_read"></span><h3>procedure, public,  :: <strong>rotor_read</strong>          
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-rotor_read"></span>
+      <h3>
+          procedure, public ::
+  <strong>rotor_read</strong>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  subroutine <a href='../proc/rotor_read.html'>rotor_read</a>(this, unit, iostat, iomsg)  
 </h3>
     
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -5406,26 +5599,35 @@ Warning: This rotation is about the global reference frame</p>
     </ul>
   </div>
 
-            <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="boundprocedure-read%28unformatted%29~2"></span><h3>generic, public,  :: <strong>read(unformatted)</strong>  => <a href='../type/rotor_class.html#boundprocedure-rotor_read'>rotor_read</a>         
-    </h3></div>
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-read%28unformatted%29~2"></span>
+      <h3>
+          generic, public ::
+  <strong>read(unformatted)</strong> => <a href='../type/rotor_class.html#boundprocedure-rotor_read'>rotor_read</a>
+        
+      </h3>
+    </div>
     <ul class="list-group">
         <li class="list-group-item">
                   <h3>
     public  subroutine <a href='../proc/rotor_read.html'>rotor_read</a>(this, unit, iostat, iomsg)  
 </h3>
     
+
   
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -5496,6 +5698,7 @@ Warning: This rotation is about the global reference frame</p>
     </ul>
   </div>
 
+          </div>
       </section>
 
     
@@ -5506,32 +5709,27 @@ Warning: This rotation is about the global reference frame</p>
     </div> <!-- /container -->
     <footer>
       <div class="container">
-        <div class="row">
-          <div class="col-xs-6 col-md-6"><p>VOLCANOR was developed by Cibin Joseph<br>&copy; 2023 
+        <div class="row justify-content-between">
+          <div class="col"><p>VOLCANOR was developed by Cibin Joseph<br>&copy; 2023 
 </p>
           </div>
-          <div class="col-xs-6 col-md-6">
-            <p class="text-right">
+          <div class="col">
+            <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-07-04T21:37:25.308564             </p>
+ on 2023-12-21T00:34:47.180038             </p>
           </div>
         </div>
         <br>
       </div> <!-- /container -->
     </footer>
 
-    <!-- Bootstrap core JavaScript
-         ================================================== -->
-         <!-- Placed at the end of the document so the pages load faster -->
-    <!--
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-        -->
-        <script src="../js/bootstrap.min.js"></script>
-        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
 
-        <!-- MathJax JavaScript
+    <!-- MathJax JavaScript
              ================================================== -->
              <!-- Placed at the end of the document so the pages load faster -->
         <script type="text/x-mathjax-config">
