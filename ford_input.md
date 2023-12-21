@@ -3,13 +3,15 @@ project: VOLCANOR
 version: 0.1.11
 src_dir: ./src
 output_dir: ./docs
-media_dir: ./media    
+media_dir: ./media 
+page_dir: ./ford_input
 project_github: https://github.com/cibinjoseph/VOLCANOR
 summary: ![VOLCANOR](|media|/VOLCANOR-logo.png)<br/><br/>
          An unsteady vortex lattice solver written in Fortran
 author: Cibin Joseph
-author_description: Research Associate at IIT Madras, India
+author_description: PhD, Aerospace Engineering, IIT Madras, India
 github: https://github.com/cibinjoseph
+linkedin: https://www.linkedin.com/in/cibinjoseph
 email: cibinjoseph92@gmail.com
 fpp_extensions: fpp
 docmark: !
