@@ -409,6 +409,7 @@ module classdef
     integer :: nCamberFiles, nAirfoils
     integer :: imagePlane, imageRotorNum
     integer :: surfaceType  
+    integer :: ductSwitch
     integer :: axisymmetrySwitch
     character(len=30), allocatable, dimension(:) :: camberFile, airfoilFile
     character(len=30) :: geometryFile
@@ -1510,12 +1511,13 @@ contains
 
   end function blade_vind_bywake
 
-  subroutine blade_convectwake(this, rowNear, rowFar, dt, wakeType)
+  subroutine blade_convectwake(this, rowNear, rowFar, dt, wakeType, ductSwitch)
     !! Convect wake collocation points using velNwake matrix
   class(blade_class), intent(inout) :: this
     integer, intent(in) :: rowNear, rowFar
     real(dp), intent(in) :: dt
     character(len=1), intent(in) :: wakeType  ! For predicted wake
+    integer, optional :: ductSwitch
     integer :: i, j, nNwake, nFwake
 
     nNwake = size(this%waN, 1)
@@ -1567,7 +1569,7 @@ contains
 
     end select
 
-    call this%wake_continuity(rowNear, rowFar, wakeType)
+    call this%wake_continuity(rowNear, rowFar, wakeType, ductSwitch)
 
   end subroutine blade_convectwake
 
@@ -1603,12 +1605,13 @@ contains
     !$omp end parallel do
   end subroutine blade_limitWakeVel
 
-  subroutine blade_wake_continuity(this, rowNear, rowFar, wakeType)
+  subroutine blade_wake_continuity(this, rowNear, rowFar, wakeType, ductSwitch)
     !! Maintain continuity between vortex ring elements after convection
     !! of wake collocation points
   class(blade_class), intent(inout) :: this
     integer, intent(in) :: rowNear, rowFar
     character(len=1), intent(in) :: wakeType  ! For predicted wake
+    integer, optional :: ductSwitch
     integer :: i, j, nNwake, nFwake
 
     nNwake = size(this%waN, 1)
@@ -1637,6 +1640,19 @@ contains
         call this%waN(i, this%ns)%vr%assignP(4, this%waN(i - 1, this%ns)%vr%vf(3)%fc(:, 1))
       enddo
       !$omp end parallel do
+
+      if (present(ductSwitch)) then
+        if (ductSwitch == 1) then
+          !$omp parallel do
+          do i = rowNear + 1, nNwake
+            call this%waN(i, this%ns)%vr%assignP(4, &
+              & this%waN(i, 1)%vr%vf(1)%fc(:, 1))
+            call this%waN(i, this%ns)%vr%assignP(3, &
+              & this%waN(i, 1)%vr%vf(1)%fc(:, 2))
+          enddo
+          !$omp end parallel do
+        endif
+      endif
 
       nFwake = size(this%waF, 1)
       !$omp parallel do
@@ -2538,7 +2554,8 @@ contains
       & shaftAxis, velBody, omegaBody
     real(dp) :: span, rootcut, chord, preconeAngle, Omega, &
       & theta0, thetaC, thetaS, thetaTwist, pivotLE, flapHinge
-    integer:: spanwiseLiftSwitch, symmetricTau, axisymmetrySwitch, &
+    integer:: spanwiseLiftSwitch, symmetricTau, &
+      & ductSwitch, axisymmetrySwitch, &
       & customTrajectorySwitch, forceCalcSwitch, wakeTruncateNt, &
       & prescWakeAfterTruncNt, prescWakeGenNt
     real(dp) :: apparentViscCoeff, decayCoeff, spanwiseCore, &
@@ -2565,7 +2582,8 @@ contains
     namelist /ORIENT/ hubCoords, cgCoords, fromCoords, phiThetaPsi
 
     namelist /GEOMPARAMS/ span, rootcut, chord, preconeAngle, Omega, &
-      & shaftAxis, theta0, thetaC, thetaS, thetaTwist, axisymmetrySwitch, &
+      & shaftAxis, theta0, thetaC, thetaS, thetaTwist, &
+      & ductSwitch, axisymmetrySwitch, &
       & pivotLE, flapHinge, spanwiseLiftSwitch, symmetricTau, &
       & customTrajectorySwitch, velBody, omegaBody, forceCalcSwitch, &
       & nAirfoils
@@ -2585,7 +2603,7 @@ contains
 
     namelist /AIRFOILS/ airfoilSectionLimit, alpha0, airfoilFile
 
-    currentTemplateVersion = '0.14'
+    currentTemplateVersion = '0.15'
 
     open(unit=12, file=filename, status='old', action='read') 
 
@@ -2681,6 +2699,7 @@ contains
       this%shaftAxis = shaftAxis
       this%controlPitch = [theta0, thetaC, thetaS]
       this%thetaTwist = thetaTwist
+      this%ductSwitch = ductSwitch
       this%axisymmetrySwitch = axisymmetrySwitch
       this%pivotLE = pivotLE
       this%flapHinge = flapHinge
@@ -2759,8 +2778,10 @@ contains
     type(rotor_class), optional :: sourceRotor
 
     real(dp), dimension(this%nc+1) :: xVec
-    real(dp), dimension(this%ns+1) :: yVec
+    real(dp), dimension(this%nc+1, this%ns+1) :: yVec
+    real(dp) :: spanStart, spanEnd
     real(dp), dimension(this%nc+1, this%ns+1) :: zVec
+    real(dp), dimension(this%nc+1, this%ns+1) :: rVec ! For duct case
     real(dp), dimension(this%nc, this%ns) :: dx, dy
     real(dp), dimension(3) :: leftTipCP
     real(dp) :: dxdymin, secCPLoc, rbyR, dxMAC
@@ -2824,6 +2845,7 @@ contains
       this%thetaTwist = sourceRotor%thetaTwist
 
       this%customTrajectorySwitch = sourceRotor%customTrajectorySwitch
+      this%ductSwitch = sourceRotor%ductSwitch
       this%axisymmetrySwitch = sourceRotor%axisymmetrySwitch
       this%velBody = sourceRotor%velBody
       this%omegaBody = sourceRotor%omegaBody
@@ -3158,40 +3180,67 @@ contains
 
       end select
 
+      spanStart = this%root_cut*this%radius
+      spanEnd = this%radius
+
+      if (this%ductSwitch == 1) then
+        ! Azimuthal angle from south to south in the counterclockwise direction
+        spanStart = -pi/2.0
+        spanEnd = 3.0*pi/2.0
+      endif
+
+      ! Assign span coordinates to first row of yVec
       select case (this%spanSpacing)
       case (1)
-        yVec = linspace(this%root_cut*this%radius, this%radius, this%ns + 1)
+        yVec(1, :) = linspace(spanStart, spanEnd, this%ns + 1)
       case (2)
-        yVec = cosspace(this%root_cut*this%radius, this%radius, this%ns + 1)
+        yVec(1, :) = cosspace(spanStart, spanEnd, this%ns + 1)
       case (3)
-        yVec = halfsinspace(this%root_cut*this%radius, this%radius, this%ns + 1)
+        yVec(1, :) = halfsinspace(spanStart, spanEnd, this%ns + 1)
       case (4)
-        yVec = tanspace(this%root_cut*this%radius, this%radius, this%ns + 1)
+        yVec(1, :) = tanspace(spanStart, spanEnd, this%ns + 1)
       end select
+
+      ! Copy first row to all rows; along the chord dimension (X)
+      do ic = 2, this%nc+1
+        yVec(ic, :) = yVec(1, :)
+      enddo
+
+      ! Compute camber
+      if (this%nCamberFiles > 0) then
+        zVec = this%getCamber(xVec, yVec(1, :))
+      else
+        zVec = 0._dp
+      endif
+
+      ! If a duct is required, transform the wing to a circle
+      ! The first point is at the bottom (theta = -90deg)
+      if (this%ductSwitch == 1) then
+        ! rVec is the radius of the duct
+        ! at each section along chordwise direction
+        rVec = this%radius + zVec
+        ! yVec is intially the azimuthal angle along the duct 'circle'
+        zVec = rVec*sin(yVec)
+        yVec = rVec*cos(yVec)
+      endif
+
+      if (this%surfaceType < 0 .and. this%imagePlane == 3) then
+        zVec = -1._dp*zVec
+      endif
 
       ! Initialize panel coordinates
       do ib = 1, this%nb
-        ! Compute camber
-        if (this%nCamberFiles > 0) then
-          zVec = this%getCamber(xVec, yVec)
-        else
-          zVec = 0._dp
-        endif
-        if (this%surfaceType < 0 .and. this%imagePlane == 3) then
-          zVec = -1._dp*zVec
-        endif
-
         ! Assign coordinates to panels
         do j = 1, this%ns
           do i = 1, this%nc
             call this%blade(ib)%wiP(i, j)%assignP(1, &
-              & [xVec(i), yVec(j), zVec(i, j)])
+              & [xVec(i), yVec(i, j), zVec(i, j)])
             call this%blade(ib)%wiP(i, j)%assignP(2, &
-              & [xVec(i+1), yVec(j), zVec(i+1, j)])
+              & [xVec(i+1), yVec(i+1, j), zVec(i+1, j)])
             call this%blade(ib)%wiP(i, j)%assignP(3, &
-              & [xVec(i+1), yVec(j+1), zVec(i+1, j+1)])
+              & [xVec(i+1), yVec(i+1, j+1), zVec(i+1, j+1)])
             call this%blade(ib)%wiP(i, j)%assignP(4, &
-              & [xVec(i), yVec(j+1), zVec(i, j+1)])
+              & [xVec(i), yVec(i, j+1), zVec(i, j+1)])
           enddo
         enddo
       enddo
@@ -4745,7 +4794,8 @@ contains
     do ib = 1, this%nbConvect
       ! Wake velocity limiter turned off since it's not tested thoroghly
       ! call this%blade(ib)%limitWakeVel(this%rowNear, this%rowFar)
-      call this%blade(ib)%convectwake(this%rowNear, this%rowFar, dt, wakeType)
+      call this%blade(ib)%convectwake(this%rowNear, this%rowFar, dt, &
+        & wakeType, this%ductSwitch)
     enddo
 
     axisym: if (this%axisymmetrySwitch .eq. 1) then
