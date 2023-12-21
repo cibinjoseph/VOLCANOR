@@ -5,6 +5,7 @@ src_dir: ./src
 output_dir: ./docs
 media_dir: ./media 
 page_dir: ./ford_input
+favicon: media/VOLCANOR-favicon.png
 project_github: https://github.com/cibinjoseph/VOLCANOR
 summary: ![VOLCANOR](media/VOLCANOR-logo.png)<br/><br/>
          An unsteady vortex lattice solver written in Fortran
