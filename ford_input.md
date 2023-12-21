@@ -6,7 +6,7 @@ output_dir: ./docs
 media_dir: ./media 
 page_dir: ./ford_input
 project_github: https://github.com/cibinjoseph/VOLCANOR
-summary: ![VOLCANOR](|media|/VOLCANOR-logo.png)<br/><br/>
+summary: ![VOLCANOR](media/VOLCANOR-logo.png)<br/><br/>
          An unsteady vortex lattice solver written in Fortran
 author: Cibin Joseph
 author_description: PhD, Aerospace Engineering, IIT Madras, India

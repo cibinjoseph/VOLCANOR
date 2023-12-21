@@ -14,7 +14,7 @@ The vortex lattice method is a potential flow based method. While different flav
 ### Code philosophy
 The code is centered around the object-oriented philosophy and is built up using a hierarchical model as shown in the figure. Vortex filaments are used to contstruct wing and wake ring elements. These are further used to construct wing and wake 'sheets' which make up larger aircraft configurations. Ever geometry is assumed to be a rotor at first. For example, a fixed-wing is a non-rotating single-bladed rotor. This rather unorthodox terminology was adopted for the sake of generalization during the initial phases of development.
 
-<img src="|media|/data_abstraction.png" alt="" width="550pt">
+<img src="../media/data_abstraction.png" alt="" width="800">
 
 ### Code organization
 The Fortran source files are present in the `src/` folder.
