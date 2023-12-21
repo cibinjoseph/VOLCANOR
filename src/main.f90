@@ -67,6 +67,8 @@ program main
     if (rotor(ir)%surfaceType > 0) then
       call print_status('Computing AIC matrix')
       call rotor(ir)%calcAIC()
+
+      ! Check if inverse was correctly computed
       if (isInverse(rotor(ir)%AIC, rotor(ir)%AIC_inv)) then
         call print_status()    ! SUCCESS
       else
