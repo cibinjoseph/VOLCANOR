@@ -44,7 +44,7 @@ if(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
     # -qopt-report-phase=vec -qopt-report=2")
   else()
     set(dbg_flags "-traceback -O0 -warn all -check bounds -g -heap-arrays 200 -fpe0 -debug extended")
-    set(rls_flags "-fast -O3 -qopenmp -parallel -heap-arrays 200 -ansi-alias -qopt-jump-tables='default' -xcore-avx2 -ipo -qopt-subscript-in-range -unroll-aggressive -qopt-dynamic-align") 
+    set(rls_flags "-O3 -qopenmp -parallel -heap-arrays 200 -qopt-dynamic-align")
     # The following flags were removed on shifting to 
     # Ubuntu 18.04 due to reduction in performance, however for large panel
     # numbers it seems necessary in order to avoid a segfault
