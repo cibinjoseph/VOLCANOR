@@ -10,19 +10,26 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   # message(WARNING "Setting CMAKE_BUILD_TYPE to: ${CMAKE_BUILD_TYPE}")
 endif()
 
+option(USE_BLAS_LAPACK "Link against LAPACK/BLAS" ON)
+
 # Variables for gfortran
 if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
-  # Check for LAPACK and BLAS
-  find_package(LAPACK)
-  find_package(BLAS)
-  if(NOT LAPACK_FOUND)
-    message(WARNING "LAPACK might not be available")
-  endif()
-  if(NOT BLAS_FOUND)
-    message(WARNING "BLAS might not be available")
+  if(USE_BLAS_LAPACK)
+    # Check for LAPACK and BLAS
+    find_package(LAPACK)
+    find_package(BLAS)
+    if(NOT LAPACK_FOUND)
+      message(WARNING "LAPACK might not be available")
+    endif()
+    if(NOT BLAS_FOUND)
+      message(WARNING "BLAS might not be available")
+    endif()
+    set(common_flags "-ffree-form -std=f2008 -fimplicit-none -ffree-line-length-none -fall-intrinsics -llapack -lblas")
+  else()
+    # No LAPACK/BLAS
+    set(common_flags "-ffree-form -std=f2008 -fimplicit-none -ffree-line-length-none -fall-intrinsics")
   endif()
 
-  set(common_flags "-ffree-form -std=f2008 -fimplicit-none -ffree-line-length-none -fall-intrinsics -llapack -lblas")
   set(dbg_flags "-fbacktrace -O0 -Wall -Wextra -Wimplicit-interface -Wunused-parameter -Wcharacter-truncation -Wsurprising -Waliasing -fcheck=all -g -ffpe-trap=invalid,zero,overflow -fbounds-check")
   set(rls_flags "-O2 -fopenmp")
   set(COMPILERMSG "Compiler: GFORTRAN ${CMAKE_Fortran_COMPILER_VERSION}\n")
@@ -75,7 +82,11 @@ set(CMAKE_CTEST_ARGUMENTS -V --output-on-failure --stop-on-failure)
 add_subdirectory(tests)
 
 # Libraries
-add_library(Math STATIC ${PROJECT_SOURCE_DIR}/src/libMath.f90)
+if(USE_BLAS_LAPACK)
+  add_library(Math STATIC ${PROJECT_SOURCE_DIR}/src/libMath.f90)
+else()
+  add_library(Math STATIC ${PROJECT_SOURCE_DIR}/src/libMath_noBLAS.f90)
+endif()
 
 add_library(C81 STATIC ${PROJECT_SOURCE_DIR}/src/libC81.f90)
 target_link_libraries(C81 Math)
@@ -105,6 +116,12 @@ target_link_libraries(gridgen Common)
 # Target debug/volcanor_dbg for debugging
 add_custom_target(volcanor_dbg
   COMMAND ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=Debug -DPROF=FALSE ${PROJECT_SOURCE_DIR}
+  COMMENT ${COMPILERMSG}
+  COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target volcanor)
+
+# Target debug without LAPACK/BLAS
+add_custom_target(volcanor_dbg_noBLAS
+  COMMAND ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=Debug -DPROF=FALSE -DUSE_BLAS_LAPACK=OFF ${PROJECT_SOURCE_DIR}
   COMMENT ${COMPILERMSG}
   COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target volcanor)
 
