@@ -11,11 +11,15 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 option(USE_BLAS_LAPACK "Link against LAPACK/BLAS" ON)
+option(USE_OPENMP "Enable OpenMP parallelization" ON)
 
 # Variables for gfortran
 if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
+  # Base common flags
+  set(common_flags "-ffree-form -std=f2008 -fimplicit-none -ffree-line-length-none -fall-intrinsics")
+  
+  # Add LAPACK/BLAS if requested
   if(USE_BLAS_LAPACK)
-    # Check for LAPACK and BLAS
     find_package(LAPACK)
     find_package(BLAS)
     if(NOT LAPACK_FOUND)
@@ -24,39 +28,58 @@ if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
     if(NOT BLAS_FOUND)
       message(WARNING "BLAS might not be available")
     endif()
-    set(common_flags "-ffree-form -std=f2008 -fimplicit-none -ffree-line-length-none -fall-intrinsics -llapack -lblas")
-  else()
-    # No LAPACK/BLAS
-    set(common_flags "-ffree-form -std=f2008 -fimplicit-none -ffree-line-length-none -fall-intrinsics")
+    set(common_flags "${common_flags} -llapack -lblas")
   endif()
 
+  # Debug flags
   set(dbg_flags "-fbacktrace -O0 -Wall -Wextra -Wimplicit-interface -Wunused-parameter -Wcharacter-truncation -Wsurprising -Waliasing -fcheck=all -g -ffpe-trap=invalid,zero,overflow -fbounds-check")
-  set(rls_flags "-O2 -fopenmp")
+  
+  # Release flags
+  set(rls_flags "-O2")
+  if(USE_OPENMP)
+    set(rls_flags "${rls_flags} -fopenmp")
+  endif()
+  
   set(COMPILERMSG "Compiler: GFORTRAN ${CMAKE_Fortran_COMPILER_VERSION}\n")
 endif()
 
 # Variables for ifort
 if(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
-  if (NOT DEFINED ENV{MKLROOT})
-    message(WARNING "MKL might not be available")
+  # Base common flags
+  set(common_flags "-free -implicitnone")
+  
+  # Add MKL if requested
+  if(USE_BLAS_LAPACK)
+    if (NOT DEFINED ENV{MKLROOT})
+      message(WARNING "MKL might not be available")
+    endif()
+    set(common_flags "${common_flags} -qmkl")
   endif()
-  set(common_flags "-free -implicitnone -qmkl")
+  
+  # Set PROF default
   if(NOT DEFINED PROF)
     set(PROF FALSE)
   endif()
-  if (PROF)
+  
+  # Debug flags
+  if(PROF)
     set(dbg_flags "-traceback -O2 -g -pg -fpe0")
-    # -qopt-report-phase=vec -qopt-report=2")
-    set(rls_flags "-O3 -g -pg -fpe0 -qopenmp -xcore-avx2 -parallel")
-    # -qopt-report-phase=vec -qopt-report=2")
   else()
     set(dbg_flags "-traceback -O0 -warn all -check bounds -g -heap-arrays 200 -fpe0 -debug extended")
-    set(rls_flags "-O3 -qopenmp -parallel -heap-arrays 200 -qopt-dynamic-align")
-    # The following flags were removed on shifting to 
-    # Ubuntu 18.04 due to reduction in performance, however for large panel
-    # numbers it seems necessary in order to avoid a segfault
-    # -heap-arrays 200
   endif()
+  
+  # Release flags
+  if(PROF)
+    set(rls_flags "-O3 -g -pg -fpe0 -xcore-avx2")
+  else()
+    set(rls_flags "-O3 -heap-arrays 200 -qopt-dynamic-align")
+  endif()
+  
+  # Add OpenMP flags if requested
+  if(USE_OPENMP)
+    set(rls_flags "${rls_flags} -qopenmp -parallel")
+  endif()
+  
   set(COMPILERMSG "Compiler: IFORT ${CMAKE_Fortran_COMPILER_VERSION}
   Build type : ${CMAKE_BUILD_TYPE}
   Release flags : ${rls_flags}
@@ -122,6 +145,24 @@ add_custom_target(volcanor_dbg
 # Target debug without LAPACK/BLAS
 add_custom_target(volcanor_dbg_noBLAS
   COMMAND ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=Debug -DPROF=FALSE -DUSE_BLAS_LAPACK=OFF ${PROJECT_SOURCE_DIR}
+  COMMENT ${COMPILERMSG}
+  COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target volcanor)
+
+# Target release without LAPACK/BLAS
+add_custom_target(volcanor_noBLAS
+  COMMAND ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=Release -DPROF=FALSE -DUSE_BLAS_LAPACK=OFF ${PROJECT_SOURCE_DIR}
+  COMMENT ${COMPILERMSG}
+  COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target volcanor)
+
+# Target release without LAPACK/BLAS and without OpenMP
+add_custom_target(volcanor_noBLAS_noOMP
+  COMMAND ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=Release -DPROF=FALSE -DUSE_BLAS_LAPACK=OFF -DUSE_OPENMP=OFF ${PROJECT_SOURCE_DIR}
+  COMMENT ${COMPILERMSG}
+  COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target volcanor)
+
+# Target debug without LAPACK/BLAS and without OpenMP
+add_custom_target(volcanor_dbg_noBLAS_noOMP
+  COMMAND ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=Debug -DPROF=FALSE -DUSE_BLAS_LAPACK=OFF -DUSE_OPENMP=OFF ${PROJECT_SOURCE_DIR}
   COMMENT ${COMPILERMSG}
   COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target volcanor)
 
