@@ -160,7 +160,7 @@ contains
 
   end function tanspace
 
-  function cross_product(aVec, bVec)
+  pure function cross_product(aVec, bVec)
     !! Compute cross product between two 3d vectors
 
     real(dp), intent(in), dimension(3) :: aVec, bVec
@@ -172,7 +172,7 @@ contains
 
   end function cross_product
 
-  function outer_product(aVec, bVec)
+  pure function outer_product(aVec, bVec)
     !! Compute outer product between two 3d vectors
 
     real(dp), intent(in), dimension(3) :: aVec, bVec
@@ -182,7 +182,7 @@ contains
     outer_product(:, 3) = [aVec(1)*bVec(2), aVec(2)*bVec(3), aVec(3)*bVec(3)]
   end function outer_product
 
-  function getAngleTan(aVec, bVec)
+  pure function getAngleTan(aVec, bVec)
     !! Angle between two 3d vectors using tan formula
     !! Result will be from -pi to pi
 
@@ -196,7 +196,7 @@ contains
     getAngleTan = atan2(sqrt(mag2A*mag2B - dotAB*dotAB), dotAB)
   end function getAngleTan
 
-  function getAngleCos(aVec, bVec)
+  pure function getAngleCos(aVec, bVec)
     !! Angle between two 3d vectors using cos formula
     !! Assumes no angle > 180 deg exists
 
@@ -207,7 +207,7 @@ contains
                        (sqrt(sum(aVec**2._dp)*sum(bVec**2._dp))))
   end function getAngleCos
 
-  function unitVec(aVec)
+  pure function unitVec(aVec)
     !! Normalizes a non-zero 3d vector
 
     real(dp), intent(in), dimension(3) :: aVec
@@ -222,7 +222,7 @@ contains
     endif
   end function unitVec
 
-  function projVec(aVec, dirVec)
+  pure function projVec(aVec, dirVec)
     !! Returns 3d vector aVec projected along dirVec
 
     real(dp), intent(in), dimension(3) :: aVec, dirVec
@@ -236,7 +236,7 @@ contains
     endif
   end function projVec
 
-  function noProjVec(aVec, dirVec)
+  pure function noProjVec(aVec, dirVec)
     !! Removes component along dirVec from a vector aVec
 
     real(dp), intent(in), dimension(3) :: aVec, dirVec
