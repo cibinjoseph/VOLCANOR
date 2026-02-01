@@ -28,7 +28,6 @@ if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
     if(NOT BLAS_FOUND)
       message(WARNING "BLAS might not be available")
     endif()
-    set(common_flags "${common_flags} -llapack -lblas")
   endif()
 
   # Debug flags
@@ -107,6 +106,7 @@ add_subdirectory(tests)
 # Libraries
 if(USE_BLAS_LAPACK)
   add_library(Math STATIC ${PROJECT_SOURCE_DIR}/src/libMath.f90)
+  target_link_libraries(Math PUBLIC ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES})
 else()
   add_library(Math STATIC ${PROJECT_SOURCE_DIR}/src/libMath_noBLAS.f90)
 endif()
