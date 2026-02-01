@@ -1076,7 +1076,7 @@ contains
     if (abs(theta) > eps) then
       TMat = getTransformAxis(theta, axisVec)
 
-      !$omp parallel do
+      !$omp parallel do schedule(runtime)
       do i = 1, size(this%waF)
         call this%waF(i)%rot(TMat, origin)
       enddo
@@ -1094,7 +1094,7 @@ contains
     real(dp), intent(in), dimension(3) :: dshift
     integer :: i, j
 
-    !$omp parallel do collapse(2)
+    !$omp parallel do collapse(2) schedule(runtime)
     do j = 1, this%ns
       do i = 1, this%nc
         call this%wiP(i, j)%shiftdP(dshift)
@@ -1133,7 +1133,7 @@ contains
       error stop 'ERROR: Wrong option for order'
     end select
 
-    !$omp parallel do
+    !$omp parallel do schedule(runtime)
     do j = 1, this%ns
       do i = 1, this%nc
         call this%wiP(i, j)%rot(TMat, origin)
@@ -1220,7 +1220,7 @@ contains
       call this%move([originX, originY, originZ])
 
       ! Rotate secCP also
-      !$omp parallel do
+      !$omp parallel do schedule(runtime)
       do i = 1, this%ns
         this%secCP(:, i) = matmul(TMat, this%secCP(:, i) - &
           & [originX, originY, originZ])+[originX, originY, originZ]
@@ -1302,7 +1302,7 @@ contains
         nNwake = size(this%waN, 1)
         nFwake = size(this%waF, 1)
 
-        !$omp parallel do collapse(2)
+        !$omp parallel do collapse(2) schedule(runtime)
         do j = 1, this%ns
           do i = rowNear, nNwake
             call this%waN(i, j)%vr%rot(TMat, origin)
@@ -1310,7 +1310,7 @@ contains
         enddo
         !$omp end parallel do
 
-        !$omp parallel do
+        !$omp parallel do schedule(runtime)
         do i = rowFar, nFwake
           call this%waF(i)%rot(TMat, origin)
         enddo
@@ -1321,7 +1321,7 @@ contains
         nNwake = size(this%waNPredicted, 1)
         nFwake = size(this%waFPredicted, 1)
 
-        !$omp parallel do collapse(2)
+        !$omp parallel do collapse(2) schedule(runtime)
         do j = 1, this%ns
           do i = rowNear, nNwake
             call this%waNPredicted(i, j)%vr%rot(TMat, origin)
@@ -1329,7 +1329,7 @@ contains
         enddo
         !$omp end parallel do
 
-        !$omp parallel do
+        !$omp parallel do schedule(runtime)
         do i = rowFar, nFwake
           call this%waFPredicted(i)%rot(TMat, origin)
         enddo
@@ -1524,7 +1524,7 @@ contains
 
     select case (wakeType)
     case ('C')    ! [C]urrent wake
-      !$omp parallel do collapse(2)
+      !$omp parallel do collapse(2) schedule(runtime)
       do j = 1, this%ns
         do i = rowNear, nNwake
           call this%waN(i, j)%vr%shiftdP(2, this%velNwake(:, i, j)*dt)
@@ -1532,21 +1532,21 @@ contains
       enddo
       !$omp end parallel do
 
-      !$omp parallel do
+      !$omp parallel do schedule(runtime)
       do i = rowNear, nNwake
         call this%waN(i, this%ns)%vr%shiftdP(3, this%velNwake(:, i, this%ns + 1)*dt)
       enddo
       !$omp end parallel do
 
       nFwake = size(this%waF, 1)
-      !$omp parallel do
+      !$omp parallel do schedule(runtime)
       do i = rowFar, nFwake
         call this%waF(i)%shiftdP(1, this%velFwake(:, i)*dt)  ! Shift only TE
       enddo
       !$omp end parallel do
 
     case ('P')    ! [P]redicted wake
-      !$omp parallel do collapse(2)
+      !$omp parallel do collapse(2) schedule(runtime)
       do j = 1, this%ns
         do i = 1, rowNear, nNwake
           call this%waNPredicted(i, j)%vr%shiftdP(2, this%velNwake(:, i, j)*dt)
@@ -1554,14 +1554,14 @@ contains
       enddo
       !$omp end parallel do
 
-      !$omp parallel do
+      !$omp parallel do schedule(runtime)
       do i = 1, rowNear, nNwake
         call this%waNPredicted(i, this%ns)%vr%shiftdP(3, this%velNwake(:, i, this%ns + 1)*dt)
       enddo
       !$omp end parallel do
 
       nFwake = size(this%waF, 1)
-      !$omp parallel do
+      !$omp parallel do schedule(runtime)
       do i = rowFar, nFwake
         call this%waFPredicted(i)%shiftdP(1, this%velFwake(:, i)*dt)  ! Shift only TE
       enddo
@@ -1582,7 +1582,7 @@ contains
     nNwake = size(this%waN, 1)
     nFwake = size(this%waF, 1)
 
-    !$omp parallel do collapse(2)
+    !$omp parallel do collapse(2) schedule(runtime)
     do j = 1, this%ns
       do i = rowNear, nNwake
         do di = 1, 3
@@ -1594,7 +1594,7 @@ contains
     enddo
     !$omp end parallel do
 
-    !$omp parallel do
+    !$omp parallel do schedule(runtime)
     do i = rowFar, nFwake
       do di = 1, 3
         this%velFwake(di, i) = sign( &
@@ -1618,7 +1618,7 @@ contains
 
     select case (wakeType)
     case ('C')
-      !$omp parallel do collapse(2)
+      !$omp parallel do collapse(2) schedule(runtime)
       do j = 1, this%ns - 1
         do i = rowNear + 1, nNwake
           call this%waN(i, j)%vr%assignP(1, this%waN(i - 1, j)%vr%vf(2)%fc(:, 1))
@@ -1628,13 +1628,13 @@ contains
       enddo
       !$omp end parallel do
 
-      !$omp parallel do
+      !$omp parallel do schedule(runtime)
       do j = 1, this%ns - 1
         call this%waN(rowNear, j)%vr%assignP(3, this%waN(rowNear, j + 1)%vr%vf(2)%fc(:, 1))
       enddo
       !$omp end parallel do
 
-      !$omp parallel do
+      !$omp parallel do schedule(runtime)
       do i = rowNear + 1, nNwake
         call this%waN(i, this%ns)%vr%assignP(1, this%waN(i - 1, this%ns)%vr%vf(2)%fc(:, 1))
         call this%waN(i, this%ns)%vr%assignP(4, this%waN(i - 1, this%ns)%vr%vf(3)%fc(:, 1))
@@ -1643,7 +1643,7 @@ contains
 
       if (present(ductSwitch)) then
         if (ductSwitch == 1) then
-          !$omp parallel do
+          !$omp parallel do schedule(runtime)
           do i = rowNear + 1, nNwake
             call this%waN(i, this%ns)%vr%assignP(4, &
               & this%waN(i, 1)%vr%vf(1)%fc(:, 1))
@@ -1655,7 +1655,7 @@ contains
       endif
 
       nFwake = size(this%waF, 1)
-      !$omp parallel do
+      !$omp parallel do schedule(runtime)
       do i = rowFar + 1, nFwake
         call this%waF(i)%assignP(2, this%waF(i - 1)%vf%fc(:, 1))
       enddo
@@ -1664,7 +1664,7 @@ contains
     case ('P')
       ! For predicted wake
 
-      !$omp parallel do collapse(2)
+      !$omp parallel do collapse(2) schedule(runtime)
       do j = 1, this%ns - 1
         do i = rowNear + 1, nNwake
           call this%waNPredicted(i, j)%vr%assignP(1, this%waNPredicted(i - 1, j)%vr%vf(2)%fc(:, 1))
@@ -1674,13 +1674,13 @@ contains
       enddo
       !$omp end parallel do
 
-      !$omp parallel do
+      !$omp parallel do schedule(runtime)
       do j = 1, this%ns - 1
         call this%waNPredicted(rowNear, j)%vr%assignP(3, this%waNPredicted(rowNear, j + 1)%vr%vf(2)%fc(:, 1))
       enddo
       !$omp end parallel do
 
-      !$omp parallel do
+      !$omp parallel do schedule(runtime)
       do i = rowNear + 1, nNwake
         call this%waNPredicted(i, this%ns)%vr%assignP(1, this%waNPredicted(i - 1, this%ns)%vr%vf(2)%fc(:, 1))
         call this%waNPredicted(i, this%ns)%vr%assignP(4, this%waNPredicted(i - 1, this%ns)%vr%vf(3)%fc(:, 1))
@@ -1688,7 +1688,7 @@ contains
       !$omp end parallel do
 
       nFwake = size(this%waF, 1)
-      !$omp parallel do
+      !$omp parallel do schedule(runtime)
       do i = rowFar + 1, nFwake
         call this%waFPredicted(i)%assignP(2, this%waFPredicted(i - 1)%vf%fc(:, 1))
       enddo
@@ -2342,7 +2342,7 @@ contains
     integer, intent(in) :: rowNear
     integer :: irow, icol
 
-    !$omp parallel do collapse(2)
+    !$omp parallel do collapse(2) schedule(runtime)
     do icol = 1, size(this%waN, 2)
       do irow = rowNear, size(this%waN, 1)
         call this%waN(irow, icol)%vr%calc_skew()
@@ -4041,7 +4041,7 @@ contains
     close(10)
 
     ! Compute vortex ring coordinates
-    !$omp parallel do
+    !$omp parallel do schedule(runtime)
     do i = 1, this%nc
       this%blade(1)%wiP(i, 1)%PC(:, 4) = this%blade(1)%wiP(i, 1)%PC(:, 3)
       call this%blade(1)%wiP(i, 1)%vr%assignP(1, &
@@ -4362,7 +4362,7 @@ contains
     ! Dissipate near wake
     do ib = 1, this%nb
       do is = 1, this%ns
-        !$omp parallel do
+        !$omp parallel do schedule(runtime)
         do ic = this%rowNear, this%nNwake
           this%blade(ib)%waN(ic, is)%vr%vf(1)%rVc = &
             & sqrt(this%blade(ib)%waN(ic, is)%vr%vf(1)%rVc**2._dp &
@@ -4375,7 +4375,7 @@ contains
         !$omp end parallel do
 
         ! To maintain consistency of rVc in overlapping filaments
-        !$omp parallel do
+        !$omp parallel do schedule(runtime)
         do ic = this%rowNear, this%nNwake
           this%blade(ib)%waN(ic, is)%vr%vf(2)%rVc = sqrt(this%blade(ib)%waN(ic, is)%vr%vf(2)%rVc**2._dp &
             + 4._dp*oseenParameter*this%apparentViscCoeff*kinematicViscosity*dt)
@@ -4383,7 +4383,7 @@ contains
         !$omp end parallel do
 
         if (this%rowNear .ne. this%nNwake) then
-          !$omp parallel do
+          !$omp parallel do schedule(runtime)
           do ic = this%rowNear + 1, this%nNwake
             this%blade(ib)%waN(ic, is)%vr%vf(4)%rVc = this%blade(ib)%waN(ic - 1, is)%vr%vf(2)%rVc
           enddo
@@ -4392,7 +4392,7 @@ contains
       enddo
 
       ! Dissipate far wake if present
-      !$omp parallel do
+      !$omp parallel do schedule(runtime)
       do ic = this%rowFar, this%nFwake
         this%blade(ib)%waF(ic)%vf%rVc = &
           & sqrt(this%blade(ib)%waF(ic)%vf%rVc**2._dp &
@@ -4411,7 +4411,7 @@ contains
     integer :: i, ib
 
     do ib = 1, this%nb
-      !$omp parallel do
+      !$omp parallel do schedule(runtime)
       do i = this%rowFar, this%nFwake
         call this%blade(ib)%waF(i)%vf%calclength(.FALSE.)    ! Update current length
         call this%blade(ib)%waF(i)%vf%strain()
@@ -5000,7 +5000,7 @@ contains
     integer :: ic, is, ib
 
     do ib = 1, this%nb
-      !$omp parallel do collapse (2)
+      !$omp parallel do collapse(2) schedule(runtime)
       do is = 1, this%ns
         do ic = 1, this%nc
           this%blade(ib)%wiP(ic, is)%velCP = &
@@ -5030,14 +5030,14 @@ contains
     select case (wakeType)
     case ('A')  ! [A]ll current wake
       do ib = 1, this%nb
-        !$omp parallel do collapse (2)
+        !$omp parallel do collapse(2) schedule(runtime)
         do is = 1, this%ns
           do ic = 1, this%nNwake
             this%blade(ib)%waN(ic, is) = fromRotor%blade(ib)%waN(ic, is)
           enddo
         enddo
         !$omp end parallel do
-        !$omp parallel do
+        !$omp parallel do schedule(runtime)
         do ic = 1, this%nFwake
           this%blade(ib)%waF(ic) = fromRotor%blade(ib)%waF(ic)
         enddo
@@ -5045,7 +5045,7 @@ contains
       enddo
 
       do ib = 1, this%nb
-        !$omp parallel do collapse (2)
+        !$omp parallel do collapse(2) schedule(runtime)
         do is = 1, this%ns
           do ic = 1, this%nNwake
             call this%blade(ib)%waN(ic, is)%vr%mirror( &
@@ -5053,7 +5053,7 @@ contains
           enddo
         enddo
         !$omp end parallel do
-        !$omp parallel do
+        !$omp parallel do schedule(runtime)
         do ic = 1, this%nFwake
           call this%blade(ib)%waF(ic)%mirror(this%imagePlane)
         enddo
@@ -5062,14 +5062,14 @@ contains
 
     case ('C')  ! [C]urrent wake
       do ib = 1, this%nb
-        !$omp parallel do collapse (2)
+        !$omp parallel do collapse(2) schedule(runtime)
         do is = 1, this%ns
           do ic = this%rowNear, this%nNwake
             this%blade(ib)%waN(ic, is) = fromRotor%blade(ib)%waN(ic, is)
           enddo
         enddo
         !$omp end parallel do
-        !$omp parallel do 
+        !$omp parallel do schedule(runtime)
         do ic = this%rowFar, this%nFwake
           this%blade(ib)%waF(ic) = fromRotor%blade(ib)%waF(ic)
         enddo
@@ -5077,7 +5077,7 @@ contains
       enddo
 
       do ib = 1, this%nb
-        !$omp parallel do collapse (2)
+        !$omp parallel do collapse(2) schedule(runtime)
         do is = 1, this%ns
           do ic = this%rowNear, this%nNwake
             call this%blade(ib)%waN(ic, is)%vr%mirror( &
@@ -5085,7 +5085,7 @@ contains
           enddo
         enddo
         !$omp end parallel do
-        !$omp parallel do 
+        !$omp parallel do schedule(runtime)
         do ic = this%rowFar, this%nFwake
           call this%blade(ib)%waF(ic)%mirror(this%imagePlane)
         enddo
@@ -5094,7 +5094,7 @@ contains
 
     case ('P')  ! [P]redicted wake
       do ib = 1, this%nb
-        !$omp parallel do collapse (2)
+        !$omp parallel do collapse(2) schedule(runtime)
         do is = 1, this%ns
           do ic = this%rowNear, this%nNwake
             this%blade(ib)%waNPredicted(ic, is) = &
@@ -5102,7 +5102,7 @@ contains
           enddo
         enddo
         !$omp end parallel do
-        !$omp parallel do 
+        !$omp parallel do schedule(runtime)
         do ic = this%rowFar, this%nFwake
           this%blade(ib)%waFPredicted(ic) = &
             & fromRotor%blade(ib)%waFPredicted(ic)
@@ -5111,7 +5111,7 @@ contains
       enddo
 
       do ib = 1, this%nb
-        !$omp parallel do collapse (2)
+        !$omp parallel do collapse(2) schedule(runtime)
         do is = 1, this%ns
           do ic = this%rowNear, this%nNwake
             call this%blade(ib)%waNPredicted(ic, is)%vr%mirror( &
@@ -5119,7 +5119,7 @@ contains
           enddo
         enddo
         !$omp end parallel do
-        !$omp parallel do 
+        !$omp parallel do schedule(runtime)
         do ic = this%rowFar, this%nFwake
           call this%blade(ib)%waFPredicted(ic)%mirror( &
             & this%imagePlane)

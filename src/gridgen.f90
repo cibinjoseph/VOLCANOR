@@ -113,7 +113,7 @@ program gridgen
 
     ! Find induced velocities at cell centre
     call print_status('Computing velocities')
-    !$omp parallel do collapse(3)
+    !$omp parallel do collapse(3) schedule(runtime)
     do iz = 1, nz - 1
       do iy = 1, ny - 1
         do ix = 1, nx - 1

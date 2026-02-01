@@ -129,7 +129,7 @@ contains
 
     if (.not. present(optionalChar)) then
       ! Induced velocity due to all blades and wake
-      !$omp parallel do collapse(2)
+      !$omp parallel do collapse(2) schedule(runtime)
       do j = 1, cols
         do i = 1, rows
           vindArray(:, i, j) = rotor%vind_bywing(Nwake(i, j)%vr%vf(2)%fc(:, 1)) &
@@ -138,7 +138,7 @@ contains
       enddo
       !$omp end parallel do
 
-      !$omp parallel do
+      !$omp parallel do schedule(runtime)
       do i = 1, rows
         vindArray(:, i, cols + 1) = rotor%vind_bywing(Nwake(i, cols)%vr%vf(3)%fc(:, 1)) &
           + rotor%vind_bywake(Nwake(i, cols)%vr%vf(3)%fc(:, 1))
@@ -148,7 +148,7 @@ contains
     elseif ((optionalChar .eq. 'P') .or. (optionalChar .eq. 'p')) then
 
       ! Induced velocity due to all blades and Pwake
-      !$omp parallel do collapse(2)
+      !$omp parallel do collapse(2) schedule(runtime)
       do j = 1, cols
         do i = 1, rows
           vindArray(:, i, j) = rotor%vind_bywing(Nwake(i, j)%vr%vf(2)%fc(:, 1)) &
@@ -157,7 +157,7 @@ contains
       enddo
       !$omp end parallel do
 
-      !$omp parallel do
+      !$omp parallel do schedule(runtime)
       do i = 1, rows
         vindArray(:, i, cols + 1) = rotor%vind_bywing(Nwake(i, cols)%vr%vf(3)%fc(:, 1)) &
           + rotor%vind_bywake(Nwake(i, cols)%vr%vf(3)%fc(:, 1), 'P')
@@ -187,7 +187,7 @@ contains
 
     if (.not. present(optionalChar)) then
       ! Induced velocity due to all blades and wake
-      !$omp parallel do
+      !$omp parallel do schedule(runtime)
       do i = 1, rows
         vindArray(:, i) = rotor%vind_bywing(Fwake(i)%vf%fc(:, 1)) &
           + rotor%vind_bywake(Fwake(i)%vf%fc(:, 1))
@@ -197,7 +197,7 @@ contains
     elseif ((optionalChar .eq. 'P') .or. (optionalChar .eq. 'p')) then
 
       ! Induced velocity due to all blades and Pwake
-      !$omp parallel do
+      !$omp parallel do schedule(runtime)
       do i = 1, rows
         vindArray(:, i) = rotor%vind_bywing(Fwake(i)%vf%fc(:, 1)) &
           + rotor%vind_bywake(Fwake(i)%vf%fc(:, 1), 'P')
@@ -244,7 +244,7 @@ contains
     real(dp), dimension(3, size(v_wake_n, 2)) :: vel_order2_Fwake
     integer :: i
     vel_order2_Fwake(:, 1) = (v_wake_np1(:, 1) + v_wake_n(:, 1))*0.5_dp
-    !$omp parallel do
+    !$omp parallel do schedule(runtime)
     do i = 2, size(v_wake_n, 2) - 1
       vel_order2_Fwake(:, i) = (v_wake_np1(:, i) &
         + v_wake_np1(:, i - 1) &
