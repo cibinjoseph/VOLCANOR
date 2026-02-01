@@ -493,7 +493,7 @@ contains
     r1Xr2(3) = r1(1)*r2(2) - r1(2)*r2(1)
     r1Xr2Abs2 = dot_product(r1Xr2, r1Xr2)
 
-    vind = 0.
+    vind = 0._dp
 
     if (r1Xr2Abs2 > eps*eps) then
       ! Vatistas core model
