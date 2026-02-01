@@ -121,6 +121,7 @@ program main
     do ir = 1, nr
       if (rotor(ir)%surfaceType .gt. 0) then
         ! Compute velCP and RHS for lifting and non-lifting surfaces
+        !$omp parallel do collapse(3) private(row, jr) schedule(runtime)
         do ib = 1, rotor(ir)%nbConvect
           do is = 1, rotor(ir)%ns
             do ic = 1, rotor(ir)%nc
@@ -163,6 +164,7 @@ program main
             enddo
           enddo
         enddo
+        !$omp end parallel do
 
         axisymRHS0: if (rotor(ir)%axisymmetrySwitch .eq. 1) then
           do ib = 2, rotor(ir)%nb
@@ -242,6 +244,7 @@ program main
       case (0)  ! Compute using wing circulation
         ! Compute and plot alpha if requested
         ! Compute alpha
+        !$omp parallel do collapse(3) private(jr) schedule(runtime)
         do ib = 1, rotor(ir)%nbConvect
           do is = 1, rotor(ir)%ns
             do ic = 1, rotor(ir)%nc
@@ -265,6 +268,7 @@ program main
             enddo
           enddo
         enddo
+        !$omp end parallel do
 
         axisym00: if (rotor(ir)%axisymmetrySwitch .eq. 1) then
           do ib = 2, rotor(ir)%nb
@@ -288,6 +292,7 @@ program main
 
       case (1)  ! Compute using alpha
         ! Compute alpha
+        !$omp parallel do collapse(3) private(jr) schedule(runtime)
         do ib = 1, rotor(ir)%nbConvect
           do is = 1, rotor(ir)%ns
             do ic = 1, rotor(ir)%nc
@@ -311,6 +316,7 @@ program main
             enddo
           enddo
         enddo
+        !$omp end parallel do
 
         axisym01: if (rotor(ir)%axisymmetrySwitch .eq. 1) then
           do ib = 2, rotor(ir)%nb
@@ -623,6 +629,7 @@ program main
 
           case (0)  ! Compute using wing circulation
             ! Compute alpha
+            !$omp parallel do collapse(3) private(jr) schedule(runtime)
             do ib = 1, rotor(ir)%nbConvect
               do is = 1, rotor(ir)%ns
                 do ic = 1, rotor(ir)%nc
@@ -646,6 +653,7 @@ program main
                 enddo
               enddo
             enddo
+            !$omp end parallel do
 
             axisymx0: if (rotor(ir)%axisymmetrySwitch .eq. 1) then
               do ib = 2, rotor(ir)%nb
@@ -663,6 +671,7 @@ program main
 
           case (1)  ! Compute using alpha
             ! Compute alpha
+            !$omp parallel do collapse(3) private(jr) schedule(runtime)
             do ib = 1, rotor(ir)%nbConvect
               do is = 1, rotor(ir)%ns
                 do ic = 1, rotor(ir)%nc
@@ -686,6 +695,7 @@ program main
                 enddo
               enddo
             enddo
+            !$omp end parallel do
 
             axisymx1: if (rotor(ir)%axisymmetrySwitch .eq. 1) then
               do ib = 2, rotor(ir)%nb
@@ -791,10 +801,12 @@ program main
       ! Initialise wake velocity matrices
       do ir = 1, nr
         if (rotor(ir)%nNwake > 0) then
+          !$omp parallel do schedule(runtime)
           do ib = 1, rotor(ir)%nbConvect
             rotor(ir)%blade(ib)%velNwake(:, rotor(ir)%rowNear:rotor(ir)%nNwake, :) = 0._dp
             rotor(ir)%blade(ib)%velFwake(:, rotor(ir)%rowFar:rotor(ir)%nFwake) = 0._dp
           enddo
+          !$omp end parallel do
         endif
       enddo
 
@@ -819,8 +831,6 @@ program main
                 rotor(ir)%blade(ib)%velNwake(i, rotor(ir)%rowNear:rotor(ir)%nNwakeEnd, :) = &
                   rotor(ir)%blade(ib)%velNwake(i, rotor(ir)%rowNear:rotor(ir)%nNwakeEnd, :) + &
                   rotor(ir)%initWakeVel*rotor(ir)%shaftAxis(i)
-              enddo
-              do i = 1, 3
                 rotor(ir)%blade(ib)%velFwake(i, rotor(ir)%rowFar:rotor(ir)%nFwakeEnd) = &
                   rotor(ir)%blade(ib)%velFwake(i, rotor(ir)%rowFar:rotor(ir)%nFwakeEnd) &
                   - rotor(ir)%initWakeVel*rotor(ir)%shaftAxis(i)
