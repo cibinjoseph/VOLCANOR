@@ -4155,7 +4155,6 @@ contains
     real(dp), dimension(3) :: vec_dummy
 
     ! Influence Coefficient Matrix
-    !$omp parallel do private(row, col) collapse(3)
     do ib = 1, this%nb
       do is = 1, this%ns      ! Collocation point loop
         do ic = 1, this%nc
@@ -4174,7 +4173,7 @@ contains
         enddo
       enddo
     enddo
-    !$omp end parallel do
+
     this%AIC_inv = inv2(this%AIC)
   end subroutine rotor_calcAIC
 
