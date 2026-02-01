@@ -519,6 +519,7 @@ program main
         rotor(ir)%RHS = 0._dp
         if (rotor(ir)%surfaceType .gt. 0) then
           ! Compute velCP and RHS for lifting and non-lifting surfaces
+          !$omp parallel do collapse(3) private(row, jr) schedule(runtime)
           do ib = 1, rotor(ir)%nbConvect
             do is = 1, rotor(ir)%ns
               do ic = 1, rotor(ir)%nc
@@ -563,6 +564,7 @@ program main
               enddo
             enddo
           enddo
+          !$omp end parallel do
 
           axisymRHS: if (rotor(ir)%axisymmetrySwitch .eq. 1) then
             do ib = 2, rotor(ir)%nb
