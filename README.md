@@ -29,6 +29,8 @@ The solver has the following dependencies:
 - Python (Optional; for postprocessing)
 - Paraview (Optional; for postprocessing)
 
+Intel builds use Intel MKL when `USE_BLAS_LAPACK` is ON.
+
 The volcanor executable may be built in the following manner using Intel compilers on a Linux distribution.
 ```bash
 git clone git@github.com:cibinjoseph/VOLCANOR.git

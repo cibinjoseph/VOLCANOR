@@ -34,7 +34,7 @@ if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
   set(dbg_flags "-fbacktrace -O0 -Wall -Wextra -Wimplicit-interface -Wunused-parameter -Wcharacter-truncation -Wsurprising -Waliasing -fcheck=all -g -ffpe-trap=invalid,zero,overflow -fbounds-check")
   
   # Release flags
-  set(rls_flags "-O2 -finline-small-functions")
+  set(rls_flags "-O2 -finline-small-functions -march=native -flto")
   if(USE_OPENMP)
     set(rls_flags "${rls_flags} -fopenmp")
   endif()
