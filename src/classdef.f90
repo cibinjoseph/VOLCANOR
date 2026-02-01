@@ -473,11 +473,11 @@ contains
   !------+--
 
   ! Efficient implementation to vind calculation
-  function vf_vind(this, P) result(vind)
+  pure function vf_vind(this, P) result(vind)
     !! Compute induced velocity by unit strength vortex filament
 
     use libMath, only: unitVec
-  class(vf_class) :: this
+  class(vf_class), intent(in) :: this
     real(dp), intent(in), dimension(3) :: P
     real(dp), dimension(3) :: vind
     real(dp), dimension(3) :: r1, r2, r0, r1Xr2
@@ -524,10 +524,11 @@ contains
   ! ++++ | vr_class Methods
   !------+--
 
-  function vr_vind(this, P) result(vind)
+  pure function vr_vind(this, P) result(vind)
     !! Compute induced velocity by unit strength 4-element vortex ring
-  class(vr_class) :: this
-    real(dp), dimension(3) :: P, vind
+  class(vr_class), intent(in) :: this
+    real(dp), intent(in), dimension(3) :: P
+    real(dp), dimension(3) :: vind
     real(dp), dimension(4, 3) :: vindMat
     integer :: i
 
@@ -540,9 +541,9 @@ contains
 
   end function vr_vind
 
-  function vr_vindSource(this, P, nCap) result(vind)
+  pure function vr_vindSource(this, P, nCap) result(vind)
     !! Compute induced velocity by unit strength 3-element source ring
-  class(vr_class) :: this
+  class(vr_class), intent(in) :: this
     real(dp), intent(in), dimension(3) :: P, nCap
     real(dp), dimension(3) :: vind
 
