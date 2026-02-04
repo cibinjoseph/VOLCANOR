@@ -43,6 +43,24 @@ make
 ## Contribution and Usage
 This code is under active development and a lot of features--including a proper user-friendly interface--have yet to be added. At this point, often changes have to be made in-code which requires compilation. This solver is open-sourced only to serve as a starting point to other researchers and extensive changes may be required to adapt it to your specific needs. Users are encouraged to go through the code if interested, and let the author know of issues and bugs. However, be warned that most of the features are untested and unvalidated and the author offers no guarantee on the results obtained.
 
+If referenced, please cite this work as:
+
+```
+@article{Joseph2021,
+  title = {A parallel,  object-oriented framework for unsteady free-wake analysis of multi-rotor/wing systems},
+  volume = {215},
+  ISSN = {0045-7930},
+  url = {http://dx.doi.org/10.1016/j.compfluid.2020.104788},
+  DOI = {10.1016/j.compfluid.2020.104788},
+  journal = {Computers &amp; Fluids},
+  publisher = {Elsevier BV},
+  author = {Joseph,  Cibin and Mohan,  Ranjith},
+  year = {2021},
+  month = jan,
+  pages = {104788}
+}
+```
+
 ## Authors
 All code here was created by me, [Cibin Joseph](https://github.com/cibinjoseph) (cibinjoseph92@gmail.com) during my PhD tenure at Indian Institute of Technology (IIT) Madras, India. I have shifted my focus to other engineering challenges, resulting in a decreased pace of development for this project.
 
